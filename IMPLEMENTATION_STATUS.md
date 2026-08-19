@@ -25,28 +25,30 @@ Repository: `Mikayilzade/false-map-department`
 ## Latest autonomous implementation run — 2026-08-19
 
 ### Phase / subphase
-**12A — Technical Bootstrap / real-engine baseline hardening while runtime execution is unavailable**
+**12A — Technical Bootstrap / reproducible real-engine verification path**
 
 ### Completed
-- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, current `IMPLEMENTATION_STATUS.md`, and the relevant Phase-8 technical architecture/runtime contract.
-- Re-attempted a real local Godot execution path. The current execution container still has no `godot`/`godot4`, no `gh`, no cached container image/runtime, and outbound DNS from shell/Python is unavailable, so the pinned runtime cannot be downloaded or launched here.
-- Audited the existing manual baseline and found that its previous `--editor --quit-after 1` smoke only proved editor startup; it did **not** prove the project main scene boots, which is required by the 12A exit gate.
-- Corrected `.github/workflows/manual-godot-baseline.yml` so a manual run now performs three distinct real-engine checks in order: Godot import/parse smoke, headless GDScript suite, and actual headless main-scene boot (`--headless --path . --quit-after 2`).
-- Added `scripts/phase12a_contract_audit.py`, an executable static contract audit covering project shell/renderer/main scene, Domain Core purity, exact six-primitive command vocabulary, stale pre-state gate, keyboard+controller action abstraction, persistence/content-validator obligations, required headless test groups, pinned runtime command, and manual-only CI trigger policy.
-- Kept the workflow **manual `workflow_dispatch` only**; no push/PR/schedule trigger was added and no automatic Actions run was generated.
+- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, current `IMPLEMENTATION_STATUS.md`, and followed the current 12A runtime-verification `NEXT ACTION`.
+- Re-attempted local execution of pinned Godot 4.7.1. The automation container still has no `godot`/`godot4`; package cache contains no usable Godot runtime; shell DNS cannot resolve GitHub, so the runtime cannot be downloaded in this execution environment.
+- Added `scripts/run_phase12a_runtime.sh` as the single canonical executable verification path for both local and manual-CI use. It verifies the runtime is 4.7.1, runs CI-policy/bootstrap/12A contract preflights, Godot import/parse smoke, the headless GDScript suite, and actual headless main-scene boot.
+- The runtime script records each stage to a separate log and emits a deterministic `manifest.json` with SHA-256 evidence for the produced logs after a fully green run.
+- Simplified `.github/workflows/manual-godot-baseline.yml` to call that same script instead of duplicating commands, preventing local/manual-CI verification drift.
+- Added always-uploaded `phase12a-runtime-evidence` artifact retention to the manual workflow so a real Godot run can be inspected through GitHub tooling after dispatch without relying on transient console output.
+- Kept the workflow strictly **manual `workflow_dispatch` only**; no push/PR/schedule trigger was added.
 
 ### Validation run
-- Manual review of the updated workflow command sequence — **PASS**: import/parse, test suite, and actual project boot are now separate checks under the pinned Godot 4.7.1 binary.
-- Static contract-audit source review — **PASS** against the committed Phase-12A file layout and current bootstrap contracts.
-- Existing independent deterministic fixture/session SHA-256 oracle remains unchanged: session hash `c7e3412436a0182737ff67470b015c4d057326ca9475abc565cbe53232536751`.
-- Real Godot 4.7.1 execution remains **UNVERIFIED** in this run; 12A is intentionally not marked complete.
+- `bash -n scripts/run_phase12a_runtime.sh` equivalent source check — **PASS** in the current container.
+- Direct runtime availability probe (`which godot`, `which godot4`, package-cache check) — **NO RUNTIME AVAILABLE**.
+- Direct official release download attempt from the shell — **BLOCKED BY CONTAINER DNS**, confirming the prior environment blocker rather than a repository failure.
+- Manual workflow review — **PASS**: it remains manual-only and now delegates all baseline commands to one version-pinned script with persisted evidence.
+- Real Godot 4.7.1 execution remains **UNVERIFIED**; 12A is intentionally not marked complete.
 
 ### Failures / blockers
-- **Execution-environment blocker remains:** this automation runtime cannot launch/download Godot 4.7.1 and the connected GitHub tool exposes Actions re-run/log inspection but no workflow-dispatch action for starting a brand-new `workflow_dispatch` run.
-- This is a tooling/runtime limitation, not a discovered gameplay or repository design contradiction.
+- **Execution-environment blocker remains:** this automation runtime cannot launch or download Godot 4.7.1, and the connected GitHub tool does not expose a new `workflow_dispatch` action. A real engine run therefore still requires any environment that can launch the pinned binary or a manual dispatch of the committed workflow.
+- No gameplay/repository design blocker was discovered.
 
 ### Canonical contradictions
-- **NONE discovered.** The workflow/audit changes alter no gameplay semantics and tighten verification of the already-frozen bootstrap exit gate.
+- **NONE discovered.** This increment changes verification infrastructure only and does not alter gameplay semantics.
 
 ## NEXT ACTION
-Continue **Phase 12A — Technical Bootstrap** by executing `.github/workflows/manual-godot-baseline.yml` (or the same commands in any environment with pinned **Godot 4.7.1-stable**) and inspect the real Godot output. Fix every import, GDScript parse/runtime, headless-test, or main-scene boot failure until all three real-engine checks are green. Then re-run `scripts/ci_policy_preflight.py`, `scripts/bootstrap_preflight.py`, and `scripts/phase12a_contract_audit.py`; when the full baseline is green, mark **12A COMPLETE** and advance `NEXT ACTION` to the first **12B Vertical Slice** increment. Keep CI manual-only until the baseline has demonstrated consistent green runs.
+Continue **Phase 12A — Technical Bootstrap** by running `scripts/run_phase12a_runtime.sh` with pinned **Godot 4.7.1-stable** (or manually dispatching `.github/workflows/manual-godot-baseline.yml`) and inspect the resulting stage logs/artifact. Fix every import, GDScript parse/runtime, headless-test, or main-scene boot failure until the runtime evidence manifest is fully green. Then re-run `scripts/ci_policy_preflight.py`, `scripts/bootstrap_preflight.py`, and `scripts/phase12a_contract_audit.py`; when the full baseline is green, mark **12A COMPLETE** and advance `NEXT ACTION` to the first **12B Vertical Slice** increment. Keep CI manual-only until the baseline has demonstrated consistent green runs.

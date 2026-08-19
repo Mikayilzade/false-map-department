@@ -23,22 +23,18 @@ jobs:
             https://github.com/godotengine/godot/releases/download/4.7.1-stable/Godot_v4.7.1-stable_linux.x86_64.zip
           unzip -q /tmp/godot.zip -d /tmp/godot
           chmod +x /tmp/godot/Godot_v4.7.1-stable_linux.x86_64
-          /tmp/godot/Godot_v4.7.1-stable_linux.x86_64 --version
 
-      - name: CI notification-policy guard
-        run: python3 scripts/ci_policy_preflight.py
+      - name: Run complete Phase 12A runtime baseline
+        env:
+          GODOT_BIN: /tmp/godot/Godot_v4.7.1-stable_linux.x86_64
+          FMD_RUNTIME_OUT: ${{ runner.temp }}/fmd-runtime-baseline
+        run: bash scripts/run_phase12a_runtime.sh
 
-      - name: Bootstrap preflight
-        run: python3 scripts/bootstrap_preflight.py
-
-      - name: Phase 12A contract audit
-        run: python3 scripts/phase12a_contract_audit.py
-
-      - name: Godot import and parse smoke
-        run: /tmp/godot/Godot_v4.7.1-stable_linux.x86_64 --headless --path . --editor --quit
-
-      - name: Headless GDScript suite
-        run: /tmp/godot/Godot_v4.7.1-stable_linux.x86_64 --headless --path . --script res://tests/test_runner.gd
-
-      - name: Headless project main-scene boot smoke
-        run: /tmp/godot/Godot_v4.7.1-stable_linux.x86_64 --headless --path . --quit-after 2
+      - name: Upload runtime evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase12a-runtime-evidence
+          path: ${{ runner.temp }}/fmd-runtime-baseline
+          if-no-files-found: warn
+          retention-days: 14
