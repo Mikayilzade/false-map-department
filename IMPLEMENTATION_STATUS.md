@@ -13,7 +13,7 @@ Repository: `Mikayilzade/false-map-department`
 - CI/email-noise guardrail: **YES — `CI_NOTIFICATION_POLICY.md` + executable policy preflight**
 - Implementation started: **YES**
 - 12A Technical Bootstrap: **COMPLETE — verified real Godot 4.7.1 import/headless/tests/main-scene boot baseline PASS**
-- 12B Vertical Slice: **IN PROGRESS — road/A1 transaction kernel runtime-green; exact Undo/Redo checkpoints and first dual map/world read-only wiring implemented; new increment runtime verification pending**
+- 12B Vertical Slice: **IN PROGRESS — road/A1 kernel runtime-green; Undo/Redo + dual-view increment implemented; one concrete Godot parse failure fixed, rerun pending**
 - 12C Core Systems: **NO**
 - 12D Content Population: **NO**
 - 12E UX / Accessibility / Controller / Deck: **NO**
@@ -25,45 +25,34 @@ Repository: `Mikayilzade/false-map-department`
 ## Latest autonomous implementation run — 2026-08-19
 
 ### Phase / subphase
-**12B Vertical Slice / exact history checkpoints + dual representation wiring**
+**12B Vertical Slice / runtime failure triage for exact history + dual representation increment**
 
 ### Completed
-- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, current `IMPLEMENTATION_STATUS.md`, the frozen Undo/Redo contract in `GAME2_TECHNICAL_SPEC.md`, the road/A1/A–I rules in `GAME2_MECHANICAL_ARCHITECTURE.md`, and the dual-map/history presentation contract in `GAME2_UX_PRESENTATION_ARCHITECTURE.md`.
-- Consumed the second committed manual runtime result. `runtime-evidence/phase12a/latest/result.json` is **PASS** with all return codes zero and its run metadata targets commit `5e6fba37f4a9b1520732b2cc0bfc1f4ab7853b05`; therefore the first 12B road/A1 kernel is confirmed parse/runtime/headless-green under real Godot 4.7.1.
-- Added application-owned `SliceSession` history orchestration around the domain engine. One accepted road edit creates exactly one history entry containing the semantic command, full canonical pre/post checkpoints and hashes, plus the transaction causal events. Illegal edits create no history entry.
-- Implemented exact Undo by restoring the stored full pre-edit checkpoint rather than inverse simulation.
-- Implemented Redo by deterministic replay from the stored command, asserting both the stored post-state hash and canonical serialized checkpoint equivalence before accepting the replayed state.
-- Implemented standard linear branch semantics: a new accepted edit after Undo truncates the redo branch; an illegal attempt after Undo does not truncate or mutate history.
-- Added `tests/test_slice_history_runner.gd` covering byte/canonical-equivalent Undo, deterministic Redo, exact hash restoration, redo-branch truncation, and illegal-edit history non-mutation.
-- Added data-driven `content/vertical_slice/VS01.json` for the tiny road/A1 slice instead of embedding dossier mechanics in presentation code.
-- Added application `SliceViewSnapshot` projection that exposes read-only presentation facts without moving topology, routing, objective or consequence authority into scenes.
-- Replaced the bootstrap-only presentation with the first two-pane read-only **OFFICIAL MAP / DERIVED WORLD** view driven entirely from application/session snapshot data. It displays candidate road presence, courier node/state/route, and current objective state; it does not decide any gameplay result.
-- Extended the runtime wrapper to run the Phase-12B contract audit and the dedicated history headless suite in addition to the established bootstrap suite and main-scene boot.
+- Re-read the current implementation handoff/status and retained the frozen 12B constraints: exact checkpoint Undo/Redo, presentation as a read-only consumer of application/domain state, deterministic road/A1 behavior, and manual-only CI during unstable early 12B.
+- Consumed the self-reported manual runtime evidence for commit `fb9905b5e2006eaf659ada772c3327c71c156ad1`. The workflow recorded **FAIL** with `runtime_rc = 1`; the runner was real Godot 4.7.1 on Linux.
+- Isolated the first concrete blocker from the committed logs: `src/domain/micro_slice_engine.gd:202` used `var before := state["objective_state_by_id"].get(...)`. Godot 4.7.1 could not infer a non-Variant type under the project's warnings-as-errors import gate, which caused dependent `SliceSession`, history tests and presentation compilation to fail.
+- Fixed that exact parse issue by declaring `before` explicitly as `Variant`. No gameplay behavior changed.
+- Extended `scripts/phase12b_contract_audit.py` with a regression guard that rejects direct untyped `var x := dictionary.get(...)` assignments across `src/domain`, `src/application`, and `src/presentation` during early 12B. Typed conversions such as `str(...)`, `int(...)` and explicitly typed assignments remain allowed.
+- Reviewed the new `SliceSession`, `SliceViewSnapshot`, presentation and history-test code for the same direct Variant-inference pattern; no additional obvious instance was found.
 - CI remains manual-only; no push/PR/scheduled workflow trigger was enabled.
 
 ### Files / systems changed
-- `src/application/slice_session.gd` — exact checkpoint history, Undo/Redo and branch truncation.
-- `src/application/slice_view_snapshot.gd` — immutable/read-only presentation projection.
-- `content/vertical_slice/VS01.json` — tiny data-driven road/A1 micro-dossier definition.
-- `src/presentation/main.gd` / `main.tscn` — first dual map/world representation wired to snapshot data.
-- `tests/test_slice_history_runner.gd` — dedicated headless history acceptance suite.
-- `scripts/phase12b_contract_audit.py` — static early-12B architecture/contract guard.
-- `scripts/run_phase12a_runtime.sh` — baseline extended with early-12B audit/history suite.
-- `IMPLEMENTATION_STATUS.md` — exact handoff and next action.
+- `src/domain/micro_slice_engine.gd` — explicit `Variant` annotation for the objective previous-state value that failed Godot import.
+- `scripts/phase12b_contract_audit.py` — early warning-as-error regression guard for direct `Dictionary.get()` Variant inference.
+- `IMPLEMENTATION_STATUS.md` — failure evidence, concrete fix and rerun handoff recorded.
 
 ### Validation
-- Latest committed real Godot runtime evidence for the prior 12B road/A1 kernel: **PASS**.
-- `python3 scripts/phase12b_contract_audit.py` against this increment — **PASS**.
-- `bash -n scripts/run_phase12a_runtime.sh` — **PASS**.
-- `content/vertical_slice/VS01.json` parses successfully and retains the frozen A1 Direct Courier plus one reaction beat.
-- Real Godot 4.7.1 parse/headless/main-scene execution of this **new Undo/Redo + dual-view increment** is still pending; no claim of runtime-green is made before that run.
+- Committed manual runtime evidence for the previous increment: **FAIL**, with the first root parse error identified exactly at `micro_slice_engine.gd:202`.
+- The replacement expression is now explicitly typed and no longer relies on GDScript inference for `Dictionary.get()`.
+- Regression-guard regex was checked against representative cases: it catches the exact bad pattern and permits explicit `Variant` typing plus typed conversions such as `str(dictionary.get(...))` and `int(dictionary.get(...))`.
+- Real Godot 4.7.1 verification of the fix is **PENDING**; this environment still cannot execute the pinned runtime directly.
 
 ### Failures / blockers
-- **External runtime verification handoff only:** dispatch `Manual Godot Baseline` once on this new `main` commit. The self-reporting workflow will now run both established tests and the new Phase-12B history suite/contract audit and commit `PASS/FAIL` evidence.
-- Autonomous advancement beyond this increment should wait for that evidence so parse/runtime failures are fixed before more vertical-slice behavior accumulates.
+- **Only remaining gate for this fix:** run the existing manual `Manual Godot Baseline` on current `main` so Godot 4.7.1 can prove import, bootstrap suite, Phase-12B contract audit, history suite and main-scene boot after the parse fix.
+- Do not add the next playable-interaction increment until this rerun is green.
 
 ### Canonical contradictions
-- **NONE discovered.** Full-checkpoint Undo, replay-assert Redo, linear branch truncation, and presentation-as-read-only-snapshot all match the frozen technical/mechanical/UX authority chain.
+- **NONE discovered.** This was a language/type-inference implementation defect, not a design contradiction.
 
 ## NEXT ACTION
-Run the existing manual **`Manual Godot Baseline`** once on the current `main` commit and read the newly committed runtime evidence. If it is `PASS`, continue **12B Vertical Slice** with one substantial playable-interaction increment: add snapped road selection/toggle through semantic application commands, expose Undo/Redo through the existing action abstraction for mouse+keyboard plus one controller/keyboard non-mouse path, render the latest causal chain/Inspect explanation from transaction events, and add headless/application tests proving presentation input never bypasses the session/domain gate. Then proceed to active-dossier save/reload. If the runtime result is `FAIL`, inspect the committed logs and fix that concrete parse/runtime/test/main-scene failure first. Keep CI manual-only until early 12B remains consistently green.
+Run the existing manual **`Manual Godot Baseline`** once on current `main` and read the newly committed runtime evidence. If it is `PASS`, continue **12B Vertical Slice** with the planned playable-interaction increment: snapped road selection/toggle through semantic application commands; Undo/Redo through the action abstraction for mouse+keyboard plus one non-mouse keyboard/controller path; latest causal chain/Inspect explanation rendered from transaction events; and headless/application tests proving presentation input cannot bypass the session/domain gate. Then proceed to active-dossier save/reload. If it is `FAIL`, inspect the newly committed Godot logs and fix the next concrete failure first. Keep CI manual-only until early 12B remains consistently green.
