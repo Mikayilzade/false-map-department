@@ -22,28 +22,31 @@ Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
 [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
 [0m
-[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (21 steps)[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (24 steps)[39m[0m
 [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [   4% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[   9% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  13% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  18% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  22% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  27% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  31% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   8% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  12% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  16% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  36% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  45% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  54% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  59% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  63% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  44% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  48% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  52% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  56% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  64% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  68% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  72% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  77% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  88% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  92% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [92m[ DONE ][39m [1mupdate_scripts_classes[22m
 [0m
 [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
@@ -74,8 +77,72 @@ FMD Phase 12B history tests: PASS
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
 FMD Phase 12B interaction tests: PASS (2 groups)
-== main-scene-boot ==
+== phase12b-persistence-suite ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
-/home/runner/work/_temp/fmd-runtime-baseline/runtime/manifest.json
-Phase 12A + early 12B runtime baseline: PASS
+ERROR: Parse JSON failed. Error at line 0: Unknown error getting token
+   at: parse_string (core/io/json.cpp:629)
+   GDScript backtrace (most recent call first):
+       [0] _test_round_trip_and_corruption_rejection (res://tests/test_slice_persistence_runner.gd:82)
+       [1] _initialize (res://tests/test_slice_persistence_runner.gd:11)
+ERROR: Active dossier save must succeed through persistence boundary
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
+ERROR: Active dossier load must accept valid checksum/content identity
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
+ERROR: Reload must preserve save generation
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
+ERROR: Reload must restore byte-equivalent canonical gameplay hash
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
+ERROR: Reload must restore complete canonical session/history + interaction state
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
+ERROR: Reload must restore selected snapped candidate
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
+ERROR: Reload must preserve Undo availability
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
+ERROR: Reload must preserve Redo availability
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
+ERROR: Redo must remain valid after reload
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
+ERROR: Undo must remain valid after reloaded Redo
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
+ERROR: Redo then Undo after reload must return exact saved canonical hash
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
+ERROR: Test storage must expose saved active_session envelope
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
+ERROR: Saved active_session envelope must parse for corruption test
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
+ERROR: Content mismatch fixture save must succeed
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
+ERROR: Changed definition with stale content hash must be rejected before restore
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
+FMD Phase 12B persistence/loop tests: FAIL (15 failures)
