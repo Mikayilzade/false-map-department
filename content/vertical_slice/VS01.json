@@ -6,6 +6,10 @@
       "target_landmark_id": "LM_HOSPITAL"
     }
   },
+  "content_hash": "2988c308942fd4bab207016f88ca11a1265fbb6159f8138d40d8e71669cae0da",
+  "content_schema_version": 1,
+  "dossier_content_version": 1,
+  "dossier_id": "VS01",
   "initial_active_road_edge_ids": [
     "E12",
     "E24",
@@ -58,5 +62,6 @@
       "to": "N3"
     }
   },
+  "ruleset_version": 1,
   "slice_id": "VS01"
 }

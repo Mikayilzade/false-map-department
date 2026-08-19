@@ -5,6 +5,8 @@ const SliceSession = preload("res://src/application/slice_session.gd")
 const SliceViewSnapshot = preload("res://src/application/slice_view_snapshot.gd")
 const SliceCausalPresenter = preload("res://src/application/slice_causal_presenter.gd")
 
+const PERSISTENCE_STATE_VERSION := 1
+
 var _definition: Dictionary = {}
 var _session := SliceSession.new()
 var _candidate_ids: Array[String] = []
@@ -25,7 +27,7 @@ func is_initialized() -> bool:
 	return _session.is_initialized()
 
 func snapshot() -> Dictionary:
-	var result := SliceViewSnapshot.build(_definition, _session.current_state())
+	var result: Dictionary = SliceViewSnapshot.build(_definition, _session.current_state())
 	result["selected_edge_id"] = selected_edge_id()
 	result["can_undo"] = _session.can_undo()
 	result["can_redo"] = _session.can_redo()
@@ -39,7 +41,7 @@ func selected_edge_id() -> String:
 	return _candidate_ids[_selected_index]
 
 func select_edge(edge_id: String) -> bool:
-	var index := _candidate_ids.find(edge_id)
+	var index: int = _candidate_ids.find(edge_id)
 	if index < 0:
 		return false
 	_selected_index = index
@@ -58,15 +60,15 @@ func select_next() -> String:
 	return selected_edge_id()
 
 func toggle_selected() -> Dictionary:
-	var edge_id := selected_edge_id()
+	var edge_id: String = selected_edge_id()
 	if edge_id.is_empty():
 		return {"ok": false, "accepted": false, "code": "no_candidate_selected"}
 
-	var current_state := _session.current_state()
+	var current_state: Dictionary = _session.current_state()
 	var active_roads: Array = current_state.get("active_road_edge_ids", [])
-	var make_present := not active_roads.has(edge_id)
+	var make_present: bool = not active_roads.has(edge_id)
 	var candidate_ids: Array[String] = [edge_id]
-	var command_id := "CMD%04d" % _command_sequence
+	var command_id: String = "CMD%04d" % _command_sequence
 	_command_sequence += 1
 	var command := PlayerCommand.new(
 		command_id,
@@ -89,3 +91,43 @@ func latest_causal() -> Dictionary:
 
 func current_state_hash() -> String:
 	return _session.current_state_hash()
+
+func export_persistence_state() -> Dictionary:
+	return {
+		"persistence_state_version": PERSISTENCE_STATE_VERSION,
+		"selected_edge_id": selected_edge_id(),
+		"command_sequence": _command_sequence,
+		"session": _session.export_persistence_state(),
+	}
+
+func restore_persistence_state(persistence_state: Dictionary) -> Dictionary:
+	for key in ["persistence_state_version", "selected_edge_id", "command_sequence", "session"]:
+		if not persistence_state.has(key):
+			return {"ok": false, "code": "interaction_persistence_missing_field"}
+	if int(persistence_state["persistence_state_version"]) != PERSISTENCE_STATE_VERSION:
+		return {"ok": false, "code": "interaction_persistence_version_unsupported"}
+	if not (persistence_state["command_sequence"] is int) or int(persistence_state["command_sequence"]) < 1:
+		return {"ok": false, "code": "interaction_command_sequence_invalid"}
+	if not (persistence_state["session"] is Dictionary):
+		return {"ok": false, "code": "interaction_session_persistence_malformed"}
+
+	var selected_edge: String = str(persistence_state["selected_edge_id"])
+	var selected_index: int = _candidate_ids.find(selected_edge)
+	if selected_index < 0:
+		return {"ok": false, "code": "interaction_selected_edge_missing"}
+
+	var session_result: Dictionary = _session.restore_persistence_state(persistence_state["session"])
+	if not session_result.get("ok", false):
+		return {
+			"ok": false,
+			"code": "interaction_session_restore_failed",
+			"session_result": session_result,
+		}
+
+	_selected_index = selected_index
+	_command_sequence = int(persistence_state["command_sequence"])
+	return {
+		"ok": true,
+		"state_hash": current_state_hash(),
+		"snapshot": snapshot(),
+	}
