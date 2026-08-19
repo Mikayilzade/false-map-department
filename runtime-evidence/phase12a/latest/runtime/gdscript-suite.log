@@ -1,8 +1,6 @@
 == gdscript-suite ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
-SCRIPT ERROR: Parse Error: Cannot infer the type of "before" variable because the value doesn't have a set type.
-          at: GDScript::reload (res://src/domain/micro_slice_engine.gd:202)
 SCRIPT ERROR: Parse Error: The variable type is being inferred from a Variant value, so it will be typed as Variant. (Warning treated as error.)
           at: GDScript::reload (res://src/application/content_loader.gd:36)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -14,9 +12,4 @@ SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
           GDScript backtrace (most recent call first):
               [0] _test_content_validator (res://tests/test_runner.gd:59)
               [1] _initialize (res://tests/test_runner.gd:21)
-SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
-          at: _test_micro_slice_road_and_direct_courier (res://tests/test_runner.gd:120)
-          GDScript backtrace (most recent call first):
-              [0] _test_micro_slice_road_and_direct_courier (res://tests/test_runner.gd:120)
-              [1] _initialize (res://tests/test_runner.gd:25)
 FMD tests: PASS (8 groups)
