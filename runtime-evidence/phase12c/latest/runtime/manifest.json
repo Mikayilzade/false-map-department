@@ -13,7 +13,7 @@
     {
       "bytes": 359,
       "name": "environment.log",
-      "sha256": "85553aca69e8030b472847d041a38f7ea0d2462101852857743550fc0efcb0f1"
+      "sha256": "6dfc84cf7ba64a319f0d80efe23f5116884ca55464a2714878f85ff3dd1e5505"
     },
     {
       "bytes": 121,
@@ -26,9 +26,9 @@
       "sha256": "9a82feb0ee061aed657f88539257a8d6b130034cadc6b0689f401952d4fec32b"
     },
     {
-      "bytes": 2822,
+      "bytes": 2880,
       "name": "import-parse.log",
-      "sha256": "02b06ed9f85f4078c46469c91de6bb67e85496b6a533db39347974f084405b43"
+      "sha256": "6b26c5c005f7bbe1a9ffe698bdf976d48cbe3936b61e1bfc079ff38c60c6f886"
     },
     {
       "bytes": 95,
@@ -38,7 +38,7 @@
     {
       "bytes": 80,
       "name": "phase12a-contract.log",
-      "sha256": "2a9a3b643363fd6b5445cb6cd45d93072aa1c6d68d1da18bf2ecda04ab22a36d"
+      "sha256": "37b858f46867b9ed9120497b7e0bb0e360deb0696024561f71fffd7f68c8061c"
     },
     {
       "bytes": 55,
