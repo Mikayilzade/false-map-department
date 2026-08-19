@@ -13,7 +13,7 @@
     {
       "bytes": 359,
       "name": "environment.log",
-      "sha256": "85553aca69e8030b472847d041a38f7ea0d2462101852857743550fc0efcb0f1"
+      "sha256": "6dfc84cf7ba64a319f0d80efe23f5116884ca55464a2714878f85ff3dd1e5505"
     },
     {
       "bytes": 959,
@@ -26,9 +26,9 @@
       "sha256": "9a82feb0ee061aed657f88539257a8d6b130034cadc6b0689f401952d4fec32b"
     },
     {
-      "bytes": 2242,
+      "bytes": 2416,
       "name": "import-parse.log",
-      "sha256": "ce6f2491908e95d1ad1543b22bf30487a5e669c6f5ec10c268e9bd1cf2cc68df"
+      "sha256": "04becbe8c49849826bc047019fa59cdc0e5b3c29deb864422125cc1276efff7d"
     },
     {
       "bytes": 95,
@@ -49,6 +49,11 @@
       "bytes": 136,
       "name": "phase12b-history-suite.log",
       "sha256": "86a0f70eeff51850e00c8ca857a7f82064fef8ac96db16aa289e3b5b57311144"
+    },
+    {
+      "bytes": 155,
+      "name": "phase12b-interaction-suite.log",
+      "sha256": "48d4147f7b00a97ad117678183c7e3b1aae5fef10d76c6f4c137a4f11b60b386"
     }
   ],
   "phase": "12A+12B-early",
