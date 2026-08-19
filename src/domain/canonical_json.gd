@@ -2,6 +2,16 @@ extends RefCounted
 
 const CANONICAL_HASH_VERSION := 1
 
+static func is_integral_number(value: Variant) -> bool:
+	match typeof(value):
+		TYPE_INT:
+			return true
+		TYPE_FLOAT:
+			var number: float = float(value)
+			return is_finite(number) and number == floor(number)
+		_:
+			return false
+
 static func stringify(value: Variant) -> String:
 	match typeof(value):
 		TYPE_NIL:
@@ -10,6 +20,12 @@ static func stringify(value: Variant) -> String:
 			return "true" if value else "false"
 		TYPE_INT:
 			return str(value)
+		TYPE_FLOAT:
+			var number: float = float(value)
+			if not is_finite(number) or number != floor(number):
+				push_error("Canonical gameplay JSON permits only finite integral numeric values")
+				return ""
+			return str(int(number))
 		TYPE_STRING, TYPE_STRING_NAME:
 			return JSON.stringify(str(value))
 		TYPE_ARRAY:

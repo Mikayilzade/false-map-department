@@ -13,7 +13,7 @@ Repository: `Mikayilzade/false-map-department`
 - CI/email-noise guardrail: **YES — `CI_NOTIFICATION_POLICY.md` + executable policy preflight**
 - Implementation started: **YES**
 - 12A Technical Bootstrap: **COMPLETE — verified real Godot 4.7.1 import/headless/tests/main-scene boot baseline PASS**
-- 12B Vertical Slice: **IN PROGRESS — semantic playable interaction is runtime-green; active-session save/reload + corruption/content-identity guard + full slice-loop acceptance implemented; final runtime verification pending**
+- 12B Vertical Slice: **IN PROGRESS — full slice + active-session persistence implemented; final runtime rerun pending after JSON numeric-boundary fix**
 - 12C Core Systems: **NO**
 - 12D Content Population: **NO**
 - 12E UX / Accessibility / Controller / Deck: **NO**
@@ -25,49 +25,45 @@ Repository: `Mikayilzade/false-map-department`
 ## Latest autonomous implementation run — 2026-08-19
 
 ### Phase / subphase
-**12B Vertical Slice / active-dossier save-reload + final playable-loop acceptance**
+**12B Vertical Slice / final runtime failure triage — JSON numeric persistence boundary**
 
 ### Completed
-- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, current `IMPLEMENTATION_STATUS.md`, the final-freeze content-identity/persistence clauses and the relevant persistence/checkpoint rules in `GAME2_TECHNICAL_SPEC.md`.
-- Consumed the newest self-reported manual baseline for commit `c3202ec418c410a07596d274eeb161c03304de5f`. Commit `db46117227c152e22da0fce93e0a0c0b41a861a6` records **PASS**; import parse, bootstrap tests, history suite, interaction suite and main-scene boot all passed under real Godot 4.7.1.
-- Extended the generic `PersistenceService` with validated load support and stricter envelope checks for canonical hash version, generation, payload type, document type, profile identity and payload checksum.
-- Added application `SliceActiveDossierPersistence` using the existing persistence/storage boundary. Active-session payloads now carry exact immutable content identity (`dossier_id`, content schema version, dossier content version, ruleset version, content hash and canonical hash version) plus the complete interaction/session persistence state.
-- Added exact VS01 immutable content identity and a canonical `content_hash`; loading rejects changed/stale content before gameplay-state restoration.
-- Added `SliceSession.export_persistence_state()` / `restore_persistence_state()` with full current canonical checkpoint, current hash, full history entries and history cursor. Restore validates every stored pre/post checkpoint hash, command/history shape, adjacent history-chain equivalence and cursor-to-checkpoint equivalence before mutating the live session.
-- Added `SliceInteractionController` persistence for selected snapped road ID and deterministic command sequence, so reload does not duplicate command IDs and returns focus to the same semantic candidate.
-- Added an in-memory storage adapter for deterministic headless persistence tests without touching user storage.
-- Added `tests/test_slice_persistence_runner.gd` covering valid active-session round-trip, byte/canonical-equivalent restored state, selected candidate restoration, Undo+Redo availability after reload, Redo/Undo exactness after reload, checksum tamper rejection and incompatible content identity rejection.
-- The same headless suite now completes the remaining 12B experience acceptance path: inspect before edit -> commit a harmful-but-legal road edit -> observe objective failure and causal ancestry -> Undo -> revise with a different snapped road -> restore satisfied objective/clear condition -> Inspect remains available.
-- Extended the Phase-12B contract audit with immutable VS01 content-hash verification, persistence-boundary ownership checks, active-session identity requirements and runtime-suite coverage.
-- Extended the manual runtime wrapper with the new persistence/loop headless suite.
+- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, current `IMPLEMENTATION_STATUS.md`, and the frozen content-identity/persistence rules in `GAME2_TECHNICAL_SPEC.md` before changing persistence-sensitive code.
+- Consumed the newest manual runtime evidence. Run `32290442258` targeted commit `6fed9dac062685cbbada8e5af966200c047bd164` and recorded **FAIL** with `runtime_rc = 1`; CI-policy, bootstrap-preflight and Phase-12A contract checks remained zero/green.
+- Isolated the first real-engine compile failure: `src/application/content_loader.gd:36` used direct `var parsed := JSON.parse_string(...)`, so Godot 4.7.1 inferred `Variant` and rejected it under warnings-as-errors.
+- Isolated the persistence-suite cascade: Godot JSON parsing represents serialized JSON numbers as floating-point `Variant`s, while the new content identity, save-envelope, history cursor and command-sequence validators had assumed runtime `int` types. This caused valid active-session data to be rejected before round-trip restoration.
+- Fixed `ContentLoader` to declare JSON parse results explicitly as `Variant` and to validate positive integer semantics rather than requiring the runtime representation to be `int`.
+- Extended `CanonicalJson` so finite integral floats produced by JSON parsing normalize to the exact same canonical integer text/hash as equivalent in-memory integers. Fractional, NaN and infinite floats remain rejected, preserving the frozen integer-only gameplay contract.
+- Updated generic persistence envelope validation to accept only exact integral JSON numeric values for schema/hash version and generation, while still rejecting fractional values and validating payload checksum after parse.
+- Updated active-session content identity, `SliceSession` restore and `SliceInteractionController` restore to accept exact integral JSON numeric representations for persisted versions/cursors/sequences and convert to integers only after validation.
+- Added bootstrap regressions proving JSON-parsed integral numbers retain canonical hash identity and a serialized+parsed persistence envelope still validates.
+- Strengthened the Phase-12B static audit to reject future direct `var x := JSON.parse_string(...)` inference and to require JSON numeric normalization coverage at content/persistence boundaries.
 - No push/PR/scheduled CI trigger was enabled.
 
 ### Files / systems changed
-- `src/application/persistence_service.gd` — validated active document load and stricter version/checksum/profile/document envelope checks.
-- `src/application/slice_session.gd` — exact current checkpoint/history export + validated restore.
-- `src/application/slice_interaction_controller.gd` — selected candidate + command-sequence persistence and restore.
-- `src/application/slice_active_dossier_persistence.gd` — new active-session persistence coordinator with exact content identity.
-- `tests/support/memory_storage_adapter.gd` — deterministic headless storage fake.
-- `tests/test_slice_persistence_runner.gd` — active-session round-trip/corruption/content mismatch + complete 12B loop acceptance.
-- `content/vertical_slice/VS01.json` — immutable dossier/version tuple and canonical content hash.
-- `scripts/phase12b_contract_audit.py` — persistence/content identity/coverage guards.
-- `scripts/run_phase12a_runtime.sh` — persistence/loop suite stage.
-- `IMPLEMENTATION_STATUS.md` — exact runtime handoff and next action.
+- `src/domain/canonical_json.gd` — canonical normalization for finite integral JSON floats plus shared integral-number predicate.
+- `src/application/content_loader.gd` — explicit JSON `Variant` parse boundary and integer-semantic version validation.
+- `src/application/persistence_service.gd` — parsed envelope numeric validation compatible with Godot JSON representation.
+- `src/application/slice_active_dossier_persistence.gd` — parsed payload/content-version integer-semantic validation.
+- `src/application/slice_session.gd` — persisted session version/history cursor/history-version validation across JSON round-trip.
+- `src/application/slice_interaction_controller.gd` — persisted controller version/command-sequence validation across JSON round-trip.
+- `tests/test_runner.gd` — canonical numeric + persistence envelope JSON-round-trip regressions.
+- `scripts/phase12b_contract_audit.py` — JSON parse inference and numeric-normalization guards.
+- `IMPLEMENTATION_STATUS.md` — exact failure evidence, fix scope and rerun handoff.
 
 ### Validation
-- Latest real Godot 4.7.1 evidence for the previous semantic-interaction increment: **PASS** (`db46117227c152e22da0fce93e0a0c0b41a861a6`).
-- `python3 scripts/phase12b_contract_audit.py` against this persistence increment — **PASS** in the assembled source tree.
-- `bash -n scripts/run_phase12a_runtime.sh` — **PASS**.
-- VS01 canonical content hash recomputation — **PASS**, `2988c308942fd4bab207016f88ca11a1265fbb6159f8138d40d8e71669cae0da`.
-- Static audit confirms persistence remains in application/platform layers and presentation still cannot bypass the semantic interaction/session boundary.
-- Real Godot 4.7.1 import/headless persistence/loop/main-scene execution for this **new save/reload increment** is **PENDING**; no runtime-green claim is made before that run.
+- Committed real Godot 4.7.1 evidence for the previous persistence increment: **FAIL**, with the concrete compile/persistence boundary causes recorded above.
+- Canonical normalization simulation: **PASS** — the VS01 declared content hash remains `2988c308942fd4bab207016f88ca11a1265fbb6159f8138d40d8e71669cae0da` when JSON integer values are represented as integral floats.
+- Persistence envelope numeric round-trip simulation: **PASS** — payload checksum and canonical serialization remain identical after integer values are represented as JSON-parsed floats.
+- JSON parse-inference guard check: **PASS** — catches `var parsed := JSON.parse_string(...)` and permits explicit `var parsed: Variant = ...`.
+- Real Godot 4.7.1 import/bootstrap/persistence/loop/main-scene verification of these fixes is **PENDING**; no runtime-green claim is made before the rerun.
 
 ### Failures / blockers
-- **One final early-12B runtime verification handoff:** dispatch the existing manual `Manual Godot Baseline` once on current `main`. It will now run bootstrap, exact history, semantic interaction, active-session persistence/loop suites and main-scene boot and commit authoritative PASS/FAIL evidence while the Actions job remains green to avoid notification spam.
-- If this run is PASS, the Phase-12B exit-gate evidence is sufficient to mark **12B COMPLETE** and move to 12C. At that point the baseline has enough consecutive real-engine green evidence to stop requiring a manual click after every coherent increment; automatic CI may be enabled only with the existing no-spam policy and disabled immediately on instability.
+- **One runtime verification remains:** dispatch the existing manual `Manual Godot Baseline` on the current `main`. If green, 12B has all required exit-gate evidence and manual per-increment clicks stop.
+- Do not begin 12C until this rerun is green; if it fails, fix the first concrete Godot error before adding new core systems.
 
 ### Canonical contradictions
-- **NONE discovered.** Exact content identity, full-checkpoint/history persistence, checksum rejection, semantic selected-state restoration and the complete inspect/edit/consequence/revise loop follow the frozen Phase-8/11 contracts. Full primary/backup/temp generation recovery remains a Phase-12C persistence-hardening obligation and is not falsely claimed complete here.
+- **NONE discovered.** The defect was a JSON runtime representation mismatch at serialization boundaries. Canonical gameplay values remain integer-only; integral JSON floats are normalized only so persisted/content JSON can recover the same canonical integers and hashes.
 
 ## NEXT ACTION
-Run the existing manual **`Manual Godot Baseline`** once on current `main` and read the committed evidence. If it is `PASS`, mark **12B Vertical Slice COMPLETE**, record all exit-gate proofs, stop requiring manual per-increment baseline clicks, and begin **12C Core Systems** with the next substantial deterministic domain increment while keeping CI notification-safe. If it is `FAIL`, inspect the committed Godot logs and fix the first concrete parse/runtime/persistence/loop failure before any 12C work.
+Run the existing manual **`Manual Godot Baseline`** once on current `main` and read the committed evidence. If it is `PASS`, mark **12B Vertical Slice COMPLETE**, record all exit-gate proofs, stop requiring manual per-increment baseline clicks, and begin **12C Core Systems** with the next substantial deterministic domain increment while keeping CI notification-safe. If it is `FAIL`, inspect the committed logs and fix the first concrete parse/runtime/persistence/loop failure before any 12C work.

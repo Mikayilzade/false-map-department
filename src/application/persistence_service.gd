@@ -27,11 +27,17 @@ func validate_envelope(envelope: Dictionary) -> bool:
 	for key in ["format_id", "save_schema_version", "profile_id", "document_type", "generation", "canonical_hash_version", "payload", "payload_hash"]:
 		if not envelope.has(key):
 			return false
-	if envelope["format_id"] != FORMAT_ID or envelope["save_schema_version"] != SAVE_SCHEMA_VERSION:
+	if not CanonicalJson.is_integral_number(envelope["save_schema_version"]):
 		return false
-	if envelope["canonical_hash_version"] != CanonicalJson.CANONICAL_HASH_VERSION:
+	if not CanonicalJson.is_integral_number(envelope["canonical_hash_version"]):
 		return false
-	if not (envelope["generation"] is int) or int(envelope["generation"]) < 0:
+	if not CanonicalJson.is_integral_number(envelope["generation"]):
+		return false
+	if envelope["format_id"] != FORMAT_ID or int(envelope["save_schema_version"]) != SAVE_SCHEMA_VERSION:
+		return false
+	if int(envelope["canonical_hash_version"]) != CanonicalJson.CANONICAL_HASH_VERSION:
+		return false
+	if int(envelope["generation"]) < 0:
 		return false
 	if not (envelope["payload"] is Dictionary):
 		return false

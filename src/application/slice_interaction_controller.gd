@@ -1,5 +1,6 @@
 extends RefCounted
 
+const CanonicalJson = preload("res://src/domain/canonical_json.gd")
 const PlayerCommand = preload("res://src/application/player_command.gd")
 const SliceSession = preload("res://src/application/slice_session.gd")
 const SliceViewSnapshot = preload("res://src/application/slice_view_snapshot.gd")
@@ -104,9 +105,9 @@ func restore_persistence_state(persistence_state: Dictionary) -> Dictionary:
 	for key in ["persistence_state_version", "selected_edge_id", "command_sequence", "session"]:
 		if not persistence_state.has(key):
 			return {"ok": false, "code": "interaction_persistence_missing_field"}
-	if int(persistence_state["persistence_state_version"]) != PERSISTENCE_STATE_VERSION:
+	if not CanonicalJson.is_integral_number(persistence_state["persistence_state_version"]) or int(persistence_state["persistence_state_version"]) != PERSISTENCE_STATE_VERSION:
 		return {"ok": false, "code": "interaction_persistence_version_unsupported"}
-	if not (persistence_state["command_sequence"] is int) or int(persistence_state["command_sequence"]) < 1:
+	if not CanonicalJson.is_integral_number(persistence_state["command_sequence"]) or int(persistence_state["command_sequence"]) < 1:
 		return {"ok": false, "code": "interaction_command_sequence_invalid"}
 	if not (persistence_state["session"] is Dictionary):
 		return {"ok": false, "code": "interaction_session_persistence_malformed"}

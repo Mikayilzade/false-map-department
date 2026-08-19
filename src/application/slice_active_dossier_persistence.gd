@@ -46,7 +46,8 @@ func load(profile_id: String, definition: Dictionary, controller: RefCounted) ->
 	if not loaded.get("ok", false):
 		return loaded
 	var payload: Dictionary = loaded["payload"]
-	if int(payload.get("active_session_payload_version", 0)) != PAYLOAD_VERSION:
+	var payload_version: Variant = payload.get("active_session_payload_version", null)
+	if not CanonicalJson.is_integral_number(payload_version) or int(payload_version) != PAYLOAD_VERSION:
 		return {"ok": false, "code": "active_session_payload_version_unsupported"}
 	if not (payload.get("content_identity", null) is Dictionary):
 		return {"ok": false, "code": "active_session_content_identity_missing"}
@@ -82,7 +83,8 @@ func _content_identity(definition: Dictionary) -> Dictionary:
 		if not definition.has(key):
 			return {"ok": false, "code": "content_identity_missing_field", "field": key}
 	for version_key in ["content_schema_version", "dossier_content_version", "ruleset_version"]:
-		if not (definition[version_key] is int) or int(definition[version_key]) < 1:
+		var version_value: Variant = definition[version_key]
+		if not CanonicalJson.is_integral_number(version_value) or int(version_value) < 1:
 			return {"ok": false, "code": "content_identity_version_invalid", "field": version_key}
 
 	var declared_hash: String = str(definition["content_hash"])

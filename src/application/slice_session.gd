@@ -192,13 +192,13 @@ func restore_persistence_state(persistence_state: Dictionary) -> Dictionary:
 	for key in ["persistence_state_version", "current_state", "current_state_hash", "history", "history_cursor"]:
 		if not persistence_state.has(key):
 			return _session_error("persistence_state_missing_field")
-	if int(persistence_state["persistence_state_version"]) != PERSISTENCE_STATE_VERSION:
+	if not CanonicalJson.is_integral_number(persistence_state["persistence_state_version"]) or int(persistence_state["persistence_state_version"]) != PERSISTENCE_STATE_VERSION:
 		return _session_error("persistence_state_version_unsupported")
 	if not (persistence_state["current_state"] is Dictionary):
 		return _session_error("persistence_current_state_malformed")
 	if not (persistence_state["history"] is Array):
 		return _session_error("persistence_history_malformed")
-	if not (persistence_state["history_cursor"] is int):
+	if not CanonicalJson.is_integral_number(persistence_state["history_cursor"]):
 		return _session_error("persistence_history_cursor_malformed")
 
 	var current_checkpoint: Dictionary = (persistence_state["current_state"] as Dictionary).duplicate(true)
@@ -262,7 +262,7 @@ func _validate_history_entry(entry: Dictionary) -> Dictionary:
 	for key in ["history_version", "command", "pre_checkpoint", "pre_state_hash", "post_checkpoint", "post_state_hash", "causal_events"]:
 		if not entry.has(key):
 			return {"ok": false, "code": "persistence_history_entry_missing_field"}
-	if int(entry["history_version"]) != 1:
+	if not CanonicalJson.is_integral_number(entry["history_version"]) or int(entry["history_version"]) != 1:
 		return {"ok": false, "code": "persistence_history_version_unsupported"}
 	if not (entry["command"] is Dictionary):
 		return {"ok": false, "code": "persistence_history_command_malformed"}

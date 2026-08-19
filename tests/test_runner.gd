@@ -49,6 +49,13 @@ func _test_canonical_serialization() -> void:
 	_expect(CanonicalJson.stringify(first) == expected, "Canonical serialization must use stable field order")
 	_expect(CanonicalJson.sha256(first) == CanonicalJson.sha256(second), "Equivalent dictionaries must hash identically")
 
+	var parsed_numbers: Variant = JSON.parse_string("{\"nested\":[1,0],\"n\":2}")
+	_expect(parsed_numbers is Dictionary, "JSON numeric round-trip fixture must parse")
+	if parsed_numbers is Dictionary:
+		var parsed_dictionary: Dictionary = parsed_numbers
+		_expect(CanonicalJson.stringify(parsed_dictionary) == "{\"n\":2,\"nested\":[1,0]}", "Integral JSON floats must normalize to canonical integer text")
+		_expect(CanonicalJson.sha256(parsed_dictionary) == CanonicalJson.sha256({"nested": [1, 0], "n": 2}), "Parsed JSON numeric representation must not change canonical hash")
+
 func _test_semantic_command() -> void:
 	var command := PlayerCommand.new("CMD01", "road", "add", "L1", ["E02", "E01"], "abc123")
 	_expect(command.is_supported_primitive(), "Road must be one of exactly six primitive families")
@@ -75,6 +82,11 @@ func _test_persistence_envelope() -> void:
 	var service := PersistenceService.new(LocalStorageAdapter.new())
 	var envelope := service.make_envelope("settings", "P01", 1, {"ui_scale": 100})
 	_expect(service.validate_envelope(envelope), "Fresh persistence envelope must validate")
+	var encoded: String = CanonicalJson.stringify(envelope)
+	var parsed_envelope: Variant = JSON.parse_string(encoded)
+	_expect(parsed_envelope is Dictionary, "Persistence envelope must survive JSON parse")
+	if parsed_envelope is Dictionary:
+		_expect(service.validate_envelope(parsed_envelope as Dictionary), "Parsed persistence envelope must validate despite JSON numeric float representation")
 	envelope["payload"]["ui_scale"] = 125
 	_expect(not service.validate_envelope(envelope), "Tampered payload must fail checksum validation")
 

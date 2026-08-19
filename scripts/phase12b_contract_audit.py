@@ -12,6 +12,10 @@ DIRECT_VARIANT_GET_INFERENCE = re.compile(
     r'^\s*var\s+\w+\s*:=\s*[A-Za-z_]\w*(?:\[[^\]]+\])?\.get\(',
     re.MULTILINE,
 )
+DIRECT_JSON_PARSE_INFERENCE = re.compile(
+    r'^\s*var\s+\w+\s*:=\s*JSON\.parse_string\(',
+    re.MULTILINE,
+)
 
 def fail(message: str) -> None:
     raise SystemExit(f"PHASE12B CONTRACT FAIL: {message}")
@@ -20,6 +24,8 @@ def canonical_json(value) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 def main() -> None:
+    canonical = (ROOT / "src/domain/canonical_json.gd").read_text(encoding="utf-8")
+    content_loader = (ROOT / "src/application/content_loader.gd").read_text(encoding="utf-8")
     session = (ROOT / "src/application/slice_session.gd").read_text(encoding="utf-8")
     controller = (ROOT / "src/application/slice_interaction_controller.gd").read_text(encoding="utf-8")
     causal = (ROOT / "src/application/slice_causal_presenter.gd").read_text(encoding="utf-8")
@@ -31,6 +37,13 @@ def main() -> None:
     runtime_wrapper = (ROOT / "scripts/run_phase12a_runtime.sh").read_text(encoding="utf-8")
     definition = json.loads((ROOT / "content/vertical_slice/VS01.json").read_text(encoding="utf-8"))
 
+    for marker in ["TYPE_FLOAT", "is_integral_number", "finite integral numeric values"]:
+        if marker not in canonical:
+            fail(f"canonical JSON numeric-normalization marker missing: {marker}")
+    for marker in ["var parsed: Variant = JSON.parse_string", "CanonicalJson.is_integral_number"]:
+        if marker not in content_loader:
+            fail(f"content JSON boundary marker missing: {marker}")
+
     required_history_markers = [
         "pre_checkpoint", "post_checkpoint", "pre_state_hash", "post_state_hash",
         "func undo()", "func redo()", "_history.resize(_history_cursor)",
@@ -39,6 +52,7 @@ def main() -> None:
         "func export_persistence_state()", "func restore_persistence_state(",
         "persistence_history_chain_checkpoint_mismatch",
         "persistence_cursor_checkpoint_mismatch",
+        "CanonicalJson.is_integral_number",
     ]
     for marker in required_history_markers:
         if marker not in session:
@@ -59,6 +73,7 @@ def main() -> None:
     required_controller_persistence = [
         '"selected_edge_id"', '"command_sequence"', '"session"',
         "func export_persistence_state()", "func restore_persistence_state(",
+        "CanonicalJson.is_integral_number",
     ]
     for marker in required_controller_persistence:
         if marker not in controller:
@@ -71,12 +86,13 @@ def main() -> None:
         "PersistenceService.new", "controller.export_persistence_state()",
         "controller.restore_persistence_state",
         "active_session_content_identity_mismatch",
+        "CanonicalJson.is_integral_number",
     ]
     for marker in required_active_persistence:
         if marker not in active_persistence:
             fail(f"missing active-session persistence marker: {marker}")
 
-    for marker in ["func load_primary(", "save_envelope_invalid", "canonical_hash_version"]:
+    for marker in ["func load_primary(", "save_envelope_invalid", "canonical_hash_version", "CanonicalJson.is_integral_number"]:
         if marker not in persistence:
             fail(f"generic persistence boundary missing marker: {marker}")
 
@@ -130,6 +146,14 @@ def main() -> None:
         if marker not in persistence_test:
             fail(f"persistence/loop acceptance coverage missing marker: {marker}")
 
+    bootstrap_test = (ROOT / "tests/test_runner.gd").read_text(encoding="utf-8")
+    for marker in [
+        "Integral JSON floats must normalize to canonical integer text",
+        "Parsed persistence envelope must validate despite JSON numeric float representation",
+    ]:
+        if marker not in bootstrap_test:
+            fail(f"JSON numeric regression coverage missing marker: {marker}")
+
     gdscript_roots = [ROOT / "src/domain", ROOT / "src/application", ROOT / "src/presentation"]
     for gdscript_root in gdscript_roots:
         for path in sorted(gdscript_root.glob("*.gd")):
@@ -140,6 +164,13 @@ def main() -> None:
                 fail(
                     f"direct Variant inference from Dictionary.get in "
                     f"{path.relative_to(ROOT)}:{line_number}; add an explicit type"
+                )
+            json_match = DIRECT_JSON_PARSE_INFERENCE.search(text)
+            if json_match:
+                line_number = text.count("\n", 0, json_match.start()) + 1
+                fail(
+                    f"direct Variant inference from JSON.parse_string in "
+                    f"{path.relative_to(ROOT)}:{line_number}; declare Variant explicitly"
                 )
 
     print("Phase 12B contract audit: PASS")
