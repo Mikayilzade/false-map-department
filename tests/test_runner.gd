@@ -2,7 +2,11 @@ extends SceneTree
 
 const StableId = preload("res://src/domain/stable_id.gd")
 const CanonicalJson = preload("res://src/domain/canonical_json.gd")
+const ContentVersionEnvelope = preload("res://src/domain/content_version_envelope.gd")
+const MapAuthorityState = preload("res://src/domain/map_authority_state.gd")
+const DossierSessionState = preload("res://src/domain/dossier_session_state.gd")
 const PlayerCommand = preload("res://src/application/player_command.gd")
+const CommandGate = preload("res://src/application/command_gate.gd")
 const ContentLoader = preload("res://src/application/content_loader.gd")
 const PersistenceService = preload("res://src/application/persistence_service.gd")
 const LocalStorageAdapter = preload("res://src/platform/local_storage_adapter.gd")
@@ -16,8 +20,9 @@ func _initialize() -> void:
 	_test_content_validator()
 	_test_persistence_envelope()
 	_test_domain_dependency_boundary()
+	_test_session_command_gate()
 	if _failures.is_empty():
-		print("FMD bootstrap tests: PASS (6 groups)")
+		print("FMD bootstrap tests: PASS (7 groups)")
 		quit(0)
 	else:
 		for failure in _failures:
@@ -84,3 +89,27 @@ func _test_domain_dependency_boundary() -> void:
 			_expect(text.find("res://src/presentation") == -1, "Domain file %s must not depend on presentation" % file_name)
 		file_name = dir.get_next()
 	dir.list_dir_end()
+
+func _test_session_command_gate() -> void:
+	var version := ContentVersionEnvelope.new("BOOT01", 1, 1, 1, "fixture-content-hash")
+	var map_state := MapAuthorityState.new(
+		"L1",
+		["E02", "E01"],
+		[],
+		[],
+		{"C01": "J01"},
+		{"LM01": "hospital"}
+	)
+	var session := DossierSessionState.new(version, "SESSION01", {"L1": map_state})
+	var state_hash := session.canonical_hash()
+	_expect(state_hash == "c7e3412436a0182737ff67470b015c4d057326ca9475abc565cbe53232536751", "Bootstrap session hash must remain reproducible")
+
+	var accepted := PlayerCommand.new("CMD01", "road", "add", "L1", ["E03"], state_hash)
+	var accepted_result := CommandGate.validate_pre_state(accepted, session)
+	_expect(accepted_result.get("ok", false), "Matching expected pre-state hash must pass the application gate")
+
+	var stale := PlayerCommand.new("CMD02", "road", "add", "L1", ["E03"], "stale-hash")
+	var stale_result := CommandGate.validate_pre_state(stale, session)
+	_expect(not stale_result.get("ok", true), "Stale semantic command must be rejected before mutation")
+	_expect(stale_result.get("code", "") == "stale_pre_state", "Stale rejection must be typed")
+	_expect(session.session_revision == 0, "Pre-state validation must not mutate the session revision")
