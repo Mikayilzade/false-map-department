@@ -105,6 +105,7 @@ run_logged phase12b-history-suite "$RESOLVED_GODOT" --headless --path . --script
 run_logged phase12b-interaction-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_slice_interaction_runner.gd
 run_logged phase12b-persistence-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_slice_persistence_runner.gd
 run_logged phase12c-primitive-authority-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_primitive_authority_runner.gd
+run_logged phase12c-agent-interpretation-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_agent_interpretation_runner.gd
 run_logged main-scene-boot "$RESOLVED_GODOT" --headless --path . --quit-after 2
 
 write_manifest "PASS" ""

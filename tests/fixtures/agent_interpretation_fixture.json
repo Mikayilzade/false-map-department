@@ -1,0 +1,280 @@
+{
+  "agents": {
+    "AG_A2": {
+      "agent_tags": [
+        "resident"
+      ],
+      "allowed_jurisdiction_ids": [
+        "BLUE"
+      ],
+      "archetype": "A2_JURISDICTION_LOCKED_RESIDENT",
+      "movement_priority": 1,
+      "target_landmark_id": "LM_HOME"
+    },
+    "AG_A3": {
+      "agent_tags": [
+        "patrol"
+      ],
+      "archetype": "A3_PATROL",
+      "assigned_jurisdiction_id": "BLUE",
+      "movement_priority": 2,
+      "patrol_target_landmark_ids": [
+        "LM_PATROL_A",
+        "LM_PATROL_B"
+      ]
+    },
+    "AG_A4": {
+      "agent_tags": [
+        "livestock"
+      ],
+      "archetype": "A4_LIVESTOCK_ROAMER",
+      "movement_priority": 0,
+      "target_semantic_token": "garden"
+    },
+    "AG_A5": {
+      "agent_tags": [
+        "emergency"
+      ],
+      "archetype": "A5_EMERGENCY_SERVICE",
+      "ignored_restricted_zone_policy_ids": [
+        "Z_CONTROLLED"
+      ],
+      "movement_priority": 0,
+      "target_landmark_id": "LM_HOSPITAL"
+    },
+    "AG_A6": {
+      "agent_tags": [
+        "commercial"
+      ],
+      "allowed_jurisdiction_ids": [
+        "BLUE"
+      ],
+      "archetype": "A6_COMMERCIAL_CARRIER",
+      "movement_priority": 3,
+      "target_semantic_token": "market"
+    },
+    "AG_A7": {
+      "agent_tags": [
+        "water"
+      ],
+      "archetype": "A7_FERRY_WATER_CARRIER",
+      "movement_priority": 0,
+      "target_landmark_id": "LM_DOCK"
+    }
+  },
+  "capacity_one_node_ids": [
+    "N2"
+  ],
+  "crossing_slots": {},
+  "initial_agent_state_by_id": {
+    "AG_A2": {
+      "agent_id": "AG_A2",
+      "node_id": "N5"
+    },
+    "AG_A3": {
+      "agent_id": "AG_A3",
+      "node_id": "N1"
+    },
+    "AG_A4": {
+      "agent_id": "AG_A4",
+      "node_id": "N1"
+    },
+    "AG_A5": {
+      "agent_id": "AG_A5",
+      "node_id": "N1"
+    },
+    "AG_A6": {
+      "agent_id": "AG_A6",
+      "node_id": "N1"
+    },
+    "AG_A7": {
+      "agent_id": "AG_A7",
+      "node_id": "W1"
+    }
+  },
+  "initial_map_state": {
+    "active_bridge_slot_ids": [],
+    "active_road_edge_ids": [
+      "E12",
+      "E13",
+      "E24",
+      "E34",
+      "E45",
+      "E46",
+      "E57",
+      "E67",
+      "E78"
+    ],
+    "active_water_edge_ids": [
+      "W12",
+      "W13",
+      "W24",
+      "W34"
+    ],
+    "border_ownership_by_cell": {
+      "C1": "BLUE",
+      "C2": "BLUE",
+      "C3": "BLUE",
+      "C4": "BLUE",
+      "C5": "RED",
+      "C6": "BLUE",
+      "C7": "BLUE",
+      "C8": "BLUE"
+    },
+    "landmark_semantic_labels": {
+      "LM_DOCK": "dock",
+      "LM_GARDEN": "garden",
+      "LM_HOME": "home",
+      "LM_HOSPITAL": "hospital",
+      "LM_MARKET_A": "market",
+      "LM_MARKET_B": "market",
+      "LM_PATROL_A": "patrol",
+      "LM_PATROL_B": "patrol"
+    },
+    "layer_id": "L1",
+    "restricted_zone_cells_by_policy": {
+      "Z_CONTROLLED": [
+        "C2"
+      ]
+    }
+  },
+  "landmarks": {
+    "LM_DOCK": {
+      "semantic_token": "dock",
+      "water_node_id": "W4"
+    },
+    "LM_GARDEN": {
+      "node_id": "N5",
+      "semantic_token": "garden"
+    },
+    "LM_HOME": {
+      "node_id": "N1",
+      "semantic_token": "home"
+    },
+    "LM_HOSPITAL": {
+      "node_id": "N4",
+      "semantic_token": "hospital"
+    },
+    "LM_MARKET_A": {
+      "node_id": "N7",
+      "semantic_token": "market"
+    },
+    "LM_MARKET_B": {
+      "node_id": "N8",
+      "semantic_token": "market"
+    },
+    "LM_PATROL_A": {
+      "node_id": "N2",
+      "semantic_token": "patrol"
+    },
+    "LM_PATROL_B": {
+      "node_id": "N3",
+      "semantic_token": "patrol"
+    }
+  },
+  "node_cell_id": {
+    "N1": "C1",
+    "N2": "C2",
+    "N3": "C3",
+    "N4": "C4",
+    "N5": "C5",
+    "N6": "C6",
+    "N7": "C7",
+    "N8": "C8"
+  },
+  "restricted_zone_policies": {
+    "Z_CONTROLLED": {
+      "allowed_agent_tags": [],
+      "denied_agent_tags": [
+        "commercial",
+        "emergency",
+        "livestock"
+      ]
+    }
+  },
+  "road_edges": {
+    "E12": {
+      "cost": 1,
+      "from": "N1",
+      "to": "N2"
+    },
+    "E13": {
+      "cost": 1,
+      "from": "N1",
+      "to": "N3"
+    },
+    "E24": {
+      "cost": 1,
+      "from": "N2",
+      "to": "N4"
+    },
+    "E34": {
+      "cost": 1,
+      "from": "N3",
+      "to": "N4"
+    },
+    "E45": {
+      "cost": 1,
+      "from": "N4",
+      "to": "N5"
+    },
+    "E46": {
+      "cost": 1,
+      "from": "N4",
+      "to": "N6"
+    },
+    "E57": {
+      "cost": 1,
+      "from": "N5",
+      "to": "N7"
+    },
+    "E67": {
+      "cost": 1,
+      "from": "N6",
+      "to": "N7"
+    },
+    "E78": {
+      "cost": 1,
+      "from": "N7",
+      "to": "N8"
+    }
+  },
+  "road_nodes": [
+    "N1",
+    "N2",
+    "N3",
+    "N4",
+    "N5",
+    "N6",
+    "N7",
+    "N8"
+  ],
+  "water_edges": {
+    "W12": {
+      "cost": 1,
+      "from": "W1",
+      "to": "W2"
+    },
+    "W13": {
+      "cost": 1,
+      "from": "W1",
+      "to": "W3"
+    },
+    "W24": {
+      "cost": 1,
+      "from": "W2",
+      "to": "W4"
+    },
+    "W34": {
+      "cost": 1,
+      "from": "W3",
+      "to": "W4"
+    }
+  },
+  "water_nodes": [
+    "W1",
+    "W2",
+    "W3",
+    "W4"
+  ]
+}
