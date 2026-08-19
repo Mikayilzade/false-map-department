@@ -1,0 +1,27 @@
+{
+  "dossier_id": "BOOT01",
+  "content_schema_version": 1,
+  "dossier_content_version": 1,
+  "ruleset_version": 1,
+  "title_token": "boot.title",
+  "brief_text_token": "boot.brief",
+  "theme_id": "T1",
+  "tutorial_tags": ["road_intro"],
+  "map_layers": [
+    {"layer_id": "L1"}
+  ],
+  "jurisdictions": [],
+  "landmarks": [],
+  "restricted_zone_policies": [],
+  "agents": [],
+  "objectives": [],
+  "protected_invariants": [],
+  "reaction_beats_after_edit": 1,
+  "stability_required_cycles": 0,
+  "editable_primitive_permissions": ["road"],
+  "semantic_label_vocabulary": [],
+  "linked_authority_relations": [],
+  "mastery_contracts": [],
+  "validation_metadata": {},
+  "hint_contracts": []
+}
