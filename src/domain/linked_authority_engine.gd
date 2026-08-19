@@ -130,7 +130,7 @@ func project(definition: Dictionary, authoritative_fact_values_by_layer: Diction
 				return _fail("linked_authority_portal_availability_not_bool")
 			projected_value = bool(source_value)
 		elif semantics == "portal_cost":
-			if not (source_value is int) or int(source_value) < 1:
+			if not CanonicalJson.is_integral_number(source_value) or int(source_value) < 1:
 				return _fail("linked_authority_portal_cost_not_positive_int")
 			projected_value = int(source_value)
 		else:
