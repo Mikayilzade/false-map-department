@@ -12,7 +12,7 @@ Repository: `Mikayilzade/false-map-department`
 - Autonomous implementation handoff: **YES — `IMPLEMENTATION_START_HERE.md`**
 - CI/email-noise guardrail: **YES — `CI_NOTIFICATION_POLICY.md` + executable policy preflight**
 - Implementation started: **YES**
-- 12A Technical Bootstrap: **IN PROGRESS — deterministic foundation/session plumbing complete; real Godot boot/headless execution still pending**
+- 12A Technical Bootstrap: **IN PROGRESS — deterministic foundation/session plumbing complete; runtime verification path hardened; real Godot boot/headless execution still pending**
 - 12B Vertical Slice: **NO**
 - 12C Core Systems: **NO**
 - 12D Content Population: **NO**
@@ -25,30 +25,30 @@ Repository: `Mikayilzade/false-map-department`
 ## Latest autonomous implementation run — 2026-08-19
 
 ### Phase / subphase
-**12A — Technical Bootstrap / reproducible real-engine verification path**
+**12A — Technical Bootstrap / runtime-gate hardening and false-failure removal**
 
 ### Completed
-- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, current `IMPLEMENTATION_STATUS.md`, and followed the current 12A runtime-verification `NEXT ACTION`.
-- Re-attempted local execution of pinned Godot 4.7.1. The automation container still has no `godot`/`godot4`; package cache contains no usable Godot runtime; shell DNS cannot resolve GitHub, so the runtime cannot be downloaded in this execution environment.
-- Added `scripts/run_phase12a_runtime.sh` as the single canonical executable verification path for both local and manual-CI use. It verifies the runtime is 4.7.1, runs CI-policy/bootstrap/12A contract preflights, Godot import/parse smoke, the headless GDScript suite, and actual headless main-scene boot.
-- The runtime script records each stage to a separate log and emits a deterministic `manifest.json` with SHA-256 evidence for the produced logs after a fully green run.
-- Simplified `.github/workflows/manual-godot-baseline.yml` to call that same script instead of duplicating commands, preventing local/manual-CI verification drift.
-- Added always-uploaded `phase12a-runtime-evidence` artifact retention to the manual workflow so a real Godot run can be inspected through GitHub tooling after dispatch without relying on transient console output.
-- Kept the workflow strictly **manual `workflow_dispatch` only**; no push/PR/schedule trigger was added.
+- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, current `IMPLEMENTATION_STATUS.md`, and the final-freeze technical/persistence contract before touching verification infrastructure.
+- Re-probed the execution environment: no `godot`/`godot4` binary is installed and no usable local Godot runtime exists. The pinned 4.7.1 binary therefore still cannot be executed inside this automation container.
+- Re-verified externally that **Godot 4.7.1-stable** remains the current stable 4.7.1 release; no engine-pin amendment is justified.
+- Found and fixed a latent Phase-12A false failure: `.github/workflows/manual-godot-baseline.yml` had already been simplified to delegate checks to `scripts/run_phase12a_runtime.sh`, but `scripts/phase12a_contract_audit.py` still required the old duplicated commands to exist directly inside the workflow. A real baseline run would therefore have failed its own contract audit before reaching Godot.
+- Updated `scripts/phase12a_contract_audit.py` so workflow responsibilities and runtime-runner responsibilities are validated separately: the workflow must remain manual-only, download pinned Godot, invoke the single runner and upload evidence; the runner must own all preflights/import/headless/boot commands.
+- Hardened `scripts/run_phase12a_runtime.sh` so missing/wrong runtime conditions now produce deterministic evidence instead of only exiting: `environment.log`, `runtime-blocker.log`, and `manifest.json` with `BLOCKED`/`FAIL`/`PASS` result and SHA-256 log evidence.
+- Preserved the no-spam CI rule: no push/PR/schedule trigger was added.
 
 ### Validation run
-- `bash -n scripts/run_phase12a_runtime.sh` equivalent source check — **PASS** in the current container.
-- Direct runtime availability probe (`which godot`, `which godot4`, package-cache check) — **NO RUNTIME AVAILABLE**.
-- Direct official release download attempt from the shell — **BLOCKED BY CONTAINER DNS**, confirming the prior environment blocker rather than a repository failure.
-- Manual workflow review — **PASS**: it remains manual-only and now delegates all baseline commands to one version-pinned script with persisted evidence.
-- Real Godot 4.7.1 execution remains **UNVERIFIED**; 12A is intentionally not marked complete.
+- Current container runtime probe (`command -v godot`, `command -v godot4`, common-path search) — **NO RUNTIME AVAILABLE**.
+- `run_phase12a_runtime.sh` blocked-path self-test with an intentionally missing runtime — **PASS**: exit `127`, `manifest.json.result == BLOCKED`, expected reason present, both diagnostic logs listed and SHA-256 hashed.
+- Shell syntax validation of the hardened blocked-path runner logic — **PASS**.
+- Contract-drift review — **PASS**: `phase12a_contract_audit.py` now checks `bash scripts/run_phase12a_runtime.sh` in the manual workflow and checks the actual preflight/Godot commands inside the runtime runner, eliminating the discovered stale assertion.
+- Real Godot 4.7.1 import/headless/main-scene execution remains **UNVERIFIED** because this automation environment cannot launch the binary.
 
 ### Failures / blockers
-- **Execution-environment blocker remains:** this automation runtime cannot launch or download Godot 4.7.1, and the connected GitHub tool does not expose a new `workflow_dispatch` action. A real engine run therefore still requires any environment that can launch the pinned binary or a manual dispatch of the committed workflow.
-- No gameplay/repository design blocker was discovered.
+- **Execution-environment blocker remains:** no Godot 4.7.1 executable is available in this automation container, and the connected GitHub action surface still exposes workflow inspection/rerun APIs but no fresh `workflow_dispatch` action. A first real engine run therefore still requires an environment able to launch the pinned binary or a manual dispatch of the committed manual workflow.
+- The previously latent audit/workflow drift is **FIXED** and is no longer a repository blocker.
 
 ### Canonical contradictions
-- **NONE discovered.** This increment changes verification infrastructure only and does not alter gameplay semantics.
+- **NONE discovered.** The changes affect bootstrap verification/evidence only and preserve the frozen Godot 4.7.1, deterministic-domain and manual-CI contracts.
 
 ## NEXT ACTION
-Continue **Phase 12A — Technical Bootstrap** by running `scripts/run_phase12a_runtime.sh` with pinned **Godot 4.7.1-stable** (or manually dispatching `.github/workflows/manual-godot-baseline.yml`) and inspect the resulting stage logs/artifact. Fix every import, GDScript parse/runtime, headless-test, or main-scene boot failure until the runtime evidence manifest is fully green. Then re-run `scripts/ci_policy_preflight.py`, `scripts/bootstrap_preflight.py`, and `scripts/phase12a_contract_audit.py`; when the full baseline is green, mark **12A COMPLETE** and advance `NEXT ACTION` to the first **12B Vertical Slice** increment. Keep CI manual-only until the baseline has demonstrated consistent green runs.
+Continue **Phase 12A — Technical Bootstrap** by running `scripts/run_phase12a_runtime.sh` with pinned **Godot 4.7.1-stable** (or manually dispatching `.github/workflows/manual-godot-baseline.yml`) and inspect the resulting manifest/stage logs. Fix every import, GDScript parse/runtime, headless-test, or main-scene boot failure until the runtime evidence manifest is fully green. Then re-run `scripts/ci_policy_preflight.py`, `scripts/bootstrap_preflight.py`, and `scripts/phase12a_contract_audit.py`; when the full baseline is green, mark **12A COMPLETE** and advance `NEXT ACTION` to the first **12B Vertical Slice** increment. Keep CI manual-only until the baseline has demonstrated consistent green runs.
