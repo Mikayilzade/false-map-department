@@ -119,15 +119,29 @@ def main() -> None:
     for token in [
         "workflow_dispatch:",
         "Godot_v4.7.1-stable_linux.x86_64",
+        "bash scripts/run_phase12a_runtime.sh",
+        "phase12a-runtime-evidence",
+        "if: always()",
+    ]:
+        if token not in workflow:
+            fail(f"manual baseline missing orchestration contract: {token}")
+
+    runtime_runner = read("scripts/run_phase12a_runtime.sh")
+    for token in [
         "scripts/ci_policy_preflight.py",
         "scripts/bootstrap_preflight.py",
         "scripts/phase12a_contract_audit.py",
         "--editor --quit",
         "--script res://tests/test_runner.gd",
         "--headless --path . --quit-after 2",
+        'write_manifest "BLOCKED"',
+        'write_manifest "FAIL"',
+        'write_manifest "PASS"',
+        "environment.log",
+        "runtime-blocker.log",
     ]:
-        if token not in workflow:
-            fail(f"manual baseline missing verification step: {token}")
+        if token not in runtime_runner:
+            fail(f"runtime runner missing verification/evidence contract: {token}")
 
     print(f"Phase 12A contract audit: PASS ({len(domain_files)} domain files checked)")
 
