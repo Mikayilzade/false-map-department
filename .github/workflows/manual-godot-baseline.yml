@@ -14,19 +14,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Download pinned Godot 4.7.1
+      - name: Fetch verified pinned Godot 4.7.1
         shell: bash
         run: |
           set -euo pipefail
-          curl -fL --retry 3 \
-            -o /tmp/godot.zip \
-            https://github.com/godotengine/godot/releases/download/4.7.1-stable/Godot_v4.7.1-stable_linux.x86_64.zip
-          unzip -q /tmp/godot.zip -d /tmp/godot
-          chmod +x /tmp/godot/Godot_v4.7.1-stable_linux.x86_64
+          GODOT_BIN="$(bash scripts/fetch_pinned_godot.sh /tmp/godot-4.7.1)"
+          echo "GODOT_BIN=$GODOT_BIN" >> "$GITHUB_ENV"
 
       - name: Run complete Phase 12A runtime baseline
         env:
-          GODOT_BIN: /tmp/godot/Godot_v4.7.1-stable_linux.x86_64
+          FMD_FETCH_PINNED_GODOT: "0"
           FMD_RUNTIME_OUT: ${{ runner.temp }}/fmd-runtime-baseline
         run: bash scripts/run_phase12a_runtime.sh
 
