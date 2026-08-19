@@ -1,0 +1,67 @@
+{
+  "logs": [
+    {
+      "bytes": 216,
+      "name": "bootstrap-preflight.log",
+      "sha256": "01a6cacdd7048e67b5aebe0c3deb94f34ac5133b13201d5c0ea1edd3d9c1f4c8"
+    },
+    {
+      "bytes": 65,
+      "name": "ci-policy.log",
+      "sha256": "9d3afdcdd4af94063a6b734fed82233977813007a1021d5fbf31049db163c53e"
+    },
+    {
+      "bytes": 359,
+      "name": "environment.log",
+      "sha256": "6dfc84cf7ba64a319f0d80efe23f5116884ca55464a2714878f85ff3dd1e5505"
+    },
+    {
+      "bytes": 121,
+      "name": "gdscript-suite.log",
+      "sha256": "b169f909a52f0f3a11e1016b91a8c489d52d5fed39231b8e47972a300d83f62d"
+    },
+    {
+      "bytes": 52,
+      "name": "godot-version.log",
+      "sha256": "9a82feb0ee061aed657f88539257a8d6b130034cadc6b0689f401952d4fec32b"
+    },
+    {
+      "bytes": 2590,
+      "name": "import-parse.log",
+      "sha256": "f0f5ca6748ac7960633367ecdfe1c93a0313f8f6be05113c8fd496334b4561c8"
+    },
+    {
+      "bytes": 95,
+      "name": "main-scene-boot.log",
+      "sha256": "f81b4e12691940c0b308a1709c46b99aa44d45e394bcf21e76f4bc8934b96b21"
+    },
+    {
+      "bytes": 80,
+      "name": "phase12a-contract.log",
+      "sha256": "7a80300f4adb8d041aa5d6594db233012af0d3158361041e3f90b41b34143d52"
+    },
+    {
+      "bytes": 55,
+      "name": "phase12b-contract.log",
+      "sha256": "b0af12a2bb42de19e43bcf314228eb47ed00d8cab7f98f9343fe7b67aaf0fa9f"
+    },
+    {
+      "bytes": 136,
+      "name": "phase12b-history-suite.log",
+      "sha256": "86a0f70eeff51850e00c8ca857a7f82064fef8ac96db16aa289e3b5b57311144"
+    },
+    {
+      "bytes": 155,
+      "name": "phase12b-interaction-suite.log",
+      "sha256": "48d4147f7b00a97ad117678183c7e3b1aae5fef10d76c6f4c137a4f11b60b386"
+    },
+    {
+      "bytes": 160,
+      "name": "phase12b-persistence-suite.log",
+      "sha256": "ce06035a2053aa2ecc12629c11452a7e0d8d23b4d00465ce2a6efd0d595482ec"
+    }
+  ],
+  "phase": "12A+12B-early",
+  "reason": "",
+  "result": "PASS"
+}

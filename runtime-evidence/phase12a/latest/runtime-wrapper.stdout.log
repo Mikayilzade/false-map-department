@@ -57,17 +57,6 @@ Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 == gdscript-suite ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
-SCRIPT ERROR: Parse Error: The variable type is being inferred from a Variant value, so it will be typed as Variant. (Warning treated as error.)
-          at: GDScript::reload (res://src/application/content_loader.gd:36)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://tests/test_runner.gd:0)
-ERROR: Failed to load script "res://tests/test_runner.gd" with error "Compilation failed".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
-SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
-          at: _test_content_validator (res://tests/test_runner.gd:59)
-          GDScript backtrace (most recent call first):
-              [0] _test_content_validator (res://tests/test_runner.gd:59)
-              [1] _initialize (res://tests/test_runner.gd:21)
 FMD tests: PASS (8 groups)
 == phase12b-history-suite ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
@@ -80,69 +69,9 @@ FMD Phase 12B interaction tests: PASS (2 groups)
 == phase12b-persistence-suite ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
-ERROR: Parse JSON failed. Error at line 0: Unknown error getting token
-   at: parse_string (core/io/json.cpp:629)
-   GDScript backtrace (most recent call first):
-       [0] _test_round_trip_and_corruption_rejection (res://tests/test_slice_persistence_runner.gd:82)
-       [1] _initialize (res://tests/test_slice_persistence_runner.gd:11)
-ERROR: Active dossier save must succeed through persistence boundary
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
-ERROR: Active dossier load must accept valid checksum/content identity
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
-ERROR: Reload must preserve save generation
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
-ERROR: Reload must restore byte-equivalent canonical gameplay hash
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
-ERROR: Reload must restore complete canonical session/history + interaction state
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
-ERROR: Reload must restore selected snapped candidate
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
-ERROR: Reload must preserve Undo availability
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
-ERROR: Reload must preserve Redo availability
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
-ERROR: Redo must remain valid after reload
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
-ERROR: Undo must remain valid after reloaded Redo
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
-ERROR: Redo then Undo after reload must return exact saved canonical hash
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
-ERROR: Test storage must expose saved active_session envelope
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
-ERROR: Saved active_session envelope must parse for corruption test
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
-ERROR: Content mismatch fixture save must succeed
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
-ERROR: Changed definition with stale content hash must be rejected before restore
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] _initialize (res://tests/test_slice_persistence_runner.gd:18)
-FMD Phase 12B persistence/loop tests: FAIL (15 failures)
+FMD Phase 12B persistence/loop tests: PASS (2 groups)
+== main-scene-boot ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+/home/runner/work/_temp/fmd-runtime-baseline/runtime/manifest.json
+Phase 12A + early 12B runtime baseline: PASS
