@@ -1,0 +1,57 @@
+{
+  "allow_duplicate_landmark_labels": false,
+  "authority_locks": {
+    "waterway:W_LOCKED": "L0"
+  },
+  "cell_allowed_jurisdictions": {
+    "C1": ["J1", "J2"],
+    "C2": ["J1", "J2"],
+    "C3": ["J1", "J2"]
+  },
+  "cell_ids": ["C1", "C2", "C3"],
+  "crossing_slots": {
+    "X1": {
+      "editable_bridge": true,
+      "road_alignment_edge_ids": ["R_APPROACH_A", "R_APPROACH_B"],
+      "road_alignment_valid": true,
+      "water_edge_id": "W1"
+    }
+  },
+  "editable_primitive_permissions": [
+    "road",
+    "bridge",
+    "border",
+    "waterway",
+    "landmark",
+    "restricted_zone"
+  ],
+  "jurisdiction_ids": ["J1", "J2"],
+  "landmarks": {
+    "LM1": {
+      "allowed_semantic_tokens": ["hospital", "market"],
+      "editable": true
+    },
+    "LM2": {
+      "allowed_semantic_tokens": ["depot"],
+      "editable": true
+    }
+  },
+  "layer_id": "L1",
+  "required_jurisdiction_ids": ["J1", "J2"],
+  "required_water_paths": [],
+  "restricted_zone_policies": {
+    "P1": {
+      "editable_cell_ids": ["C1", "C2"]
+    }
+  },
+  "road_edges": {
+    "R_APPROACH_A": {"crossing_slot_ids": [], "editable": false},
+    "R_APPROACH_B": {"crossing_slot_ids": [], "editable": false},
+    "R_CROSS": {"crossing_slot_ids": ["X1"], "editable": true},
+    "R_SAFE": {"crossing_slot_ids": [], "editable": true}
+  },
+  "water_edges": {
+    "W1": {"editable": true, "from": "WA", "to": "WB"},
+    "W_LOCKED": {"editable": true, "from": "WB", "to": "WC"}
+  }
+}
