@@ -1,0 +1,92 @@
+{
+  "logs": [
+    {
+      "bytes": 216,
+      "name": "bootstrap-preflight.log",
+      "sha256": "01a6cacdd7048e67b5aebe0c3deb94f34ac5133b13201d5c0ea1edd3d9c1f4c8"
+    },
+    {
+      "bytes": 108,
+      "name": "ci-policy.log",
+      "sha256": "97337f7e2645cf4ec04a80d2f2f6dc8babf421a5a82009b527ed418c295e8c2e"
+    },
+    {
+      "bytes": 359,
+      "name": "environment.log",
+      "sha256": "6dfc84cf7ba64a319f0d80efe23f5116884ca55464a2714878f85ff3dd1e5505"
+    },
+    {
+      "bytes": 121,
+      "name": "gdscript-suite.log",
+      "sha256": "b169f909a52f0f3a11e1016b91a8c489d52d5fed39231b8e47972a300d83f62d"
+    },
+    {
+      "bytes": 52,
+      "name": "godot-version.log",
+      "sha256": "9a82feb0ee061aed657f88539257a8d6b130034cadc6b0689f401952d4fec32b"
+    },
+    {
+      "bytes": 2996,
+      "name": "import-parse.log",
+      "sha256": "ec1dc0675a6ac1acf3c7545b45b72225e6f8f6b433d63b54a4db3630d38ede49"
+    },
+    {
+      "bytes": 95,
+      "name": "main-scene-boot.log",
+      "sha256": "f81b4e12691940c0b308a1709c46b99aa44d45e394bcf21e76f4bc8934b96b21"
+    },
+    {
+      "bytes": 81,
+      "name": "phase12a-contract.log",
+      "sha256": "aff1c1e8b04c8dd52ee2c931a953e69923f04580e285a0a86ae75e66fb23b4ce"
+    },
+    {
+      "bytes": 55,
+      "name": "phase12b-contract.log",
+      "sha256": "b0af12a2bb42de19e43bcf314228eb47ed00d8cab7f98f9343fe7b67aaf0fa9f"
+    },
+    {
+      "bytes": 136,
+      "name": "phase12b-history-suite.log",
+      "sha256": "86a0f70eeff51850e00c8ca857a7f82064fef8ac96db16aa289e3b5b57311144"
+    },
+    {
+      "bytes": 155,
+      "name": "phase12b-interaction-suite.log",
+      "sha256": "48d4147f7b00a97ad117678183c7e3b1aae5fef10d76c6f4c137a4f11b60b386"
+    },
+    {
+      "bytes": 160,
+      "name": "phase12b-persistence-suite.log",
+      "sha256": "ce06035a2053aa2ecc12629c11452a7e0d8d23b4d00465ce2a6efd0d595482ec"
+    },
+    {
+      "bytes": 173,
+      "name": "phase12c-agent-interpretation-suite.log",
+      "sha256": "d5ab4768cb136aeda6d3a35cce3c1f0e8544823b140ca994148656863b622efa"
+    },
+    {
+      "bytes": 101,
+      "name": "phase12c-contract.log",
+      "sha256": "7d9fdf2b1b0b94ad2cf7b0bfb1b256da66847cbc7b51718499cb0b0bf7c2fa70"
+    },
+    {
+      "bytes": 177,
+      "name": "phase12c-late-agent-linked-suite.log",
+      "sha256": "12233aa9a43af4e69991d200c8bc726e05a0e9b15f1eaeb8117fb11409b22365"
+    },
+    {
+      "bytes": 97,
+      "name": "phase12c-late-contract.log",
+      "sha256": "f9309052ecf723865276ed16e8ee67972b8036fac96acaa013fdeda55e7fbb26"
+    },
+    {
+      "bytes": 160,
+      "name": "phase12c-primitive-authority-suite.log",
+      "sha256": "074879e58ec71cc45c02361453d635511a7298f2958adca773a5c85c2858cc93"
+    }
+  ],
+  "phase": "12A+12B+12C",
+  "reason": "",
+  "result": "PASS"
+}
