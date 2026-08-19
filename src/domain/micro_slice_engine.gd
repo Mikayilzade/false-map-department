@@ -199,7 +199,7 @@ func _evaluate_objective(definition: Dictionary, state: Dictionary, events: Arra
 	var target_node := str(definition["landmarks"][target_id]["node_id"])
 	var agent: Dictionary = state["agent_state_by_id"][agent_id]
 	var reachable := str(agent["node_id"]) == target_node or not (agent.get("route", []) as Array).is_empty()
-	var before := state["objective_state_by_id"].get(objective_id, null)
+	var before: Variant = state["objective_state_by_id"].get(objective_id, null)
 	state["objective_state_by_id"][objective_id] = {"satisfied": reachable}
 	if before == null or bool(before.get("satisfied", false)) != reachable:
 		events.append(_event(events.size(), "OBJECTIVE_CHANGED", objective_id, before, {"satisfied": reachable}, [0]))
