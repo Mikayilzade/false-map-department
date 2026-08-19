@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 GODOT_BIN="${GODOT_BIN:-godot}"
 OUT_DIR="${FMD_RUNTIME_OUT:-$ROOT/.runtime-baseline}"
+FETCH_PINNED="${FMD_FETCH_PINNED_GODOT:-1}"
 mkdir -p "$OUT_DIR"
 
 write_manifest() {
@@ -45,28 +46,48 @@ run_logged() {
   "$@" 2>&1 | tee -a "$OUT_DIR/$name.log"
 }
 
+resolve_godot() {
+  if command -v "$GODOT_BIN" >/dev/null 2>&1; then
+    command -v "$GODOT_BIN"
+    return 0
+  fi
+  if [[ -x "$GODOT_BIN" ]]; then
+    printf '%s\n' "$GODOT_BIN"
+    return 0
+  fi
+  return 1
+}
+
+if ! RESOLVED_GODOT="$(resolve_godot)"; then
+  if [[ "$FETCH_PINNED" == "1" ]]; then
+    echo "Pinned runtime missing; attempting verified fetch." > "$OUT_DIR/runtime-fetch.log"
+    if fetched="$(bash "$ROOT/scripts/fetch_pinned_godot.sh" 2>>"$OUT_DIR/runtime-fetch.log")"; then
+      GODOT_BIN="$fetched"
+      RESOLVED_GODOT="$fetched"
+      echo "fetch_result=success" >> "$OUT_DIR/runtime-fetch.log"
+    else
+      echo "ERROR: pinned Godot runtime unavailable and verified fetch failed" | tee "$OUT_DIR/runtime-blocker.log" >&2
+      write_manifest "BLOCKED" "pinned Godot runtime unavailable; verified fetch failed"
+      exit 127
+    fi
+  else
+    echo "ERROR: pinned Godot runtime not found: $GODOT_BIN" | tee "$OUT_DIR/runtime-blocker.log" >&2
+    write_manifest "BLOCKED" "pinned Godot runtime not found"
+    exit 127
+  fi
+fi
+
 {
   echo "requested_godot_bin=$GODOT_BIN"
+  echo "resolved_godot_bin=$RESOLVED_GODOT"
+  echo "fetch_pinned=$FETCH_PINNED"
   echo "root=$ROOT"
   echo "uname=$(uname -a 2>/dev/null || true)"
   echo "python=$(python3 --version 2>&1 || true)"
-  if command -v "$GODOT_BIN" >/dev/null 2>&1; then
-    echo "resolved_godot_bin=$(command -v "$GODOT_BIN")"
-  elif [[ -x "$GODOT_BIN" ]]; then
-    echo "resolved_godot_bin=$GODOT_BIN"
-  else
-    echo "resolved_godot_bin="
-  fi
 } > "$OUT_DIR/environment.log"
 
-if ! command -v "$GODOT_BIN" >/dev/null 2>&1 && [[ ! -x "$GODOT_BIN" ]]; then
-  echo "ERROR: pinned Godot runtime not found: $GODOT_BIN" | tee "$OUT_DIR/runtime-blocker.log" >&2
-  write_manifest "BLOCKED" "pinned Godot runtime not found"
-  exit 127
-fi
-
 cd "$ROOT"
-run_logged godot-version "$GODOT_BIN" --version
+run_logged godot-version "$RESOLVED_GODOT" --version
 if ! grep -q '^4\.7\.1' "$OUT_DIR/godot-version.log"; then
   echo "ERROR: expected Godot 4.7.1-stable runtime" | tee "$OUT_DIR/runtime-blocker.log" >&2
   write_manifest "FAIL" "runtime version is not Godot 4.7.1"
@@ -76,9 +97,9 @@ fi
 run_logged ci-policy python3 scripts/ci_policy_preflight.py
 run_logged bootstrap-preflight python3 scripts/bootstrap_preflight.py
 run_logged phase12a-contract python3 scripts/phase12a_contract_audit.py
-run_logged import-parse "$GODOT_BIN" --headless --path . --editor --quit
-run_logged gdscript-suite "$GODOT_BIN" --headless --path . --script res://tests/test_runner.gd
-run_logged main-scene-boot "$GODOT_BIN" --headless --path . --quit-after 2
+run_logged import-parse "$RESOLVED_GODOT" --headless --path . --editor --quit
+run_logged gdscript-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_runner.gd
+run_logged main-scene-boot "$RESOLVED_GODOT" --headless --path . --quit-after 2
 
 write_manifest "PASS" ""
 echo "Phase 12A runtime baseline: PASS"
