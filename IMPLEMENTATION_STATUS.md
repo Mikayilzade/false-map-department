@@ -10,9 +10,9 @@ Repository: `Mikayilzade/false-map-department`
 - Final-freeze integrity: **VERIFIED — blob SHA `fc988f8eaa031507f5ae84d6e60316356bc6cb2a` matches factory source**
 - Complete canonical authority chain local to this repository: **YES**
 - Autonomous implementation handoff: **YES — `IMPLEMENTATION_START_HERE.md`**
-- CI/email-noise guardrail: **YES — `CI_NOTIFICATION_POLICY.md`**
+- CI/email-noise guardrail: **YES — `CI_NOTIFICATION_POLICY.md` + executable policy preflight**
 - Implementation started: **YES**
-- 12A Technical Bootstrap: **IN PROGRESS — deterministic session/command plumbing added; real Godot boot/headless execution gate pending**
+- 12A Technical Bootstrap: **IN PROGRESS — deterministic foundation/session plumbing complete; real Godot boot/headless execution still pending**
 - 12B Vertical Slice: **NO**
 - 12C Core Systems: **NO**
 - 12D Content Population: **NO**
@@ -25,30 +25,28 @@ Repository: `Mikayilzade/false-map-department`
 ## Latest autonomous implementation run — 2026-08-19
 
 ### Phase / subphase
-**12A — Technical Bootstrap / authoritative session state and command pre-state gate**
+**12A — Technical Bootstrap / executable Godot-baseline path and CI-noise enforcement**
 
 ### Completed
-- Re-read the implementation handoff, CI notification policy, current status, and the canonical Technical Specification sections defining Domain/Application boundaries, canonical runtime state, deterministic hashing, and semantic command commit preconditions.
-- Added `MapAuthorityState` in Domain Core with the frozen authoritative map families: sorted active roads, bridges and waterways; border ownership; landmark semantic labels; restricted-zone cells; and linked authoritative facts.
-- Added `DossierSessionState` in Domain Core with the canonical runtime fields from the technical contract. `session_id` remains persistence identity and is deliberately excluded from the gameplay canonical hash.
-- Added deterministic `DossierSessionState.canonical_hash()` plumbing through the existing canonical JSON/SHA-256 helper.
-- Added Application `CommandGate.validate_pre_state()` which validates frozen primitive membership/stable IDs and rejects a command when `expected_pre_state_hash` differs from the current canonical session hash, before any state mutation.
-- Extended the headless GDScript suite with a reproducible bootstrap-session hash fixture and matching/stale semantic-command gate cases.
-- Extended `scripts/bootstrap_preflight.py` to assert presence of the new runtime-state fields/map-authority fields/pre-state gate tokens and to independently reproduce the bootstrap session SHA-256 `c7e3412436a0182737ff67470b015c4d057326ca9475abc565cbe53232536751`.
-- No GitHub Actions workflow was created or enabled.
+- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, current `IMPLEMENTATION_STATUS.md`, and retained the frozen Godot 4.7.1 runtime requirement.
+- Re-attempted a direct local checkout/runtime path; the execution container still cannot resolve `github.com`, and no installed `godot`/`godot4` package is available.
+- Verified from current public release sources that Godot **4.7.1-stable** remains an official stable release; no engine-pin amendment is needed.
+- Added `.github/workflows/manual-godot-baseline.yml` with **only `workflow_dispatch`**. It downloads the pinned Godot 4.7.1 Linux binary on a GitHub-hosted runner, runs the CI-policy guard, Python bootstrap preflight, headless GDScript suite, and headless editor boot smoke.
+- Added `scripts/ci_policy_preflight.py`, which rejects `push`, `pull_request`, `pull_request_target`, or `schedule` workflow triggers while bootstrap remains unstable and requires every existing workflow to be manual `workflow_dispatch`-only.
+- The workflow intentionally has no push/PR trigger, so merely committing code cannot create repeated failing Actions runs or email noise.
 
 ### Validation run
-- Local Python validation of the updated bootstrap preflight/session fixture — **PASS**.
-- Reproduced session SHA-256: `c7e3412436a0182737ff67470b015c4d057326ca9475abc565cbe53232536751`.
-- Verified Domain Core additions contain no Presentation dependency by construction and the Application gate performs no mutation.
-- Attempted to obtain/run the pinned Godot 4.7.1 runtime in the execution environment. No `godot`/`godot4` binary is installed; direct container GitHub access cannot resolve the host, and managed binary download was unavailable in this run. Therefore the GDScript suite has **not** yet been claimed as engine-green.
+- Static validation of the new workflow definition — **PASS**: `workflow_dispatch` present; no `push`/`pull_request`; Godot `4.7.1-stable` pinned; headless suite and boot-smoke commands present.
+- Static validation of `ci_policy_preflight.py` logic — **PASS** against the committed manual-only workflow shape.
+- Local Godot execution remains unavailable in the current container, so the real engine suite is still **UNVERIFIED**, not falsely marked green.
+- No automatic GitHub Actions run was triggered by this increment.
 
 ### Failures / blockers
-- **Execution-environment blocker remains:** Godot 4.7.1 cannot currently be launched in this implementation container, so project boot, GDScript parse/runtime correctness and `tests/test_runner.gd` remain unverified by the real engine.
-- This blocker does not justify noisy push-triggered CI. `CI_NOTIFICATION_POLICY.md` remains obeyed.
+- **Execution-environment blocker remains:** this automation runtime cannot currently launch or download Godot 4.7.1 locally; direct `git clone` fails DNS resolution and no Godot binary/package is installed.
+- The connected GitHub tool can create/read workflow files but exposes no workflow-dispatch action, so this session cannot programmatically start the new manual workflow. This is a tooling limitation, not a repository/game blocker.
 
 ### Canonical contradictions
-- **NONE discovered.** Session identity exclusion from the gameplay hash follows the technical statement that `session_id` has persistence identity only and no gameplay semantics. The pre-state gate follows the canonical commit protocol before legality/mutation.
+- **NONE discovered.** The added infrastructure changes no gameplay semantics and directly enforces the existing CI/email-noise contract.
 
 ## NEXT ACTION
-Continue **Phase 12A — Technical Bootstrap** by running the repository under the pinned **Godot 4.7.1-stable** runtime as soon as an executable runtime is available: boot `project.godot`, execute `tests/test_runner.gd` headlessly, and fix every parse/runtime failure until green. Then verify the runnable shell boots without platform services and the new session/pre-state tests pass in-engine. If all remaining 12A exit-gate checks are green, mark **12A COMPLETE** and set the next action to the first **12B Vertical Slice** increment. Do not enable push/PR-triggered CI until the baseline is consistently green.
+Continue **Phase 12A — Technical Bootstrap** by executing `.github/workflows/manual-godot-baseline.yml` (or the equivalent commands in any environment with the pinned **Godot 4.7.1-stable** runtime) and inspect the real Godot output. Fix every GDScript parse/runtime or boot failure until the headless suite and boot smoke are green. Once that real-engine baseline is green, re-run the deterministic fixture/hash/content-validation checks, mark **12A COMPLETE**, and advance `NEXT ACTION` to the first **12B Vertical Slice** increment. Keep CI manual-only until the baseline has demonstrated consistent green runs.
