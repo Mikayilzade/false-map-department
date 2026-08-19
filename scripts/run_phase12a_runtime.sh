@@ -22,7 +22,7 @@ result = sys.argv[2]
 reason = sys.argv[3]
 files = sorted(out.glob('*.log'))
 manifest = {
-    'phase': '12A',
+    'phase': '12A+12B-early',
     'result': result,
     'reason': reason,
     'logs': [
@@ -97,9 +97,11 @@ fi
 run_logged ci-policy python3 scripts/ci_policy_preflight.py
 run_logged bootstrap-preflight python3 scripts/bootstrap_preflight.py
 run_logged phase12a-contract python3 scripts/phase12a_contract_audit.py
+run_logged phase12b-contract python3 scripts/phase12b_contract_audit.py
 run_logged import-parse "$RESOLVED_GODOT" --headless --path . --editor --quit
 run_logged gdscript-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_runner.gd
+run_logged phase12b-history-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_slice_history_runner.gd
 run_logged main-scene-boot "$RESOLVED_GODOT" --headless --path . --quit-after 2
 
 write_manifest "PASS" ""
-echo "Phase 12A runtime baseline: PASS"
+echo "Phase 12A + early 12B runtime baseline: PASS"

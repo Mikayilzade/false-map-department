@@ -1,0 +1,61 @@
+{
+  "agents": {
+    "AG01": {
+      "archetype": "A1_DIRECT_COURIER",
+      "node_id": "N1",
+      "target_landmark_id": "LM_HOSPITAL"
+    }
+  },
+  "initial_active_road_edge_ids": [
+    "E12",
+    "E24",
+    "E34"
+  ],
+  "landmarks": {
+    "LM_HOSPITAL": {
+      "node_id": "N4",
+      "semantic_label": "hospital"
+    }
+  },
+  "node_ids": [
+    "N1",
+    "N2",
+    "N3",
+    "N4"
+  ],
+  "objective": {
+    "agent_id": "AG01",
+    "objective_id": "OBJ_REACH_HOSPITAL",
+    "target_landmark_id": "LM_HOSPITAL",
+    "type": "agent_reachability"
+  },
+  "reaction_beats_after_edit": 1,
+  "road_edges": {
+    "E12": {
+      "editable": true,
+      "from": "N1",
+      "to": "N2"
+    },
+    "E13": {
+      "editable": true,
+      "from": "N1",
+      "to": "N3"
+    },
+    "E24": {
+      "editable": true,
+      "from": "N2",
+      "to": "N4"
+    },
+    "E34": {
+      "editable": true,
+      "from": "N3",
+      "to": "N4"
+    },
+    "EP": {
+      "editable": false,
+      "from": "N2",
+      "to": "N3"
+    }
+  },
+  "slice_id": "VS01"
+}
