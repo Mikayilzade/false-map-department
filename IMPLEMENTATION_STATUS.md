@@ -6,8 +6,11 @@ Repository: `Mikayilzade/false-map-department`
 ## Master state
 - Design frozen: **YES**
 - Fresh-session design audit: **PASS — 32/32**
-- Design migration: **IN PROGRESS — verify complete package before implementation**
-- CI/email-noise guardrail: **YES — see `CI_NOTIFICATION_POLICY.md`**
+- Design migration: **COMPLETE / VERIFIED**
+- Final-freeze integrity: **VERIFIED — blob SHA `fc988f8eaa031507f5ae84d6e60316356bc6cb2a` matches factory source**
+- Complete canonical authority chain local to this repository: **YES**
+- Autonomous implementation handoff: **YES — `IMPLEMENTATION_START_HERE.md`**
+- CI/email-noise guardrail: **YES — `CI_NOTIFICATION_POLICY.md`**
 - Implementation started: **NO**
 - 12A Technical Bootstrap: **NO**
 - 12B Vertical Slice: **NO**
@@ -20,4 +23,8 @@ Repository: `Mikayilzade/false-map-department`
 - IMPLEMENTATION COMPLETE: **NO**
 
 ## NEXT ACTION
-Do not begin production implementation until the full frozen package and `GAME2_PHASE11_FINAL_FREEZE.md` are present and migration verification is complete. Then begin **Phase 12A — Technical Bootstrap** exactly as defined in `IMPLEMENTATION_START_HERE.md`.
+Begin **Phase 12A — Technical Bootstrap** exactly as defined in `IMPLEMENTATION_START_HERE.md`.
+
+Before creating any GitHub Actions workflow, read and obey `CI_NOTIFICATION_POLICY.md`: unstable bootstrap tests must not run automatically on every push. Prefer local/headless execution; use manual remote CI before the baseline is green; enable push/PR CI only after the baseline passes consistently.
+
+At the end of every implementation run, save coherent working changes and update this file with completed work, tests run, blockers, canonical contradictions if any, and the exact next action.
