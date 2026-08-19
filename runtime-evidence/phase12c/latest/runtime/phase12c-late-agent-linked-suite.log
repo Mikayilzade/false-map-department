@@ -1,0 +1,21 @@
+== phase12c-late-agent-linked-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+SCRIPT ERROR: Invalid access to property or key 'P_A' on a base object of type 'Dictionary'.
+          at: _test_projection_and_stable_order (res://tests/test_late_agent_linked_runner.gd:117)
+          GDScript backtrace (most recent call first):
+              [0] _test_projection_and_stable_order (res://tests/test_late_agent_linked_runner.gd:117)
+              [1] _initialize (res://tests/test_late_agent_linked_runner.gd:13)
+ERROR: Linked authority projection must succeed
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/test_late_agent_linked_runner.gd:22)
+ERROR: Projection must create P_A portal state
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/test_late_agent_linked_runner.gd:22)
+ERROR: A8-A10 combined query must evaluate
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/test_late_agent_linked_runner.gd:22)
+FMD Phase 12C late-agent/linked-authority tests: FAIL (3 failures)
