@@ -12,7 +12,7 @@ Repository: `Mikayilzade/false-map-department`
 - Autonomous implementation handoff: **YES — `IMPLEMENTATION_START_HERE.md`**
 - CI/email-noise guardrail: **YES — `CI_NOTIFICATION_POLICY.md` + executable policy preflight**
 - Implementation started: **YES**
-- 12A Technical Bootstrap: **IN PROGRESS — deterministic foundation/session plumbing complete; runtime bootstrap supports verified online fetch and verified offline artifact injection; real Godot import/headless/boot evidence still pending**
+- 12A Technical Bootstrap: **IN PROGRESS — deterministic foundation/session plumbing complete; real Godot import/headless/boot evidence still pending**
 - 12B Vertical Slice: **NO**
 - 12C Core Systems: **NO**
 - 12D Content Population: **NO**
@@ -25,30 +25,29 @@ Repository: `Mikayilzade/false-map-department`
 ## Latest autonomous implementation run — 2026-08-19
 
 ### Phase / subphase
-**12A — Technical Bootstrap / runtime-gate unblock hardening and engine-pin correction**
+**12A — Technical Bootstrap / runtime evidence observability hardening**
 
 ### Completed
-- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, current `IMPLEMENTATION_STATUS.md`, and the frozen technical direction before changing bootstrap infrastructure.
-- Attempted to satisfy the current runtime gate again in the execution container. The environment still has no Godot binary and outbound network/DNS is unavailable, so the real 4.7.1 import/headless/boot suite cannot execute here.
-- Extended `scripts/fetch_pinned_godot.sh` with a verified **offline artifact injection path**: callers may provide `FMD_GODOT_ARCHIVE` together with `FMD_GODOT_SHA512_MANIFEST`; the helper copies both into the cache, verifies the exact archive against the supplied SHA512 manifest, unpacks it, and still requires the executable to report 4.7.1 before returning it.
-- Preserved the existing default online path to the exact official GitHub 4.7.1-stable release and preserved SHA512 verification. No unverified runtime path was added.
-- Extended `scripts/phase12a_contract_audit.py` so offline archive + manifest support is itself a checked bootstrap contract and cannot silently regress.
-- Corrected stale engine-market wording in `ENGINE_PIN.md`: a fresh release check found **Godot 4.7.2-stable was released on 2026-08-18**. The project intentionally remains pinned to **4.7.1-stable** for the first Phase-12A baseline because the final freeze names that exact version and the first runtime baseline is still unproven; changing versions now would mix upgrade risk into bootstrap verification.
-- No gameplay/design rule changed and no push/PR/scheduled CI trigger was added.
+- Re-read the implementation handoff, CI policy, current status, and frozen 12A runtime requirements before changing infrastructure.
+- Confirmed the user manually started `Manual Godot Baseline`, but the connected GitHub tool surface cannot enumerate `workflow_dispatch` runs and therefore cannot recover the run ID needed to inspect that already-started run directly.
+- Checked the connected Gmail mailbox for a new GitHub failure notification for this repository; none was present at inspection time. This is useful negative evidence but is **not** sufficient to declare the baseline green.
+- Hardened `.github/workflows/manual-godot-baseline.yml` so future manual runs are self-reporting: the workflow now captures Godot-fetch logs, runtime-wrapper logs, the runtime evidence directory, CI-policy preflight, bootstrap preflight, and Phase-12A contract audit return codes.
+- The workflow writes a canonical `runtime-evidence/phase12a/latest/result.json` plus supporting logs into the repository and pushes that evidence back to `main`, making the result readable by any future autonomous session without needing a workflow-run ID.
+- The workflow remains **manual `workflow_dispatch` only**; no `push`, PR, schedule, or repeated failing CI trigger was added.
+- The Actions job deliberately remains green even when the internal baseline result is FAIL; `result.json` is the authoritative PASS/FAIL signal. This prevents failure-notification email spam while preserving complete diagnostics.
+- No gameplay or canonical design rule changed.
 
-### Validation run
-- `bash -n` against the updated `scripts/fetch_pinned_godot.sh` content — **PASS**.
-- Executed the new offline runtime path end-to-end with a synthetic local ZIP containing a fake executable named exactly like the pinned Godot binary plus a generated SHA512 manifest — **PASS**: archive verification succeeded, extraction succeeded, and the helper returned the executable only after its version output matched `4.7.1*`.
-- Negative contract remains structural: offline archive and manifest must be supplied together; missing/unverified input is rejected.
-- Fresh public release verification: GitHub's official Godot release page shows **4.7.2-stable released 2026-08-18**; `ENGINE_PIN.md` now records that fact while retaining 4.7.1 by explicit decision.
-- Real Godot 4.7.1 project import, GDScript suite, and main-scene boot remain **UNVERIFIED** because the current execution container cannot obtain or run the actual engine binary.
+### Validation / review
+- Reviewed `scripts/ci_policy_preflight.py`: it forbids push/PR/schedule triggers during unstable bootstrap and accepts manual `workflow_dispatch`; the updated workflow still conforms to that trigger policy.
+- Verified the workflow continues to use the exact pinned Godot 4.7.1 bootstrap path and the existing complete `scripts/run_phase12a_runtime.sh` harness.
+- Real Godot import/headless/main-scene evidence remains **UNVERIFIED** until the updated manual workflow is run once.
 
 ### Failures / blockers
-- **Hard execution-environment blocker remains:** this automation container has neither a Godot binary nor outbound network/DNS. The connected GitHub tool surface can inspect/rerun existing workflow runs but exposes no fresh `workflow_dispatch` action, so `.github/workflows/manual-godot-baseline.yml` cannot be started from this session.
-- The repository can now cross this gate in any environment that either (a) has normal network access, (b) already has Godot 4.7.1, or (c) can provide the official 4.7.1 archive + SHA512 manifest through the new offline injection variables.
+- **Single external execution handoff remains:** the updated manual workflow must be dispatched once after commit `04376b64073a79c3ff52a8976752bed089fa84e8` so it can write `runtime-evidence/phase12a/latest/result.json` into the repository.
+- After that evidence exists, no workflow-run ID is needed and autonomous implementation can consume the result directly from GitHub.
 
 ### Canonical contradictions
-- **NONE discovered.** Godot 4.7.2 becoming stable does not itself amend the freeze. The explicit 4.7.1 retention decision preserves the existing authority chain until a separate upgrade evaluation is intentionally performed.
+- **NONE discovered.** This run changes observability only.
 
 ## NEXT ACTION
-Continue **Phase 12A — Technical Bootstrap** in an environment that can execute the actual pinned runtime. Run `bash scripts/run_phase12a_runtime.sh`, or supply the official archive and checksum manifest with `FMD_GODOT_ARCHIVE=/path/Godot_v4.7.1-stable_linux.x86_64.zip FMD_GODOT_SHA512_MANIFEST=/path/SHA512-SUMS.txt bash scripts/run_phase12a_runtime.sh`, or manually dispatch `.github/workflows/manual-godot-baseline.yml`. Inspect `manifest.json` and all stage logs; fix every import, GDScript parse/runtime, headless-test, or main-scene boot failure until the runtime evidence manifest is fully green. Then re-run `scripts/ci_policy_preflight.py`, `scripts/bootstrap_preflight.py`, and `scripts/phase12a_contract_audit.py`; when the full baseline is green, mark **12A COMPLETE** and advance `NEXT ACTION` to the first **12B Vertical Slice** increment. Keep CI manual-only until the baseline has demonstrated consistent green runs.
+Manually dispatch **`Manual Godot Baseline` once more on `main`** using the updated workflow. Then read `runtime-evidence/phase12a/latest/result.json` and supporting logs from the repository. If `result = PASS`, mark **12A COMPLETE**, record the verified engine/runtime evidence, and immediately begin the first substantial **12B Vertical Slice** increment. If `result = FAIL`, inspect the committed stage logs, fix the concrete Godot import/GDScript/runtime failure, keep CI manual-only, and repeat the manual baseline only after the fix. Do not infer success from absence of an email.
