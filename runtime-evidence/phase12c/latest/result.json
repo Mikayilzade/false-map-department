@@ -1,0 +1,8 @@
+{
+  "bootstrap_preflight_rc": 0,
+  "ci_policy_rc": 0,
+  "fetch_godot_rc": 0,
+  "phase12a_contract_rc": 0,
+  "result": "PASS",
+  "runtime_rc": 0
+}
