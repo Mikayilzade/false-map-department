@@ -101,6 +101,7 @@ run_logged phase12b-contract python3 scripts/phase12b_contract_audit.py
 run_logged import-parse "$RESOLVED_GODOT" --headless --path . --editor --quit
 run_logged gdscript-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_runner.gd
 run_logged phase12b-history-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_slice_history_runner.gd
+run_logged phase12b-interaction-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_slice_interaction_runner.gd
 run_logged main-scene-boot "$RESOLVED_GODOT" --headless --path . --quit-after 2
 
 write_manifest "PASS" ""

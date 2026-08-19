@@ -17,6 +17,7 @@
       "semantic_label": "hospital"
     }
   },
+  "layer_id": "L1",
   "node_ids": [
     "N1",
     "N2",

@@ -25,11 +25,11 @@ theme_override_constants/margin_bottom = 20
 
 [node name="Layout" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 
 [node name="Title" type="Label" parent="Margin/Layout"]
 layout_mode = 2
-text = "FALSE MAP DEPARTMENT"
+text = "FALSE MAP DEPARTMENT — VS01"
 horizontal_alignment = 1
 
 [node name="Views" type="HBoxContainer" parent="Margin/Layout"]
@@ -43,18 +43,40 @@ size_flags_horizontal = 3
 
 [node name="MapLayout" type="VBoxContainer" parent="Margin/Layout/Views/MapPanel"]
 layout_mode = 2
+theme_override_constants/separation = 8
 
 [node name="MapTitle" type="Label" parent="Margin/Layout/Views/MapPanel/MapLayout"]
 layout_mode = 2
 text = "OFFICIAL MAP"
 horizontal_alignment = 1
 
-[node name="MapBody" type="Label" parent="Margin/Layout/Views/MapPanel/MapLayout"]
+[node name="Selection" type="Label" parent="Margin/Layout/Views/MapPanel/MapLayout"]
+layout_mode = 2
+text = "Selected snapped road"
+horizontal_alignment = 1
+
+[node name="RoadList" type="ItemList" parent="Margin/Layout/Views/MapPanel/MapLayout"]
 layout_mode = 2
 size_flags_vertical = 3
-text = "Map state"
-horizontal_alignment = 1
-vertical_alignment = 1
+select_mode = 0
+allow_reselect = true
+
+[node name="MapControls" type="HBoxContainer" parent="Margin/Layout/Views/MapPanel/MapLayout"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 8
+
+[node name="Previous" type="Button" parent="Margin/Layout/Views/MapPanel/MapLayout/MapControls"]
+layout_mode = 2
+text = "Previous"
+
+[node name="Toggle" type="Button" parent="Margin/Layout/Views/MapPanel/MapLayout/MapControls"]
+layout_mode = 2
+text = "Toggle selected road"
+
+[node name="Next" type="Button" parent="Margin/Layout/Views/MapPanel/MapLayout/MapControls"]
+layout_mode = 2
+text = "Next"
 
 [node name="WorldPanel" type="PanelContainer" parent="Margin/Layout/Views"]
 layout_mode = 2
@@ -62,6 +84,7 @@ size_flags_horizontal = 3
 
 [node name="WorldLayout" type="VBoxContainer" parent="Margin/Layout/Views/WorldPanel"]
 layout_mode = 2
+theme_override_constants/separation = 8
 
 [node name="WorldTitle" type="Label" parent="Margin/Layout/Views/WorldPanel/WorldLayout"]
 layout_mode = 2
@@ -74,6 +97,52 @@ size_flags_vertical = 3
 text = "World state"
 horizontal_alignment = 1
 vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="CausalPanel" type="PanelContainer" parent="Margin/Layout"]
+layout_mode = 2
+
+[node name="CausalLayout" type="VBoxContainer" parent="Margin/Layout/CausalPanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="CausalTitle" type="Label" parent="Margin/Layout/CausalPanel/CausalLayout"]
+layout_mode = 2
+text = "LATEST CAUSAL CHAIN"
+horizontal_alignment = 1
+
+[node name="CausalRibbon" type="Label" parent="Margin/Layout/CausalPanel/CausalLayout"]
+layout_mode = 2
+text = "No accepted edit yet."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="InspectBody" type="Label" parent="Margin/Layout/CausalPanel/CausalLayout"]
+visible = false
+layout_mode = 2
+text = "Inspect details"
+autowrap_mode = 2
+
+[node name="HistoryControls" type="HBoxContainer" parent="Margin/Layout"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 8
+
+[node name="Undo" type="Button" parent="Margin/Layout/HistoryControls"]
+layout_mode = 2
+text = "Undo"
+
+[node name="Redo" type="Button" parent="Margin/Layout/HistoryControls"]
+layout_mode = 2
+text = "Redo"
+
+[node name="Inspect" type="Button" parent="Margin/Layout/HistoryControls"]
+layout_mode = 2
+text = "Inspect / causal detail"
+
+[node name="InputHint" type="Label" parent="Margin/Layout/HistoryControls"]
+layout_mode = 2
+text = "←/→ or D-pad: select · Enter/A: toggle · I/X: inspect · Ctrl+Z/Y or shoulders: history"
 
 [node name="Status" type="Label" parent="Margin/Layout"]
 layout_mode = 2

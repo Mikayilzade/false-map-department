@@ -1,6 +1,7 @@
 extends SceneTree
 
 const CanonicalJson = preload("res://src/domain/canonical_json.gd")
+const PlayerCommand = preload("res://src/application/player_command.gd")
 const SliceSession = preload("res://src/application/slice_session.gd")
 
 var _failures: Array[String] = []
@@ -20,8 +21,19 @@ func _expect(condition: bool, message: String) -> void:
 	if not condition:
 		_failures.append(message)
 
+func _road_command(session: RefCounted, command_id: String, operation: String, edge_id: String) -> RefCounted:
+	var candidate_ids: Array[String] = [edge_id]
+	return PlayerCommand.new(
+		command_id,
+		"road",
+		operation,
+		"L1",
+		candidate_ids,
+		session.current_state_hash()
+	)
+
 func _test_exact_undo_redo_and_branch_truncation() -> void:
-	var parsed = JSON.parse_string(FileAccess.get_file_as_string("res://content/vertical_slice/VS01.json"))
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://content/vertical_slice/VS01.json"))
 	_expect(parsed is Dictionary, "VS01 definition must parse")
 	if not (parsed is Dictionary):
 		return
@@ -40,7 +52,7 @@ func _test_exact_undo_redo_and_branch_truncation() -> void:
 	var initial_canonical := CanonicalJson.stringify(initial_state)
 	var initial_hash := session.current_state_hash()
 
-	var first := session.attempt_road_toggle("E13", true)
+	var first := session.submit_command(_road_command(session, "CMDH001", "add", "E13"))
 	_expect(first.get("accepted", false), "First legal edit must commit")
 	_expect(session.history_cursor() == 1 and session.history_size() == 1, "Accepted edit must create exactly one history entry")
 	var first_post := session.current_state()
@@ -62,7 +74,7 @@ func _test_exact_undo_redo_and_branch_truncation() -> void:
 
 	var undo_again := session.undo()
 	_expect(undo_again.get("ok", false), "Second Undo must succeed")
-	var branch := session.attempt_road_toggle("E24", false)
+	var branch := session.submit_command(_road_command(session, "CMDH002", "remove", "E24"))
 	_expect(branch.get("accepted", false), "New legal edit after Undo must commit")
 	_expect(session.history_cursor() == 1 and session.history_size() == 1, "New accepted edit after Undo must truncate the redo branch")
 	_expect(not session.can_redo(), "Truncated redo branch must not remain available")
@@ -70,7 +82,7 @@ func _test_exact_undo_redo_and_branch_truncation() -> void:
 
 	var before_illegal_history := session.history_size()
 	var before_illegal_hash := session.current_state_hash()
-	var illegal := session.attempt_road_toggle("EP", false)
+	var illegal := session.submit_command(_road_command(session, "CMDH003", "remove", "EP"))
 	_expect(not illegal.get("accepted", true), "Structurally illegal edit must not commit into history")
 	_expect(session.history_size() == before_illegal_history, "Illegal edit must create no history entry")
 	_expect(session.current_state_hash() == before_illegal_hash, "Illegal edit must not mutate current checkpoint")

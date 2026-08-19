@@ -2,6 +2,8 @@ extends RefCounted
 
 const MicroSliceEngine = preload("res://src/domain/micro_slice_engine.gd")
 const CanonicalJson = preload("res://src/domain/canonical_json.gd")
+const PlayerCommand = preload("res://src/application/player_command.gd")
+const CommandGate = preload("res://src/application/command_gate.gd")
 
 var _definition: Dictionary = {}
 var _engine := MicroSliceEngine.new()
@@ -36,6 +38,9 @@ func current_state_hash() -> String:
 		return ""
 	return _engine.state_hash(_current_state)
 
+func canonical_hash() -> String:
+	return current_state_hash()
+
 func history_cursor() -> int:
 	return _history_cursor
 
@@ -48,13 +53,17 @@ func can_undo() -> bool:
 func can_redo() -> bool:
 	return _history_cursor < _history.size()
 
-func attempt_road_toggle(edge_id: String, make_present: bool) -> Dictionary:
+func submit_command(command: RefCounted) -> Dictionary:
 	if not is_initialized():
 		return _session_error("session_not_initialized")
 
-	var pre_checkpoint := _current_state.duplicate(true)
+	var validation := _validate_slice_command(command)
+	if not validation.get("ok", false):
+		return _command_rejection(validation)
+
+	var pre_checkpoint: Dictionary = _current_state.duplicate(true)
 	var pre_hash := _engine.state_hash(pre_checkpoint)
-	var result := _engine.attempt_road_toggle(_definition, _current_state, edge_id, make_present)
+	var result := _execute_road_command(command)
 	if not result.get("accepted", false):
 		return result
 
@@ -66,11 +75,7 @@ func attempt_road_toggle(edge_id: String, make_present: bool) -> Dictionary:
 	var transaction: Dictionary = result.get("transaction", {})
 	_history.append({
 		"history_version": 1,
-		"command": {
-			"primitive_family": "road",
-			"operation": "add" if make_present else "remove",
-			"edge_id": edge_id,
-		},
+		"command": command.as_canonical_dict(),
 		"pre_checkpoint": pre_checkpoint,
 		"pre_state_hash": pre_hash,
 		"post_checkpoint": post_checkpoint,
@@ -84,6 +89,7 @@ func attempt_road_toggle(edge_id: String, make_present: bool) -> Dictionary:
 	response["state"] = current_state()
 	response["history_cursor"] = _history_cursor
 	response["history_size"] = _history.size()
+	response["semantic_command"] = command.as_canonical_dict()
 	return response
 
 func undo() -> Dictionary:
@@ -116,14 +122,24 @@ func redo() -> Dictionary:
 	if current_state_hash() != expected_pre_hash:
 		return _session_error("redo_pre_state_hash_mismatch")
 
-	var command: Dictionary = entry["command"]
-	var make_present := str(command["operation"]) == "add"
-	var replay := _engine.attempt_road_toggle(
-		_definition,
-		_current_state,
-		str(command["edge_id"]),
-		make_present
+	var stored_command: Dictionary = entry["command"]
+	var candidate_ids: Array[String] = []
+	for raw_candidate_id in stored_command["candidate_ids"]:
+		candidate_ids.append(str(raw_candidate_id))
+	var replay_command := PlayerCommand.new(
+		str(stored_command["command_id"]),
+		str(stored_command["primitive_family"]),
+		str(stored_command["operation"]),
+		str(stored_command["layer_id"]),
+		candidate_ids,
+		str(stored_command["expected_pre_state_hash"]),
+		str(stored_command["semantic_token"])
 	)
+	var validation := _validate_slice_command(replay_command)
+	if not validation.get("ok", false):
+		return _session_error("redo_command_validation_failed")
+
+	var replay := _execute_road_command(replay_command)
 	if not replay.get("accepted", false):
 		return _session_error("redo_replay_rejected")
 
@@ -158,6 +174,30 @@ func history_summary() -> Array[Dictionary]:
 			"post_state_hash": str(entry["post_state_hash"]),
 		})
 	return summary
+
+func _validate_slice_command(command: RefCounted) -> Dictionary:
+	var gate_result := CommandGate.validate_pre_state(command, self)
+	if not gate_result.get("ok", false):
+		return gate_result
+	if command.primitive_family != "road":
+		return {"ok": false, "code": "slice_supports_road_only"}
+	if command.operation != "add" and command.operation != "remove":
+		return {"ok": false, "code": "unsupported_road_operation"}
+	if command.candidate_ids.size() != 1:
+		return {"ok": false, "code": "slice_requires_one_candidate"}
+	if command.layer_id != str(_definition.get("layer_id", "L1")):
+		return {"ok": false, "code": "layer_not_editable"}
+	return {"ok": true, "code": "slice_command_valid"}
+
+func _execute_road_command(command: RefCounted) -> Dictionary:
+	var edge_id: String = command.candidate_ids[0]
+	var make_present: bool = command.operation == "add"
+	return _engine.attempt_road_toggle(_definition, _current_state, edge_id, make_present)
+
+func _command_rejection(validation: Dictionary) -> Dictionary:
+	var response := _session_error(str(validation.get("code", "command_rejected")))
+	response["validation"] = validation.duplicate(true)
+	return response
 
 func _session_error(code: String) -> Dictionary:
 	return {
