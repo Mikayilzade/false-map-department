@@ -31,8 +31,14 @@ jobs:
       - name: Bootstrap preflight
         run: python3 scripts/bootstrap_preflight.py
 
+      - name: Phase 12A contract audit
+        run: python3 scripts/phase12a_contract_audit.py
+
+      - name: Godot import and parse smoke
+        run: /tmp/godot/Godot_v4.7.1-stable_linux.x86_64 --headless --path . --editor --quit
+
       - name: Headless GDScript suite
         run: /tmp/godot/Godot_v4.7.1-stable_linux.x86_64 --headless --path . --script res://tests/test_runner.gd
 
-      - name: Headless project boot smoke
-        run: /tmp/godot/Godot_v4.7.1-stable_linux.x86_64 --headless --path . --editor --quit-after 1
+      - name: Headless project main-scene boot smoke
+        run: /tmp/godot/Godot_v4.7.1-stable_linux.x86_64 --headless --path . --quit-after 2
