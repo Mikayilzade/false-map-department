@@ -8,6 +8,8 @@ fixture_sha256=d64daedbdb4d685fe85b345cf0d6780dc18d89c532a892dc7b4dce43a8e3b303
 session_sha256=c7e3412436a0182737ff67470b015c4d057326ca9475abc565cbe53232536751
 == phase12a-contract ==
 Phase 12A contract audit: PASS (6 domain files checked)
+== phase12b-contract ==
+Phase 12B contract audit: PASS
 == import-parse ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
@@ -20,22 +22,25 @@ Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
 [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
 [0m
-[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (15 steps)[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (18 steps)[39m[0m
 [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[   6% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  12% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  18% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  10% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  15% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  31% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  37% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  43% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  56% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  62% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  36% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  52% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  57% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  63% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  68% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [92m[ DONE ][39m [1mupdate_scripts_classes[22m
 [0m
 [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
@@ -43,8 +48,10 @@ Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
 [92m[ DONE ][39m [1mloading_editor_layout[22m
 [0m
-SCRIPT ERROR: Parse Error: The variable type is being inferred from a Variant value, so it will be typed as Variant. (Warning treated as error.)
-          at: GDScript::reload (res://src/application/content_loader.gd:36)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "before" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://src/domain/micro_slice_engine.gd:202)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://src/application/slice_session.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://src/presentation/main.gd:0)
 ERROR: Failed to load script "res://src/presentation/main.gd" with error "Parse error".
@@ -71,18 +78,31 @@ SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
               [0] _test_micro_slice_road_and_direct_courier (res://tests/test_runner.gd:120)
               [1] _initialize (res://tests/test_runner.gd:25)
 FMD tests: PASS (8 groups)
-== main-scene-boot ==
+== phase12b-history-suite ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
-SCRIPT ERROR: Parse Error: The variable type is being inferred from a Variant value, so it will be typed as Variant. (Warning treated as error.)
-          at: GDScript::reload (res://src/application/content_loader.gd:36)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "before" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://src/domain/micro_slice_engine.gd:202)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://src/presentation/main.gd:0)
-ERROR: Failed to load script "res://src/presentation/main.gd" with error "Compilation failed".
+          at: GDScript::reload (res://src/application/slice_session.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/test_slice_history_runner.gd:0)
+ERROR: Failed to load script "res://tests/test_slice_history_runner.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
-          at: _ready (res://src/presentation/main.gd:10)
+          at: @implicit_new (res://src/application/slice_session.gd:7)
           GDScript backtrace (most recent call first):
-              [0] _ready (res://src/presentation/main.gd:10)
-/home/runner/work/_temp/fmd-runtime-baseline/runtime/manifest.json
-Phase 12A runtime baseline: PASS
+              [0] @implicit_new (res://src/application/slice_session.gd:7)
+              [1] _test_exact_undo_redo_and_branch_truncation (res://tests/test_slice_history_runner.gd:33)
+              [2] _initialize (res://tests/test_slice_history_runner.gd:9)
+SCRIPT ERROR: Invalid call. Nonexistent function 'make_state' in base 'Nil'.
+          at: initialize (res://src/application/slice_session.gd:16)
+          GDScript backtrace (most recent call first):
+              [0] initialize (res://src/application/slice_session.gd:16)
+              [1] _test_exact_undo_redo_and_branch_truncation (res://tests/test_slice_history_runner.gd:34)
+              [2] _initialize (res://tests/test_slice_history_runner.gd:9)
+ERROR: SliceSession must initialize
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/test_slice_history_runner.gd:15)
+FMD Phase 12B history tests: FAIL (1 failures)

@@ -10,22 +10,25 @@ Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
 [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
 [0m
-[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (15 steps)[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (18 steps)[39m[0m
 [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[   6% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  12% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  18% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  10% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  15% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  31% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  37% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  43% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  56% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  62% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  36% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  52% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  57% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  63% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  68% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [92m[ DONE ][39m [1mupdate_scripts_classes[22m
 [0m
 [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
@@ -33,8 +36,10 @@ Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
 [92m[ DONE ][39m [1mloading_editor_layout[22m
 [0m
-SCRIPT ERROR: Parse Error: The variable type is being inferred from a Variant value, so it will be typed as Variant. (Warning treated as error.)
-          at: GDScript::reload (res://src/application/content_loader.gd:36)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "before" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://src/domain/micro_slice_engine.gd:202)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://src/application/slice_session.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://src/presentation/main.gd:0)
 ERROR: Failed to load script "res://src/presentation/main.gd" with error "Parse error".

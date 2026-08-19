@@ -1,0 +1,28 @@
+== phase12b-history-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+SCRIPT ERROR: Parse Error: Cannot infer the type of "before" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://src/domain/micro_slice_engine.gd:202)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://src/application/slice_session.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/test_slice_history_runner.gd:0)
+ERROR: Failed to load script "res://tests/test_slice_history_runner.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+          at: @implicit_new (res://src/application/slice_session.gd:7)
+          GDScript backtrace (most recent call first):
+              [0] @implicit_new (res://src/application/slice_session.gd:7)
+              [1] _test_exact_undo_redo_and_branch_truncation (res://tests/test_slice_history_runner.gd:33)
+              [2] _initialize (res://tests/test_slice_history_runner.gd:9)
+SCRIPT ERROR: Invalid call. Nonexistent function 'make_state' in base 'Nil'.
+          at: initialize (res://src/application/slice_session.gd:16)
+          GDScript backtrace (most recent call first):
+              [0] initialize (res://src/application/slice_session.gd:16)
+              [1] _test_exact_undo_redo_and_branch_truncation (res://tests/test_slice_history_runner.gd:34)
+              [2] _initialize (res://tests/test_slice_history_runner.gd:9)
+ERROR: SliceSession must initialize
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/test_slice_history_runner.gd:15)
+FMD Phase 12B history tests: FAIL (1 failures)
