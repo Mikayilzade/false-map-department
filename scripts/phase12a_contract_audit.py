@@ -119,6 +119,9 @@ def main() -> None:
         'SHA512-SUMS.txt',
         'sha512sum -c -',
         'github.com/godotengine/godot/releases/download',
+        'FMD_GODOT_ARCHIVE',
+        'FMD_GODOT_SHA512_MANIFEST',
+        'copy_offline_inputs',
     ]:
         if token not in fetch_helper:
             fail(f"pinned runtime fetch helper missing verification contract: {token}")
