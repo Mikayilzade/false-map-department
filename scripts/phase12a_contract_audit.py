@@ -112,13 +112,24 @@ def main() -> None:
     if missing_groups:
         fail("headless suite is missing bootstrap group(s): " + ", ".join(missing_groups))
 
+    fetch_helper = read("scripts/fetch_pinned_godot.sh")
+    for token in [
+        'VERSION="4.7.1-stable"',
+        'ARCHIVE="Godot_v4.7.1-stable_linux.x86_64.zip"',
+        'SHA512-SUMS.txt',
+        'sha512sum -c -',
+        'github.com/godotengine/godot/releases/download',
+    ]:
+        if token not in fetch_helper:
+            fail(f"pinned runtime fetch helper missing verification contract: {token}")
+
     workflow = read(".github/workflows/manual-godot-baseline.yml")
     forbidden_triggers = ["\n  push:", "\n  pull_request:", "\n  pull_request_target:", "\n  schedule:"]
     if any(trigger in workflow for trigger in forbidden_triggers):
         fail("manual baseline contains an automatic bootstrap trigger")
     for token in [
         "workflow_dispatch:",
-        "Godot_v4.7.1-stable_linux.x86_64",
+        "scripts/fetch_pinned_godot.sh",
         "bash scripts/run_phase12a_runtime.sh",
         "phase12a-runtime-evidence",
         "if: always()",
@@ -128,6 +139,9 @@ def main() -> None:
 
     runtime_runner = read("scripts/run_phase12a_runtime.sh")
     for token in [
+        "scripts/fetch_pinned_godot.sh",
+        "FMD_FETCH_PINNED_GODOT",
+        "runtime-fetch.log",
         "scripts/ci_policy_preflight.py",
         "scripts/bootstrap_preflight.py",
         "scripts/phase12a_contract_audit.py",
