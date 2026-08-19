@@ -16,9 +16,9 @@
       "sha256": "85553aca69e8030b472847d041a38f7ea0d2462101852857743550fc0efcb0f1"
     },
     {
-      "bytes": 969,
+      "bytes": 1522,
       "name": "gdscript-suite.log",
-      "sha256": "89f12c950642ecf031cfb15b25e35e44742d8f76835db569748021223d7cdf28"
+      "sha256": "fa46a95fc250b84a4a265d21bd7dc656163878cef2768e936e8889d04388e66e"
     },
     {
       "bytes": 52,
@@ -26,9 +26,9 @@
       "sha256": "9a82feb0ee061aed657f88539257a8d6b130034cadc6b0689f401952d4fec32b"
     },
     {
-      "bytes": 2513,
+      "bytes": 2571,
       "name": "import-parse.log",
-      "sha256": "59911ae3e5e8613ac79cb0c5d0abc69b2445ce3d85e042a8749fe44ffeea147d"
+      "sha256": "30d2859a6318e09a423a10132a0e199acab7379dae9517568cf938c73ec52936"
     },
     {
       "bytes": 853,
@@ -38,7 +38,7 @@
     {
       "bytes": 80,
       "name": "phase12a-contract.log",
-      "sha256": "fce45851cc7bbb63af168129547ef86aea70b00837c146d825c6edc46d874155"
+      "sha256": "7a80300f4adb8d041aa5d6594db233012af0d3158361041e3f90b41b34143d52"
     }
   ],
   "phase": "12A",
