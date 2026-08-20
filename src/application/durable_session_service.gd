@@ -47,7 +47,11 @@ func load_recover(profile_id: String) -> Dictionary:
 		var read_result: Dictionary = _storage.read_text(path)
 		if not read_result.get("ok", false):
 			continue
-		var parsed: Variant = JSON.parse_string(str(read_result.get("contents", "")))
+		var parser := JSON.new()
+		var parse_error: Error = parser.parse(str(read_result.get("contents", "")))
+		if parse_error != OK:
+			continue
+		var parsed: Variant = parser.data
 		if not (parsed is Dictionary):
 			continue
 		var envelope: Dictionary = parsed
@@ -103,7 +107,11 @@ func _save_generation(profile_id: String, generation: int, payload: Dictionary) 
 	var readback: Dictionary = _storage.read_text(path)
 	if not readback.get("ok", false):
 		return {"ok": false, "code": "durable_generation_readback_failed"}
-	var parsed: Variant = JSON.parse_string(str(readback.get("contents", "")))
+	var parser := JSON.new()
+	var parse_error: Error = parser.parse(str(readback.get("contents", "")))
+	if parse_error != OK:
+		return {"ok": false, "code": "durable_generation_readback_invalid"}
+	var parsed: Variant = parser.data
 	if not (parsed is Dictionary) or not _persistence.validate_envelope(parsed):
 		return {"ok": false, "code": "durable_generation_readback_invalid"}
 	if int(_dictionary(parsed).get("generation", -1)) != generation:
