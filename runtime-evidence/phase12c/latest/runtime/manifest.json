@@ -26,9 +26,9 @@
       "sha256": "9a82feb0ee061aed657f88539257a8d6b130034cadc6b0689f401952d4fec32b"
     },
     {
-      "bytes": 4040,
+      "bytes": 4156,
       "name": "import-parse.log",
-      "sha256": "62b54c9b661ceb9d9ba5bf2d2836f6b6d9bbc5bba184af48cbe4a9510a9022bf"
+      "sha256": "b8380f9081a0b5756cd99ec0a541ee16a7f397e512650e3cc59705adc347c5f4"
     },
     {
       "bytes": 95,
@@ -109,6 +109,16 @@
       "bytes": 174,
       "name": "phase12c-procession-stability-suite.log",
       "sha256": "011f7c171108063c1b9ee96fc1813a474cdd1551aaf6455764ef4a350d8a3db6"
+    },
+    {
+      "bytes": 154,
+      "name": "phase12c-production-persistence-contract.log",
+      "sha256": "e6f574ce05afa7412d92e9b839ea1b81936f0a0e0ae5457202143d7f907924e4"
+    },
+    {
+      "bytes": 176,
+      "name": "phase12c-production-persistence-suite.log",
+      "sha256": "1936ea5cf87cd8ab830c226b648a3e2ac6ff694fbd5b1a036bb57122732c205f"
     },
     {
       "bytes": 112,
