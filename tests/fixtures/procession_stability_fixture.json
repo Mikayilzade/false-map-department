@@ -1,0 +1,113 @@
+{
+  "definition": {
+    "dossier_id": "PROCESSION_STABILITY_01",
+    "layer_id": "LOCAL",
+    "primary_layer_id": "LOCAL",
+    "road_nodes": ["N0", "N1", "N2", "N3"],
+    "road_edges": {
+      "R01": {"from": "N0", "to": "N1", "cost": 1},
+      "R12": {"from": "N1", "to": "N2", "cost": 1},
+      "R23": {"from": "N2", "to": "N3", "cost": 1}
+    },
+    "water_nodes": [],
+    "water_edges": {},
+    "crossing_slots": {},
+    "node_cell_id": {
+      "N0": "C0",
+      "N1": "C1",
+      "N2": "C2",
+      "N3": "C3"
+    },
+    "restricted_zone_policies": {},
+    "landmarks": {
+      "LM_ONE": {"node_id": "N1", "semantic_token": "CHECKPOINT_ONE"},
+      "LM_TWO": {"node_id": "N2", "semantic_token": "CHECKPOINT_TWO"},
+      "LM_END": {"node_id": "N3", "semantic_token": "CEREMONY_END"}
+    },
+    "agents": {
+      "AG_PROCESSION": {
+        "archetype": "A8_PROCESSION_ROUTE_CONSTRAINED",
+        "layer_id": "LOCAL",
+        "target_landmark_id": "LM_END",
+        "agent_tags": ["procession"],
+        "procession_predicate": {
+          "visit_landmark_ids_in_order": ["LM_ONE", "LM_TWO"],
+          "exact_distinct_jurisdiction_count": 1,
+          "avoid_restricted_zone_policy_ids": []
+        }
+      }
+    },
+    "objectives": [
+      {
+        "objective_id": "OBJ_ROUTE_AVAILABLE",
+        "family_id": "O1_REACHABILITY",
+        "subject_agent_id": "AG_PROCESSION",
+        "required": true
+      },
+      {
+        "objective_id": "OBJ_SEQUENCE",
+        "family_id": "O8_VISIT_SEQUENCE",
+        "subject_agent_id": "AG_PROCESSION",
+        "required": false
+      }
+    ],
+    "protected_invariants": [],
+    "derived_facts": {},
+    "reaction_beats_after_edit": 1,
+    "stability_required_cycles": 2,
+    "stability_reason_tag": "procession_sequence_progression"
+  },
+  "initial_state": {
+    "session_id": "PROCESSION",
+    "session_revision": 7,
+    "history_cursor": 3,
+    "last_transaction_id": "PROCESSION:000007",
+    "map_state_by_layer": {
+      "LOCAL": {
+        "layer_id": "LOCAL",
+        "active_road_edge_ids": ["R01", "R12", "R23"],
+        "active_bridge_slot_ids": [],
+        "active_water_edge_ids": [],
+        "border_ownership_by_cell": {
+          "C0": "J_ONE",
+          "C1": "J_ONE",
+          "C2": "J_ONE",
+          "C3": "J_ONE"
+        },
+        "landmark_semantic_labels": {
+          "LM_ONE": "CHECKPOINT_ONE",
+          "LM_TWO": "CHECKPOINT_TWO",
+          "LM_END": "CEREMONY_END"
+        },
+        "restricted_zone_cells_by_policy": {},
+        "authoritative_linked_facts": {}
+      }
+    },
+    "agent_state_by_id": {
+      "AG_PROCESSION": {
+        "agent_id": "AG_PROCESSION",
+        "archetype": "A8_PROCESSION_ROUTE_CONSTRAINED",
+        "node_id": "N0",
+        "state": "IDLE",
+        "procession_progress_index": 0,
+        "procession_visited_landmark_ids": [],
+        "procession_progress_node_id": "",
+        "procession_sequence_total": 2,
+        "procession_sequence_complete": false
+      }
+    },
+    "objective_state_by_id": {
+      "OBJ_ROUTE_AVAILABLE": {"family_id": "O1_REACHABILITY", "value": true, "status": "SATISFIED", "first_failing_fact_ref": ""},
+      "OBJ_SEQUENCE": {"family_id": "O8_VISIT_SEQUENCE", "value": false, "status": "UNSATISFIED", "first_failing_fact_ref": "AG_PROCESSION:procession_sequence_progress"}
+    },
+    "invariant_state_by_id": {},
+    "stability_state": {
+      "eligible": true,
+      "required_cycles": 2,
+      "verified_cycles": 0,
+      "status": "ELIGIBLE"
+    },
+    "authoritative_fact_values_by_layer": {},
+    "completion_state": {"completed": false, "status": "NOT_CLEARED"}
+  }
+}

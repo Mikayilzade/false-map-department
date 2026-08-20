@@ -226,10 +226,13 @@ func _visit_sequence(contract: Dictionary, queries: Dictionary) -> Dictionary:
 	if not query_result.get("ok", false):
 		return query_result
 	var query: Dictionary = _dictionary(query_result["query"])
+	var total: int = int(query.get("procession_sequence_total", 0))
+	var progress: int = int(query.get("procession_progress_index", 0))
+	var complete: bool = bool(query.get("procession_sequence_complete", false))
 	return {
 		"ok": true,
-		"value": bool(query.get("procession_predicate_satisfied", false)),
-		"fact_ref": str(contract.get("subject_agent_id", "")) + ":procession_predicate",
+		"value": complete and progress == total,
+		"fact_ref": str(contract.get("subject_agent_id", "")) + ":procession_sequence_progress",
 	}
 
 func _boolean_fact(contract: Dictionary, derived_facts: Dictionary, bucket_name: String) -> Dictionary:

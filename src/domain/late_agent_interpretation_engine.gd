@@ -59,8 +59,8 @@ func evaluate_all(
 		else:
 			result = _evaluate_regional_connector(
 				definition,
-			agent_definition,
-			source_state,
+				agent_definition,
+				source_state,
 				_dictionary(linked_result.get("portal_state_by_id", {}))
 			)
 		if not result.get("ok", false):
@@ -130,12 +130,30 @@ func _evaluate_procession(
 		return _fail("procession_endpoint_missing")
 
 	var predicate: Dictionary = _dictionary(agent_definition.get("procession_predicate", {}))
+	var progress_result: Dictionary = _normalize_procession_progress(
+		landmarks,
+		_typed_string_array(_array(predicate.get("visit_landmark_ids_in_order", []))),
+		source_state,
+		start_node_id
+	)
+	if not progress_result.get("ok", false):
+		return progress_result
+	var progress_index: int = int(progress_result["progress_index"])
+	var visited_landmark_ids: Array[String] = _typed_string_array(_array(progress_result["visited_landmark_ids"]))
+	var progress_node_id: String = str(progress_result.get("progress_node_id", ""))
+	var required_landmark_ids: Array[String] = _typed_string_array(_array(predicate.get("visit_landmark_ids_in_order", [])))
+	var remaining_landmark_ids: Array[String] = []
+	for index in range(progress_index, required_landmark_ids.size()):
+		remaining_landmark_ids.append(required_landmark_ids[index])
+	var remaining_predicate: Dictionary = predicate.duplicate(true)
+	remaining_predicate["visit_landmark_ids_in_order"] = remaining_landmark_ids
+
 	var route_result: Dictionary = _best_procession_route(
 		definition,
 		map_state,
 		start_node_id,
 		target_node_id,
-		predicate
+		remaining_predicate
 	)
 	var route: Array[String] = []
 	var route_cost: int = -1
@@ -145,6 +163,7 @@ func _evaluate_procession(
 		route_cost = int(route_result["cost"])
 		status = "ARRIVED" if start_node_id == target_node_id else "MOVING"
 
+	var sequence_complete: bool = progress_index == required_landmark_ids.size()
 	var state: Dictionary = source_state.duplicate(true)
 	state["archetype"] = A8_PROCESSION
 	state["resolved_target_id"] = target_landmark_id
@@ -154,6 +173,11 @@ func _evaluate_procession(
 	state["route_cost"] = route_cost
 	state["state"] = status
 	state["procession_predicate_satisfied"] = bool(route_result.get("ok", false))
+	state["procession_progress_index"] = progress_index
+	state["procession_visited_landmark_ids"] = visited_landmark_ids
+	state["procession_progress_node_id"] = progress_node_id
+	state["procession_sequence_total"] = required_landmark_ids.size()
+	state["procession_sequence_complete"] = sequence_complete
 	return {
 		"ok": true,
 		"agent_state": state,
@@ -166,7 +190,50 @@ func _evaluate_procession(
 			"route_cost": route_cost,
 			"state": status,
 			"procession_predicate_satisfied": bool(route_result.get("ok", false)),
+			"procession_progress_index": progress_index,
+			"procession_visited_landmark_ids": visited_landmark_ids,
+			"procession_sequence_total": required_landmark_ids.size(),
+			"procession_sequence_complete": sequence_complete,
+			"procession_next_landmark_id": remaining_landmark_ids[0] if not remaining_landmark_ids.is_empty() else "",
 		},
+	}
+
+func _normalize_procession_progress(
+		landmarks: Dictionary,
+		required_landmark_ids: Array[String],
+		source_state: Dictionary,
+		current_node_id: String
+) -> Dictionary:
+	for landmark_id in required_landmark_ids:
+		if not landmarks.has(landmark_id):
+			return _fail("procession_sequence_landmark_missing")
+		if str(_dictionary(landmarks[landmark_id]).get("node_id", "")).is_empty():
+			return _fail("procession_sequence_landmark_node_missing")
+	var progress_index: int = int(source_state.get("procession_progress_index", 0))
+	if progress_index < 0 or progress_index > required_landmark_ids.size():
+		return _fail("procession_progress_index_invalid")
+	var visited: Array[String] = _typed_string_array(_array(source_state.get("procession_visited_landmark_ids", [])))
+	if visited.size() != progress_index:
+		return _fail("procession_progress_prefix_invalid")
+	for index in range(progress_index):
+		if visited[index] != required_landmark_ids[index]:
+			return _fail("procession_progress_prefix_invalid")
+
+	var progress_node_id: String = str(source_state.get("procession_progress_node_id", ""))
+	if not progress_node_id.is_empty() and current_node_id != progress_node_id:
+		progress_node_id = ""
+	if progress_index < required_landmark_ids.size() and progress_node_id.is_empty():
+		var next_landmark_id: String = required_landmark_ids[progress_index]
+		var next_node_id: String = str(_dictionary(landmarks[next_landmark_id]).get("node_id", ""))
+		if current_node_id == next_node_id:
+			visited.append(next_landmark_id)
+			progress_index += 1
+			progress_node_id = current_node_id
+	return {
+		"ok": true,
+		"progress_index": progress_index,
+		"visited_landmark_ids": visited,
+		"progress_node_id": progress_node_id,
 	}
 
 func _evaluate_regional_connector(
