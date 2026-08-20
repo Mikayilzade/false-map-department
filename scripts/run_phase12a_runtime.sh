@@ -101,6 +101,7 @@ run_logged phase12b-contract python3 scripts/phase12b_contract_audit.py
 run_logged phase12c-contract python3 scripts/phase12c_contract_audit.py
 run_logged phase12c-late-contract python3 scripts/phase12c_late_contract_audit.py
 run_logged phase12c-transaction-contract python3 scripts/phase12c_transaction_contract_audit.py
+run_logged phase12c-stability-contract python3 scripts/phase12c_stability_contract_audit.py
 run_logged import-parse "$RESOLVED_GODOT" --headless --path . --editor --quit
 run_logged gdscript-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_runner.gd
 run_logged phase12b-history-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_slice_history_runner.gd
@@ -110,6 +111,7 @@ run_logged phase12c-primitive-authority-suite "$RESOLVED_GODOT" --headless --pat
 run_logged phase12c-agent-interpretation-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_agent_interpretation_runner.gd
 run_logged phase12c-late-agent-linked-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_late_agent_linked_runner.gd
 run_logged phase12c-core-transaction-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_core_transaction_runner.gd
+run_logged phase12c-stability-durability-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_stability_durability_runner.gd
 run_logged main-scene-boot "$RESOLVED_GODOT" --headless --path . --quit-after 2
 
 write_manifest "PASS" ""
