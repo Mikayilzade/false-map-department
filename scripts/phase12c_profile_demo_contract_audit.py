@@ -53,11 +53,14 @@ def main() -> None:
 
     for marker in [
         'DOCUMENT_TYPE := "profile_progress"',
+        'PRIMARY_PATH := "profile_progress.json"',
+        'TEMP_PATH := "profile_progress.tmp"',
+        'BACKUP_PATH := "profile_progress.bak"',
         "profile_progress_equal_generation_conflict",
         "profile_progress_recovery_required",
         "RECOVERY_MESSAGE",
-        "_slot_path",
         "payload_hash",
+        "SaveSchemaMigrationService",
     ]:
         if marker not in durable:
             fail(f"durable profile service missing marker: {marker}")
