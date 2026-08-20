@@ -20,6 +20,8 @@ func encode(state: Dictionary) -> Dictionary:
 		"invariant_state_by_id": _dictionary(state.get("invariant_state_by_id", {})).duplicate(true),
 		"stability_state": _dictionary(state.get("stability_state", {})).duplicate(true),
 		"authoritative_fact_values_by_layer": _dictionary(state.get("authoritative_fact_values_by_layer", {})).duplicate(true),
+		"intervention_footprint_state": _dictionary(state.get("intervention_footprint_state", {})).duplicate(true),
+		"causal_graph_current": _dictionary(state.get("causal_graph_current", {})).duplicate(true),
 		"completion_state": _dictionary(state.get("completion_state", {})).duplicate(true),
 	}
 
@@ -53,6 +55,8 @@ func decode(payload: Dictionary) -> Dictionary:
 		"invariant_state_by_id": _dictionary(payload.get("invariant_state_by_id", {})).duplicate(true),
 		"stability_state": _dictionary(payload.get("stability_state", {})).duplicate(true),
 		"authoritative_fact_values_by_layer": _dictionary(payload.get("authoritative_fact_values_by_layer", {})).duplicate(true),
+		"intervention_footprint_state": _dictionary(payload.get("intervention_footprint_state", {})).duplicate(true),
+		"causal_graph_current": _dictionary(payload.get("causal_graph_current", {})).duplicate(true),
 		"completion_state": _dictionary(payload.get("completion_state", {})).duplicate(true),
 	}
 	return {
@@ -60,6 +64,11 @@ func decode(payload: Dictionary) -> Dictionary:
 		"state": state,
 		"canonical_hash": CanonicalJson.sha256(encode(state)),
 	}
+
+func decode_checkpoint(checkpoint: Dictionary, session_id: String) -> Dictionary:
+	var payload: Dictionary = checkpoint.duplicate(true)
+	payload["session_id"] = session_id
+	return decode(payload)
 
 func _sorted_string_keys(value: Dictionary) -> Array[String]:
 	var result: Array[String] = []

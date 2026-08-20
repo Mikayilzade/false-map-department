@@ -103,6 +103,7 @@ run_logged phase12c-late-contract python3 scripts/phase12c_late_contract_audit.p
 run_logged phase12c-transaction-contract python3 scripts/phase12c_transaction_contract_audit.py
 run_logged phase12c-stability-contract python3 scripts/phase12c_stability_contract_audit.py
 run_logged phase12c-procession-progress-contract python3 scripts/phase12c_procession_progress_audit.py
+run_logged phase12c-footprint-causal-contract python3 scripts/phase12c_footprint_causal_contract_audit.py
 run_logged import-parse "$RESOLVED_GODOT" --headless --path . --editor --quit
 run_logged gdscript-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_runner.gd
 run_logged phase12b-history-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_slice_history_runner.gd
@@ -114,6 +115,7 @@ run_logged phase12c-late-agent-linked-suite "$RESOLVED_GODOT" --headless --path 
 run_logged phase12c-core-transaction-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_core_transaction_runner.gd
 run_logged phase12c-stability-durability-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_stability_durability_runner.gd
 run_logged phase12c-procession-stability-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_procession_stability_runner.gd
+run_logged phase12c-footprint-causal-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_footprint_causal_runner.gd
 run_logged main-scene-boot "$RESOLVED_GODOT" --headless --path . --quit-after 2
 
 write_manifest "PASS" ""
