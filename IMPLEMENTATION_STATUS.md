@@ -14,7 +14,7 @@ Repository: `Mikayilzade/false-map-department`
 - Implementation started: **YES**
 - 12A Technical Bootstrap: **COMPLETE — verified real Godot 4.7.1 import/headless/tests/main-scene boot baseline PASS**
 - 12B Vertical Slice: **COMPLETE — full inspect/edit/consequence/revise/clear loop + deterministic hashes + legal-vs-harmful distinction + exact Undo/Redo + active-session reload verified under real Godot 4.7.1**
-- 12C Core Systems: **IN PROGRESS — six primitives + A1–A10 + linked authority + shared A–I/O1–O12 + Stability/P10-R3/P10-R8 durability + stale/double command idempotency are runtime-green; persistent multi-beat Procession progress and remaining core production contracts remain**
+- 12C Core Systems: **IN PROGRESS — six primitives + A1–A10 + linked authority + shared A–I/O1–O12 + persistent A8 temporal sequence state + Stability/P10-R3/P10-R8 durability + stale/double command idempotency are runtime-green; intervention-footprint, causal-budget data and remaining production contracts remain**
 - 12D Content Population: **NO**
 - 12E UX / Accessibility / Controller / Deck: **NO**
 - 12F Adversarial QA: **NO**
@@ -25,46 +25,49 @@ Repository: `Mikayilzade/false-map-department`
 ## Latest autonomous implementation run — 2026-08-20
 
 ### Phase / subphase
-**12C Core Systems / Stability transactions + durable interruption recovery + command idempotency**
+**12C Core Systems / persistent A8 Procession sequence progress + O8 temporal evaluation + Procession Stability recovery**
 
 ### Completed
-- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, current status and the frozen Stability/P10-R3/P10-R8 rules before implementation-sensitive changes.
-- Added `CoreStateCodec` for deterministic runtime-state persistence/reconstruction of map authority objects plus session/agent/objective/invariant/Stability/completion state.
-- Added `IdempotentTransactionService`: a previously committed `command_id` with identical semantic fingerprint returns `already_applied` without a second mutation/history entry; the same ID with different semantics rejects as `duplicate_command_id_conflict`; unseen stale commands still reject through the canonical pre-state-hash gate.
-- Added `DurableSessionService` with two alternating checksummed generations. It writes/reads back each envelope, selects the newest valid compatible generation after corruption, persists an exact pre-verification marker before Stability, and on recovery from an incomplete Stability transaction restores the exact pre-verification checkpoint with the human-readable frozen notice `Stability verification was interrupted; your map edits were preserved.`
-- Added explicit `StabilityVerificationEngine` using the shared same-start reaction-beat/query/objective machinery. It validates the frozen P10-R3 reason-tag vocabulary, requires a relevant non-idle transition for `stability_required_cycles > 1`, preserves intervention history, advances one Stability transaction boundary, and emits atomic completion state only after the full required window succeeds.
-- Successful Stability and completion are persisted together as a newer durable generation; a corrupt/torn newest generation falls back to the newest older valid compatible generation rather than synthesizing partial verification.
-- Added headless acceptance for duplicate/stale commands, exact interrupted-Stability rollback, corruption fallback, P10-R3 transition proof, deterministic Stability replay hashes, no normal intervention history entry, one transaction-boundary revision, atomic completion persistence, and invalid/idle Stability reason rejection.
-- Initial automatic runtime run `32370884490` targeting `711de65c313c8319749fb177cfc2ca7fc543ad72` recorded **FAIL**. The failure exposed two implementation/test-boundary issues: malformed recovery candidates were parsed with noisy `JSON.parse_string`, and the shared O8 Procession fixture currently lacks persistent sequence-progress memory across multiple Stability beats, causing an unrelated O8 predicate to fail during the P10-R3 agent-progression test.
-- Fixed recovery parsing to use non-noisy `JSON.parse()` error handling and kept the Stability/durability acceptance substrate focused on `agent_progression_arrival` by excluding O8 as a required predicate for this specific test. Existing O8 single-transaction coverage remains unchanged; persistent multi-beat Procession sequence progress is explicitly the next core obligation rather than falsely claimed complete.
-- Final automatic Godot 4.7.1 run `32371315466` targeting fix commit `1470fcce9a66a8d063e6fc923af650df57219000` recorded **PASS** with `runtime_rc = 0` and all baseline/preflight return codes zero.
+- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, current status and the frozen A8/agent-state/Stability/P10-R3/P10-R8 contracts before changing temporal behavior.
+- Replaced A8's implicit whole-route-only visit check with explicit deterministic accumulated sequence state stored in authoritative `AgentState` across reaction and Stability beats.
+- Added canonical A8 temporal fields: `procession_progress_index`, ordered `procession_visited_landmark_ids`, `procession_progress_node_id`, `procession_sequence_total` and `procession_sequence_complete`.
+- Added `procession_next_landmark_id` to query output while preserving the existing meaning of `procession_predicate_satisfied`: a legal route satisfying the remaining authored route predicate exists.
+- A8 now validates that saved progress is an exact prefix of authored `visit_landmark_ids_in_order`; malformed/reordered progress rejects deterministically as `procession_progress_prefix_invalid` rather than silently repairing state.
+- Checkpoint arrival advances at most one authored sequence item and `procession_progress_node_id` prevents a repeated query while standing on the same checkpoint from double-counting it.
+- Route planning consumes only the remaining unvisited ordered checkpoints, so later beats do not require returning to already completed checkpoints; existing jurisdiction-count, restricted-zone and stable path tie-break rules remain active.
+- Changed O8 `VISIT_SEQUENCE` evaluation to read accumulated canonical sequence completion (`progress == total && sequence_complete`) instead of equating a currently feasible future route with completed historical visits.
+- Added dedicated two-cycle `procession_sequence_progression` P10-R3 fixture with N0 -> N1 -> N2 -> N3, two authored ordered checkpoints and explicit Procession temporal state.
+- Added headless acceptance proving first-beat progress 0->1, second-beat progress 1->2, O8 false->true, no same-node double count, corrupt-prefix rejection, exact pre-verification rollback after simulated process death, deterministic Stability replay hashes and durable completion reload preserving the exact ordered visited prefix.
+- Added `phase12c_procession_progress_audit.py` and wired its audit plus the Procession/Stability runner into the pinned runtime baseline.
+- Automatic Godot 4.7.1 run `32394116804` targeted implementation commit `a64e677b36761ec0523c356439a2768a8bb9328d` and recorded **PASS**. The dedicated Procession/Stability suite explicitly reports PASS and the aggregate baseline has `runtime_rc = 0`.
 - No manual GitHub Actions click is required.
 - No canonical gameplay rule was changed.
 
 ### Files / systems changed
-- `src/application/core_state_codec.gd` — deterministic state encode/decode for durable core sessions.
-- `src/application/idempotent_transaction_service.gd` — stale/double command receipt/idempotency boundary.
-- `src/application/durable_session_service.gd` — alternating valid-generation recovery + P10-R8 interruption marker/recovery.
-- `src/domain/stability_verification_engine.gd` — explicit deterministic Stability verification transaction and P10-R3 transition proof.
-- `tests/test_stability_durability_runner.gd` — headless durability/idempotency/Stability acceptance suite.
-- `scripts/phase12c_stability_contract_audit.py` — static P10-R3/P10-R8/idempotency contract guard.
-- `scripts/run_phase12a_runtime.sh` — executes the new audit and headless suite.
+- `src/domain/late_agent_interpretation_engine.gd` — persistent deterministic A8 sequence progress and remaining-checkpoint route planning.
+- `src/domain/objective_invariant_engine.gd` — O8 now evaluates accumulated canonical Procession progress.
+- `tests/fixtures/procession_stability_fixture.json` — dedicated two-cycle Procession P10-R3 substrate.
+- `tests/test_procession_stability_runner.gd` — temporal progress/O8/Stability interruption/replay/durable reload acceptance.
+- `scripts/phase12c_procession_progress_audit.py` — static Procession temporal-state contract guard.
+- `scripts/run_phase12a_runtime.sh` — executes Procession progress audit and headless Stability suite.
 - `IMPLEMENTATION_STATUS.md` — exact implementation handoff and runtime evidence.
 
 ### Validation
-- Shared A–I/A1/O1–O12 baseline before this increment: **PASS**, run `32346952078`.
-- Stability static contract audit: **PASS**.
-- First Stability/durability automatic real Godot 4.7.1 run: **FAIL**, run `32370884490`; concrete failure captured and repaired in the same implementation run.
-- Final Stability/durability/idempotency automatic real Godot 4.7.1 baseline: **PASS**, run `32371315466`, targeting `1470fcce9a66a8d063e6fc923af650df57219000`.
+- Previous Stability/durability/idempotency real Godot 4.7.1 baseline: **PASS**, run `32371315466`.
+- Procession fixture JSON parse: **PASS**.
+- Procession static contract/type-inference guards: **PASS**.
+- Runtime wrapper shell syntax: **PASS**.
+- Procession/Stability automatic real Godot 4.7.1 baseline: **PASS**, run `32394116804`, targeting `a64e677b36761ec0523c356439a2768a8bb9328d`.
+- Dedicated runtime log: `FMD Phase 12C Procession/Stability progression tests: PASS`.
 - Final recorded result: `runtime_rc = 0`, `ci_policy_rc = 0`, `bootstrap_preflight_rc = 0`, `phase12a_contract_rc = 0`, `fetch_godot_rc = 0`.
 
 ### Failures / blockers
 - **No user-action blocker.**
 - **No current runtime blocker.**
-- Known incomplete core behavior: A8 Procession visit/sequence progress is not yet persisted across multiple reaction/Stability beats; single-query/transaction O8 behavior remains covered and green.
+- Automatic source/test/script pushes remain notification-safe and self-record PASS/FAIL evidence.
 
 ### Canonical contradictions
-- **NONE discovered.** The initial Stability failure was an acceptance-fixture coupling to an explicitly incomplete multi-beat A8 progress state, not a contradiction in the frozen rules.
+- **NONE discovered.** Persistent ordered-visit progress fits the frozen AgentState task-flag model and P10-R3 Procession sequence transition contract; it does not add an archetype, primitive or hidden time source.
 
 ## NEXT ACTION
-Continue **12C Core Systems** with persistent A8 Procession temporal state: store deterministic visit/sequence progress in authoritative agent state across reaction and Stability beats, make O8 evaluate accumulated canonical progress rather than recomputing the entire sequence only from the current node, add a dedicated `procession_sequence_progression` P10-R3 Stability fixture proving non-idle sequence transitions and exact interruption/replay recovery, and keep stable-ID/tie-break determinism. After that, continue the remaining 12C obligations: intervention-footprint semantics, causal DAG/P10-R6 presentation-budget data, full production persistence/profile recovery contracts, demo-import mapping/idempotency primitives, and frozen content-validation tooling. Let the notification-safe automatic Godot baseline validate each coherent increment; no manual Actions click is required.
+Continue **12C Core Systems** with canonical intervention-footprint and causal-explanation foundations as one coherent deterministic increment: add `intervention_footprint_state` to shared canonical checkpoints/persistence and update it once per accepted player edit from authored baseline/reference map differences rather than raw edit/Undo history; attach footprint deltas to history entries without counting derived consequences. In the same transaction layer, harden the causal DAG for requirement-focused presentation by assigning deterministic objective/invariant relevance tags and compiling a material explanation projection that obeys P10-R6 (`<=5` default material nodes and `<=2` visible sibling branches) while preserving the complete canonical parent graph for expansion. Add headless fixtures proving Undo/replay/persistence equivalence, no experiment-count penalty, deterministic relevance/material-chain selection and no fabricated/reordered parentage. Let the notification-safe automatic Godot baseline validate the commit; no manual Actions click is required. After that continue remaining 12C production persistence/profile recovery, demo-import mapping/idempotency primitives and frozen content-validation tooling.
