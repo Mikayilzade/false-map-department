@@ -22,6 +22,21 @@ class MemoryStorage:
 	func exists(relative_path: String) -> bool:
 		return files.has(relative_path)
 
+	func remove_path(relative_path: String) -> Error:
+		if not files.has(relative_path):
+			return ERR_FILE_NOT_FOUND
+		files.erase(relative_path)
+		return OK
+
+	func rename_path(from_relative_path: String, to_relative_path: String) -> Error:
+		if not files.has(from_relative_path):
+			return ERR_FILE_NOT_FOUND
+		if files.has(to_relative_path):
+			return ERR_ALREADY_EXISTS
+		files[to_relative_path] = files[from_relative_path]
+		files.erase(from_relative_path)
+		return OK
+
 	func corrupt(relative_path: String) -> void:
 		files[relative_path] = "{corrupt"
 
@@ -73,10 +88,11 @@ func _initialize() -> void:
 	_assert(newest.get("ok", false) and int(newest.get("generation", -1)) == 2, "Newest valid profile_progress generation must win")
 	_assert(CanonicalJson.sha256(_dictionary(newest.get("progress", {}))) == CanonicalJson.sha256(merged), "Newest profile_progress payload must round-trip canonically")
 
-	storage.corrupt("profile_progress.slot0.json")
+	storage.corrupt("profile_progress.json")
 	var fallback: Dictionary = durable.load_recover("PROFILE_A")
 	_assert(fallback.get("ok", false) and int(fallback.get("generation", -1)) == 1, "Corrupt newest profile_progress must fall back to newest older valid generation")
 	_assert(_has_clear(_dictionary(fallback.get("progress", {})), profiles.clear_record_id(clear_d40)), "Corruption fallback must preserve older valid long-lived progress")
+	_assert(str(fallback.get("recovered_from_path", "")) == "profile_progress.bak", "Corruption fallback must identify the backup recovery source")
 
 	var persistence := PersistenceService.new(storage)
 	var conflict_left: Dictionary = persistence.make_envelope(
@@ -91,17 +107,20 @@ func _initialize() -> void:
 		4,
 		{"payload_version": 1, "progress": profile_b}
 	)
-	storage.write_text("profile_progress.slot0.json", CanonicalJson.stringify(conflict_left))
-	storage.write_text("profile_progress.slot1.json", CanonicalJson.stringify(conflict_right))
+	storage.write_text("profile_progress.json", CanonicalJson.stringify(conflict_left))
+	storage.write_text("profile_progress.bak", CanonicalJson.stringify(conflict_right))
 	var conflict: Dictionary = durable.load_recover("PROFILE_A")
 	_assert(str(conflict.get("code", "")) == "profile_progress_equal_generation_conflict", "Equal-generation divergent valid profile copies must not be chosen by file iteration order")
 	_assert(bool(conflict.get("recovery_required", false)), "Equal-generation profile conflict must enter explicit recovery state")
 
-	storage.corrupt("profile_progress.slot0.json")
-	storage.corrupt("profile_progress.slot1.json")
+	storage.corrupt("profile_progress.json")
+	storage.corrupt("profile_progress.bak")
+	var corrupt_primary_before: String = str(storage.files["profile_progress.json"])
+	var corrupt_backup_before: String = str(storage.files["profile_progress.bak"])
 	var unrecoverable: Dictionary = durable.load_recover("PROFILE_A")
 	_assert(str(unrecoverable.get("code", "")) == "profile_progress_recovery_required", "No valid profile generation must require recovery instead of overwriting bad files")
 	_assert(str(unrecoverable.get("message", "")).contains("left untouched"), "Unrecoverable profile corruption must expose a human-readable preservation message")
+	_assert(str(storage.files["profile_progress.json"]) == corrupt_primary_before and str(storage.files["profile_progress.bak"]) == corrupt_backup_before, "Unrecoverable recovery must leave corrupt evidence byte-exact")
 
 	var demo := DemoImportService.new()
 	var mapping: Dictionary = {
@@ -112,9 +131,7 @@ func _initialize() -> void:
 				"baseline_clear_equivalent": true,
 				"full_clear_record": clear_d01,
 				"tutorial_tags": ["tutorial.road"],
-				"mastery_equivalences_by_demo_mastery_id": {
-					"DM_CLEAN": mastery_d01,
-				},
+				"mastery_equivalences_by_demo_mastery_id": {"DM_CLEAN": mastery_d01},
 			},
 			"DEMO05": {
 				"baseline_clear_equivalent": false,
@@ -128,11 +145,7 @@ func _initialize() -> void:
 		"demo-build-1",
 		"demo-content-1",
 		"rules-1",
-		{
-			"language": "az",
-			"ui_scale_percent": 125,
-			"window_position": "machine-only",
-		},
+		{"language": "az", "ui_scale_percent": 125, "window_position": "machine-only"},
 		[
 			{"demo_node_id": "DEMO01"},
 			{"demo_node_id": "DEMO05"},
