@@ -26,9 +26,9 @@
       "sha256": "9a82feb0ee061aed657f88539257a8d6b130034cadc6b0689f401952d4fec32b"
     },
     {
-      "bytes": 3576,
+      "bytes": 3808,
       "name": "import-parse.log",
-      "sha256": "bae93ad91f8f6be9f1d5456e922fc6c6ef504e5a757b71b511f5c07f743b08dc"
+      "sha256": "4573e4d5f595092189a6922e2d5617caf367dded64a42f6c75072f48d002e395"
     },
     {
       "bytes": 95,
@@ -38,7 +38,7 @@
     {
       "bytes": 81,
       "name": "phase12a-contract.log",
-      "sha256": "50d3ab849d0600cdd8a5f28552afef1db0d724d22875b453dd6f0df7d79f46ee"
+      "sha256": "696191580200da5580296af1746734e84a4bc4cf5d8f711518f442031df60a90"
     },
     {
       "bytes": 55,
@@ -74,6 +74,16 @@
       "bytes": 154,
       "name": "phase12c-core-transaction-suite.log",
       "sha256": "f2daeefcac2237dedb07971f109b0bd46a21bf79fe7ce01049832525a5769e64"
+    },
+    {
+      "bytes": 134,
+      "name": "phase12c-footprint-causal-contract.log",
+      "sha256": "ba45221dc463be784f90b9cc0ff2674a910e52ea66678cc85f31cd958bf74c74"
+    },
+    {
+      "bytes": 154,
+      "name": "phase12c-footprint-causal-suite.log",
+      "sha256": "9a78e7b8f7d6bbbe0666da158f3e35eaf946343829fb1f0c7ab42a84ba4e2363"
     },
     {
       "bytes": 177,
