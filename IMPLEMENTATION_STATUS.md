@@ -14,7 +14,7 @@ Repository: `Mikayilzade/false-map-department`
 - Implementation started: **YES**
 - 12A Technical Bootstrap: **COMPLETE — verified real Godot 4.7.1 import/headless/tests/main-scene boot baseline PASS**
 - 12B Vertical Slice: **COMPLETE — full inspect/edit/consequence/revise/clear loop + deterministic hashes + legal-vs-harmful distinction + exact Undo/Redo + active-session reload verified under real Godot 4.7.1**
-- 12C Core Systems: **IN PROGRESS — six primitives + A1–A10 + linked authority runtime-green; shared A–I transaction/O1–O12 foundation implemented, automatic runtime evidence pending**
+- 12C Core Systems: **IN PROGRESS — six primitives + A1–A10 + linked authority + shared A–I transaction/O1–O12 foundation are runtime-green; Stability/durable recovery/idempotency obligations remain**
 - 12D Content Population: **NO**
 - 12E UX / Accessibility / Controller / Deck: **NO**
 - 12F Adversarial QA: **NO**
@@ -51,6 +51,7 @@ Repository: `Mikayilzade/false-map-department`
 - Added a data-driven core transaction fixture spanning road authority, linked portal projection, A1/A2/A7/A8/A9/A10 query groups, one shared reaction beat, all O1–O12 families and a nonzero Stability requirement.
 - Added headless acceptance coverage for exact A–I order, single transaction/history root, child-only derived consequences, A1/A7/A10 participation in the same beat, all O1–O12 satisfaction, Stability eligibility without premature verification, stale-command rejection, and same-start replay/final/transaction hash equivalence.
 - Added a dedicated static transaction contract audit and wired it plus the new headless suite into the pinned runtime wrapper.
+- Automatic Godot run `32346952078` targeted implementation commit `f1553a183e97359ac6d33a432a1c8195acf75a45` and recorded **PASS**; `runtime_rc`, CI-policy, bootstrap and Phase-12A contract return codes are all zero.
 - Stability cycle execution, interrupted-verification rollback and durable transaction recovery remain intentionally deferred to the next 12C increment.
 - No canonical gameplay rule was changed.
 
@@ -62,23 +63,24 @@ Repository: `Mikayilzade/false-map-department`
 - `tests/test_core_transaction_runner.gd` — headless A–I/history/O1–O12/replay acceptance suite.
 - `scripts/phase12c_transaction_contract_audit.py` — static transaction contract guard.
 - `scripts/run_phase12a_runtime.sh` — executes the new transaction audit and headless suite.
-- `IMPLEMENTATION_STATUS.md` — exact implementation handoff and next action.
+- `IMPLEMENTATION_STATUS.md` — exact implementation handoff and runtime evidence.
 
 ### Validation
 - Previous A8–A10 + linked-authority automatic Godot 4.7.1 baseline: **PASS**, run `32299545642`.
 - Core transaction fixture JSON parse + exact O1–O12 family coverage: **PASS**.
-- Static transaction contract audit against the assembled increment: **PASS**.
+- Static transaction contract audit: **PASS**.
 - Variant-inference/JSON-parse inference guards for new GDScript: **PASS**.
 - Runtime wrapper structural check: **PASS**.
-- Real Godot 4.7.1 import/headless execution of the **new shared transaction increment** is **PENDING** and will be recorded automatically under `runtime-evidence/phase12c/latest`.
+- Shared A–I/A1/O1–O12 automatic real Godot 4.7.1 baseline: **PASS**, run `32346952078`, targeting `f1553a183e97359ac6d33a432a1c8195acf75a45`.
+- Final recorded result: `runtime_rc = 0`, `ci_policy_rc = 0`, `bootstrap_preflight_rc = 0`, `phase12a_contract_rc = 0`, `fetch_godot_rc = 0`.
 
 ### Failures / blockers
 - **No user-action blocker.**
-- **No known implementation blocker before runtime validation.**
-- If automatic evidence records `FAIL`, the next run must fix the first concrete Godot parse/runtime/test failure before adding Stability.
+- **No current runtime blocker.**
+- Automatic source/test/script pushes remain notification-safe and self-record PASS/FAIL evidence.
 
 ### Canonical contradictions
 - **NONE discovered.** O9–O11 are deliberately fact-backed evaluator foundations until the later full derived-world/objective compilation layer provides their canonical named facts. Stability execution is not falsely claimed complete.
 
 ## NEXT ACTION
-Read `runtime-evidence/phase12c/latest/result.json` for this shared transaction commit. If it is `PASS`, continue **12C Core Systems** with Stability and durability: implement explicit Stability verification transactions using same-start beats, P10-R3 reason/transition metadata validation, exact pre-verification recovery checkpoint, process-death/interruption rollback with committed edits preserved, successful verification atomic completion state, and headless persistence/recovery fixtures. Also harden stale/double command idempotency around the shared coordinator if it fits coherently in the same increment. If the automatic evidence is `FAIL`, inspect committed logs and fix the first concrete failure before adding new mechanics. No manual GitHub Actions click is required.
+Continue **12C Core Systems** with Stability and durability: implement explicit Stability verification transactions using same-start beats, P10-R3 reason/transition metadata validation, exact pre-verification recovery checkpoint, process-death/interruption rollback with committed edits preserved, successful verification atomic completion state, and headless persistence/recovery fixtures. Also harden stale/double command idempotency around the shared coordinator if it fits coherently in the same increment. Let the notification-safe automatic Godot baseline validate the commit; no manual GitHub Actions click is required.
