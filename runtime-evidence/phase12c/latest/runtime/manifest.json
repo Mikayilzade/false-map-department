@@ -13,7 +13,7 @@
     {
       "bytes": 359,
       "name": "environment.log",
-      "sha256": "6dfc84cf7ba64a319f0d80efe23f5116884ca55464a2714878f85ff3dd1e5505"
+      "sha256": "85553aca69e8030b472847d041a38f7ea0d2462101852857743550fc0efcb0f1"
     },
     {
       "bytes": 121,
@@ -26,9 +26,9 @@
       "sha256": "9a82feb0ee061aed657f88539257a8d6b130034cadc6b0689f401952d4fec32b"
     },
     {
-      "bytes": 2996,
+      "bytes": 3228,
       "name": "import-parse.log",
-      "sha256": "ec1dc0675a6ac1acf3c7545b45b72225e6f8f6b433d63b54a4db3630d38ede49"
+      "sha256": "f72353eb191add5f41f76f042729702c86e4249c0cbe83ace9bdafc47a3e56fb"
     },
     {
       "bytes": 95,
@@ -38,7 +38,7 @@
     {
       "bytes": 81,
       "name": "phase12a-contract.log",
-      "sha256": "aff1c1e8b04c8dd52ee2c931a953e69923f04580e285a0a86ae75e66fb23b4ce"
+      "sha256": "500f00e0c4c4503f29f07409782e554b8952585b3025741aa931d048a8e1b959"
     },
     {
       "bytes": 55,
@@ -71,6 +71,11 @@
       "sha256": "7d9fdf2b1b0b94ad2cf7b0bfb1b256da66847cbc7b51718499cb0b0bf7c2fa70"
     },
     {
+      "bytes": 154,
+      "name": "phase12c-core-transaction-suite.log",
+      "sha256": "f2daeefcac2237dedb07971f109b0bd46a21bf79fe7ce01049832525a5769e64"
+    },
+    {
       "bytes": 177,
       "name": "phase12c-late-agent-linked-suite.log",
       "sha256": "12233aa9a43af4e69991d200c8bc726e05a0e9b15f1eaeb8117fb11409b22365"
@@ -84,6 +89,11 @@
       "bytes": 160,
       "name": "phase12c-primitive-authority-suite.log",
       "sha256": "074879e58ec71cc45c02361453d635511a7298f2958adca773a5c85c2858cc93"
+    },
+    {
+      "bytes": 114,
+      "name": "phase12c-transaction-contract.log",
+      "sha256": "95dc0e8ca084b43e93ad03dddb7dcd05b14ba78f34e2a0588d6e2b44ab9f0c8b"
     }
   ],
   "phase": "12A+12B+12C",
