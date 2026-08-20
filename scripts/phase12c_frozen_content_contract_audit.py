@@ -19,13 +19,15 @@ def fail(message: str) -> None:
 
 def main() -> None:
     validator_path = ROOT / "src/application/frozen_content_validator.gd"
+    linked_path = ROOT / "src/domain/linked_authority_engine.gd"
     test_path = ROOT / "tests/test_frozen_content_validator_runner.gd"
     runtime_path = ROOT / "scripts/run_phase12a_runtime.sh"
-    for path in [validator_path, test_path, runtime_path]:
+    for path in [validator_path, linked_path, test_path, runtime_path]:
         if not path.exists():
             fail(f"missing artifact: {path.relative_to(ROOT)}")
 
     validator = validator_path.read_text(encoding="utf-8")
+    linked = linked_path.read_text(encoding="utf-8")
     test = test_path.read_text(encoding="utf-8")
     runtime = runtime_path.read_text(encoding="utf-8")
 
@@ -36,8 +38,8 @@ def main() -> None:
         "requirement_family_outside_o1_o12",
         "four_layer_ceiling_exceeded",
         "content_hash_mismatch",
-        "linked_authority_cycle",
-        "linked_authority_projected_fact_editable_on_target",
+        "LinkedAuthorityEngine",
+        'str(linked_result.get("code", "linked_authority_invalid"))',
         "p10_r1_three_window_single_transformation",
         "p10_r1_five_window_low_diversity",
         "p10_r2_three_consecutive_semantic_relabel",
@@ -57,6 +59,10 @@ def main() -> None:
     for marker in validator_markers:
         if marker not in validator:
             fail(f"validator missing frozen marker: {marker}")
+
+    for marker in ["linked_authority_cycle", "linked_authority_double_ownership", "linked_authority_projected_fact_editable_on_target"]:
+        if marker not in linked:
+            fail(f"linked authority engine missing delegated validation marker: {marker}")
 
     test_markers = [
         "Frozen synthetic D01-D40 + DEMO01-DEMO05 + 12 remix catalog must validate",
