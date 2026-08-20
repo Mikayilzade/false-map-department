@@ -22,6 +22,8 @@ Phase 12C Stability contract audit: PASS (P10-R3/P10-R8 + durability + idempoten
 Phase 12C Procession progress audit: PASS (persistent A8 sequence + O8 + P10-R3 recovery)
 == phase12c-footprint-causal-contract ==
 Phase 12C footprint/causal audit: PASS (final footprint + canonical DAG + P10-R6 projection)
+== phase12c-profile-demo-contract ==
+Phase 12C profile/demo contract audit: PASS (T8-28/T8-31/T8-32 + recovery)
 == import-parse ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
@@ -34,52 +36,56 @@ Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
 [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
 [0m
-[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (45 steps)[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (49 steps)[39m[0m
 [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [   2% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [   4% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [   6% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [   8% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  10% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  13% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  15% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  17% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  19% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  23% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  12% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  16% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  18% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  22% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  30% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  36% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  39% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  43% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  45% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  44% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  46% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  48% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  52% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  54% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  56% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  58% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  60% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  63% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  67% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  69% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  62% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  64% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  66% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  68% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  72% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  93% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  95% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  88% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  92% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  96% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [92m[ DONE ][39m [1mupdate_scripts_classes[22m
 [0m
 [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
@@ -131,6 +137,10 @@ FMD Phase 12C Procession/Stability progression tests: PASS
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
 FMD Phase 12C footprint/causal tests: PASS
+== phase12c-profile-demo-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C profile/demo tests: PASS
 == main-scene-boot ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
