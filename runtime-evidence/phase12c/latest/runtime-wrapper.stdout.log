@@ -7,7 +7,7 @@ FMD bootstrap preflight: PASS
 fixture_sha256=d64daedbdb4d685fe85b345cf0d6780dc18d89c532a892dc7b4dce43a8e3b303
 session_sha256=c7e3412436a0182737ff67470b015c4d057326ca9475abc565cbe53232536751
 == phase12a-contract ==
-Phase 12A contract audit: PASS (13 domain files checked)
+Phase 12A contract audit: PASS (14 domain files checked)
 == phase12b-contract ==
 Phase 12B contract audit: PASS
 == phase12c-contract ==
@@ -16,6 +16,8 @@ Phase 12C contract audit: PASS (six primitives + A2-A7 agent interpretation)
 Phase 12C late contract audit: PASS (A8-A10 + linked authority DAG)
 == phase12c-transaction-contract ==
 Phase 12C transaction contract audit: PASS (A-I + A1-A10 + O1-O12 foundation)
+== phase12c-stability-contract ==
+Phase 12C Stability contract audit: PASS (P10-R3/P10-R8 + durability + idempotency)
 == import-parse ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
@@ -28,43 +30,47 @@ Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
 [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
 [0m
-[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (36 steps)[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (40 steps)[39m[0m
 [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [   2% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[   8% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  10% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  13% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  16% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  18% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   4% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   7% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   9% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  12% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  17% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  19% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  24% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  27% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  29% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  35% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  37% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  31% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  36% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  39% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  43% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  45% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  46% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  48% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  51% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  54% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  53% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  56% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  59% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  62% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  64% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  67% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  58% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  63% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  68% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  72% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  83% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  92% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  95% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [92m[ DONE ][39m [1mupdate_scripts_classes[22m
 [0m
 [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
@@ -104,8 +110,42 @@ FMD Phase 12C late-agent/linked-authority tests: PASS (5 groups)
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
 FMD Phase 12C core-transaction tests: PASS
-== main-scene-boot ==
+== phase12c-stability-durability-suite ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
-/home/runner/work/_temp/fmd-runtime-baseline/runtime/manifest.json
-Phase 12A + 12B + 12C runtime baseline: PASS
+ERROR: Parse JSON failed. Error at line 0: Expected key
+   at: parse_string (core/io/json.cpp:629)
+   GDScript backtrace (most recent call first):
+       [0] load_recover (res://src/application/durable_session_service.gd:50)
+       [1] _initialize (res://tests/test_stability_durability_runner.gd:87)
+ERROR: Two-cycle Stability verification must pass the known-valid transition fixture
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/test_stability_durability_runner.gd:181)
+       [1] _initialize (res://tests/test_stability_durability_runner.gd:99)
+ERROR: Successful Stability must atomically produce completion state
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/test_stability_durability_runner.gd:181)
+       [1] _initialize (res://tests/test_stability_durability_runner.gd:105)
+ERROR: Deterministic Stability replay must also pass
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/test_stability_durability_runner.gd:181)
+       [1] _initialize (res://tests/test_stability_durability_runner.gd:108)
+ERROR: Reloaded successful Stability must retain atomic completion state
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/test_stability_durability_runner.gd:181)
+       [1] _initialize (res://tests/test_stability_durability_runner.gd:117)
+ERROR: Parse JSON failed. Error at line 0: Expected key
+   at: parse_string (core/io/json.cpp:629)
+   GDScript backtrace (most recent call first):
+       [0] load_recover (res://src/application/durable_session_service.gd:50)
+       [1] _initialize (res://tests/test_stability_durability_runner.gd:120)
+ERROR: Stability>1 must reject an identical idle verification window
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/test_stability_durability_runner.gd:181)
+       [1] _initialize (res://tests/test_stability_durability_runner.gd:133)
+FMD Phase 12C Stability/durability/idempotency tests: FAIL (5 failures)
