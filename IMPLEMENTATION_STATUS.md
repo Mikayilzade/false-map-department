@@ -14,7 +14,7 @@ Repository: `Mikayilzade/false-map-department`
 - Implementation started: **YES**
 - 12A Technical Bootstrap: **COMPLETE — verified real Godot 4.7.1 import/headless/tests/main-scene boot baseline PASS**
 - 12B Vertical Slice: **COMPLETE — full inspect/edit/consequence/revise/clear loop + deterministic hashes + legal-vs-harmful distinction + exact Undo/Redo + active-session reload verified under real Godot 4.7.1**
-- 12C Core Systems: **IN PROGRESS — six primitive authority + A2–A10 interpretation + one-way linked authority DAG/portal projection are runtime-green; generalized transaction/objective/Stability/persistence-hardening obligations remain**
+- 12C Core Systems: **IN PROGRESS — six primitives + A1–A10 + linked authority runtime-green; shared A–I transaction/O1–O12 foundation implemented, automatic runtime evidence pending**
 - 12D Content Population: **NO**
 - 12E UX / Accessibility / Controller / Deck: **NO**
 - 12F Adversarial QA: **NO**
@@ -25,50 +25,60 @@ Repository: `Mikayilzade/false-map-department`
 ## Latest autonomous implementation run — 2026-08-20
 
 ### Phase / subphase
-**12C Core Systems / A8–A10 + linked-authority DAG + portal projection**
+**12C Core Systems / shared A–I transaction coordinator + A1 adapter + O1–O12 objective/invariant foundation**
 
 ### Completed
-- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, current `IMPLEMENTATION_STATUS.md`, `GAME2_PHASE11_FINAL_FREEZE.md`, the A8–A10/trapped/tie-break/linked-map rules in `GAME2_MECHANICAL_ARCHITECTURE.md`, the linked content schema in `GAME2_CONTENT_ARCHITECTURE.md`, and the technical linked-authority DAG/recompute contract in `GAME2_TECHNICAL_SPEC.md`.
-- Consumed the A2–A7 automatic real-Godot evidence: run `32298073243` targeting `09bace1e8ca7ab8784bad0bfe8ab6fc012e663ac` recorded **PASS**.
-- Added domain-pure `LinkedAuthorityEngine` with deterministic topological authority ordering, one-way-only validation, frozen four-layer ceiling, cycle rejection, double target-ownership rejection, missing source/target validation, and rejection when a projected target fact is also directly editable on the target layer.
-- Added deterministic projection semantics for `portal_availability`, `portal_cost`, and `fact_mirror`; portal availability/cost are derived from the owning source layer and canonicalized in stable relation order.
-- Added domain-pure late-agent interpretation for A8 Procession/Route-Constrained Agent, A9 Semantic Seeker and A10 Regional Connector.
-- A8 now evaluates deterministic simple road routes against authored ordered landmark visits, exact distinct-jurisdiction count and explicit restricted-zone avoidance without silently relaxing the predicate.
-- A9 reuses the established road semantic-target query path and resolves equal-cost matching landmarks by stable landmark ID.
-- A10 routes over an authored regional graph where portal-linked edges consume projected availability/cost; equal-cost routes resolve by stable node-path ordering and higher-authority cost/availability changes deterministically reroute the agent.
-- Added data-driven acceptance fixture spanning local/regional layers, A8–A10, portal availability/cost projections and explicit authority ownership.
-- Added headless acceptance coverage for authority topological order, cycle rejection, double ownership, target-edit conflict, four-layer ceiling, relation insertion-order determinism, missing source facts, A8 constrained routing, A9 stable semantic target tie-break, A10 stable route tie-break, portal cost reroute, portal closure reroute and blocked procession under an avoided active zone.
-- Added `phase12c_late_contract_audit.py` and wired the new audit/headless suite into the pinned runtime wrapper.
-- First final late-suite run `32299404374` correctly recorded **FAIL**: JSON parsing represented `REG_CONNECTOR_COST` as an integral float, while the new linked-authority boundary required runtime `int`.
-- Fixed the boundary by using the existing canonical integral-number predicate before integer normalization. Canonical gameplay remains integer-only; JSON integral numeric representation is normalized only at the serialization/content boundary.
-- Final automatic Godot 4.7.1 run `32299545642` targeting fix commit `4fa4e207bd9ac529bd6eeb67c4378af97762be4f` recorded **PASS** with all baseline return codes zero.
-- No manual GitHub Actions click is required.
+- Re-read `IMPLEMENTATION_STATUS.md` and the frozen A–I resolution, A1–A10, objective/invariant, linked-authority, deterministic tie-break and transaction/history contracts before implementation-sensitive changes.
+- Consumed the latest A8–A10/linked-authority real Godot 4.7.1 evidence: run `32299545642` targeting `4fa4e207bd9ac529bd6eeb67c4378af97762be4f` is **PASS**.
+- Added domain-pure `DirectCourierEngine` for A1. It reuses the already runtime-green deterministic road/bridge query core through an unrestricted A2 adapter, then restores the canonical A1 archetype identity; no separate route algorithm was invented.
+- Added domain-pure `ObjectiveInvariantEngine` with an explicit frozen O1–O12 registry and deterministic reusable evaluation foundations:
+  - O1 reachability;
+  - O2 non-reachability;
+  - O3 route-length bound;
+  - O4 jurisdiction membership;
+  - O5 permission compliance;
+  - O6 water connectivity through water-agent query state;
+  - O7 semantic destination;
+  - O8 procession/visit predicate;
+  - O9 protected adjacency through named deterministic derived facts;
+  - O10 network continuity through named deterministic derived facts;
+  - O11 stable-service state through named deterministic service facts;
+  - O12 cross-layer connector availability/cost.
+- Added domain-pure `CoreTransactionCoordinator` that validates `expected_pre_state_hash`, applies exactly one primitive authority mutation, performs linked projection before agent rebuild, queries A1–A10 through the canonical engines, adjudicates `TRAPPED`, runs bounded same-start/simultaneous reaction beats, evaluates O1–O12 objectives/invariants, computes Stability eligibility without executing verification cycles, and returns control through the exact A–I phase trace.
+- The shared reaction beat computes all agent intents from the same evaluated start snapshot and resolves optional capacity-1 contention with canonical Emergency > authored priority > stable agent-ID ordering across archetype groups.
+- One accepted player edit now produces exactly one canonical transaction/history entry and one parentless `MAP_EDIT_COMMITTED` causal root. Linked projection, route/state, movement and contract consequences are child events rather than additional interventions/history entries.
+- Stale `expected_pre_state_hash` rejects before mutation and creates no history entry.
+- Added a data-driven core transaction fixture spanning road authority, linked portal projection, A1/A2/A7/A8/A9/A10 query groups, one shared reaction beat, all O1–O12 families and a nonzero Stability requirement.
+- Added headless acceptance coverage for exact A–I order, single transaction/history root, child-only derived consequences, A1/A7/A10 participation in the same beat, all O1–O12 satisfaction, Stability eligibility without premature verification, stale-command rejection, and same-start replay/final/transaction hash equivalence.
+- Added a dedicated static transaction contract audit and wired it plus the new headless suite into the pinned runtime wrapper.
+- Stability cycle execution, interrupted-verification rollback and durable transaction recovery remain intentionally deferred to the next 12C increment.
 - No canonical gameplay rule was changed.
 
 ### Files / systems changed
-- `src/domain/linked_authority_engine.gd` — one-way authority DAG validation/topological projection/portal availability-cost facts.
-- `src/domain/late_agent_interpretation_engine.gd` — A8/A9/A10 deterministic query/routing semantics.
-- `tests/fixtures/late_agent_linked_fixture.json` — linked local/regional acceptance substrate.
-- `tests/test_late_agent_linked_runner.gd` — A8–A10 + linked-authority headless acceptance suite.
-- `scripts/phase12c_late_contract_audit.py` — static late-core contract guard.
-- `scripts/run_phase12a_runtime.sh` — executes late Phase-12C audit and headless suite.
-- `IMPLEMENTATION_STATUS.md` — exact phase state, validation evidence and next action.
+- `src/domain/direct_courier_engine.gd` — A1 adapter over the shared deterministic road query core.
+- `src/domain/objective_invariant_engine.gd` — reusable O1–O12 objective/invariant evaluator foundation.
+- `src/domain/core_transaction_coordinator.gd` — shared A–I edit/linked/agent/beat/objective/history transaction coordinator.
+- `tests/fixtures/core_transaction_fixture.json` — deterministic cross-system acceptance substrate.
+- `tests/test_core_transaction_runner.gd` — headless A–I/history/O1–O12/replay acceptance suite.
+- `scripts/phase12c_transaction_contract_audit.py` — static transaction contract guard.
+- `scripts/run_phase12a_runtime.sh` — executes the new transaction audit and headless suite.
+- `IMPLEMENTATION_STATUS.md` — exact implementation handoff and next action.
 
 ### Validation
-- A2–A7 automatic real Godot 4.7.1 baseline: **PASS**, run `32298073243`.
-- Late Phase-12C static contract audit: **PASS**.
-- Initial late runtime: **FAIL**, run `32299404374`, isolated to JSON numeric representation at portal-cost boundary.
-- Final A8–A10/linked-authority automatic real Godot 4.7.1 baseline: **PASS**, run `32299545642`, targeting `4fa4e207bd9ac529bd6eeb67c4378af97762be4f`.
-- Final recorded result: `runtime_rc = 0`, `ci_policy_rc = 0`, `bootstrap_preflight_rc = 0`, `phase12a_contract_rc = 0`, `fetch_godot_rc = 0`.
-- Domain-purity/static guards remain green; no presentation/application dependency was introduced into new domain engines.
+- Previous A8–A10 + linked-authority automatic Godot 4.7.1 baseline: **PASS**, run `32299545642`.
+- Core transaction fixture JSON parse + exact O1–O12 family coverage: **PASS**.
+- Static transaction contract audit against the assembled increment: **PASS**.
+- Variant-inference/JSON-parse inference guards for new GDScript: **PASS**.
+- Runtime wrapper structural check: **PASS**.
+- Real Godot 4.7.1 import/headless execution of the **new shared transaction increment** is **PENDING** and will be recorded automatically under `runtime-evidence/phase12c/latest`.
 
 ### Failures / blockers
 - **No user-action blocker.**
-- **No current runtime blocker.**
-- Automatic source/test/script pushes remain notification-safe and self-record PASS/FAIL evidence.
+- **No known implementation blocker before runtime validation.**
+- If automatic evidence records `FAIL`, the next run must fix the first concrete Godot parse/runtime/test failure before adding Stability.
 
 ### Canonical contradictions
-- **NONE discovered.** The implementation follows the frozen A8–A10 and linked-authority contracts. The JSON numeric defect was a serialization-boundary representation issue, not a gameplay contradiction.
+- **NONE discovered.** O9–O11 are deliberately fact-backed evaluator foundations until the later full derived-world/objective compilation layer provides their canonical named facts. Stability execution is not falsely claimed complete.
 
 ## NEXT ACTION
-Continue **12C Core Systems** with the next substantial deterministic increment: create one shared core transaction coordinator that composes the six-primitive authority engine, A1–A10 agent query/beat engines and linked-authority propagation into the frozen A–I resolution sequence; add reusable objective/invariant evaluation foundations for the canonical O1–O12 families where current state/query data is sufficient; prove one accepted edit produces exactly one transaction/history root while derived linked/agent consequences remain children, and add deterministic headless fixtures for same-start replay/hash equivalence. Keep Stability execution itself for the following increment unless it can be added without weakening the transaction tests.
+Read `runtime-evidence/phase12c/latest/result.json` for this shared transaction commit. If it is `PASS`, continue **12C Core Systems** with Stability and durability: implement explicit Stability verification transactions using same-start beats, P10-R3 reason/transition metadata validation, exact pre-verification recovery checkpoint, process-death/interruption rollback with committed edits preserved, successful verification atomic completion state, and headless persistence/recovery fixtures. Also harden stale/double command idempotency around the shared coordinator if it fits coherently in the same increment. If the automatic evidence is `FAIL`, inspect committed logs and fix the first concrete failure before adding new mechanics. No manual GitHub Actions click is required.

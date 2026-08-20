@@ -1,0 +1,459 @@
+{
+  "definition": {
+    "agents": {
+      "AG_A1": {
+        "agent_tags": [
+          "courier"
+        ],
+        "archetype": "A1_DIRECT_COURIER",
+        "layer_id": "LOCAL",
+        "target_landmark_id": "L_CLINIC"
+      },
+      "AG_A10": {
+        "archetype": "A10_REGIONAL_CONNECTOR",
+        "layer_id": "LOCAL",
+        "target_landmark_id": "L_REGION"
+      },
+      "AG_A2_BLOCK": {
+        "agent_tags": [
+          "resident"
+        ],
+        "allowed_jurisdiction_ids": [
+          "J_BLUE"
+        ],
+        "archetype": "A2_JURISDICTION_LOCKED_RESIDENT",
+        "layer_id": "LOCAL",
+        "target_landmark_id": "L_ISOLATED"
+      },
+      "AG_A2_PERM": {
+        "agent_tags": [
+          "resident"
+        ],
+        "allowed_jurisdiction_ids": [
+          "J_BLUE"
+        ],
+        "archetype": "A2_JURISDICTION_LOCKED_RESIDENT",
+        "layer_id": "LOCAL",
+        "target_landmark_id": "L_MARKET"
+      },
+      "AG_A7": {
+        "agent_tags": [
+          "ferry"
+        ],
+        "archetype": "A7_FERRY_WATER_CARRIER",
+        "layer_id": "LOCAL",
+        "target_landmark_id": "L_DOCK"
+      },
+      "AG_A8": {
+        "archetype": "A8_PROCESSION_ROUTE_CONSTRAINED",
+        "layer_id": "LOCAL",
+        "procession_predicate": {
+          "avoid_restricted_zone_policy_ids": [],
+          "exact_distinct_jurisdiction_count": 1,
+          "visit_landmark_ids_in_order": [
+            "L_CLINIC"
+          ]
+        },
+        "target_landmark_id": "L_MARKET"
+      },
+      "AG_A9": {
+        "agent_tags": [
+          "seeker"
+        ],
+        "archetype": "A9_SEMANTIC_SEEKER",
+        "layer_id": "LOCAL",
+        "target_semantic_token": "Clinic"
+      }
+    },
+    "allow_duplicate_landmark_labels": false,
+    "capacity_one_node_ids": [],
+    "cell_allowed_jurisdictions": {
+      "C0": [
+        "J_BLUE"
+      ],
+      "C1": [
+        "J_BLUE"
+      ],
+      "C2": [
+        "J_BLUE"
+      ],
+      "C3": [
+        "J_BLUE"
+      ],
+      "C4": [
+        "J_BLUE"
+      ]
+    },
+    "cell_ids": [
+      "C0",
+      "C1",
+      "C2",
+      "C3",
+      "C4"
+    ],
+    "crossing_slots": {},
+    "derived_facts": {
+      "boolean_facts": {
+        "NETWORK_OK": true,
+        "WETLAND_SAFE": true
+      },
+      "stable_service_facts": {
+        "SERVICE_OK": true
+      }
+    },
+    "dossier_id": "CORE_TX_01",
+    "editable_fact_ids_by_layer": {
+      "LOCAL": [],
+      "REGIONAL": [
+        "REG_AVAILABLE",
+        "REG_COST"
+      ]
+    },
+    "editable_primitive_permissions": [
+      "road",
+      "bridge",
+      "border",
+      "waterway",
+      "landmark",
+      "restricted_zone"
+    ],
+    "jurisdiction_ids": [
+      "J_BLUE"
+    ],
+    "landmarks": {
+      "L_CLINIC": {
+        "allowed_semantic_tokens": [
+          "Clinic"
+        ],
+        "editable": false,
+        "node_id": "N2",
+        "semantic_token": "Clinic"
+      },
+      "L_DOCK": {
+        "allowed_semantic_tokens": [
+          "Dock"
+        ],
+        "editable": false,
+        "semantic_token": "Dock",
+        "water_node_id": "W1"
+      },
+      "L_ISOLATED": {
+        "allowed_semantic_tokens": [
+          "Depot"
+        ],
+        "editable": false,
+        "node_id": "N4",
+        "semantic_token": "Depot"
+      },
+      "L_MARKET": {
+        "allowed_semantic_tokens": [
+          "Market"
+        ],
+        "editable": false,
+        "node_id": "N3",
+        "semantic_token": "Market"
+      },
+      "L_REGION": {
+        "allowed_semantic_tokens": [
+          "Regional Office"
+        ],
+        "editable": false,
+        "regional_node_id": "RG_D",
+        "semantic_token": "Regional Office"
+      }
+    },
+    "layer_id": "LOCAL",
+    "layer_ids": [
+      "LOCAL",
+      "REGIONAL"
+    ],
+    "linked_authority_relations": [
+      {
+        "direction": "one-way",
+        "portal_ids": [
+          "P_A"
+        ],
+        "projection_semantics": "portal_availability",
+        "source_fact_id": "REG_AVAILABLE",
+        "source_layer_id": "REGIONAL",
+        "target_layer_id": "LOCAL",
+        "target_projection_id": "P_AVAIL"
+      },
+      {
+        "direction": "one-way",
+        "portal_ids": [
+          "P_A"
+        ],
+        "projection_semantics": "portal_cost",
+        "source_fact_id": "REG_COST",
+        "source_layer_id": "REGIONAL",
+        "target_layer_id": "LOCAL",
+        "target_projection_id": "P_COST"
+      }
+    ],
+    "node_cell_id": {
+      "N0": "C0",
+      "N1": "C1",
+      "N2": "C2",
+      "N3": "C3",
+      "N4": "C4"
+    },
+    "objectives": [
+      {
+        "family_id": "O1_REACHABILITY",
+        "objective_id": "OBJ_O1",
+        "required": true,
+        "subject_agent_id": "AG_A1"
+      },
+      {
+        "family_id": "O2_NON_REACHABILITY",
+        "objective_id": "OBJ_O2",
+        "required": true,
+        "subject_agent_id": "AG_A2_BLOCK"
+      },
+      {
+        "family_id": "O3_ROUTE_LENGTH",
+        "max_cost": 1,
+        "objective_id": "OBJ_O3",
+        "required": true,
+        "subject_agent_id": "AG_A1"
+      },
+      {
+        "cell_id": "C3",
+        "family_id": "O4_JURISDICTION_MEMBERSHIP",
+        "jurisdiction_id": "J_BLUE",
+        "layer_id": "LOCAL",
+        "objective_id": "OBJ_O4",
+        "required": true
+      },
+      {
+        "family_id": "O5_PERMISSION_COMPLIANCE",
+        "objective_id": "OBJ_O5",
+        "required": true,
+        "subject_agent_id": "AG_A2_PERM"
+      },
+      {
+        "family_id": "O6_WATER_CONNECTIVITY",
+        "objective_id": "OBJ_O6",
+        "required": true,
+        "subject_agent_id": "AG_A7"
+      },
+      {
+        "expected_target_id": "L_CLINIC",
+        "family_id": "O7_SEMANTIC_DESTINATION",
+        "objective_id": "OBJ_O7",
+        "required": true,
+        "subject_agent_id": "AG_A9"
+      },
+      {
+        "family_id": "O8_VISIT_SEQUENCE",
+        "objective_id": "OBJ_O8",
+        "required": true,
+        "subject_agent_id": "AG_A8"
+      }
+    ],
+    "primary_layer_id": "LOCAL",
+    "protected_invariants": [
+      {
+        "expected": true,
+        "fact_id": "WETLAND_SAFE",
+        "family_id": "O9_PROTECTED_ADJACENCY",
+        "invariant_id": "INV_O9",
+        "required": true
+      },
+      {
+        "expected": true,
+        "fact_id": "NETWORK_OK",
+        "family_id": "O10_NETWORK_CONTINUITY",
+        "invariant_id": "INV_O10",
+        "required": true
+      },
+      {
+        "expected": true,
+        "fact_id": "SERVICE_OK",
+        "family_id": "O11_STABLE_SERVICE_STATE",
+        "invariant_id": "INV_O11",
+        "required": true
+      },
+      {
+        "available": true,
+        "family_id": "O12_CROSS_LAYER_CONNECTOR_STATE",
+        "invariant_id": "INV_O12",
+        "max_cost": 2,
+        "portal_id": "P_A",
+        "required": true
+      }
+    ],
+    "reaction_beats_after_edit": 1,
+    "regional_edges": {
+      "RE_ALT": {
+        "cost": 2,
+        "from": "RG_A",
+        "to": "RG_C"
+      },
+      "RE_BD": {
+        "cost": 1,
+        "from": "RG_B",
+        "to": "RG_D"
+      },
+      "RE_CD": {
+        "cost": 2,
+        "from": "RG_C",
+        "to": "RG_D"
+      },
+      "RE_PORTAL": {
+        "cost": 5,
+        "from": "RG_A",
+        "portal_id": "P_A",
+        "to": "RG_B"
+      }
+    },
+    "regional_nodes": [
+      "RG_A",
+      "RG_B",
+      "RG_C",
+      "RG_D"
+    ],
+    "required_jurisdiction_ids": [
+      "J_BLUE"
+    ],
+    "required_water_paths": [],
+    "restricted_zone_policies": {},
+    "road_edges": {
+      "R01": {
+        "cost": 1,
+        "crossing_slot_ids": [],
+        "editable": true,
+        "from": "N0",
+        "to": "N1"
+      },
+      "R02": {
+        "cost": 1,
+        "crossing_slot_ids": [],
+        "editable": true,
+        "from": "N0",
+        "to": "N2"
+      },
+      "R12": {
+        "cost": 1,
+        "crossing_slot_ids": [],
+        "editable": true,
+        "from": "N1",
+        "to": "N2"
+      },
+      "R23": {
+        "cost": 1,
+        "crossing_slot_ids": [],
+        "editable": true,
+        "from": "N2",
+        "to": "N3"
+      }
+    },
+    "road_nodes": [
+      "N0",
+      "N1",
+      "N2",
+      "N3",
+      "N4"
+    ],
+    "stability_required_cycles": 2,
+    "water_edges": {
+      "W01": {
+        "cost": 1,
+        "editable": false,
+        "from": "W0",
+        "to": "W1"
+      }
+    },
+    "water_nodes": [
+      "W0",
+      "W1"
+    ]
+  },
+  "edit_command": {
+    "candidate_ids": [
+      "R02"
+    ],
+    "command_id": "CMD_CORE_001",
+    "layer_id": "LOCAL",
+    "operation": "add",
+    "primitive_family": "road",
+    "semantic_token": ""
+  },
+  "initial_state": {
+    "agent_state_by_id": {
+      "AG_A1": {
+        "agent_id": "AG_A1",
+        "node_id": "N0",
+        "state": "IDLE"
+      },
+      "AG_A10": {
+        "agent_id": "AG_A10",
+        "node_id": "RG_A",
+        "state": "IDLE"
+      },
+      "AG_A2_BLOCK": {
+        "agent_id": "AG_A2_BLOCK",
+        "node_id": "N0",
+        "state": "IDLE"
+      },
+      "AG_A2_PERM": {
+        "agent_id": "AG_A2_PERM",
+        "node_id": "N0",
+        "state": "IDLE"
+      },
+      "AG_A7": {
+        "agent_id": "AG_A7",
+        "node_id": "W0",
+        "state": "IDLE"
+      },
+      "AG_A8": {
+        "agent_id": "AG_A8",
+        "node_id": "N0",
+        "state": "IDLE"
+      },
+      "AG_A9": {
+        "agent_id": "AG_A9",
+        "node_id": "N0",
+        "state": "IDLE"
+      }
+    },
+    "authoritative_fact_values_by_layer": {
+      "REGIONAL": {
+        "REG_AVAILABLE": true,
+        "REG_COST": 2
+      }
+    },
+    "history_cursor": 0,
+    "invariant_state_by_id": {},
+    "last_transaction_id": "",
+    "map_state_by_layer": {
+      "LOCAL": {
+        "active_bridge_slot_ids": [],
+        "active_road_edge_ids": [
+          "R01",
+          "R12",
+          "R23"
+        ],
+        "active_water_edge_ids": [
+          "W01"
+        ],
+        "authoritative_linked_facts": {},
+        "border_ownership_by_cell": {
+          "C0": "J_BLUE",
+          "C1": "J_BLUE",
+          "C2": "J_BLUE",
+          "C3": "J_BLUE",
+          "C4": "J_BLUE"
+        },
+        "landmark_semantic_labels": {},
+        "layer_id": "LOCAL",
+        "restricted_zone_cells_by_policy": {}
+      }
+    },
+    "objective_state_by_id": {},
+    "session_id": "CORETX",
+    "session_revision": 0,
+    "stability_state": {}
+  }
+}
