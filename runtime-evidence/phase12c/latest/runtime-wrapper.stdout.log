@@ -42,7 +42,7 @@ Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
 [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
 [0m
-[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (55 steps)[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (56 steps)[39m[0m
 [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [   1% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [   3% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -52,45 +52,46 @@ Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 [  10% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  12% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  16% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  15% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  17% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  19% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  23% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  22% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  30% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  29% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  31% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  33% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  35% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  37% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  39% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  36% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  44% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  46% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  48% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  43% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  45% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  49% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  51% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  53% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  55% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  52% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  54% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  56% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  57% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  58% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  60% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  62% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  59% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  61% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  63% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  64% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  66% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  67% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  69% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  68% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  77% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  83% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -164,9 +165,9 @@ FMD Phase 12C frozen content validation tests: PASS
 == phase12d-act1-content-suite ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
-ERROR: Production registry and D01-D08 must load through FrozenContentValidator: { "ok": false, "code": "content_registry_dossier_invalid", "dossier_id": "D01", "issues": [{ "code": "duplicate_stable_id", "path": "D01_L1.landmark_slots", "message": "Stable ID D01_N_WORK is duplicated inside the dossier." }] }
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] _assert (res://tests/test_act1_content_runner.gd:76)
-       [1] _initialize (res://tests/test_act1_content_runner.gd:10)
-FMD Phase 12D Act-I content/registry tests: FAIL (1 failures)
+FMD Phase 12D Act-I content/registry tests: PASS
+== main-scene-boot ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+/home/runner/work/_temp/fmd-runtime-baseline/runtime/manifest.json
+Phase 12A + 12B + 12C + 12D runtime baseline: PASS
