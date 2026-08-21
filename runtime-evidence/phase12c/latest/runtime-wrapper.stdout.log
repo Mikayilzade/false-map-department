@@ -164,7 +164,7 @@ FMD Phase 12C frozen content validation tests: PASS
 == phase12d-act1-content-suite ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
-ERROR: Production registry and D01-D08 must load through FrozenContentValidator
+ERROR: Production registry and D01-D08 must load through FrozenContentValidator: { "ok": false, "code": "content_registry_dossier_invalid", "dossier_id": "D01", "issues": [{ "code": "duplicate_stable_id", "path": "D01_L1.landmark_slots", "message": "Stable ID D01_N_WORK is duplicated inside the dossier." }] }
    at: push_error (core/variant/variant_utility.cpp:1023)
    GDScript backtrace (most recent call first):
        [0] _assert (res://tests/test_act1_content_runner.gd:76)
