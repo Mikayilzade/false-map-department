@@ -14,8 +14,8 @@ func _initialize() -> void:
 		_finish()
 		return
 	var campaign: Array = _array(loaded.get("campaign", []))
-	_assert(campaign.size() == 24, "Act-III increment must extend production prefix to exact D01-D24")
-	_assert(_ids(campaign).slice(16, 24) == ["D17","D18","D19","D20","D21","D22","D23","D24"], "D17-D24 registry order must remain contiguous")
+	_assert(campaign.size() >= 24, "Production campaign must retain at least the complete D01-D24 Act-III prefix")
+	_assert(_ids(campaign).slice(0, 24) == ["D01","D02","D03","D04","D05","D06","D07","D08","D09","D10","D11","D12","D13","D14","D15","D16","D17","D18","D19","D20","D21","D22","D23","D24"], "Production campaign must retain the exact D01-D24 Act-III prefix")
 
 	var d17 := _find(campaign, "D17")
 	_assert(_has_agent(d17, "A3_PATROL"), "D17 must preserve Patrol jurisdiction-shift interpretation")
