@@ -1,6 +1,6 @@
 # FALSE MAP DEPARTMENT — IMPLEMENTATION STATUS
 
-Last updated: 2026-08-21
+Last updated: 2026-08-22
 Repository: `Mikayilzade/false-map-department`
 
 ## Master state
@@ -14,61 +14,56 @@ Repository: `Mikayilzade/false-map-department`
 - 12A Technical Bootstrap: **COMPLETE — real Godot 4.7.1 PASS**
 - 12B Vertical Slice: **COMPLETE — deterministic playable micro-loop + Undo/Redo + reload PASS**
 - 12C Core Systems: **COMPLETE — frozen mechanical/application/persistence/content-validation core runtime-green**
-- 12D Content Population: **IN PROGRESS — contiguous production D01-D16 campaign prefix runtime-green; DEMO01-DEMO05, D17-D40 and remixes remain**
+- 12D Content Population: **IN PROGRESS — D01-D16 runtime-green; exact DEMO01-DEMO05 authored/static-green; aggregate demo runtime pending; D17-D40/remixes remain**
 - 12E UX / Accessibility / Controller / Deck: **NO**
 - 12F Adversarial QA: **NO**
 - 12G Empirical Gates: **NO**
 - 12H Release Candidate: **NO**
 - IMPLEMENTATION COMPLETE: **NO**
 
-## Latest implementation run — 2026-08-21
+## Latest implementation run — 2026-08-22
 
 ### Phase / subphase
-**12D Content Population / D09-D16 Act-II teaching + competing-interpretation block — RUNTIME GREEN**
+**12D Content Population / exact P10-R9 DEMO01-DEMO05 + production demo-to-full mapping — STATIC GREEN / RUNTIME PENDING**
 
 ### Completed
-- Extended the production registry from D01-D08 to the exact contiguous campaign prefix D01-D16; demo/remix population remains separate.
-- Authored D09-D10 semantic landmark teaching as data. D09 establishes authoritative relabel causality; D10 permits competing duplicate semantic destinations and makes nearest/stable-ID resolution explicit.
-- D09-D10 include P10-R2 non-dominance evidence for initial relabel probes plus the cheapest one additional intervention, with explicit proof that the central lesson is not bypassed.
-- Authored D11 as editable waterway + canonical A7 Ferry/Water Carrier teaching with O6 Water Connectivity.
-- Authored D12 as the first water/bridge cross-network case; its known solution establishes water authority first and then restores the supported bridge crossing.
-- Authored D13 Emergency Service permission asymmetry: A5 explicitly ignores one named zone policy while an ordinary resident remains excluded.
-- Authored D14 Commercial Carrier route + permission + semantic service dependency using only canonical A6/O5/O7 behavior.
-- Authored D15 protected-adjacency versus connectivity; the maximum-connectivity wetland candidate is explicitly marked harmful and excluded from the known solution.
-- Authored D16 as the first justified two-cycle Stability dossier with `stability_reason_tag = agent_progression_arrival` and concrete cycle-1/cycle-2 canonical node transitions for the same carrier.
-- Added D13-D16 P10-R1 dominant reasoning transformations: permission asymmetry, cross-network dependency, topology restructuring and temporal/Stability dependency; all current D13+ three-dossier windows satisfy diversity.
-- Hardened `ProductionContentValidator`: Stability>1 production content requires concrete authored transition witnesses with valid cycle, agent, canonical nodes, reason-tag agreement and a non-idle state change. This is authoring validation only and does not change canonical gameplay Stability semantics.
-- Added static/headless Act-II acceptance for semantic-target competition, P10-R2, Ferry/water, D12 cross-network edit order, P10-R1 windows, Emergency/Commercial interpretation, protected adjacency, D16 non-idle evidence and content-driven D01-D16 progression.
-- Generalized the Act-I tests into permanent D01-D08 prefix regression guards so registry growth does not weaken earlier content acceptance.
-- Intermediate per-file work remained on `phase12d-act2-content`; main received one coherent fast-forward and therefore one notification-safe automatic aggregate run.
-- No dossier-specific gameplay scripts, new primitive families, new agent archetypes or canonical gameplay amendments were added.
+- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, current status and the final Phase-11 P10-R9/P10 demo-import freeze before authoring demo content.
+- Authored exactly five data-only demo nodes: DEMO01 road add/remove causality, DEMO02 road tradeoff + Undo learning, DEMO03 bridge + static-water crossing, DEMO04 collateral connectivity consequence, DEMO05 compressed border ownership + synthesis.
+- Preserved all frozen demo exclusions: no restricted-zone editing, no landmark relabeling, no editable waterways, no Ferry/A7, Procession/A8, Commercial/A6, Semantic specialist/A9 or Regional Connector/A10, no Stability>1 and no linked maps.
+- DEMO05 uses only road + border as editable families; its bridge/water relationship is authored static state. It explicitly records that it teaches the same border semantic rule as campaign D05 while `baseline_clear_equivalence_inferred = false`.
+- Extended `content/registry.json` with exact ordered DEMO01-DEMO05 entries and a dedicated `demo_import_mapping_path`; D01-D16 campaign entries remain unchanged and remixes remain unpopulated.
+- Added immutable/versioned `content/demo/demo_to_full_mapping.json` (`mapping_schema_version=1`, `mapping_version=demo-full-v1`, canonical mapping hash). Each demo node has an explicit target campaign relation and explicit tutorial-tag mapping. Production baseline-clear equivalence is conservatively false for all five because no clear-equivalence proof has been authored; no `full_clear_record` is synthesized.
+- Extended `ContentRegistry` to load/validate campaign and demo collections through `ProductionContentValidator`, validate each progression graph from authored prerequisites/tutorial tags, enforce exact demo identity/order, include demo in partial catalog validation, load the versioned mapping, validate its hash/schema/identity and reject missing/contradictory clear mapping metadata.
+- Added `available_demo_ids` using the same data-driven prerequisite/tag mechanism; no second hardcoded UI progression graph was added.
+- Added static demo population audit covering hashes, exact sequence, exclusions, silhouettes/Stability ceilings, authored focus coverage, known-solution references, progression tags, mapping identity and DEMO05 no-auto-clear behavior.
+- Added Godot headless acceptance covering registry load, exact five-node progression, exclusions, production mapping, compatible setting/tutorial transfer, zero synthesized campaign clears, explicit DEMO05/D05 non-equivalence and repeated receipt idempotency.
+- Wired one demo static gate + one demo headless suite into the existing aggregate notification-safe runtime wrapper.
+- Intermediate per-file work is isolated on `phase12d-demo-content`; no Actions runs were generated by branch commits.
+- No dossier-specific gameplay script, seventh primitive, new archetype or canonical gameplay amendment was added.
 
 ### Files / systems changed
+- `content/demo/DEMO01.json` ... `content/demo/DEMO05.json`
+- `content/demo/demo_to_full_mapping.json`
 - `content/registry.json`
-- `content/campaign/D09.json` ... `content/campaign/D16.json`
-- `src/application/production_content_validator.gd`
-- `tests/test_act1_content_runner.gd`
-- `tests/test_act2_content_runner.gd`
-- `scripts/phase12d_act1_content_audit.py`
-- `scripts/phase12d_act2_content_audit.py`
+- `src/application/content_registry.gd`
+- `scripts/phase12d_demo_content_audit.py`
+- `tests/test_demo_content_runner.gd`
 - `scripts/run_phase12a_runtime.sh`
 - `IMPLEMENTATION_STATUS.md`
 
 ### Validation
-- Automatic real Godot 4.7.1 aggregate baseline: **PASS**, run `32500280083`.
-- Runtime target head: `76b122bce220de63d395ee19823845d38e4b17d9`.
-- Evidence commit: `b538807611ccf61b9e0906cbe9921bc9f124bd45`.
-- Aggregate result: `result = PASS`, `runtime_rc = 0`, `ci_policy_rc = 0`, `bootstrap_preflight_rc = 0`, `phase12a_contract_rc = 0`, `fetch_godot_rc = 0`.
-- Static Act-II audit: **PASS** — `Phase 12D Act-II content audit: PASS (D09-D16 semantics/water/P10/Stability/progression)`.
-- Dedicated Godot Act-II suite: **PASS** — `FMD Phase 12D Act-II content/registry tests: PASS`.
-- Existing 12A/12B/12C and Act-I regressions remained green in the same aggregate run.
+- Existing D01-D16 real Godot 4.7.1 aggregate baseline: **PASS**, run `32500280083`.
+- New Phase-12D demo static audit: **PASS** — `Phase 12D demo content audit: PASS (DEMO01-DEMO05 + explicit versioned import mapping)`.
+- Demo content/mapping canonical hashes and exact sequence/progression checks: **PASS**.
+- Real Godot 4.7.1 aggregate import/headless validation for this demo increment: **PENDING one notification-safe fast-forward to `main`**.
 
 ### Failures / blockers
 - **No user-action blocker.**
-- **No current D01-D16 content/runtime blocker.**
+- **No known demo/content blocker before aggregate runtime validation.**
+- If automatic evidence records FAIL, fix the first concrete static/import/headless failure before authoring D17+.
 
 ### Canonical contradictions
-- **NONE discovered.** The D09-D16 block follows the frozen semantic/water/agent/Stability introduction order and remains within Act-II ceilings.
+- **NONE discovered.** The production demo follows P10-R9 and the frozen demo->full import rule: same lesson/name/target relation never implies a campaign clear.
 
 ## NEXT ACTION
-Continue **12D Content Population** with the exact authored **DEMO01-DEMO05** population as its own coherent block. Preserve the frozen demo sequence: DEMO01 road add/remove causality; DEMO02 road tradeoff + Undo learning; DEMO03 bridge + static-water crossing; DEMO04 collateral connectivity consequence; DEMO05 compressed border-ownership teaching + synthesis. Enforce demo exclusions (no restricted-zone editing, landmark relabeling, editable waterways, Ferry, Procession, Commercial chains, Stability>1 or linked maps), add exact registry/demo hashes and focus/progression metadata, and add explicit versioned demo-to-full import mapping proving that DEMO05 does not automatically equal campaign D05 by ID/name/lesson alone. Wire one static + headless demo population gate into the notification-safe aggregate baseline. After the demo block is runtime-green, return to contiguous campaign population D17-D24. No manual Actions click is required.
+Fast-forward coherent `phase12d-demo-content` to `main` and read committed automatic evidence. If **PASS**, record D01-D16 + DEMO01-DEMO05 runtime-green and continue **12D Content Population** with contiguous **D17-D24**: Act-III Civic Chains, first A8 Procession at D18, D23 non-editable linked inset preview, D24 first authored local->regional one-way projection while edits remain local, plus required P10-R1/R2/R3/R4/R5/R6/R7 metadata and anti-repetition windows. If **FAIL**, fix only the first concrete failure before adding D17+. No manual Actions click is required.
