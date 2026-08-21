@@ -16,7 +16,7 @@ def main():
     if hashlib.sha256(canon(payload).encode()).hexdigest()!=declared: fail('registry_hash mismatch')
     ids=[f'D{i:02d}' for i in range(1,9)]
     entries=reg.get('campaign',[])
-    if [e.get('dossier_id') for e in entries]!=ids: fail('registry campaign must be exact D01-D08')
+    if [e.get('dossier_id') for e in entries[:8]]!=ids: fail('registry campaign must retain D01-D08 as the exact Act-I prefix')
     prior=set(); taught=set()
     expected={
       'D01':['road'],'D02':['road'],'D03':['bridge'],'D04':['road','bridge'],
@@ -49,5 +49,5 @@ def main():
     for marker in ['Fresh profile must expose D01 only','D08 synthesis must include the bridge system as authored immutable state','nothing mastery-gated']:
         if marker not in test: fail(f'Act-I headless test missing marker: {marker}')
     if 'phase12d-act1-content-contract' not in runtime or 'test_act1_content_runner.gd' not in runtime: fail('runtime wrapper not wired for 12D Act-I')
-    print('Phase 12D Act-I content audit: PASS (D01-D08 registry/progression/hashes/teaching order)')
+    print('Phase 12D Act-I content audit: PASS (D01-D08 prefix/progression/hashes/teaching order)')
 if __name__=='__main__': main()
