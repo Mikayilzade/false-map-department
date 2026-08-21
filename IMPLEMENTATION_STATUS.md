@@ -14,7 +14,7 @@ Repository: `Mikayilzade/false-map-department`
 - 12A Technical Bootstrap: **COMPLETE — real Godot 4.7.1 PASS**
 - 12B Vertical Slice: **COMPLETE — deterministic playable micro-loop + Undo/Redo + reload PASS**
 - 12C Core Systems: **COMPLETE — frozen mechanical/application/persistence/content-validation core runtime-green**
-- 12D Content Population: **IN PROGRESS — contiguous D01-D16 + exact DEMO01-DEMO05 runtime-green; D17-D40/remixes remain**
+- 12D Content Population: **IN PROGRESS — D01-D16 + DEMO01-DEMO05 runtime-green; authored D17-D24 Act-III block + gates complete on branch, aggregate runtime pending; D25-D40/remixes remain**
 - 12E UX / Accessibility / Controller / Deck: **NO**
 - 12F Adversarial QA: **NO**
 - 12G Empirical Gates: **NO**
@@ -24,44 +24,46 @@ Repository: `Mikayilzade/false-map-department`
 ## Latest implementation run — 2026-08-22
 
 ### Phase / subphase
-**12D Content Population / exact P10-R9 DEMO01-DEMO05 + production demo-to-full mapping — RUNTIME GREEN**
+**12D Content Population / D17-D24 Act III Civic Chains — AUTHORED + GATED / RUNTIME PENDING**
 
 ### Completed
-- Authored exactly five data-only demo nodes: DEMO01 road add/remove causality, DEMO02 road tradeoff + Undo learning, DEMO03 bridge + static-water crossing, DEMO04 collateral connectivity consequence, DEMO05 compressed border ownership + synthesis.
-- Preserved all frozen demo exclusions: no restricted-zone editing, landmark relabeling, editable waterways, Ferry/A7, Procession/A8, Commercial/A6, Semantic specialist/A9, Regional Connector/A10, Stability>1 or linked maps.
-- DEMO05 uses road + border as editable families with authored static bridge/water state; it explicitly records the shared campaign-D05 border lesson while forbidding inferred campaign-clear equivalence.
-- Extended the production registry with exact ordered DEMO01-DEMO05 entries and a dedicated immutable/versioned demo import mapping.
-- `demo_to_full_mapping.json` is schema/version/hash guarded. All five production relations explicitly name their campaign targets and compatible tutorial tags; all production baseline-clear equivalences remain false because no campaign-clear equivalence proof is authored, so no `full_clear_record` is synthesized.
-- Extended `ContentRegistry` to load/validate campaign + demo collections, validate both data-driven progression chains, enforce exact demo identity, include demo in catalog validation, load/validate mapping identity/hash/schema, and expose `available_demo_ids`.
-- Added static + Godot headless demo acceptance for exact sequence, exclusions, focus/progression, known solutions, mapping, compatible settings/tutorial transfer, zero synthesized campaign clears, DEMO05/D05 non-equivalence and receipt idempotency.
-- Work was authored on `phase12d-demo-content` and fast-forwarded once to `main`; the notification-safe aggregate baseline produced one committed PASS evidence result.
-- No dossier-specific gameplay script, seventh primitive, new archetype or canonical gameplay amendment was added.
+- Re-read implementation handoff, CI policy, current status, Phase-11 final freeze, Phase-10 repairs and canonical content architecture before authoring the Act-III block.
+- Authored D17 Patrol jurisdiction shift using canonical A3 + border ownership only.
+- Authored D18 as the first A8 Procession case. Its single visible route predicate requires the authored checkpoint sequence while crossing exactly two explicit jurisdictions; two-cycle Stability is justified by non-idle procession-sequence transitions.
+- Authored D19 water + semantic destination chain using A7 Ferry + A9 Semantic Seeker, with P10-R2 relabel non-dominance evidence proving relabel alone does not bypass the water dependency.
+- Authored D20 multi-agent capacity contention with canonical Emergency priority and a two-cycle route-contention transition witness.
+- Authored D21 network continuity with deliberate local isolation; maximum connectivity is explicitly harmful and the known solution removes the harmful local connection while preserving the service backbone.
+- Authored D22 one-layer road + border + restricted-zone mastery exam. Its Clean Intervention badge is optional and carries a P10-R4 cross-system-compression distinction note.
+- Authored D23 as the first two-layer linked presentation: the regional inset is non-editable and receives only a one-way `fact_mirror` preview from local authority.
+- Authored D24 as the first functional one-way local->regional projection. Only the local layer is editable; canonical linked authority projects local connector state to regional portal availability. A10/O12 remain deferred to Act IV.
+- Extended production registry to the exact contiguous D01-D24 campaign prefix while preserving exact DEMO01-DEMO05 and versioned demo import mapping.
+- Added `phase12d_act3_content_audit.py` covering hashes, progression, Act-III ceilings, P10-R1 windows, P10-R2/P10-R3/P10-R4/P10-R6/P10-R7 evidence, A8 first placement, D23/D24 one-way/read-only remote-layer rules and no A10 before D25.
+- Added `test_act3_content_runner.gd`, including a direct canonical `LinkedAuthorityEngine.project` check proving D24 local authority produces regional portal availability.
+- Wired one Act-III static gate and one Godot headless suite into the aggregate pinned runtime wrapper.
+- D18 jurisdictions were made explicit after preflight so its exact-two-jurisdiction predicate has authored jurisdiction identities rather than only cell labels.
+- No dossier-specific gameplay scripts, seventh primitive, new agent family or canonical amendment was introduced.
 
 ### Files / systems changed
-- `content/demo/DEMO01.json` ... `content/demo/DEMO05.json`
-- `content/demo/demo_to_full_mapping.json`
+- `content/campaign/D17.json` ... `content/campaign/D24.json`
 - `content/registry.json`
-- `src/application/content_registry.gd`
-- `scripts/phase12d_demo_content_audit.py`
-- `tests/test_demo_content_runner.gd`
+- `scripts/phase12d_act3_content_audit.py`
+- `tests/test_act3_content_runner.gd`
 - `scripts/run_phase12a_runtime.sh`
 - `IMPLEMENTATION_STATUS.md`
 
 ### Validation
-- Automatic real Godot 4.7.1 aggregate baseline: **PASS**, run `32526736482`.
-- Runtime target head: `f92e835e61447f35867ebc9b81d35acb9e4b320a`.
-- Evidence commit: `1a728cf0d9c71a80f941c520e15c7d3ebb5d6925`.
-- Aggregate result: `result = PASS`, `runtime_rc = 0`, `ci_policy_rc = 0`, `bootstrap_preflight_rc = 0`, `phase12a_contract_rc = 0`, `fetch_godot_rc = 0`.
-- Static demo gate: **PASS** — `Phase 12D demo content audit: PASS (DEMO01-DEMO05 + explicit versioned import mapping)`.
-- Dedicated Godot demo suite: **PASS** — `FMD Phase 12D demo content/import tests: PASS`.
-- Existing 12A/12B/12C and D01-D16 regressions remained green in the same aggregate run.
+- Prior D01-D16 + DEMO01-DEMO05 real Godot 4.7.1 aggregate baseline: **PASS**, run `32526736482`.
+- D17-D24 canonical content hashes were generated from immutable sorted/minified payloads; D18 hash was recomputed after explicit jurisdiction authoring.
+- Preflight structural checks: **PASS** for contiguous D01-D24 registry design, Act-III ceilings, one-editable-layer rule before D25, P10-R1 diversity windows, P10-R2 relabel evidence, P10-R3 non-idle Stability witnesses, P10-R4 mastery distinction, P10-R6 causal budgets and P10-R7 authored focus coverage.
+- New Act-III static/headless aggregate validation: **PENDING final coherent fast-forward and committed automatic evidence**.
 
 ### Failures / blockers
 - **No user-action blocker.**
-- **No current D01-D16/demo content/runtime blocker.**
+- GitHub advanced `main` to an intermediate static-gate commit while branch work continued. The complete branch remains a strict descendant; final fast-forward will supersede the intermediate state, and workflow concurrency is expected to cancel/replace obsolete in-flight validation.
+- If final automatic evidence is FAIL, fix the first concrete failure before authoring D25+.
 
 ### Canonical contradictions
-- **NONE discovered.** Production demo population follows P10-R9 and the frozen demo->full import rule: same lesson/name/target relation never implies a campaign clear.
+- **NONE discovered.** D23/D24 satisfy the linked-map curve without true two-layer editing before D25; D18 introduces A8 in Act III; A10/O12 remain deferred.
 
 ## NEXT ACTION
-Continue **12D Content Population** with contiguous **D17-D24 — Act III Civic Chains**. Author D17 Patrol jurisdiction shift, D18 first A8 Procession exact route/jurisdiction-count requirement, D19 water + semantic destination chain, D20 multi-agent conflict with Emergency priority, D21 network continuity with deliberate local isolation, D22 one-layer three-system mastery exam, D23 first non-editable linked inset preview, and D24 first authored one-way local->regional projection while edits remain local. Enforce Act-III ceilings, P10-R1 diversity/anti-repetition windows, P10-R2 wherever relabeling is editable, P10-R3 for Stability>1, P10-R4 mastery distinction, P10-R5 linked readability for D23-D24, P10-R6 causal budget and P10-R7 focus graph. Extend registry/static/headless gates and run one notification-safe aggregate baseline. No manual Actions click is required.
+Fast-forward complete `phase12d-act3-content` to `main` and read committed automatic evidence for that exact implementation head. If **PASS**, record D01-D24 + DEMO01-DEMO05 runtime-green and continue **12D Content Population** with **D25-D32 — Act IV linked authority**: D25 first true two-layer editable authority case, D26 route + jurisdiction projection, D27 semantic target changes connector destination, D28 water/Ferry dependency across portal, D29 first three-layer case with one remote chain active, D30 Regional Connector/A10 competing with a local invariant, D31 cross-layer Stability and D32 Act-IV synthesis. Enforce P10-R1/R2/R3/R4/R5/R6/R7 and the maximum two simultaneous editing surfaces. If **FAIL**, fix only the first concrete failure before adding D25+. No manual Actions click is required.
