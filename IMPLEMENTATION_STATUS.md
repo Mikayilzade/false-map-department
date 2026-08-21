@@ -14,7 +14,7 @@ Repository: `Mikayilzade/false-map-department`
 - 12A Technical Bootstrap: **COMPLETE — real Godot 4.7.1 PASS**
 - 12B Vertical Slice: **COMPLETE — deterministic playable micro-loop + Undo/Redo + reload PASS**
 - 12C Core Systems: **COMPLETE — frozen mechanical/application/persistence/content-validation core runtime-green**
-- 12D Content Population: **IN PROGRESS — production registry + authored D01-D08 Act-I block implemented; runtime evidence pending**
+- 12D Content Population: **IN PROGRESS — production registry + authored D01-D08 Act-I block runtime-green; D09-D40/demo/remix population remains**
 - 12E UX / Accessibility / Controller / Deck: **NO**
 - 12F Adversarial QA: **NO**
 - 12G Empirical Gates: **NO**
@@ -27,44 +27,52 @@ Repository: `Mikayilzade/false-map-department`
 **12D Content Population / production content registry + D01-D08 Act-I teaching block**
 
 ### Completed
-- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, current status, the final campaign/progression freeze and the canonical Act-I/content-schema rules before authoring production content.
-- Added immutable production `content/registry.json`, currently registering exactly D01-D08 and carrying a canonical `registry_hash`.
-- Authored D01-D08 as data-only campaign JSON; no dossier-specific gameplay scripts were added.
+- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, the current handoff and frozen campaign/content rules before authoring production content.
+- Added immutable `content/registry.json` and authored D01-D08 as data-only production campaign definitions.
 - D01-D02 teach road add/remove and safe tradeoff/Undo reasoning.
-- D03-D04 teach bridge + static-water crossing and first collateral connectivity consequence.
+- D03-D04 teach bridge + static-water crossing and collateral connectivity.
 - D05-D06 teach non-physical border/jurisdiction authority and route/ownership tradeoff.
 - D07 teaches class-specific restricted-zone permission over shared topology.
-- D08 is the first four-system synthesis: road + bridge + border + restricted zone. To preserve the frozen Act-I `<=3 editable primitive families` ceiling, the bridge is authored/active immutable state while road, border and restricted-zone remain the three editable families.
-- D08 adds one optional Clean Intervention mastery contract but `baseline_requires_mastery = false`; baseline progression remains clear/tutorial-tag driven only.
-- Every dossier carries explicit `prerequisite_dossier_ids`, `required_tutorial_tags`, granted `tutorial_tags`, one-layer authored focus graph, immutable `content_hash`, causal budget metadata and a known-solution envelope with semantic solution commands and expected required truth states.
-- Added `ContentRegistry` production application boundary. It validates registry hash/schema, loads each dossier through `FrozenContentValidator`, checks registry ID/path identity, validates partial-catalog rules, validates prerequisite ordering and previously taught tutorial tags, and validates known-solution command family/layer/candidate references.
-- `available_campaign_ids` derives baseline exposure only from cleared dossier IDs + demonstrated tutorial tags; mastery/remix state is deliberately not consumed.
-- Added headless Act-I acceptance proving exact D01-D08 order, teaching permissions, all Act-I ceilings, immutable D08 bridge synthesis, D08 no-mastery gate, sequential D01->D08 exposure and no phantom D09 before it exists in the registry.
-- Added static `phase12d_act1_content_audit.py` and wired the static + Godot headless suite into the pinned aggregate runtime baseline.
-- Local static Act-I audit: **PASS**.
-- No canonical gameplay rule was changed.
+- D08 is the first road + bridge + border + restricted-zone synthesis. Bridge remains authored/immutable so the frozen Act-I ceiling of at most three editable primitive families remains satisfied; road + border + restricted-zone are editable.
+- D08 contains one optional Clean Intervention mastery contract, while baseline progression explicitly remains mastery-independent.
+- Every D01-D08 dossier carries immutable content identity, prerequisite/tutorial metadata, deterministic authored focus graph, causal-presentation budget and known-solution semantic commands with expected required truth states.
+- Added `ContentRegistry`: validates registry identity, production dossiers, partial catalog, prerequisite ordering, previously taught tutorial tags and known-solution command family/layer/candidate references.
+- `available_campaign_ids` consumes only baseline clears + demonstrated tutorial tags; mastery/remix state is not a baseline gate.
+- Added static and Godot headless Act-I acceptance and wired both into the aggregate pinned runtime baseline.
+- During runtime validation, fixed two regression-infrastructure defects rather than weakening content:
+  - legacy Phase-12C audits had encoded `12C = IN PROGRESS`; transaction/core/Stability guards now also accept the legitimate completed state during later-phase regression runs;
+  - the frozen validator's generic stable-ID collector treated a landmark slot's anchor `node_id` as the slot identity. Added production validator specialization so anchored landmark slots are identified by `landmark_slot_id` while retaining their canonical anchor node.
+- Failure diagnostics remain explicit in the Act-I headless suite.
+- No gameplay rule or canonical content rule was changed.
 
 ### Files / systems changed
-- `content/registry.json` — production content registry and immutable registry identity.
-- `content/campaign/D01.json` ... `D08.json` — authored Act-I campaign content.
-- `src/application/content_registry.gd` — production registry loading, validation and baseline progression exposure.
-- `tests/test_act1_content_runner.gd` — Act-I registry/content/progression headless acceptance.
-- `scripts/phase12d_act1_content_audit.py` — static D01-D08 hash/teaching/progression/solution audit.
-- `scripts/run_phase12a_runtime.sh` — aggregate baseline now executes the 12D static and Godot suites.
-- `IMPLEMENTATION_STATUS.md` — exact 12D handoff.
+- `content/registry.json`
+- `content/campaign/D01.json` ... `content/campaign/D08.json`
+- `src/application/content_registry.gd`
+- `src/application/production_content_validator.gd`
+- `tests/test_act1_content_runner.gd`
+- `scripts/phase12d_act1_content_audit.py`
+- `scripts/phase12c_contract_audit.py`
+- `scripts/phase12c_transaction_contract_audit.py`
+- `scripts/phase12c_stability_contract_audit.py`
+- `scripts/run_phase12a_runtime.sh`
+- `IMPLEMENTATION_STATUS.md`
 
 ### Validation
-- All previous 12A/12B/12C aggregate suites: **last recorded PASS**.
 - Phase 12D Act-I static audit: **PASS**.
-- Real Godot 4.7.1 import/headless execution for this D01-D08 increment: **PENDING one notification-safe automatic baseline after fast-forward to `main`**.
+- Automatic real Godot 4.7.1 aggregate baseline: **PASS**, run `32479033724`.
+- Runtime target head: `275f2ffc243cd1445e122a55c9fe1ffe51b9352f`.
+- Evidence commit: `23ea462f3f0f3d34c03399dfbc2902d7fd69e6e9`.
+- Aggregate result: `result = PASS`, `runtime_rc = 0`, `ci_policy_rc = 0`, `bootstrap_preflight_rc = 0`, `phase12a_contract_rc = 0`, `fetch_godot_rc = 0`.
+- Dedicated suite: `FMD Phase 12D Act-I content/registry tests: PASS`.
+- Existing 12A/12B/12C regressions also passed in the same aggregate run.
 
 ### Failures / blockers
 - **No user-action blocker.**
-- **No known content blocker before runtime validation.**
-- If automatic evidence records FAIL, fix the first concrete static/Godot/content error before authoring D09+.
+- **No current runtime/content blocker.**
 
 ### Canonical contradictions
-- **NONE discovered.** D08's four-system synthesis and Act-I three-editable-family ceiling are simultaneously satisfied by keeping the bridge system authored/immutable while exposing road + border + restricted-zone edits.
+- **NONE discovered.** D08's four-system synthesis and Act-I three-editable-family ceiling are simultaneously satisfied without amendment.
 
 ## NEXT ACTION
-Read the automatic runtime evidence for this D01-D08 implementation head. If **PASS**, record the Act-I production block runtime-green and continue **12D Content Population** with the next coherent authored block **D09-D16**: semantic landmark teaching D09-D10, editable waterway D11-D12, then Act-II competing interpretations D13-D16 with P10-R1/R2 metadata and the first justified 2-cycle Stability case at D16. Keep the exact DEMO01-DEMO05 sequence for its own subsequent coherent population increment. If **FAIL**, fix the first concrete failure before adding D09+. No manual Actions click is required.
+Continue **12D Content Population** with the next coherent production block **D09-D16**. Author D09-D10 semantic landmark teaching, D11-D12 editable waterway/Ferry teaching, and D13-D16 Act-II competing interpretations. Add the required D13+ P10-R1 reasoning-transformation metadata, P10-R2 semantic-relabel non-dominance evidence where relabeling is editable, and make D16 the first justified 2-cycle Stability dossier with a real non-idle canonical transition. Extend the production registry/progression chain, static audit and Godot headless content acceptance, then run one notification-safe aggregate baseline. Keep exact DEMO01-DEMO05 population for its own subsequent coherent increment. No manual Actions click is required.
