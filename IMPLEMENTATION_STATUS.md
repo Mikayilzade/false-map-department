@@ -14,7 +14,7 @@ Repository: `Mikayilzade/false-map-department`
 - 12A Technical Bootstrap: **COMPLETE — real Godot 4.7.1 PASS**
 - 12B Vertical Slice: **COMPLETE — deterministic playable micro-loop + Undo/Redo + reload PASS**
 - 12C Core Systems: **COMPLETE — frozen mechanical/application/persistence/content-validation core runtime-green**
-- 12D Content Population: **IN PROGRESS — D01-D16 + DEMO01-DEMO05 runtime-green; authored D17-D24 Act-III block + gates complete on branch, aggregate runtime pending; D25-D40/remixes remain**
+- 12D Content Population: **IN PROGRESS — contiguous D01-D24 + exact DEMO01-DEMO05 runtime-green; D25-D40/remixes remain**
 - 12E UX / Accessibility / Controller / Deck: **NO**
 - 12F Adversarial QA: **NO**
 - 12G Empirical Gates: **NO**
@@ -24,23 +24,19 @@ Repository: `Mikayilzade/false-map-department`
 ## Latest implementation run — 2026-08-22
 
 ### Phase / subphase
-**12D Content Population / D17-D24 Act III Civic Chains — AUTHORED + GATED / RUNTIME PENDING**
+**12D Content Population / D17-D24 Act III Civic Chains — RUNTIME GREEN**
 
 ### Completed
-- Re-read implementation handoff, CI policy, current status, Phase-11 final freeze, Phase-10 repairs and canonical content architecture before authoring the Act-III block.
 - Authored D17 Patrol jurisdiction shift using canonical A3 + border ownership only.
-- Authored D18 as the first A8 Procession case. Its single visible route predicate requires the authored checkpoint sequence while crossing exactly two explicit jurisdictions; two-cycle Stability is justified by non-idle procession-sequence transitions.
-- Authored D19 water + semantic destination chain using A7 Ferry + A9 Semantic Seeker, with P10-R2 relabel non-dominance evidence proving relabel alone does not bypass the water dependency.
-- Authored D20 multi-agent capacity contention with canonical Emergency priority and a two-cycle route-contention transition witness.
-- Authored D21 network continuity with deliberate local isolation; maximum connectivity is explicitly harmful and the known solution removes the harmful local connection while preserving the service backbone.
-- Authored D22 one-layer road + border + restricted-zone mastery exam. Its Clean Intervention badge is optional and carries a P10-R4 cross-system-compression distinction note.
-- Authored D23 as the first two-layer linked presentation: the regional inset is non-editable and receives only a one-way `fact_mirror` preview from local authority.
-- Authored D24 as the first functional one-way local->regional projection. Only the local layer is editable; canonical linked authority projects local connector state to regional portal availability. A10/O12 remain deferred to Act IV.
-- Extended production registry to the exact contiguous D01-D24 campaign prefix while preserving exact DEMO01-DEMO05 and versioned demo import mapping.
-- Added `phase12d_act3_content_audit.py` covering hashes, progression, Act-III ceilings, P10-R1 windows, P10-R2/P10-R3/P10-R4/P10-R6/P10-R7 evidence, A8 first placement, D23/D24 one-way/read-only remote-layer rules and no A10 before D25.
-- Added `test_act3_content_runner.gd`, including a direct canonical `LinkedAuthorityEngine.project` check proving D24 local authority produces regional portal availability.
-- Wired one Act-III static gate and one Godot headless suite into the aggregate pinned runtime wrapper.
-- D18 jurisdictions were made explicit after preflight so its exact-two-jurisdiction predicate has authored jurisdiction identities rather than only cell labels.
+- Authored D18 as the first A8 Procession case, with explicit west/east jurisdictions, ordered checkpoint predicate, exact two-jurisdiction count and justified two-cycle non-idle Stability evidence.
+- Authored D19 water + semantic destination chain using A7 Ferry + A9 Semantic Seeker, including P10-R2 non-dominance evidence so relabel alone cannot bypass the water dependency.
+- Authored D20 capacity-one contention with canonical Emergency priority and route-contention Stability evidence.
+- Authored D21 network continuity with deliberate local isolation; maximum connectivity is explicitly harmful.
+- Authored D22 one-layer road + border + restricted-zone mastery exam; Clean Intervention remains optional and carries a P10-R4 cross-system-compression distinction.
+- Authored D23 as the first two-layer linked presentation with a read-only regional inset and one-way local authority preview.
+- Authored D24 as the first functional one-way local->regional projection; edits remain local while canonical linked authority projects local connector state to regional portal availability. A10/O12 remain deferred to Act IV.
+- Extended production registry to the exact contiguous D01-D24 prefix while preserving DEMO01-DEMO05 and versioned demo import mapping.
+- Added Act-III static and Godot headless acceptance covering hashes/progression/ceilings, P10-R1/R2/R3/R4/R6/R7, first A8 placement, D23 read-only linked preview, D24 one-way projection and direct `LinkedAuthorityEngine.project` behavior.
 - No dossier-specific gameplay scripts, seventh primitive, new agent family or canonical amendment was introduced.
 
 ### Files / systems changed
@@ -52,18 +48,20 @@ Repository: `Mikayilzade/false-map-department`
 - `IMPLEMENTATION_STATUS.md`
 
 ### Validation
-- Prior D01-D16 + DEMO01-DEMO05 real Godot 4.7.1 aggregate baseline: **PASS**, run `32526736482`.
-- D17-D24 canonical content hashes were generated from immutable sorted/minified payloads; D18 hash was recomputed after explicit jurisdiction authoring.
-- Preflight structural checks: **PASS** for contiguous D01-D24 registry design, Act-III ceilings, one-editable-layer rule before D25, P10-R1 diversity windows, P10-R2 relabel evidence, P10-R3 non-idle Stability witnesses, P10-R4 mastery distinction, P10-R6 causal budgets and P10-R7 authored focus coverage.
-- New Act-III static/headless aggregate validation: **PENDING final coherent fast-forward and committed automatic evidence**.
+- Automatic real Godot 4.7.1 aggregate baseline: **PASS**, run `32533491670`.
+- Runtime target head: `057ae158583b96cce72592100de244229592a0cb`.
+- Evidence commit: `f862d86fa0fa02ea8405a4da020eb79569b6cdd7`.
+- Aggregate result: `result = PASS`, `runtime_rc = 0`, `ci_policy_rc = 0`, `bootstrap_preflight_rc = 0`, `phase12a_contract_rc = 0`, `fetch_godot_rc = 0`.
+- Static Act-III gate: **PASS** — `Phase 12D Act-III content audit: PASS (D17-D24 Procession/continuity/mastery/linked preview+projection)`.
+- Dedicated Godot Act-III suite: **PASS** — `FMD Phase 12D Act-III content/registry tests: PASS`.
+- Existing 12A/12B/12C, D01-D16 and DEMO01-DEMO05 regressions remained green in the same aggregate run.
 
 ### Failures / blockers
 - **No user-action blocker.**
-- GitHub advanced `main` to an intermediate static-gate commit while branch work continued. The complete branch remains a strict descendant; final fast-forward will supersede the intermediate state, and workflow concurrency is expected to cancel/replace obsolete in-flight validation.
-- If final automatic evidence is FAIL, fix the first concrete failure before authoring D25+.
+- **No current D01-D24/demo content/runtime blocker.**
 
 ### Canonical contradictions
 - **NONE discovered.** D23/D24 satisfy the linked-map curve without true two-layer editing before D25; D18 introduces A8 in Act III; A10/O12 remain deferred.
 
 ## NEXT ACTION
-Fast-forward complete `phase12d-act3-content` to `main` and read committed automatic evidence for that exact implementation head. If **PASS**, record D01-D24 + DEMO01-DEMO05 runtime-green and continue **12D Content Population** with **D25-D32 — Act IV linked authority**: D25 first true two-layer editable authority case, D26 route + jurisdiction projection, D27 semantic target changes connector destination, D28 water/Ferry dependency across portal, D29 first three-layer case with one remote chain active, D30 Regional Connector/A10 competing with a local invariant, D31 cross-layer Stability and D32 Act-IV synthesis. Enforce P10-R1/R2/R3/R4/R5/R6/R7 and the maximum two simultaneous editing surfaces. If **FAIL**, fix only the first concrete failure before adding D25+. No manual Actions click is required.
+Continue **12D Content Population** with **D25-D32 — Act IV linked authority**. Author D25 first true two-layer editable authority case, D26 route + jurisdiction projection, D27 semantic target changes connector destination, D28 water/Ferry dependency across portal, D29 first three-layer case with one remote chain active, D30 first Regional Connector/A10 competing with a local invariant, D31 cross-layer Stability, and D32 Act-IV synthesis. Enforce P10-R1/R2/R3/R4/R5/R6/R7, one-way/single-owner linked authority, no cycles, and maximum two simultaneous editing surfaces. Extend registry/static/headless gates and run one notification-safe aggregate baseline. No manual Actions click is required.
