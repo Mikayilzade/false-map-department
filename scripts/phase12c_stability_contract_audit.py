@@ -102,8 +102,11 @@ def main() -> None:
 
     if "phase12c-stability-contract" not in runtime or "test_stability_durability_runner.gd" not in runtime:
         fail("runtime wrapper must execute Stability contract audit + headless runner")
-    if "- 12C Core Systems: **IN PROGRESS" not in status:
-        fail("12C must remain in progress during Stability increment")
+    if (
+        "- 12C Core Systems: **IN PROGRESS" not in status
+        and "- 12C Core Systems: **COMPLETE" not in status
+    ):
+        fail("12C must remain in progress or complete during later regression runs")
 
     print("Phase 12C Stability contract audit: PASS (P10-R3/P10-R8 + durability + idempotency)")
 
