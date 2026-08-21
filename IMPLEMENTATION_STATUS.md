@@ -11,11 +11,10 @@ Repository: `Mikayilzade/false-map-department`
 - Complete canonical authority chain local to this repository: **YES**
 - Autonomous implementation handoff: **YES — `IMPLEMENTATION_START_HERE.md`**
 - CI/email-noise guardrail: **YES — notification-safe path-scoped automatic Godot baseline + manual fallback**
-- Implementation started: **YES**
 - 12A Technical Bootstrap: **COMPLETE — real Godot 4.7.1 PASS**
-- 12B Vertical Slice: **COMPLETE — full deterministic playable micro-loop + Undo/Redo + reload PASS**
-- 12C Core Systems: **COMPLETE — full frozen mechanical/application/persistence/content-validation core is real-Godot runtime-green**
-- 12D Content Population: **NO**
+- 12B Vertical Slice: **COMPLETE — deterministic playable micro-loop + Undo/Redo + reload PASS**
+- 12C Core Systems: **COMPLETE — frozen mechanical/application/persistence/content-validation core runtime-green**
+- 12D Content Population: **IN PROGRESS — production registry + authored D01-D08 Act-I block implemented; runtime evidence pending**
 - 12E UX / Accessibility / Controller / Deck: **NO**
 - 12F Adversarial QA: **NO**
 - 12G Empirical Gates: **NO**
@@ -25,57 +24,47 @@ Repository: `Mikayilzade/false-map-department`
 ## Latest implementation run — 2026-08-21
 
 ### Phase / subphase
-**12C Core Systems / frozen content-validation tooling — EXIT GATE CLOSED**
+**12D Content Population / production content registry + D01-D08 Act-I teaching block**
 
 ### Completed
-- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, current status, `GAME2_PHASE11_FINAL_FREEZE.md`, `GAME2_CONTENT_ARCHITECTURE.md` and `GAME2_ADVERSARIAL_REVIEW.md` before changing authoring acceptance.
-- Added `FrozenContentValidator` and deterministic full-catalog validation before 12D population.
-- Enforces exactly the frozen six primitive families, A1-A10 only, O1-O12 only, one-to-four map layers, ten-agent/global reaction/Stability/semantic-label ceilings and act-specific campaign ceilings.
-- Enforces immutable dossier identity and exact canonical `content_hash` equality.
-- Enforces stable-ID uniqueness, required `MapLayerContent` structure, authority-owner layer validity, one-way linked authority, cycle/double-ownership rejection, projected-target non-editability, four cross-layer projection ceiling, six portal ceiling and missing-portal rejection.
-- Enforces campaign placement constraints needed before population: A8 no earlier than Act III, A10 no earlier than Act IV, act index/layer/edit ceilings and no true multi-layer editing before D25.
-- Enforces known-solution proof metadata and P10-R3 meaningful non-idle Stability transition evidence.
-- Enforces P10-R4 mastery distinction proof + campaign mastery-badge ceiling.
-- Enforces P10-R5 linked-chain readability budgets.
-- Enforces P10-R6 `<=5` material nodes / `<=2` visible sibling branches / truthful compressibility.
-- Enforces P10-R7 deterministic authored focus graph declaration and required-candidate reachability.
-- Enforces P10-R2 relabel non-dominance probes and no three consecutive principal semantic-relabel campaign solutions.
-- Enforces P10-R1 D13+ reasoning-transformation tags, 3/5-dossier diversity windows and anti-template reasoning-pattern windows.
-- Enforces frozen catalog ceilings/identity: exact D01-D40 population when strict, exact DEMO01-DEMO05, 12 remixes in three four-case packs, maximum four visual themes and P10-R10 changed-dependency/remix-pack diversity.
-- Demo validation excludes restricted-zone editing, landmark relabeling, editable waterways, linked maps, Stability>1 and late specialist/commercial/water agent logic.
-- Added a synthetic valid full catalog plus malformed headless probes covering seventh primitive, A11, O13, fifth layer, hash tamper, linked cycle, projected editable target, idle Stability, shallow mastery, causal opacity, unreachable focus graph, P10-R1/P10-R2 repetition, demo exclusions and P10-R10 repetition.
-- Added `phase12c_frozen_content_contract_audit.py` and wired the new static/headless suite into the pinned automatic baseline.
-- First automatic run `32417025975` correctly recorded **FAIL** because the static audit incorrectly required delegated linked-authority error-code literals to appear in the wrapper validator itself.
-- Fixed only that guard: delegated cycle/double-owner/projected-editable codes are now verified in `LinkedAuthorityEngine`, while the content validator is verified to propagate typed linked errors.
-- Final automatic Godot 4.7.1 run `32417094792` targeted fix commit `f343af0f53e0910fce0ad76fada1048be7413fca` and recorded **PASS** with `runtime_rc = 0`.
-- Dedicated frozen-content runtime log reports `FMD Phase 12C frozen content validation tests: PASS`.
-- All earlier 12A/12B/12C suites in the aggregate baseline remained green.
-- No manual GitHub Actions click is required.
+- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, current status, the final campaign/progression freeze and the canonical Act-I/content-schema rules before authoring production content.
+- Added immutable production `content/registry.json`, currently registering exactly D01-D08 and carrying a canonical `registry_hash`.
+- Authored D01-D08 as data-only campaign JSON; no dossier-specific gameplay scripts were added.
+- D01-D02 teach road add/remove and safe tradeoff/Undo reasoning.
+- D03-D04 teach bridge + static-water crossing and first collateral connectivity consequence.
+- D05-D06 teach non-physical border/jurisdiction authority and route/ownership tradeoff.
+- D07 teaches class-specific restricted-zone permission over shared topology.
+- D08 is the first four-system synthesis: road + bridge + border + restricted zone. To preserve the frozen Act-I `<=3 editable primitive families` ceiling, the bridge is authored/active immutable state while road, border and restricted-zone remain the three editable families.
+- D08 adds one optional Clean Intervention mastery contract but `baseline_requires_mastery = false`; baseline progression remains clear/tutorial-tag driven only.
+- Every dossier carries explicit `prerequisite_dossier_ids`, `required_tutorial_tags`, granted `tutorial_tags`, one-layer authored focus graph, immutable `content_hash`, causal budget metadata and a known-solution envelope with semantic solution commands and expected required truth states.
+- Added `ContentRegistry` production application boundary. It validates registry hash/schema, loads each dossier through `FrozenContentValidator`, checks registry ID/path identity, validates partial-catalog rules, validates prerequisite ordering and previously taught tutorial tags, and validates known-solution command family/layer/candidate references.
+- `available_campaign_ids` derives baseline exposure only from cleared dossier IDs + demonstrated tutorial tags; mastery/remix state is deliberately not consumed.
+- Added headless Act-I acceptance proving exact D01-D08 order, teaching permissions, all Act-I ceilings, immutable D08 bridge synthesis, D08 no-mastery gate, sequential D01->D08 exposure and no phantom D09 before it exists in the registry.
+- Added static `phase12d_act1_content_audit.py` and wired the static + Godot headless suite into the pinned aggregate runtime baseline.
+- Local static Act-I audit: **PASS**.
 - No canonical gameplay rule was changed.
 
 ### Files / systems changed
-- `src/application/frozen_content_validator.gd` — deterministic frozen dossier/catalog authoring validator.
-- `tests/test_frozen_content_validator_runner.gd` — valid D01-D40 + DEMO01-DEMO05 + 12-remix synthetic catalog and malformed acceptance fixtures.
-- `scripts/phase12c_frozen_content_contract_audit.py` — static frozen-content contract guard with delegated linked-authority verification.
-- `scripts/run_phase12a_runtime.sh` — executes frozen-content audit and Godot headless suite.
-- `IMPLEMENTATION_STATUS.md` — 12C exit-gate handoff.
+- `content/registry.json` — production content registry and immutable registry identity.
+- `content/campaign/D01.json` ... `D08.json` — authored Act-I campaign content.
+- `src/application/content_registry.gd` — production registry loading, validation and baseline progression exposure.
+- `tests/test_act1_content_runner.gd` — Act-I registry/content/progression headless acceptance.
+- `scripts/phase12d_act1_content_audit.py` — static D01-D08 hash/teaching/progression/solution audit.
+- `scripts/run_phase12a_runtime.sh` — aggregate baseline now executes the 12D static and Godot suites.
+- `IMPLEMENTATION_STATUS.md` — exact 12D handoff.
 
-### Validation / 12C exit gate
-- Automatic Godot 4.7.1 final content-validation baseline: **PASS**, run `32417094792`, head `f343af0f53e0910fce0ad76fada1048be7413fca`.
-- Aggregate runtime result: `PASS`, `runtime_rc = 0`, `ci_policy_rc = 0`, `bootstrap_preflight_rc = 0`, `phase12a_contract_rc = 0`, `fetch_godot_rc = 0`.
-- Dedicated frozen content suite: **PASS**.
-- Canonical mechanical acceptance fixtures: **PASS**.
-- Deterministic A-I / A1-A10 / O1-O12 / linked authority / Stability / footprint / causal / persistence / profile / demo-import / content-validation suites: **PASS**.
-- Linked authority cycle/double ownership/projected-target edit restrictions: **covered and green**.
-- Persistence/recovery tests for edits, exact checkpoints, interrupted Stability, corruption and migrations: **covered and green**.
-- 12C Core Systems exit gate: **SATISFIED**.
+### Validation
+- All previous 12A/12B/12C aggregate suites: **last recorded PASS**.
+- Phase 12D Act-I static audit: **PASS**.
+- Real Godot 4.7.1 import/headless execution for this D01-D08 increment: **PENDING one notification-safe automatic baseline after fast-forward to `main`**.
 
 ### Failures / blockers
 - **No user-action blocker.**
-- **No current 12C blocker.**
+- **No known content blocker before runtime validation.**
+- If automatic evidence records FAIL, fix the first concrete static/Godot/content error before authoring D09+.
 
 ### Canonical contradictions
-- **NONE discovered.** The final 12C validator translates the frozen authoring/Phase-10 acceptance rules into deterministic checks without adding a seventh primitive, new agent family or hidden dossier-specific gameplay.
+- **NONE discovered.** D08's four-system synthesis and Act-I three-editable-family ceiling are simultaneously satisfied by keeping the bridge system authored/immutable while exposing road + border + restricted-zone edits.
 
 ## NEXT ACTION
-Begin **12D Content Population** as data, not dossier-specific scripts. First coherent population increment: create the production content manifest/registry and author **D01-D08** as the complete Act-I teaching block using the frozen sequence (D01-D02 road, D03-D04 bridge/water crossing, D05-D06 border/jurisdiction, D07-D08 restricted-zone + first synthesis), including exact prerequisite/tutorial tags, known solution-envelope regression data, focus graphs, immutable content hashes and validation metadata. Add a 12D catalog/progression audit proving D01-D08 load through `FrozenContentValidator`, obey Act-I ceilings, preserve the teaching order and expose D08 without mastery gating. Keep DEMO01-DEMO05 and later D09-D40/remixes for subsequent coherent increments. No manual Actions click is required.
+Read the automatic runtime evidence for this D01-D08 implementation head. If **PASS**, record the Act-I production block runtime-green and continue **12D Content Population** with the next coherent authored block **D09-D16**: semantic landmark teaching D09-D10, editable waterway D11-D12, then Act-II competing interpretations D13-D16 with P10-R1/R2 metadata and the first justified 2-cycle Stability case at D16. Keep the exact DEMO01-DEMO05 sequence for its own subsequent coherent population increment. If **FAIL**, fix the first concrete failure before adding D09+. No manual Actions click is required.
