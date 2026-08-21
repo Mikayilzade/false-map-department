@@ -12,8 +12,8 @@ func _initialize() -> void:
 		_finish()
 		return
 	var campaign: Array = _array(loaded.get("campaign", []))
-	_assert(campaign.size() == 8, "First 12D increment must contain exactly D01-D08 campaign content")
-	_assert(_ids(campaign) == ["D01", "D02", "D03", "D04", "D05", "D06", "D07", "D08"], "Act-I registry order must be D01-D08")
+	_assert(campaign.size() >= 8, "Production registry must retain the complete D01-D08 Act-I prefix")
+	_assert(_ids(campaign).slice(0, 8) == ["D01", "D02", "D03", "D04", "D05", "D06", "D07", "D08"], "Act-I registry prefix must remain D01-D08")
 	_assert(str(loaded.get("registry_hash", "")).length() == 64, "Production registry must carry immutable hash identity")
 	_assert(str(loaded.get("catalog_hash", "")).length() == 64, "Partial production catalog must emit deterministic canonical hash")
 
@@ -22,8 +22,8 @@ func _initialize() -> void:
 		"D05": ["border"], "D06": ["border"], "D07": ["restricted_zone"],
 		"D08": ["road", "border", "restricted_zone"],
 	}
-	for raw_dossier in campaign:
-		var dossier: Dictionary = _dictionary(raw_dossier)
+	for index in range(0, 8):
+		var dossier: Dictionary = _dictionary(campaign[index])
 		var dossier_id: String = str(dossier.get("dossier_id", ""))
 		_assert(_array(dossier.get("editable_primitive_permissions", [])) == _array(expected_permissions[dossier_id]), "%s teaching permissions must match frozen Act-I order" % dossier_id)
 		_assert(_array(dossier.get("map_layers", [])).size() == 1, "%s must remain one-layer Act-I content" % dossier_id)
@@ -54,7 +54,7 @@ func _initialize() -> void:
 	for raw_tag in _array(d08.get("tutorial_tags", [])):
 		if not tags.has(raw_tag):
 			tags.append(raw_tag)
-	_assert(registry.available_campaign_ids(campaign, cleared, tags).is_empty(), "Completed current Act-I population must have no phantom D09 entry")
+	_assert(registry.available_campaign_ids(campaign, cleared, tags) == ["D09"], "Completing Act-I must expose D09 from content prerequisites/tags, not a hardcoded UI graph")
 	_finish()
 
 func _ids(campaign: Array) -> Array[String]:
