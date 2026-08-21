@@ -7,7 +7,7 @@ var registry := ContentRegistry.new()
 
 func _initialize() -> void:
 	var loaded: Dictionary = registry.load_registry()
-	_assert(loaded.get("ok", false), "Production registry and D01-D08 must load through FrozenContentValidator")
+	_assert(loaded.get("ok", false), "Production registry and D01-D08 must load through FrozenContentValidator: %s" % str(loaded))
 	if not loaded.get("ok", false):
 		_finish()
 		return
