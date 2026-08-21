@@ -140,8 +140,11 @@ def main() -> None:
     if "test_core_transaction_runner.gd" not in runtime:
         fail("runtime wrapper must execute core transaction headless suite")
 
-    if "- 12C Core Systems: **IN PROGRESS" not in status:
-        fail("12C master status must remain in progress")
+    if (
+        "- 12C Core Systems: **IN PROGRESS" not in status
+        and "- 12C Core Systems: **COMPLETE" not in status
+    ):
+        fail("12C master status must remain in progress or complete")
 
     for path, text in [
         (courier_path, courier),
