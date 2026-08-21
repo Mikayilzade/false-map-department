@@ -1,9 +1,4 @@
 == phase12d-act3-content-suite ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
-ERROR: Act-III increment must extend production prefix to exact D01-D24
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] _assert (res://tests/test_act3_content_runner.gd:118)
-       [1] _initialize (res://tests/test_act3_content_runner.gd:17)
-FMD Phase 12D Act-III content/registry tests: FAIL (1 failures)
+FMD Phase 12D Act-III content/registry tests: PASS
