@@ -1,7 +1,7 @@
 extends RefCounted
 
 const CanonicalJson = preload("res://src/domain/canonical_json.gd")
-const FrozenContentValidator = preload("res://src/application/frozen_content_validator.gd")
+const FrozenContentValidator = preload("res://src/application/production_content_validator.gd")
 
 const REGISTRY_SCHEMA_VERSION := 1
 
