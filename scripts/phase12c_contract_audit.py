@@ -196,9 +196,12 @@ def main() -> None:
             fail(f"runtime wrapper missing Phase-12C runner: {runner}")
 
     if "- 12B Vertical Slice: **COMPLETE" not in status:
-        fail("12B must remain complete during Phase 12C")
-    if "- 12C Core Systems: **IN PROGRESS" not in status:
-        fail("12C master status must be in progress")
+        fail("12B must remain complete during and after Phase 12C")
+    if (
+        "- 12C Core Systems: **IN PROGRESS" not in status
+        and "- 12C Core Systems: **COMPLETE" not in status
+    ):
+        fail("12C master status must be in progress or complete")
 
     for path in [
         authority_engine_path,
