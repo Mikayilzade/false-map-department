@@ -26,9 +26,9 @@
       "sha256": "9a82feb0ee061aed657f88539257a8d6b130034cadc6b0689f401952d4fec32b"
     },
     {
-      "bytes": 4504,
+      "bytes": 4562,
       "name": "import-parse.log",
-      "sha256": "dc566fb4e2c9c061f771a3d11379c2cba093b424f958079dabb303719f3d0726"
+      "sha256": "4556db29bb22386ed56b01963fa53f562af10acc5d94c4bcb9decdb5ae356c48"
     },
     {
       "bytes": 95,
@@ -174,6 +174,16 @@
       "bytes": 157,
       "name": "phase12d-act2-content-suite.log",
       "sha256": "bd8a7e682048434de16da1d83923f2115033fe1fb4a613e778f6d4650b2cab19"
+    },
+    {
+      "bytes": 124,
+      "name": "phase12d-demo-content-contract.log",
+      "sha256": "878bb3f8f2e110ae7428955865e68d91803187d458d7921afc53f0a8fb32a9bf"
+    },
+    {
+      "bytes": 153,
+      "name": "phase12d-demo-content-suite.log",
+      "sha256": "3638033ebd1af40b47fca66501119c4b705c360948da6d2e4d495c1196d71769"
     }
   ],
   "phase": "12A+12B+12C+12D",
