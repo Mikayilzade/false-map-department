@@ -11,4 +11,8 @@ Phase 12A contract audit: PASS (16 domain files checked)
 == phase12b-contract ==
 Phase 12B contract audit: PASS
 == phase12c-contract ==
-PHASE12C CONTRACT FAIL: 12C master status must be in progress
+Phase 12C contract audit: PASS (six primitives + A2-A7 agent interpretation)
+== phase12c-late-contract ==
+Phase 12C late contract audit: PASS (A8-A10 + linked authority DAG)
+== phase12c-transaction-contract ==
+PHASE12C TRANSACTION CONTRACT FAIL: 12C master status must remain in progress
