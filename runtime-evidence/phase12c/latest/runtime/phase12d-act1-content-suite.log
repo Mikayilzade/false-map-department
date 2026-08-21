@@ -1,0 +1,9 @@
+== phase12d-act1-content-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+ERROR: Production registry and D01-D08 must load through FrozenContentValidator
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/test_act1_content_runner.gd:76)
+       [1] _initialize (res://tests/test_act1_content_runner.gd:10)
+FMD Phase 12D Act-I content/registry tests: FAIL (1 failures)
