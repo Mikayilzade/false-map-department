@@ -22,7 +22,7 @@ result = sys.argv[2]
 reason = sys.argv[3]
 files = sorted(out.glob('*.log'))
 manifest = {
-    'phase': '12A+12B+12C',
+    'phase': '12A+12B+12C+12D',
     'result': result,
     'reason': reason,
     'logs': [
@@ -107,6 +107,7 @@ run_logged phase12c-footprint-causal-contract python3 scripts/phase12c_footprint
 run_logged phase12c-profile-demo-contract python3 scripts/phase12c_profile_demo_contract_audit.py
 run_logged phase12c-production-persistence-contract python3 scripts/phase12c_production_persistence_contract_audit.py
 run_logged phase12c-frozen-content-contract python3 scripts/phase12c_frozen_content_contract_audit.py
+run_logged phase12d-act1-content-contract python3 scripts/phase12d_act1_content_audit.py
 run_logged import-parse "$RESOLVED_GODOT" --headless --path . --editor --quit
 run_logged gdscript-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_runner.gd
 run_logged phase12b-history-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_slice_history_runner.gd
@@ -122,7 +123,8 @@ run_logged phase12c-footprint-causal-suite "$RESOLVED_GODOT" --headless --path .
 run_logged phase12c-profile-demo-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_profile_demo_runner.gd
 run_logged phase12c-production-persistence-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_profile_persistence_migration_runner.gd
 run_logged phase12c-frozen-content-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_frozen_content_validator_runner.gd
+run_logged phase12d-act1-content-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_act1_content_runner.gd
 run_logged main-scene-boot "$RESOLVED_GODOT" --headless --path . --quit-after 2
 
 write_manifest "PASS" ""
-echo "Phase 12A + 12B + 12C runtime baseline: PASS"
+echo "Phase 12A + 12B + 12C + 12D runtime baseline: PASS"
