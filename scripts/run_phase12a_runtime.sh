@@ -110,6 +110,7 @@ run_logged phase12c-frozen-content-contract python3 scripts/phase12c_frozen_cont
 run_logged phase12d-act1-content-contract python3 scripts/phase12d_act1_content_audit.py
 run_logged phase12d-act2-content-contract python3 scripts/phase12d_act2_content_audit.py
 run_logged phase12d-demo-content-contract python3 scripts/phase12d_demo_content_audit.py
+run_logged phase12d-act3-content-contract python3 scripts/phase12d_act3_content_audit.py
 run_logged import-parse "$RESOLVED_GODOT" --headless --path . --editor --quit
 run_logged gdscript-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_runner.gd
 run_logged phase12b-history-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_slice_history_runner.gd
@@ -128,6 +129,7 @@ run_logged phase12c-frozen-content-suite "$RESOLVED_GODOT" --headless --path . -
 run_logged phase12d-act1-content-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_act1_content_runner.gd
 run_logged phase12d-act2-content-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_act2_content_runner.gd
 run_logged phase12d-demo-content-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_demo_content_runner.gd
+run_logged phase12d-act3-content-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_act3_content_runner.gd
 run_logged main-scene-boot "$RESOLVED_GODOT" --headless --path . --quit-after 2
 
 write_manifest "PASS" ""
