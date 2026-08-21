@@ -1,2 +1,0 @@
-== phase12c-production-persistence-contract ==
-Phase 12C production persistence audit: PASS (primary/tmp/bak + migration + corrupt-evidence preservation)
