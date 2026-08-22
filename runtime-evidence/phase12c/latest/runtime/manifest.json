@@ -26,14 +26,14 @@
       "sha256": "9a82feb0ee061aed657f88539257a8d6b130034cadc6b0689f401952d4fec32b"
     },
     {
-      "bytes": 5596,
+      "bytes": 5654,
       "name": "import-parse.log",
-      "sha256": "639c205f8c51064db6577255d3c7b1a654d7c933f846970ccd37b8ff3f9c19cc"
+      "sha256": "be36ab728c6d6691ee588e47d73b14bd9656e8bd34a6e4a828660295f77d4a8f"
     },
     {
       "bytes": 959,
       "name": "main-scene-boot.log",
-      "sha256": "309a51a79ecf0565d4cb813d4deb7873718cfeae0f1586725b5acc9921f73a11"
+      "sha256": "df2f3981c42027f89dafa1d31c1ee047c261d73a40eacdb6159bc288b0ef84b3"
     },
     {
       "bytes": 81,
@@ -256,14 +256,14 @@
       "sha256": "50540a6724c5b78598ffed37adbf23018a8d5e0b211d0ef2c7a1d89cf32fe1cb"
     },
     {
-      "bytes": 154,
+      "bytes": 164,
       "name": "phase12e-presentation-contract.log",
-      "sha256": "045434ce5d74454dce74034ed1af13ca5cf0a39040b7254a7e44cfaf4563d2cd"
+      "sha256": "a784c57aab40289874bb348e765b7755f578708b37b43ffca18d9f14d8a2897a"
     },
     {
-      "bytes": 2337,
+      "bytes": 2344,
       "name": "phase12e-presentation-suite.log",
-      "sha256": "fd971c6284617dea2c3d803b65bb5652489b4dd6cc83c1584cde2f9f802ddde7"
+      "sha256": "f07bed70f2e70e3325901ef676f4e8a4c448396b1e4d7112d18a22fb46f821ac"
     }
   ],
   "phase": "12A+12B+12C+12D+12E",

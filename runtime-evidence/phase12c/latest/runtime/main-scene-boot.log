@@ -8,7 +8,7 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 ERROR: Failed to load script "res://src/presentation/main.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 SCRIPT ERROR: Invalid call. Nonexistent function 'requirement_state' in base 'GDScript'.
-          at: _render_snapshot (res://src/presentation/main.gd:180)
+          at: _render_snapshot (res://src/presentation/main.gd:214)
           GDScript backtrace (most recent call first):
-              [0] _render_snapshot (res://src/presentation/main.gd:180)
-              [1] _ready (res://src/presentation/main.gd:59)
+              [0] _render_snapshot (res://src/presentation/main.gd:214)
+              [1] _ready (res://src/presentation/main.gd:63)

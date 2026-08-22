@@ -8,23 +8,23 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 ERROR: Failed to load script "res://tests/test_phase12e_presentation_runner.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 SCRIPT ERROR: Invalid call. Nonexistent function 'deck_layout_contract' in base 'GDScript'.
-          at: _test_deck_contract (res://tests/test_phase12e_presentation_runner.gd:28)
+          at: _test_deck_contract (res://tests/test_phase12e_presentation_runner.gd:31)
           GDScript backtrace (most recent call first):
-              [0] _test_deck_contract (res://tests/test_phase12e_presentation_runner.gd:28)
-              [1] _initialize (res://tests/test_phase12e_presentation_runner.gd:9)
+              [0] _test_deck_contract (res://tests/test_phase12e_presentation_runner.gd:31)
+              [1] _initialize (res://tests/test_phase12e_presentation_runner.gd:10)
 SCRIPT ERROR: Invalid call. Nonexistent function 'validate_focus_graph' in base 'GDScript'.
-          at: _test_focus_graph (res://tests/test_phase12e_presentation_runner.gd:68)
+          at: _test_focus_graph (res://tests/test_phase12e_presentation_runner.gd:106)
           GDScript backtrace (most recent call first):
-              [0] _test_focus_graph (res://tests/test_phase12e_presentation_runner.gd:68)
-              [1] _initialize (res://tests/test_phase12e_presentation_runner.gd:11)
+              [0] _test_focus_graph (res://tests/test_phase12e_presentation_runner.gd:106)
+              [1] _initialize (res://tests/test_phase12e_presentation_runner.gd:14)
 SCRIPT ERROR: Invalid call. Nonexistent function 'requirement_state' in base 'GDScript'.
-          at: _test_accessible_states (res://tests/test_phase12e_presentation_runner.gd:80)
+          at: _test_accessible_states (res://tests/test_phase12e_presentation_runner.gd:118)
           GDScript backtrace (most recent call first):
-              [0] _test_accessible_states (res://tests/test_phase12e_presentation_runner.gd:80)
-              [1] _initialize (res://tests/test_phase12e_presentation_runner.gd:12)
+              [0] _test_accessible_states (res://tests/test_phase12e_presentation_runner.gd:118)
+              [1] _initialize (res://tests/test_phase12e_presentation_runner.gd:15)
 SCRIPT ERROR: Invalid call. Nonexistent function 'glyph_for' in base 'GDScript'.
-          at: _test_glyph_help (res://tests/test_phase12e_presentation_runner.gd:90)
+          at: _test_glyph_help (res://tests/test_phase12e_presentation_runner.gd:128)
           GDScript backtrace (most recent call first):
-              [0] _test_glyph_help (res://tests/test_phase12e_presentation_runner.gd:90)
-              [1] _initialize (res://tests/test_phase12e_presentation_runner.gd:13)
+              [0] _test_glyph_help (res://tests/test_phase12e_presentation_runner.gd:128)
+              [1] _initialize (res://tests/test_phase12e_presentation_runner.gd:16)
 FMD Phase 12E presentation contract tests: PASS
