@@ -119,7 +119,8 @@ func jump_to(candidate_id: String) -> Dictionary:
 
 func focusable_ids(layer_id: String = "") -> Array[String]:
 	var requested := layer_id if not layer_id.is_empty() else _active_layer_id
-	return _string_array(_required_by_layer.get(requested, [])).duplicate()
+	var result := _string_array(_required_by_layer.get(requested, []))
+	return result.duplicate()
 
 func snapshot() -> Dictionary:
 	return {
@@ -153,7 +154,7 @@ func _validate_graph(graph: Dictionary, required: Array[String]) -> Dictionary:
 	var seen: Dictionary = {required[0]: true}
 	var queue: Array[String] = [required[0]]
 	while not queue.is_empty():
-		var current: String = queue.pop_front()
+		var current: String = str(queue.pop_front())
 		var neighbors: Dictionary = _dictionary(graph.get(current, {}))
 		for key in LINK_KEYS:
 			var neighbor := str(neighbors.get(key, ""))
