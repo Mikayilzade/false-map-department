@@ -1,0 +1,272 @@
+{
+  "logs": [
+    {
+      "bytes": 216,
+      "name": "bootstrap-preflight.log",
+      "sha256": "01a6cacdd7048e67b5aebe0c3deb94f34ac5133b13201d5c0ea1edd3d9c1f4c8"
+    },
+    {
+      "bytes": 108,
+      "name": "ci-policy.log",
+      "sha256": "97337f7e2645cf4ec04a80d2f2f6dc8babf421a5a82009b527ed418c295e8c2e"
+    },
+    {
+      "bytes": 359,
+      "name": "environment.log",
+      "sha256": "6dfc84cf7ba64a319f0d80efe23f5116884ca55464a2714878f85ff3dd1e5505"
+    },
+    {
+      "bytes": 121,
+      "name": "gdscript-suite.log",
+      "sha256": "b169f909a52f0f3a11e1016b91a8c489d52d5fed39231b8e47972a300d83f62d"
+    },
+    {
+      "bytes": 52,
+      "name": "godot-version.log",
+      "sha256": "9a82feb0ee061aed657f88539257a8d6b130034cadc6b0689f401952d4fec32b"
+    },
+    {
+      "bytes": 5596,
+      "name": "import-parse.log",
+      "sha256": "639c205f8c51064db6577255d3c7b1a654d7c933f846970ccd37b8ff3f9c19cc"
+    },
+    {
+      "bytes": 959,
+      "name": "main-scene-boot.log",
+      "sha256": "309a51a79ecf0565d4cb813d4deb7873718cfeae0f1586725b5acc9921f73a11"
+    },
+    {
+      "bytes": 81,
+      "name": "phase12a-contract.log",
+      "sha256": "696191580200da5580296af1746734e84a4bc4cf5d8f711518f442031df60a90"
+    },
+    {
+      "bytes": 55,
+      "name": "phase12b-contract.log",
+      "sha256": "b0af12a2bb42de19e43bcf314228eb47ed00d8cab7f98f9343fe7b67aaf0fa9f"
+    },
+    {
+      "bytes": 136,
+      "name": "phase12b-history-suite.log",
+      "sha256": "86a0f70eeff51850e00c8ca857a7f82064fef8ac96db16aa289e3b5b57311144"
+    },
+    {
+      "bytes": 155,
+      "name": "phase12b-interaction-suite.log",
+      "sha256": "48d4147f7b00a97ad117678183c7e3b1aae5fef10d76c6f4c137a4f11b60b386"
+    },
+    {
+      "bytes": 160,
+      "name": "phase12b-persistence-suite.log",
+      "sha256": "ce06035a2053aa2ecc12629c11452a7e0d8d23b4d00465ce2a6efd0d595482ec"
+    },
+    {
+      "bytes": 173,
+      "name": "phase12c-agent-interpretation-suite.log",
+      "sha256": "d5ab4768cb136aeda6d3a35cce3c1f0e8544823b140ca994148656863b622efa"
+    },
+    {
+      "bytes": 101,
+      "name": "phase12c-contract.log",
+      "sha256": "7d9fdf2b1b0b94ad2cf7b0bfb1b256da66847cbc7b51718499cb0b0bf7c2fa70"
+    },
+    {
+      "bytes": 154,
+      "name": "phase12c-core-transaction-suite.log",
+      "sha256": "f2daeefcac2237dedb07971f109b0bd46a21bf79fe7ce01049832525a5769e64"
+    },
+    {
+      "bytes": 134,
+      "name": "phase12c-footprint-causal-contract.log",
+      "sha256": "ba45221dc463be784f90b9cc0ff2674a910e52ea66678cc85f31cd958bf74c74"
+    },
+    {
+      "bytes": 154,
+      "name": "phase12c-footprint-causal-suite.log",
+      "sha256": "9a78e7b8f7d6bbbe0666da158f3e35eaf946343829fb1f0c7ab42a84ba4e2363"
+    },
+    {
+      "bytes": 137,
+      "name": "phase12c-frozen-content-contract.log",
+      "sha256": "3e0b68dfb9b7358848bc9099567076cf30c3e51cce20ae009d5699dc581e94b8"
+    },
+    {
+      "bytes": 161,
+      "name": "phase12c-frozen-content-suite.log",
+      "sha256": "9b3b68321c92ed164067ab3f4f6e6e0fd9cf551f7b06d06c47ca85c595378cda"
+    },
+    {
+      "bytes": 177,
+      "name": "phase12c-late-agent-linked-suite.log",
+      "sha256": "12233aa9a43af4e69991d200c8bc726e05a0e9b15f1eaeb8117fb11409b22365"
+    },
+    {
+      "bytes": 97,
+      "name": "phase12c-late-contract.log",
+      "sha256": "f9309052ecf723865276ed16e8ee67972b8036fac96acaa013fdeda55e7fbb26"
+    },
+    {
+      "bytes": 160,
+      "name": "phase12c-primitive-authority-suite.log",
+      "sha256": "074879e58ec71cc45c02361453d635511a7298f2958adca773a5c85c2858cc93"
+    },
+    {
+      "bytes": 134,
+      "name": "phase12c-procession-progress-contract.log",
+      "sha256": "d0f48fc45fa9a899ea2944fa1293a93ffef78d0d113b78c7879360848ea42fe0"
+    },
+    {
+      "bytes": 174,
+      "name": "phase12c-procession-stability-suite.log",
+      "sha256": "011f7c171108063c1b9ee96fc1813a474cdd1551aaf6455764ef4a350d8a3db6"
+    },
+    {
+      "bytes": 154,
+      "name": "phase12c-production-persistence-contract.log",
+      "sha256": "e6f574ce05afa7412d92e9b839ea1b81936f0a0e0ae5457202143d7f907924e4"
+    },
+    {
+      "bytes": 176,
+      "name": "phase12c-production-persistence-suite.log",
+      "sha256": "1936ea5cf87cd8ab830c226b648a3e2ac6ff694fbd5b1a036bb57122732c205f"
+    },
+    {
+      "bytes": 112,
+      "name": "phase12c-profile-demo-contract.log",
+      "sha256": "640f8ec1e53a41990d2c5dcc3fa9b77839a61f1c5fda1b720dfc2407724a20c3"
+    },
+    {
+      "bytes": 146,
+      "name": "phase12c-profile-demo-suite.log",
+      "sha256": "e50a5196ca4993d90faacab59a049d039c5dcc27e17841a5b5ed59fe3c07291a"
+    },
+    {
+      "bytes": 118,
+      "name": "phase12c-stability-contract.log",
+      "sha256": "2bef490cc59e89db4f395b8de206fe95674853e7f0744cb7dad4d848cda7f68e"
+    },
+    {
+      "bytes": 174,
+      "name": "phase12c-stability-durability-suite.log",
+      "sha256": "fb2ba8d7e22dfb4c3c5572ae4174443cc02aef51d9bd92c7bdac044de99ae506"
+    },
+    {
+      "bytes": 114,
+      "name": "phase12c-transaction-contract.log",
+      "sha256": "95dc0e8ca084b43e93ad03dddb7dcd05b14ba78f34e2a0588d6e2b44ab9f0c8b"
+    },
+    {
+      "bytes": 124,
+      "name": "phase12d-act1-content-contract.log",
+      "sha256": "18a7ff7a82d68d7cd7ab7ee40531795c9c4a698c848e1d2739083afe4c86034e"
+    },
+    {
+      "bytes": 156,
+      "name": "phase12d-act1-content-suite.log",
+      "sha256": "d50707d1538a4882a146a414630cbd45d4b9823905e969318d098d3cb007cc65"
+    },
+    {
+      "bytes": 126,
+      "name": "phase12d-act2-content-contract.log",
+      "sha256": "f45565399484065e8ca1f925ca6a9bca99f7ca686583ed832326ea4529329190"
+    },
+    {
+      "bytes": 157,
+      "name": "phase12d-act2-content-suite.log",
+      "sha256": "bd8a7e682048434de16da1d83923f2115033fe1fb4a613e778f6d4650b2cab19"
+    },
+    {
+      "bytes": 141,
+      "name": "phase12d-act3-content-contract.log",
+      "sha256": "8e38e3fde2bf602dadb8717bd5a29368052350862daad378b9818c7a5dc7d7d4"
+    },
+    {
+      "bytes": 158,
+      "name": "phase12d-act3-content-suite.log",
+      "sha256": "a2343a6311a18415e0aff41e292fde1d4e5424cfa3c24d80795b45cb3c93ec1f"
+    },
+    {
+      "bytes": 125,
+      "name": "phase12d-act4-content-contract.log",
+      "sha256": "9cfac09d27f03ef362a61303add680772c24a5329464febc9b103c8da9b55d3c"
+    },
+    {
+      "bytes": 157,
+      "name": "phase12d-act4-content-suite.log",
+      "sha256": "689475a09ab0abdb0fbcdd4c264a109e65cff488d92f38ddb5877e8949751b00"
+    },
+    {
+      "bytes": 149,
+      "name": "phase12d-act5-content-contract.log",
+      "sha256": "c0c348d84b220be5a0e61753f72492fdadb2b22c2214913056e0049fe301be28"
+    },
+    {
+      "bytes": 156,
+      "name": "phase12d-act5-content-suite.log",
+      "sha256": "217f7ddaf6fcd374a93989cf3acef805b4548937ce77621c79e265b85a128f0a"
+    },
+    {
+      "bytes": 124,
+      "name": "phase12d-demo-content-contract.log",
+      "sha256": "878bb3f8f2e110ae7428955865e68d91803187d458d7921afc53f0a8fb32a9bf"
+    },
+    {
+      "bytes": 153,
+      "name": "phase12d-demo-content-suite.log",
+      "sha256": "3638033ebd1af40b47fca66501119c4b705c360948da6d2e4d495c1196d71769"
+    },
+    {
+      "bytes": 128,
+      "name": "phase12d-full-catalog-contract.log",
+      "sha256": "434a3415617bedd2e342303f7b572359d04fa8f16a135138b7c70fd6ae495c2d"
+    },
+    {
+      "bytes": 153,
+      "name": "phase12d-full-catalog-suite.log",
+      "sha256": "05727982b3d26da04637c76e680f44fde8121a2ec3a0636c7f5c4fbabbe65a6a"
+    },
+    {
+      "bytes": 97,
+      "name": "phase12d-remix-pack1-contract.log",
+      "sha256": "69a6cbdcad3452a0883ff6cba86d340e0cce4a739e0c94044101eb23269f1a85"
+    },
+    {
+      "bytes": 145,
+      "name": "phase12d-remix-pack1-suite.log",
+      "sha256": "5fc64626f5d44347a6b82018d612c661691dd9a0d73489a722abb87a2b12aa48"
+    },
+    {
+      "bytes": 122,
+      "name": "phase12d-remix-pack2-contract.log",
+      "sha256": "b873c76ac966fc9a8bc537cc11ffef4a5253e17566b74693ce2e3a5c3c2bceac"
+    },
+    {
+      "bytes": 145,
+      "name": "phase12d-remix-pack2-suite.log",
+      "sha256": "f6fb8df3883d291c0197657da6dfa3bdf353abf02584d110e14cdb042180fee8"
+    },
+    {
+      "bytes": 122,
+      "name": "phase12d-remix-pack3-contract.log",
+      "sha256": "9370d485d1f43098674a76af15082dfb790ba1bb1f1eb6125abd887c60dbb82d"
+    },
+    {
+      "bytes": 145,
+      "name": "phase12d-remix-pack3-suite.log",
+      "sha256": "50540a6724c5b78598ffed37adbf23018a8d5e0b211d0ef2c7a1d89cf32fe1cb"
+    },
+    {
+      "bytes": 154,
+      "name": "phase12e-presentation-contract.log",
+      "sha256": "045434ce5d74454dce74034ed1af13ca5cf0a39040b7254a7e44cfaf4563d2cd"
+    },
+    {
+      "bytes": 2337,
+      "name": "phase12e-presentation-suite.log",
+      "sha256": "fd971c6284617dea2c3d803b65bb5652489b4dd6cc83c1584cde2f9f802ddde7"
+    }
+  ],
+  "phase": "12A+12B+12C+12D+12E",
+  "reason": "",
+  "result": "PASS"
+}

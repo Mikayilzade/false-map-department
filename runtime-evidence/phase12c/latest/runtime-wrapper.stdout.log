@@ -154,12 +154,134 @@ FMD Phase 12B history tests: PASS
 == phase12b-interaction-suite ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
-ERROR: Controller must expose semantic Undo
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] _initialize (res://tests/test_slice_interaction_runner.gd:18)
-ERROR: Controller must expose semantic Redo
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] _initialize (res://tests/test_slice_interaction_runner.gd:18)
-FMD Phase 12B interaction tests: FAIL (2 failures)
+FMD Phase 12B interaction tests: PASS (2 groups)
+== phase12b-persistence-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12B persistence/loop tests: PASS (2 groups)
+== phase12c-primitive-authority-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C primitive authority tests: PASS
+== phase12c-agent-interpretation-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C agent interpretation tests: PASS (3 groups)
+== phase12c-late-agent-linked-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C late-agent/linked-authority tests: PASS (5 groups)
+== phase12c-core-transaction-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C core-transaction tests: PASS
+== phase12c-stability-durability-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C Stability/durability/idempotency tests: PASS
+== phase12c-procession-stability-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C Procession/Stability progression tests: PASS
+== phase12c-footprint-causal-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C footprint/causal tests: PASS
+== phase12c-profile-demo-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C profile/demo tests: PASS
+== phase12c-production-persistence-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C production persistence/migration tests: PASS
+== phase12c-frozen-content-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C frozen content validation tests: PASS
+== phase12d-act1-content-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D Act-I content/registry tests: PASS
+== phase12d-act2-content-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D Act-II content/registry tests: PASS
+== phase12d-demo-content-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D demo content/import tests: PASS
+== phase12d-act3-content-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D Act-III content/registry tests: PASS
+== phase12d-act4-content-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D Act-IV content/registry tests: PASS
+== phase12d-act5-content-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D Act-V content/registry tests: PASS
+== phase12d-remix-pack1-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D Remix Pack 1 tests: PASS
+== phase12d-remix-pack2-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D Remix Pack 2 tests: PASS
+== phase12d-remix-pack3-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D Remix Pack 3 tests: PASS
+== phase12d-full-catalog-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D strict full-catalog tests: PASS
+== phase12e-presentation-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+SCRIPT ERROR: Parse Error: The variable type is being inferred from a Variant value, so it will be typed as Variant. (Warning treated as error.)
+          at: GDScript::reload (res://src/presentation/presentation_contract.gd:120)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/test_phase12e_presentation_runner.gd:0)
+ERROR: Failed to load script "res://tests/test_phase12e_presentation_runner.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+SCRIPT ERROR: Invalid call. Nonexistent function 'deck_layout_contract' in base 'GDScript'.
+          at: _test_deck_contract (res://tests/test_phase12e_presentation_runner.gd:28)
+          GDScript backtrace (most recent call first):
+              [0] _test_deck_contract (res://tests/test_phase12e_presentation_runner.gd:28)
+              [1] _initialize (res://tests/test_phase12e_presentation_runner.gd:9)
+SCRIPT ERROR: Invalid call. Nonexistent function 'validate_focus_graph' in base 'GDScript'.
+          at: _test_focus_graph (res://tests/test_phase12e_presentation_runner.gd:68)
+          GDScript backtrace (most recent call first):
+              [0] _test_focus_graph (res://tests/test_phase12e_presentation_runner.gd:68)
+              [1] _initialize (res://tests/test_phase12e_presentation_runner.gd:11)
+SCRIPT ERROR: Invalid call. Nonexistent function 'requirement_state' in base 'GDScript'.
+          at: _test_accessible_states (res://tests/test_phase12e_presentation_runner.gd:80)
+          GDScript backtrace (most recent call first):
+              [0] _test_accessible_states (res://tests/test_phase12e_presentation_runner.gd:80)
+              [1] _initialize (res://tests/test_phase12e_presentation_runner.gd:12)
+SCRIPT ERROR: Invalid call. Nonexistent function 'glyph_for' in base 'GDScript'.
+          at: _test_glyph_help (res://tests/test_phase12e_presentation_runner.gd:90)
+          GDScript backtrace (most recent call first):
+              [0] _test_glyph_help (res://tests/test_phase12e_presentation_runner.gd:90)
+              [1] _initialize (res://tests/test_phase12e_presentation_runner.gd:13)
+FMD Phase 12E presentation contract tests: PASS
+== main-scene-boot ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+SCRIPT ERROR: Parse Error: The variable type is being inferred from a Variant value, so it will be typed as Variant. (Warning treated as error.)
+          at: GDScript::reload (res://src/presentation/presentation_contract.gd:120)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://src/presentation/main.gd:0)
+ERROR: Failed to load script "res://src/presentation/main.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+SCRIPT ERROR: Invalid call. Nonexistent function 'requirement_state' in base 'GDScript'.
+          at: _render_snapshot (res://src/presentation/main.gd:180)
+          GDScript backtrace (most recent call first):
+              [0] _render_snapshot (res://src/presentation/main.gd:180)
+              [1] _ready (res://src/presentation/main.gd:59)
+/home/runner/work/_temp/fmd-runtime-baseline/runtime/manifest.json
+Phase 12A + 12B + 12C + 12D + 12E runtime baseline: PASS
