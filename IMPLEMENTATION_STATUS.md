@@ -15,7 +15,7 @@ Repository: `Mikayilzade/false-map-department`
 - 12B Vertical Slice: **COMPLETE — deterministic playable micro-loop + Undo/Redo + reload PASS**
 - 12C Core Systems: **COMPLETE — frozen mechanical/application/persistence/content-validation core runtime-green**
 - 12D Content Population: **COMPLETE — exact D01-D40 + DEMO01-DEMO05 + REMIX01-REMIX12 strict full catalog runtime-green**
-- 12E UX / Accessibility / Controller / Deck: **IN PROGRESS — first production presentation/non-mouse architecture increment COMPLETE / RUNTIME GREEN**
+- 12E UX / Accessibility / Controller / Deck: **IN PROGRESS — shell foundation + contextual semantic routing/remapping RUNTIME GREEN**
 - 12F Adversarial QA: **NO**
 - 12G Empirical Gates: **NO**
 - 12H Release Candidate: **NO**
@@ -24,54 +24,51 @@ Repository: `Mikayilzade/false-map-department`
 ## Latest implementation run — 2026-08-22
 
 ### Phase / subphase
-**12E UX / Accessibility / Controller / Deck / production presentation shell + semantic non-mouse architecture — FIRST INCREMENT COMPLETE / RUNTIME GREEN**
+**12E UX / Accessibility / Controller / Deck / contextual semantic binding + remapping — RUNTIME GREEN**
 
 ### Completed
-- Re-read the frozen final UX/input/accessibility authority before changing presentation behavior, including P10-R6 causal presentation budget, P10-R7 deterministic authored focus-graph rule, two-surface ceiling and Steam Deck 1280×800 requirements.
-- Added `src/presentation/presentation_contract.gd` as a presentation-only frozen-contract boundary with 1280×800 Deck contract, two-surface maximum, 58/42 Deck map/world ratio, slide-over case rail, 44 logical-pixel minimum interactive target, <=5 default material causal nodes, <=2 default visible siblings, 35% localization expansion allowance and no-color/no-audio/reduced-motion foundations.
-- Added deterministic focus-graph validation that requires authored up/down/left/right relationships, validates neighbor existence and proves every required focus candidate is reachable without using zoom, frame geometry, float-nearest selection, hash order or scene order.
-- Expanded semantic `InputActions` beyond the Phase-12B minimum to include cardinal logical navigation, next/previous major region, correspondence, map/world surface toggle, tool-family navigation, linked-layer navigation and next-affected-object navigation while retaining the old semantic select/back/inspect/history/Stability actions.
-- Added keyboard and controller defaults plus active-device glyph/help exposure. Existing Phase-12B LB/RB Undo/Redo defaults remain preserved in parallel with the new semantic tool/layer actions until the complete remapping/context-routing layer is implemented.
-- Reworked the main presentation shell on top of the existing deterministic `SliceInteractionController`: official map + inspectable derived world remain the only simultaneous surfaces; map/world sizing follows the Deck-oriented 58/42 contract; case goals/invariants live in a slide-over rail; controls use >=44 logical-pixel targets.
-- Added explicit map/world correspondence text and semantic Correspondence action; requirement state uses icon + pattern + text, with color documented/implemented as supplemental rather than authoritative.
-- Causal ribbon presentation now enforces the frozen default <=5 material-node budget before explicit expansion.
-- Added `scripts/phase12e_presentation_contract_audit.py` for static Deck/input/accessibility/presentation-contract acceptance.
-- Added `tests/test_phase12e_presentation_runner.gd` for real Godot contract acceptance of Deck geometry, semantic action registration, deterministic focus-graph reachability/rejection, redundant requirement-state channels and device glyph exposure.
-- Wired the 12E static and Godot suites into the existing notification-safe aggregate runtime wrapper; manifest phase now includes 12E.
-- Preserved the legacy Phase-12B `HistoryControls` presentation marker after the first runtime pass exposed an audit-compatibility regression.
-- Preserved Phase-12B controller LB=Undo / RB=Redo bindings after the second runtime pass exposed a behavioral regression from replacing them with new tool/history bindings.
-- No deterministic domain gameplay, content definition, primitive, agent rule, objective family, persistence rule or canonical authority relation was changed.
+- Continued from the already runtime-green first 12E presentation-shell increment rather than duplicating it.
+- Added `src/application/input_context_router.gd` so shared physical controller bindings are resolved by semantic context instead of displacing legacy actions: edit, inspect, history, linked-layer, Stability and general-UI contexts have explicit deterministic priorities.
+- LB/RB can now remain physically shared while resolving to tool navigation in edit context, layer navigation in linked-layer context, and Undo/Redo in history context. Y similarly resolves to Map/World surface toggle while editing and Correspondence while inspecting.
+- Extended `InputActions` with a real semantic remapping boundary: known actions expose a remappable action list, bindings can be replaced rather than appended, and serializable binding descriptors preserve keyboard/controller identity.
+- Main presentation input now routes through `InputContextRouter.resolve_event(...)`; major-region focus, Inspect and case-rail state update the active semantic context without changing deterministic gameplay commands.
+- Added runtime tests for contextual LB/Y conflict resolution, region-to-context mapping, Stability/layer context overrides, semantic remap replacement and unknown-action rejection.
+- Found a hidden false-positive in the aggregate evidence path: the initial contextual-routing run was recorded PASS even though the Phase-12E Godot log contained a warning-as-error compile failure in `presentation_contract.gd`.
+- Fixed the inferred-Variant warning (`queue.pop_front()` now becomes an explicit String) and hardened the runtime wrapper with `assert_no_script_errors` so `SCRIPT ERROR` / failed-script-load markers in the 12E suite or main-scene boot force a real nonzero runtime result.
+- The first hardening attempt correctly converted the previous false-positive class into a real FAIL, exposing an invalid `can_instantiate()` guard in the test itself; that guard was removed and the reliable log-level failure check retained.
+- No domain gameplay, content, persistence, objective, authority or progression semantics changed.
 
 ### Files / systems changed
-- `src/presentation/presentation_contract.gd`
 - `src/application/input_actions.gd`
+- `src/application/input_context_router.gd`
 - `src/presentation/main.gd`
-- `src/presentation/main.tscn`
+- `src/presentation/presentation_contract.gd`
 - `tests/test_phase12e_presentation_runner.gd`
 - `scripts/phase12e_presentation_contract_audit.py`
 - `scripts/run_phase12a_runtime.sh`
 - `IMPLEMENTATION_STATUS.md`
 
 ### Validation
-- Initial 12E code checkpoint: `7d89d0d15095f7f83e68bde43813e56b461670ab`.
-- First automatic aggregate run `32560945810`: **FAIL**, `runtime_rc = 1`; CI policy/bootstrap/fetch remained green. Exact cause: legacy Phase-12B contract audit required the `HistoryControls` scene marker after the shell renamed it. Repaired without weakening the old gate.
-- Marker-compatibility repair: `1749dc4f75dd316785d9a491ebc8406448b3c693`.
-- Second automatic aggregate run `32561008497`: Phase-12A, Phase-12B static, every Phase-12C static, every Phase-12D static and the new Phase-12E static audit passed, then the existing Phase-12B interaction suite detected displaced LB/RB Undo/Redo defaults.
-- Exact second-run regression: `Controller must expose semantic Undo` and `Controller must expose semantic Redo`.
-- Focused controller-history compatibility repair: `2a089c9391c8f39ce9a7b9816b2c5326b3570f0a`.
-- Fresh notification-safe automatic aggregate evidence commit: `40b28231d2e243f0e09f81a9710c2ab79f6f10e8` — **PASS**.
-- Aggregate result after focused repair: `result = PASS`, `runtime_rc = 0`, `ci_policy_rc = 0`, `bootstrap_preflight_rc = 0`, `phase12a_contract_rc = 0`, `fetch_godot_rc = 0`.
-- New static 12E gate: **PASS** — `Phase 12E presentation/input contract audit: PASS (Deck shell + semantic non-mouse path + accessibility foundations)`.
-- Existing 12A/12B/12C/12D gates remained green in the successful aggregate run.
+- Contextual-routing implementation head: `4ecc23bdedb55eaabedfa5fb43937f4ce00a0a7e`.
+- Initial automatic run `32561490311`: evidence file said PASS, but manual evidence inspection found a real `presentation_contract.gd` warning-as-error compile failure; this run is explicitly **INVALIDATED / NOT COUNTED**.
+- Compile-warning + false-PASS guard repair head: `1ac99bdcd41bdb27ea165c705d04b67653eddd46`.
+- Automatic run `32561706642`: **FAIL as intended**, proving the new acceptance path no longer masks compile errors; exact failure was an invalid static use of `can_instantiate()` in the temporary test guard.
+- Final runtime-validation head: `e3f66cb9a0d4248dc33fcf1245162cfbf7df6b6e`.
+- Automatic real Godot 4.7.1 aggregate run `32561854426`: **PASS**, exact target head `e3f66cb9a0d4248dc33fcf1245162cfbf7df6b6e`.
+- Evidence commit: `a7e66dd89ee71ef7d3c146e7733eafcdd86a465e`.
+- Aggregate result: `result = PASS`, `runtime_rc = 0`, `ci_policy_rc = 0`, `bootstrap_preflight_rc = 0`, `phase12a_contract_rc = 0`, `fetch_godot_rc = 0`.
+- Dedicated Phase-12E suite: **clean PASS** — only Godot 4.7.1 banner + `FMD Phase 12E presentation contract tests: PASS`; no `SCRIPT ERROR` or failed-script-load marker.
+- Main-scene boot: **clean**, no script/compile error marker.
+- Existing 12A/12B/12C/12D gates remained green in the final aggregate run.
 
 ### Failures / blockers
 - **No user-action blocker.**
-- **No canonical contradiction discovered.**
-- **No current runtime blocker for this first 12E increment.**
-- Complete 12E exit gate is not yet satisfied: this increment establishes architecture/foundations, not the full settings/Stability/linked-layer/localization/capture/device sweep.
+- **No current runtime blocker for contextual routing/remapping.**
+- The false-positive evidence weakness discovered in this run is now guarded at runtime for the Phase-12E suite and main-scene boot.
+- Complete 12E exit gate is still not satisfied.
 
 ### Canonical contradictions
-- **NONE discovered.** The new presentation layer remains subordinate to the frozen deterministic simulation and respects P10-R6/P10-R7, the two-surface ceiling and Deck/accessibility constraints.
+- **NONE discovered.** Context routing resolves shared-device gestures without weakening the frozen semantic-input or deterministic gameplay contracts.
 
 ## NEXT ACTION
-Continue **12E** with the next coherent production UX package: implement contextual semantic binding/remapping so edit gesture versus tool/layer/history actions do not conflict; add content-driven authored focus graphs across all editable primitive candidate types/layers; extend Inspect with route/permission/tie-break explanations and history cards; make Stability Start/Pause/Step/speed/interruption messaging functional; add linked-layer breadcrumb/authority-source jumps; implement accessible settings for UI scale/reduced motion/flash/no-audio/no-color; add localization-safe layout acceptance and automated 1280×800/controller/keyboard-only presentation sweeps where practical. Preserve all existing 12A-12D and first-increment 12E gates. Do not start 12F until the complete 12E exit gate is satisfied.
+Continue **12E** with the remaining production UX package in coherent increments: drive authored focus navigation from production dossier metadata across every editable primitive type/layer; extend Inspect with route, permission, tie-break and history-card explanations without becoming a solution oracle; implement functional Stability Start/Resume/Pause/Step/speed/interruption messaging; add linked-layer breadcrumbs and authoritative-source jumps under the two-surface ceiling; persist accessible settings for UI scale/reduced motion/flash/no-audio/no-color; then add localization-safe 1280x800, keyboard-only, controller-only, grayscale/no-color and reduced-motion acceptance sweeps. Preserve all existing 12A-12D and 12E gates. Do not start 12F until the complete 12E exit gate is satisfied.
