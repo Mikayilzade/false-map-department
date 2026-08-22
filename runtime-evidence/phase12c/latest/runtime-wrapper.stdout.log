@@ -43,7 +43,7 @@ Phase 12D Act-V content audit: PASS (D33-D40 final campaign synthesis + zero-mas
 == phase12d-remix-pack1-contract ==
 Phase 12D Remix Pack 1 audit: PASS (REMIX01-REMIX04 P10-R10)
 == phase12d-remix-pack2-contract ==
-Phase 12D Remix Pack 2 audit: PASS (REMIX05-REMIX08 P10-R10)
+Phase 12D Remix Pack 2 audit: PASS (REMIX05-REMIX08 P10-R10, bounded source overlays)
 == import-parse ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
