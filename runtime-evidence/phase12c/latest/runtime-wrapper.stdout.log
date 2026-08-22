@@ -49,7 +49,7 @@ Phase 12D Remix Pack 3 audit: PASS (REMIX09-REMIX12 P10-R10, bounded source over
 == phase12d-full-catalog-contract ==
 Phase 12D strict full-catalog audit: PASS (40 campaign + 5 demo + 12 source-bound remixes)
 == phase12e-presentation-contract ==
-Phase 12E presentation/input contract audit: PASS (Deck shell + contextual semantic routing/remap + accessibility foundations)
+Phase 12E presentation/input contract audit: PASS (Deck shell + contextual semantic routing/remap + compile-fail guard + accessibility foundations)
 == import-parse ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
@@ -138,12 +138,6 @@ Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
 [92m[ DONE ][39m [1mloading_editor_layout[22m
 [0m
-SCRIPT ERROR: Parse Error: The variable type is being inferred from a Variant value, so it will be typed as Variant. (Warning treated as error.)
-          at: GDScript::reload (res://src/presentation/presentation_contract.gd:120)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://src/presentation/main.gd:0)
-ERROR: Failed to load script "res://src/presentation/main.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 == gdscript-suite ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
@@ -243,46 +237,11 @@ FMD Phase 12D strict full-catalog tests: PASS
 == phase12e-presentation-suite ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
-SCRIPT ERROR: Parse Error: The variable type is being inferred from a Variant value, so it will be typed as Variant. (Warning treated as error.)
-          at: GDScript::reload (res://src/presentation/presentation_contract.gd:120)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://tests/test_phase12e_presentation_runner.gd:0)
-ERROR: Failed to load script "res://tests/test_phase12e_presentation_runner.gd" with error "Compilation failed".
+SCRIPT ERROR: Parse Error: Cannot call non-static function "can_instantiate()" on the class "res://src/application/input_actions.gd" directly. Make an instance instead.
+          at: GDScript::reload (res://tests/test_phase12e_presentation_runner.gd:24)
+SCRIPT ERROR: Parse Error: Cannot call non-static function "can_instantiate()" on the class "res://src/application/input_context_router.gd" directly. Make an instance instead.
+          at: GDScript::reload (res://tests/test_phase12e_presentation_runner.gd:25)
+SCRIPT ERROR: Parse Error: Cannot call non-static function "can_instantiate()" on the class "res://src/presentation/presentation_contract.gd" directly. Make an instance instead.
+          at: GDScript::reload (res://tests/test_phase12e_presentation_runner.gd:26)
+ERROR: Failed to load script "res://tests/test_phase12e_presentation_runner.gd" with error "Parse error".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
-SCRIPT ERROR: Invalid call. Nonexistent function 'deck_layout_contract' in base 'GDScript'.
-          at: _test_deck_contract (res://tests/test_phase12e_presentation_runner.gd:31)
-          GDScript backtrace (most recent call first):
-              [0] _test_deck_contract (res://tests/test_phase12e_presentation_runner.gd:31)
-              [1] _initialize (res://tests/test_phase12e_presentation_runner.gd:10)
-SCRIPT ERROR: Invalid call. Nonexistent function 'validate_focus_graph' in base 'GDScript'.
-          at: _test_focus_graph (res://tests/test_phase12e_presentation_runner.gd:106)
-          GDScript backtrace (most recent call first):
-              [0] _test_focus_graph (res://tests/test_phase12e_presentation_runner.gd:106)
-              [1] _initialize (res://tests/test_phase12e_presentation_runner.gd:14)
-SCRIPT ERROR: Invalid call. Nonexistent function 'requirement_state' in base 'GDScript'.
-          at: _test_accessible_states (res://tests/test_phase12e_presentation_runner.gd:118)
-          GDScript backtrace (most recent call first):
-              [0] _test_accessible_states (res://tests/test_phase12e_presentation_runner.gd:118)
-              [1] _initialize (res://tests/test_phase12e_presentation_runner.gd:15)
-SCRIPT ERROR: Invalid call. Nonexistent function 'glyph_for' in base 'GDScript'.
-          at: _test_glyph_help (res://tests/test_phase12e_presentation_runner.gd:128)
-          GDScript backtrace (most recent call first):
-              [0] _test_glyph_help (res://tests/test_phase12e_presentation_runner.gd:128)
-              [1] _initialize (res://tests/test_phase12e_presentation_runner.gd:16)
-FMD Phase 12E presentation contract tests: PASS
-== main-scene-boot ==
-Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
-
-SCRIPT ERROR: Parse Error: The variable type is being inferred from a Variant value, so it will be typed as Variant. (Warning treated as error.)
-          at: GDScript::reload (res://src/presentation/presentation_contract.gd:120)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://src/presentation/main.gd:0)
-ERROR: Failed to load script "res://src/presentation/main.gd" with error "Compilation failed".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
-SCRIPT ERROR: Invalid call. Nonexistent function 'requirement_state' in base 'GDScript'.
-          at: _render_snapshot (res://src/presentation/main.gd:214)
-          GDScript backtrace (most recent call first):
-              [0] _render_snapshot (res://src/presentation/main.gd:214)
-              [1] _ready (res://src/presentation/main.gd:63)
-/home/runner/work/_temp/fmd-runtime-baseline/runtime/manifest.json
-Phase 12A + 12B + 12C + 12D + 12E runtime baseline: PASS
