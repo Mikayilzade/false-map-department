@@ -1,0 +1,12 @@
+== phase12b-interaction-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+ERROR: Controller must expose semantic Undo
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/test_slice_interaction_runner.gd:18)
+ERROR: Controller must expose semantic Redo
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/test_slice_interaction_runner.gd:18)
+FMD Phase 12B interaction tests: FAIL (2 failures)
