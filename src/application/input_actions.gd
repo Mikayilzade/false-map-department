@@ -89,6 +89,8 @@ static func ensure_registered() -> void:
 	_bind_joy_button_once(TOOL_NEXT, JOY_BUTTON_RIGHT_SHOULDER)
 	_bind_joy_button_once(LAYER_PREVIOUS, JOY_BUTTON_LEFT_SHOULDER)
 	_bind_joy_button_once(LAYER_NEXT, JOY_BUTTON_RIGHT_SHOULDER)
+	_bind_joy_button_once(UNDO, JOY_BUTTON_LEFT_SHOULDER)
+	_bind_joy_button_once(REDO, JOY_BUTTON_RIGHT_SHOULDER)
 	_bind_joy_button_once(UNDO, JOY_BUTTON_BACK)
 	_bind_joy_button_once(REDO, JOY_BUTTON_GUIDE)
 	_bind_joy_button_once(NEXT_AFFECTED, JOY_BUTTON_RIGHT_STICK)
