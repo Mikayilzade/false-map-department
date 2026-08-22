@@ -47,6 +47,29 @@ def main() -> None:
             'const TOOL_NEXT := "fmd_tool_next"',
             'const LAYER_PREVIOUS := "fmd_layer_previous"',
             'const LAYER_NEXT := "fmd_layer_next"',
+            "remappable_actions",
+            "replace_bindings",
+            "binding_descriptors",
+            "device_family_for_event",
+            "_bind_joy_button_once(UNDO, JOY_BUTTON_LEFT_SHOULDER)",
+            "_bind_joy_button_once(REDO, JOY_BUTTON_RIGHT_SHOULDER)",
+        ],
+    )
+    require(
+        "src/application/input_context_router.gd",
+        [
+            'const CONTEXT_EDIT := "edit"',
+            'const CONTEXT_INSPECT := "inspect"',
+            'const CONTEXT_HISTORY := "history"',
+            'const CONTEXT_LAYER := "layer"',
+            'const CONTEXT_STABILITY := "stability"',
+            "PRIORITY_BY_CONTEXT",
+            "resolve_event",
+            "resolve_actions",
+            "context_for_region",
+            "InputActions.TOOL_PREVIOUS",
+            "InputActions.LAYER_PREVIOUS",
+            "InputActions.UNDO",
         ],
     )
     require(
@@ -66,10 +89,13 @@ def main() -> None:
             "PresentationContract.DEFAULT_CAUSAL_NODE_BUDGET",
             "InputActions.CORRESPONDENCE",
             "InputActions.REGION_NEXT",
+            "InputContextRouter",
+            "resolve_event(event, _input_context)",
+            "context_for_region(_active_region)",
             "Pattern + icon + text carry state; color is supplemental.",
         ],
     )
-    print("Phase 12E presentation/input contract audit: PASS (Deck shell + semantic non-mouse path + accessibility foundations)")
+    print("Phase 12E presentation/input contract audit: PASS (Deck shell + contextual semantic routing/remap + accessibility foundations)")
 
 
 if __name__ == "__main__":

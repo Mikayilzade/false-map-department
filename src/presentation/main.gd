@@ -1,6 +1,7 @@
 extends Control
 
 const InputActions = preload("res://src/application/input_actions.gd")
+const InputContextRouter = preload("res://src/application/input_context_router.gd")
 const PresentationContract = preload("res://src/presentation/presentation_contract.gd")
 const SliceInteractionController = preload("res://src/application/slice_interaction_controller.gd")
 
@@ -24,9 +25,12 @@ const SliceInteractionController = preload("res://src/application/slice_interact
 
 var _definition: Dictionary = {}
 var _controller := SliceInteractionController.new()
+var _input_router := InputContextRouter.new()
 var _inspect_visible := false
 var _case_visible := false
 var _active_device_family := "keyboard"
+var _active_region := "map"
+var _input_context := InputContextRouter.CONTEXT_EDIT
 
 func _ready() -> void:
 	InputActions.ensure_registered()
@@ -55,42 +59,66 @@ func _ready() -> void:
 	road_list.item_activated.connect(_on_road_activated)
 
 	case_panel.visible = false
-	status_label.text = "Phase 12E — semantic keyboard/controller shell over deterministic slice core"
+	status_label.text = "Phase 12E — contextual semantic routing over deterministic slice core"
 	_render_snapshot()
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventJoypadButton or event is InputEventJoypadMotion:
-		_active_device_family = "controller"
-	elif event is InputEventKey or event is InputEventMouse:
-		_active_device_family = "keyboard"
+	_active_device_family = InputActions.device_family_for_event(event)
+	var action := _input_router.resolve_event(event, _input_context)
+	if action.is_empty():
+		return
+	match action:
+		InputActions.NAV_LEFT:
+			_on_previous()
+		InputActions.NAV_RIGHT:
+			_on_next()
+		InputActions.NAV_UP:
+			_on_previous()
+		InputActions.NAV_DOWN:
+			_on_next()
+		InputActions.SELECT:
+			_on_toggle()
+		InputActions.UNDO:
+			_on_undo()
+		InputActions.REDO:
+			_on_redo()
+		InputActions.INSPECT:
+			_on_inspect()
+		InputActions.CORRESPONDENCE:
+			_on_correspondence()
+		InputActions.SURFACE_TOGGLE:
+			status_label.text = "Map / World focus toggled in edit context"
+		InputActions.TOOL_PREVIOUS:
+			status_label.text = "Previous dossier-available tool family"
+		InputActions.TOOL_NEXT:
+			status_label.text = "Next dossier-available tool family"
+		InputActions.LAYER_PREVIOUS:
+			status_label.text = "Previous linked layer"
+		InputActions.LAYER_NEXT:
+			status_label.text = "Next linked layer"
+		InputActions.NEXT_AFFECTED:
+			_inspect_visible = true
+			inspect_body.visible = true
+			status_label.text = "Next affected object in current causal descendants"
+		InputActions.STABILITY:
+			status_label.text = "Stability semantic control selected"
+		InputActions.REGION_NEXT:
+			_focus_next_region(false)
+		InputActions.REGION_PREVIOUS:
+			_focus_next_region(true)
+		InputActions.BACK:
+			_on_context_back()
+	get_viewport().set_input_as_handled()
+	_render_snapshot()
 
-	if event.is_action_pressed(InputActions.NAV_LEFT) or event.is_action_pressed(InputActions.PREVIOUS_CANDIDATE):
-		_on_previous()
-		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed(InputActions.NAV_RIGHT) or event.is_action_pressed(InputActions.NEXT_CANDIDATE):
-		_on_next()
-		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed(InputActions.SELECT):
-		_on_toggle()
-		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed(InputActions.UNDO):
-		_on_undo()
-		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed(InputActions.REDO):
-		_on_redo()
-		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed(InputActions.INSPECT):
-		_on_inspect()
-		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed(InputActions.CORRESPONDENCE):
-		_on_correspondence()
-		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed(InputActions.REGION_NEXT):
-		_focus_next_region(false)
-		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed(InputActions.REGION_PREVIOUS):
-		_focus_next_region(true)
-		get_viewport().set_input_as_handled()
+func _on_context_back() -> void:
+	if _case_visible:
+		_on_case_rail()
+	elif _inspect_visible:
+		_inspect_visible = false
+		_input_context = _input_router.context_for_region(_active_region)
+	else:
+		status_label.text = "Back / cancel"
 
 func _on_previous() -> void:
 	_controller.select_previous()
@@ -117,6 +145,7 @@ func _on_redo() -> void:
 
 func _on_inspect() -> void:
 	_inspect_visible = not _inspect_visible
+	_input_context = InputContextRouter.CONTEXT_INSPECT if _inspect_visible else _input_router.context_for_region(_active_region)
 	_render_snapshot()
 
 func _on_correspondence() -> void:
@@ -127,6 +156,7 @@ func _on_case_rail() -> void:
 	_case_visible = not _case_visible
 	case_panel.visible = _case_visible
 	case_button.text = "Hide case" if _case_visible else "Case goals"
+	_input_context = InputContextRouter.CONTEXT_UI if _case_visible else _input_router.context_for_region(_active_region)
 
 func _focus_next_region(reverse: bool) -> void:
 	var focusable: Array[Control] = [road_list, world_body, case_button, inspect_button, undo_button]
@@ -136,6 +166,10 @@ func _focus_next_region(reverse: bool) -> void:
 	var index := focusable.find(current)
 	var next_index := 0 if index < 0 else (index + 1) % focusable.size()
 	focusable[next_index].grab_focus()
+	var region_index := next_index if not reverse else (PresentationContract.MAJOR_REGIONS.size() - 1 - next_index)
+	_active_region = str(PresentationContract.MAJOR_REGIONS[region_index])
+	_input_context = _input_router.context_for_region(_active_region)
+	status_label.text = "Input context: %s (%s)" % [_input_context, _active_region]
 
 func _on_road_selected(index: int) -> void:
 	var edge_id := str(road_list.get_item_metadata(index))
@@ -200,10 +234,11 @@ func _render_snapshot() -> void:
 	case_lines.append("Pattern + icon + text carry state; color is supplemental.")
 	case_body.text = "\n".join(case_lines)
 
-	input_hint.text = "%s select · %s inspect · %s correspondence · arrows/D-pad navigate · Tab regions · Q/E or LB/RB tools" % [
+	input_hint.text = "%s select · %s inspect · %s correspondence · arrows/D-pad navigate · Tab regions · context=%s" % [
 		PresentationContract.glyph_for("select", _active_device_family),
 		PresentationContract.glyph_for("inspect", _active_device_family),
 		PresentationContract.glyph_for("correspondence", _active_device_family),
+		_input_context,
 	]
 
 func _load_slice_definition(path: String) -> Dictionary:

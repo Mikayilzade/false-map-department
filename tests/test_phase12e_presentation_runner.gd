@@ -1,6 +1,7 @@
 extends SceneTree
 
 const InputActions = preload("res://src/application/input_actions.gd")
+const InputContextRouter = preload("res://src/application/input_context_router.gd")
 const PresentationContract = preload("res://src/presentation/presentation_contract.gd")
 
 var _failures: Array[String] = []
@@ -8,6 +9,8 @@ var _failures: Array[String] = []
 func _initialize() -> void:
 	_test_deck_contract()
 	_test_semantic_actions()
+	_test_contextual_routing()
+	_test_remapping()
 	_test_focus_graph()
 	_test_accessible_states()
 	_test_glyph_help()
@@ -40,6 +43,8 @@ func _test_semantic_actions() -> void:
 		InputActions.SELECT,
 		InputActions.BACK,
 		InputActions.INSPECT,
+		InputActions.UNDO,
+		InputActions.REDO,
 		InputActions.NAV_UP,
 		InputActions.NAV_DOWN,
 		InputActions.NAV_LEFT,
@@ -56,6 +61,39 @@ func _test_semantic_actions() -> void:
 	]:
 		_expect(InputMap.has_action(action), "Semantic action must be registered: %s" % action)
 		_expect(not InputMap.action_get_events(action).is_empty(), "Semantic action must have a default binding: %s" % action)
+	_expect(InputActions.remappable_actions().has(StringName(InputActions.CORRESPONDENCE)), "Correspondence must be exposed as a remappable semantic action")
+
+func _test_contextual_routing() -> void:
+	var router := InputContextRouter.new()
+	var lb_actions: Array[String] = [InputActions.TOOL_PREVIOUS, InputActions.LAYER_PREVIOUS, InputActions.UNDO]
+	_expect(router.resolve_actions(lb_actions, InputContextRouter.CONTEXT_EDIT) == InputActions.TOOL_PREVIOUS, "LB conflict must resolve to tool navigation while editing")
+	_expect(router.resolve_actions(lb_actions, InputContextRouter.CONTEXT_LAYER) == InputActions.LAYER_PREVIOUS, "LB conflict must resolve to layer navigation in layer context")
+	_expect(router.resolve_actions(lb_actions, InputContextRouter.CONTEXT_HISTORY) == InputActions.UNDO, "LB conflict must preserve Undo in history context")
+	var y_actions: Array[String] = [InputActions.CORRESPONDENCE, InputActions.SURFACE_TOGGLE]
+	_expect(router.resolve_actions(y_actions, InputContextRouter.CONTEXT_EDIT) == InputActions.SURFACE_TOGGLE, "Y conflict must toggle Map/World while editing")
+	_expect(router.resolve_actions(y_actions, InputContextRouter.CONTEXT_INSPECT) == InputActions.CORRESPONDENCE, "Y conflict must frame correspondence while inspecting")
+	_expect(router.context_for_region("history") == InputContextRouter.CONTEXT_HISTORY, "History region must activate history context")
+	_expect(router.context_for_region("world") == InputContextRouter.CONTEXT_INSPECT, "World region must activate inspect context")
+	_expect(router.context_for_region("map") == InputContextRouter.CONTEXT_EDIT, "Map region must activate edit context")
+	_expect(router.context_for_region("map", true) == InputContextRouter.CONTEXT_STABILITY, "Running Stability must override region context")
+	_expect(router.context_for_region("map", false, true) == InputContextRouter.CONTEXT_LAYER, "Linked-layer navigation must override normal edit context")
+
+func _test_remapping() -> void:
+	var custom := InputEventKey.new()
+	custom.keycode = KEY_C
+	var events: Array[InputEvent] = [custom]
+	var result := InputActions.replace_bindings(StringName(InputActions.CORRESPONDENCE), events)
+	_expect(result.get("ok", false), "Semantic remapping must accept a known action")
+	_expect(int(result.get("binding_count", 0)) == 1, "Semantic remapping must replace the previous binding set")
+	var descriptors := InputActions.binding_descriptors(StringName(InputActions.CORRESPONDENCE))
+	_expect(descriptors.size() == 1, "Remapped action must expose one serializable binding descriptor")
+	if descriptors.size() == 1:
+		_expect(descriptors[0].get("device", "") == "keyboard", "Binding descriptor must preserve device family")
+		_expect(int(descriptors[0].get("keycode", 0)) == KEY_C, "Binding descriptor must preserve keycode")
+	var unknown := InputActions.replace_bindings(StringName("fmd_unknown"), events)
+	_expect(not unknown.get("ok", true), "Unknown semantic actions must be rejected by remapping")
+	InputMap.action_erase_events(InputActions.CORRESPONDENCE)
+	InputActions.ensure_registered()
 
 func _test_focus_graph() -> void:
 	var graph := {

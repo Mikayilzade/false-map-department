@@ -95,6 +95,43 @@ static func ensure_registered() -> void:
 	_bind_joy_button_once(REDO, JOY_BUTTON_GUIDE)
 	_bind_joy_button_once(NEXT_AFFECTED, JOY_BUTTON_RIGHT_STICK)
 
+static func remappable_actions() -> Array[StringName]:
+	var result: Array[StringName] = []
+	for raw_action in ACTIONS:
+		result.append(StringName(raw_action))
+	return result
+
+static func replace_bindings(action: StringName, events: Array[InputEvent]) -> Dictionary:
+	if not ACTIONS.has(str(action)):
+		return {"ok": false, "code": "unknown_semantic_action", "action": str(action)}
+	if not InputMap.has_action(action):
+		InputMap.add_action(action)
+	InputMap.action_erase_events(action)
+	for event in events:
+		if event != null:
+			InputMap.action_add_event(action, event)
+	return {"ok": true, "action": str(action), "binding_count": InputMap.action_get_events(action).size()}
+
+static func binding_descriptors(action: StringName) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	if not InputMap.has_action(action):
+		return result
+	for event in InputMap.action_get_events(action):
+		if event is InputEventKey:
+			result.append({"device": "keyboard", "keycode": event.keycode, "ctrl": event.ctrl_pressed, "shift": event.shift_pressed})
+		elif event is InputEventJoypadButton:
+			result.append({"device": "controller", "button": event.button_index})
+		elif event is InputEventJoypadMotion:
+			result.append({"device": "controller_axis", "axis": event.axis, "value": event.axis_value})
+	return result
+
+static func device_family_for_event(event: InputEvent) -> String:
+	if event is InputEventJoypadButton or event is InputEventJoypadMotion:
+		return "controller"
+	if event is InputEventMouse:
+		return "mouse_keyboard"
+	return "keyboard"
+
 static func _bind_key_once(action: StringName, keycode: Key, ctrl_pressed: bool = false, shift_pressed: bool = false) -> void:
 	for existing in InputMap.action_get_events(action):
 		if existing is InputEventKey and existing.keycode == keycode and existing.ctrl_pressed == ctrl_pressed and existing.shift_pressed == shift_pressed:
