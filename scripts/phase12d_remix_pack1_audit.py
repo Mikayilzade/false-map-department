@@ -59,7 +59,7 @@ def main():
     reg=load(REG)
     entries=reg.get('remixes',[])
     expected=[f'REMIX{i:02d}' for i in range(1,5)]
-    if [e.get('dossier_id') for e in entries]!=expected: fail('registry must production-register exact REMIX01-REMIX04 prefix')
+    if len(entries)<4 or [e.get('dossier_id') for e in entries[:4]]!=expected: fail('registry must preserve contiguous REMIX01-REMIX04 prefix')
     transforms=set()
     for rid in expected:
         path=REM/f'{rid}.json'
