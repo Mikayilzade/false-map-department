@@ -127,6 +127,7 @@ run_logged phase12d-remix-pack3-contract python3 scripts/phase12d_remix_pack3_au
 run_logged phase12d-full-catalog-contract python3 scripts/phase12d_full_catalog_audit.py
 run_logged phase12e-presentation-contract python3 scripts/phase12e_presentation_contract_audit.py
 run_logged phase12e-focus-navigation-contract python3 scripts/phase12e_focus_navigation_audit.py
+run_logged phase12e-inspect-history-contract python3 scripts/phase12e_inspect_history_audit.py
 run_logged import-parse "$RESOLVED_GODOT" --headless --path . --editor --quit
 run_logged gdscript-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_runner.gd
 run_logged phase12b-history-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_slice_history_runner.gd
@@ -156,6 +157,8 @@ run_logged phase12e-presentation-suite "$RESOLVED_GODOT" --headless --path . --s
 assert_no_script_errors phase12e-presentation-suite
 run_logged phase12e-focus-navigation-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_phase12e_focus_navigation_runner.gd
 assert_no_script_errors phase12e-focus-navigation-suite
+run_logged phase12e-inspect-history-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_phase12e_inspect_history_runner.gd
+assert_no_script_errors phase12e-inspect-history-suite
 run_logged main-scene-boot "$RESOLVED_GODOT" --headless --path . --quit-after 2
 assert_no_script_errors main-scene-boot
 
