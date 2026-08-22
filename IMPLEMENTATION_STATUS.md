@@ -14,7 +14,7 @@ Repository: `Mikayilzade/false-map-department`
 - 12A Technical Bootstrap: **COMPLETE — real Godot 4.7.1 PASS**
 - 12B Vertical Slice: **COMPLETE — deterministic playable micro-loop + Undo/Redo + reload PASS**
 - 12C Core Systems: **COMPLETE — frozen mechanical/application/persistence/content-validation core runtime-green**
-- 12D Content Population: **IN PROGRESS — D01-D40 + DEMO01-DEMO05 runtime-green; REMIX01-REMIX04 authored/staged, not yet production-registered**
+- 12D Content Population: **IN PROGRESS — D01-D40 + DEMO01-DEMO05 + REMIX01-REMIX04 runtime-green; REMIX05-REMIX12 remain**
 - 12E UX / Accessibility / Controller / Deck: **NO**
 - 12F Adversarial QA: **NO**
 - 12G Empirical Gates: **NO**
@@ -24,39 +24,48 @@ Repository: `Mikayilzade/false-map-department`
 ## Latest implementation run — 2026-08-22
 
 ### Phase / subphase
-**12D Content Population / Remix Pack 1 authoring (REMIX01-REMIX04) — STAGED**
+**12D Content Population / Remix Pack 1 integration (REMIX01-REMIX04) — RUNTIME GREEN**
 
 ### Completed
-- Re-read P10-R10 and the frozen remix parameter boundaries before authoring.
-- Added `content/remix/REMIX01.json` from D15, changing the causal task from constructing safe connectivity to recognizing already-sufficient safe connectivity and avoiding harmful redundant wetland connectivity.
-- Added `content/remix/REMIX02.json` from D20, changing agent starts so the temporal dependency is gate occupancy followed by emergency-priority evolution rather than simultaneous arrival.
-- Added `content/remix/REMIX03.json` from D24, beginning with local authority active and selecting the prevalidated cross-layer connector requirement so preservation of the authoritative source becomes the causal task.
-- Added `content/remix/REMIX04.json` from D33, beginning with local authority satisfied and regional authority absent so the player must discriminate which network owns the missing projected fact.
-- Every staged remix declares `source_substrate_id`, bounded changed inputs, an explicit changed causal dependency and `expected_new_reasoning_transformation`.
-- Pack 1 uses four reasoning transformations: causal-compression/elegance, temporal/Stability dependency, linked-authority dependency and cross-network dependency; therefore the frozen >=3 transformations/four-case pack rule is satisfied by construction.
-- All changes stay inside the frozen remix parameter set. No graph topology, agent script, primitive family or linked authority was invented.
-- A temporary production-registry extension was deliberately reverted before ending because the existing Act-V regression gate still asserts `remixes == []`; leaving it registered without first hardening that regression would knowingly make the aggregate baseline red.
+- Re-read P10-R10/frozen remix parameter boundaries and the recorded Pack-1 staging handoff.
+- Hardened the Act-V regression so later valid remix registration is accepted only as a contiguous `REMIX01..REMIXNN` prefix while exact D01-D40 campaign validation remains intact.
+- Tightened REMIX01: its only declared changed input now actually changes D15 initial primitive state; both target connections begin active so the causal task becomes removal of harmful wetland redundancy while preserving the safe route.
+- Tightened REMIX02: removed redundant objective-selection metadata; the single changed start position is the actual temporal dependency change.
+- Corrected REMIX03 from D24 to D28 because D24 did not prevalidate O12 as an objective family. D28 already contains O12, so the remix now validly selects that family while beginning with the regional route active and requiring the local water authority to drive portal availability.
+- REMIX04 remains the D33 cross-network source-discrimination variant.
+- Production-registered exact REMIX01-REMIX04 in `content/registry.json` with a valid registry hash.
+- Added `phase12d_remix_pack1_audit.py` to verify the frozen changed-input whitelist, source-substrate references, actual value changes, prevalidated objective-family selection, P10-R10 changed-dependency declarations/safety flags, and >=3 transformations in the four-case pack.
+- Added `test_remix_pack1_runner.gd` for real Godot JSON/registry/source-substrate acceptance.
+- Wired both Pack-1 gates into the notification-safe aggregate runtime baseline.
+- No graph topology, agent script, primitive family, linked authority, or other canonical mechanic was added.
 
 ### Files / systems changed
 - `content/remix/REMIX01.json`
 - `content/remix/REMIX02.json`
 - `content/remix/REMIX03.json`
-- `content/remix/REMIX04.json`
+- `content/registry.json`
+- `scripts/phase12d_act5_content_audit.py`
+- `scripts/phase12d_remix_pack1_audit.py`
+- `tests/test_remix_pack1_runner.gd`
+- `scripts/run_phase12a_runtime.sh`
 - `IMPLEMENTATION_STATUS.md`
 
 ### Validation
-- Structural/manual P10-R10 review of all four staged remix declarations: **PASS**.
-- Frozen parameter-boundary review: **PASS**.
-- Pack transformation diversity: **PASS — 4 distinct transformations across 4 cases**.
-- Production aggregate was **not run for this staged increment**, because the production registry remains unchanged and the new remix files are intentionally not yet consumed by runtime gates.
-- Last production aggregate remains the prior real Godot 4.7.1 **PASS** (`32555410934`) for D01-D40 + DEMO01-DEMO05.
+- Automatic real Godot 4.7.1 aggregate baseline: **PASS**, run `32556202626`.
+- Runtime target head: `35d5ab7e718e547daaabe49ce9702e7c8e6a3a17`.
+- Evidence commit: `ff99af25c462c057d52833956556912ec215b5ca`.
+- Aggregate result: `result = PASS`, `runtime_rc = 0`, `ci_policy_rc = 0`, `bootstrap_preflight_rc = 0`, `phase12a_contract_rc = 0`, `fetch_godot_rc = 0`.
+- Static Pack-1 gate: **PASS** — `Phase 12D Remix Pack 1 audit: PASS (REMIX01-REMIX04 P10-R10)`.
+- Dedicated Godot Pack-1 suite: **PASS** — `FMD Phase 12D Remix Pack 1 tests: PASS`.
+- Existing 12A/12B/12C, D01-D40, DEMO01-DEMO05 and Act-I..V regressions remained green in the same aggregate run.
 
 ### Failures / blockers
 - **No user-action blocker.**
-- Integration blocker is internal and explicit: `phase12d_act5_content_audit.py` must be hardened from the historical `remixes == []` assertion before any remix can be production-registered.
+- **No current Pack-1 content/runtime blocker.**
+- Two staged authoring weaknesses were found before production registration and corrected rather than waived.
 
 ### Canonical contradictions
-- **NONE discovered.** The staged pack fits P10-R10 and the frozen remix parameter whitelist.
+- **NONE discovered.** Pack 1 now satisfies the frozen bounded-parameter and P10-R10 changed-dependency rules with four distinct reasoning transformations.
 
 ## NEXT ACTION
-Continue **12D Content Population** by hardening the Act-V regression to accept a valid remix prefix without weakening D01-D40 guarantees; add a dedicated P10-R10 static acceptance gate for REMIX01-REMIX04; then production-register Pack 1 and run the aggregate baseline. Only after Pack 1 is runtime-green, author Pack 2 (REMIX05-REMIX08), then Pack 3 (REMIX09-REMIX12). After all 12 are registered, run strict full-catalog validation for exactly D01-D40 + DEMO01-DEMO05 + 12 remixes; if green, mark **12D COMPLETE** and advance to **12E UX / Accessibility / Controller / Deck**.
+Continue **12D Content Population** with **Remix Pack 2 — REMIX05-REMIX08**. Author four overlays from existing validated campaign substrates only, using the frozen changed-input whitelist; require an actual changed causal dependency in every case and at least three P10-R1 reasoning transformations across PACK02. Reuse/extend the Pack-1 audit pattern rather than inventing a second remix schema, production-register a contiguous REMIX01-REMIX08 prefix, and run one notification-safe aggregate Godot baseline. Do not start PACK03 until PACK02 is runtime-green. After PACK03, run strict full-catalog validation for exactly D01-D40 + DEMO01-DEMO05 + 12 remixes; if green, mark 12D COMPLETE and advance to 12E.
