@@ -33,6 +33,15 @@ var _published_state: Dictionary = {}
 func _init(durable_session_service = null) -> void:
 	_durable = durable_session_service
 
+func start(
+		definition: Dictionary,
+		state: Dictionary,
+		profile_id: String = "",
+		generation: int = -1,
+		receipt_by_command_id: Dictionary = {}
+) -> Dictionary:
+	return begin(definition, state, profile_id, generation, receipt_by_command_id)
+
 func begin(
 		definition: Dictionary,
 		state: Dictionary,
@@ -210,21 +219,21 @@ func _finalize_pending() -> void:
 
 func _first_broken_requirement(state: Dictionary) -> Dictionary:
 	var objective_states: Dictionary = _dictionary(state.get("objective_state_by_id", {}))
-	for raw_contract in _array(_definition.get("objectives", [])):
-		var contract: Dictionary = _dictionary(raw_contract)
-		if not bool(contract.get("required", false)):
+	for raw_objective_contract in _array(_definition.get("objectives", [])):
+		var objective_contract: Dictionary = _dictionary(raw_objective_contract)
+		if not bool(objective_contract.get("required", false)):
 			continue
-		var requirement_id: String = str(contract.get("objective_id", ""))
-		if _requirement_is_broken(objective_states, requirement_id):
-			return {"id": requirement_id, "token": _requirement_token(contract, requirement_id)}
+		var objective_id: String = str(objective_contract.get("objective_id", ""))
+		if _requirement_is_broken(objective_states, objective_id):
+			return {"id": objective_id, "token": _requirement_token(objective_contract, objective_id)}
 	var invariant_states: Dictionary = _dictionary(state.get("invariant_state_by_id", {}))
-	for raw_contract in _array(_definition.get("protected_invariants", [])):
-		var contract: Dictionary = _dictionary(raw_contract)
-		if not bool(contract.get("required", false)):
+	for raw_invariant_contract in _array(_definition.get("protected_invariants", [])):
+		var invariant_contract: Dictionary = _dictionary(raw_invariant_contract)
+		if not bool(invariant_contract.get("required", false)):
 			continue
-		var requirement_id: String = str(contract.get("invariant_id", ""))
-		if _requirement_is_broken(invariant_states, requirement_id):
-			return {"id": requirement_id, "token": _requirement_token(contract, requirement_id)}
+		var invariant_id: String = str(invariant_contract.get("invariant_id", ""))
+		if _requirement_is_broken(invariant_states, invariant_id):
+			return {"id": invariant_id, "token": _requirement_token(invariant_contract, invariant_id)}
 	return {"id": "", "token": "a required condition"}
 
 func _requirement_is_broken(state_by_id: Dictionary, requirement_id: String) -> bool:
