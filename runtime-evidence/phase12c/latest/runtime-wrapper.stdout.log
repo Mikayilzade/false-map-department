@@ -49,7 +49,7 @@ Phase 12D Remix Pack 3 audit: PASS (REMIX09-REMIX12 P10-R10, bounded source over
 == phase12d-full-catalog-contract ==
 Phase 12D strict full-catalog audit: PASS (40 campaign + 5 demo + 12 source-bound remixes)
 == phase12e-presentation-contract ==
-Phase 12E presentation/input contract audit: PASS (Deck shell + contextual semantic routing/remap + compile-fail guard + accessibility foundations)
+Phase 12E presentation/input contract audit: PASS (Deck shell + contextual semantic routing/remap + runtime compile-log guard + accessibility foundations)
 == import-parse ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
@@ -237,11 +237,9 @@ FMD Phase 12D strict full-catalog tests: PASS
 == phase12e-presentation-suite ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
-SCRIPT ERROR: Parse Error: Cannot call non-static function "can_instantiate()" on the class "res://src/application/input_actions.gd" directly. Make an instance instead.
-          at: GDScript::reload (res://tests/test_phase12e_presentation_runner.gd:24)
-SCRIPT ERROR: Parse Error: Cannot call non-static function "can_instantiate()" on the class "res://src/application/input_context_router.gd" directly. Make an instance instead.
-          at: GDScript::reload (res://tests/test_phase12e_presentation_runner.gd:25)
-SCRIPT ERROR: Parse Error: Cannot call non-static function "can_instantiate()" on the class "res://src/presentation/presentation_contract.gd" directly. Make an instance instead.
-          at: GDScript::reload (res://tests/test_phase12e_presentation_runner.gd:26)
-ERROR: Failed to load script "res://tests/test_phase12e_presentation_runner.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+FMD Phase 12E presentation contract tests: PASS
+== main-scene-boot ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+/home/runner/work/_temp/fmd-runtime-baseline/runtime/manifest.json
+Phase 12A + 12B + 12C + 12D + 12E runtime baseline: PASS
