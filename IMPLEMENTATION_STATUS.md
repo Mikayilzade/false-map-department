@@ -15,7 +15,7 @@ Repository: `Mikayilzade/false-map-department`
 - 12B Vertical Slice: **COMPLETE — deterministic playable micro-loop + Undo/Redo + reload PASS**
 - 12C Core Systems: **COMPLETE — frozen mechanical/application/persistence/content-validation core runtime-green**
 - 12D Content Population: **COMPLETE — exact D01-D40 + DEMO01-DEMO05 + REMIX01-REMIX12 strict full catalog runtime-green**
-- 12E UX / Accessibility / Controller / Deck: **NO**
+- 12E UX / Accessibility / Controller / Deck: **IN PROGRESS — first production presentation/non-mouse architecture increment implemented; latest focused runtime repair committed, fresh aggregate evidence pending**
 - 12F Adversarial QA: **NO**
 - 12G Empirical Gates: **NO**
 - 12H Release Candidate: **NO**
@@ -24,52 +24,52 @@ Repository: `Mikayilzade/false-map-department`
 ## Latest implementation run — 2026-08-22
 
 ### Phase / subphase
-**12D Content Population / Remix Pack 3 + strict full-catalog exit gate — COMPLETE / RUNTIME GREEN**
+**12E UX / Accessibility / Controller / Deck / production presentation shell + semantic non-mouse architecture — IN PROGRESS**
 
 ### Completed
-- Re-read the frozen P10-R10 remix contract and current Pack-2 handoff before authoring the final pack.
-- Authored `REMIX09` from D22 using only prevalidated jurisdiction ownership + objective-family selection; the changed problem is emergency access versus livestock exclusion through permission asymmetry rather than the source dossier's three-system compression.
-- Authored `REMIX10` from D37 with the regional source road initially active and the remote connector clause removed; the changed problem collapses from four-layer linked reasoning to local topology + continuity.
-- Authored `REMIX11` from D12 with water connectivity initially active and only the prevalidated road-reachability family required; the changed problem is recognizing the water/bridge crossing dependency rather than constructing both networks.
-- Authored `REMIX12` from D10 with the exact courier starting at the authored near node and only the prevalidated reachability family required; the changed problem becomes adding the existing detour road rather than semantic duplicate-target reasoning.
-- PACK03 uses three distinct frozen reasoning transformations: permission asymmetry, topology restructuring and cross-network dependency.
-- Production-registered the exact contiguous `REMIX01`–`REMIX12` catalog while preserving exact D01-D40 and DEMO01-DEMO05.
-- Added `phase12d_remix_pack3_audit.py` for PACK03 identity/source-bound/changed-input/P10-R10 validation.
-- Added `test_remix_pack3_runner.gd` for real Godot PACK03 registry/source/metadata acceptance.
-- Added `phase12d_full_catalog_audit.py` as the Phase-12D strict exit gate: canonical registry hash; exact 40/5/12 identities and paths; campaign/demo immutable hashes; demo mapping hash; exact remix pack grouping; overlay-only schema; source-bound changed-input validation; P10-R10 dependency/safety metadata; and >=3 reasoning transformations per pack.
-- Added `test_full_catalog_runner.gd` for independent Godot-side exact 40/5/12 catalog, registry hash, source-resolution, overlay-boundary, pack-diversity and D40 zero-mastery assertions.
-- Wired PACK03 + strict full-catalog static/headless gates into the existing notification-safe aggregate Godot baseline.
-- A concurrent Pack-2 implementation was detected during this run; stale local branch work was not force-pushed or allowed to overwrite the newer runtime-green `main`. Work resumed from the actual current Pack-2 head before Pack 3 was authored.
-- No graph topology, agent script, primitive family, linked-authority relation, seventh primitive, dossier-specific gameplay override or canonical amendment was introduced.
+- Re-read the frozen final UX/input/accessibility authority before changing presentation behavior, including P10-R6 causal presentation budget, P10-R7 deterministic authored focus-graph rule, two-surface ceiling and Steam Deck 1280×800 requirements.
+- Added `src/presentation/presentation_contract.gd` as a presentation-only frozen-contract boundary with 1280×800 Deck contract, two-surface maximum, 58/42 Deck map/world ratio, slide-over case rail, 44 logical-pixel minimum interactive target, <=5 default material causal nodes, <=2 default visible siblings, 35% localization expansion allowance and no-color/no-audio/reduced-motion foundations.
+- Added deterministic focus-graph validation that requires authored up/down/left/right relationships, validates neighbor existence and proves every required focus candidate is reachable without using zoom, frame geometry, float-nearest selection, hash order or scene order.
+- Expanded semantic `InputActions` beyond the Phase-12B minimum to include cardinal logical navigation, next/previous major region, correspondence, map/world surface toggle, tool-family navigation, linked-layer navigation and next-affected-object navigation while retaining the old semantic select/back/inspect/history/Stability actions.
+- Added keyboard and controller defaults plus active-device glyph/help exposure. Existing Phase-12B LB/RB Undo/Redo defaults remain preserved in parallel with the new semantic tool/layer actions until the complete remapping/context-routing layer is implemented.
+- Reworked the main presentation shell on top of the existing deterministic `SliceInteractionController`: official map + inspectable derived world remain the only simultaneous surfaces; map/world sizing follows the Deck-oriented 58/42 contract; case goals/invariants live in a slide-over rail; controls use >=44 logical-pixel targets.
+- Added explicit map/world correspondence text and semantic Correspondence action; requirement state uses icon + pattern + text, with color documented/implemented as supplemental rather than authoritative.
+- Causal ribbon presentation now enforces the frozen default <=5 material-node budget before explicit expansion.
+- Added `scripts/phase12e_presentation_contract_audit.py` for static Deck/input/accessibility/presentation-contract acceptance.
+- Added `tests/test_phase12e_presentation_runner.gd` for real Godot contract acceptance of Deck geometry, semantic action registration, deterministic focus-graph reachability/rejection, redundant requirement-state channels and device glyph exposure.
+- Wired the 12E static and Godot suites into the existing notification-safe aggregate runtime wrapper; manifest phase now includes 12E.
+- Preserved the legacy Phase-12B `HistoryControls` presentation marker after the first runtime pass exposed an audit-compatibility regression.
+- Preserved Phase-12B controller LB=Undo / RB=Redo bindings after the second runtime pass exposed a behavioral regression from replacing them with new tool/history bindings.
+- No deterministic domain gameplay, content definition, primitive, agent rule, objective family, persistence rule or canonical authority relation was changed.
 
 ### Files / systems changed
-- `content/remix/REMIX09.json` ... `content/remix/REMIX12.json`
-- `content/registry.json`
-- `scripts/phase12d_remix_pack3_audit.py`
-- `scripts/phase12d_full_catalog_audit.py`
-- `tests/test_remix_pack3_runner.gd`
-- `tests/test_full_catalog_runner.gd`
+- `src/presentation/presentation_contract.gd`
+- `src/application/input_actions.gd`
+- `src/presentation/main.gd`
+- `src/presentation/main.tscn`
+- `tests/test_phase12e_presentation_runner.gd`
+- `scripts/phase12e_presentation_contract_audit.py`
 - `scripts/run_phase12a_runtime.sh`
 - `IMPLEMENTATION_STATUS.md`
 
 ### Validation
-- Automatic real Godot 4.7.1 aggregate baseline: **PASS**, run `32556963657`.
-- Runtime target head: `0ad175c9020eeb3c3e95945f972fb914eecc6c96`.
-- Evidence commit: `7bb2b221b6b3784d40eca6da49246d74b5e718c9`.
-- Aggregate result: `result = PASS`, `runtime_rc = 0`, `ci_policy_rc = 0`, `bootstrap_preflight_rc = 0`, `phase12a_contract_rc = 0`, `fetch_godot_rc = 0`.
-- Static PACK03 gate: **PASS** — `Phase 12D Remix Pack 3 audit: PASS (REMIX09-REMIX12 P10-R10, bounded source overlays)`.
-- Dedicated Godot PACK03 suite: **PASS** — `FMD Phase 12D Remix Pack 3 tests: PASS`.
-- Strict full-catalog static exit gate: **PASS** — `Phase 12D strict full-catalog audit: PASS (40 campaign + 5 demo + 12 source-bound remixes)`.
-- Strict full-catalog Godot suite: **PASS** — `FMD Phase 12D strict full-catalog tests: PASS`.
-- Existing 12A/12B/12C, D01-D40, DEMO01-DEMO05, Act-I..V, PACK01 and PACK02 regressions remained green in the same aggregate run.
-- D40 zero-mastery baseline remains explicitly protected by the strict catalog suite.
+- Initial 12E code checkpoint: `7d89d0d15095f7f83e68bde43813e56b461670ab`.
+- First automatic aggregate run `32560945810`: **FAIL**, `runtime_rc = 1`; CI policy/bootstrap/fetch remained green. Exact cause: legacy Phase-12B contract audit required the `HistoryControls` scene marker after the shell renamed it. Repaired without weakening the old gate.
+- Marker-compatibility repair: `1749dc4f75dd316785d9a491ebc8406448b3c693`.
+- Second automatic aggregate run `32561008497`: progressed through Phase-12A, Phase-12B static, every Phase-12C static, every Phase-12D static and the new Phase-12E static audit **PASS**; import parse also progressed. It then failed the existing Phase-12B interaction suite because LB/RB Undo/Redo defaults had been displaced by the new bindings.
+- Exact second-run regression: `Controller must expose semantic Undo` and `Controller must expose semantic Redo`.
+- Focused controller-history compatibility repair: `2a089c9391c8f39ce9a7b9816b2c5326b3570f0a`.
+- Fresh automatic aggregate evidence for the focused repair was not yet committed by the notification-safe workflow at this status checkpoint.
+- Static 12E gate on the second run: **PASS** — `Phase 12E presentation/input contract audit: PASS (Deck shell + semantic non-mouse path + accessibility foundations)`.
 
 ### Failures / blockers
 - **No user-action blocker.**
-- **No current 12D content/runtime blocker.**
+- **No canonical contradiction discovered.**
+- Runtime-green status for this first 12E increment is pending fresh evidence for commit `2a089c9391c8f39ce9a7b9816b2c5326b3570f0a`; do not mark this increment runtime-green until that evidence says PASS.
+- Complete 12E exit gate is not yet satisfied: this increment establishes architecture/foundations, not the full settings/Stability/linked-layer/localization/capture/device sweep.
 
 ### Canonical contradictions
-- **NONE discovered.** All 12 remixes stay inside the frozen parameter whitelist and P10-R10 changed-dependency requirement; the full 1.0 content catalog stays inside the frozen primitive/archetype/objective/layer ceilings.
+- **NONE discovered.** The new presentation layer remains subordinate to the frozen deterministic simulation and respects P10-R6/P10-R7, the two-surface ceiling and Deck/accessibility constraints.
 
 ## NEXT ACTION
-Begin **12E UX / Accessibility / Controller / Deck**. Re-read the final frozen UX/input/accessibility clauses before implementation. Build the production presentation/input layer on top of the already runtime-green domain/content core, preserving semantic action remapping and authored deterministic focus graphs. The first coherent 12E increment should establish the complete non-mouse gameplay path architecture and 1280×800 two-surface/case-rail shell without changing deterministic gameplay: keyboard-only + controller semantic navigation, current-action glyph/help exposure, edit-gesture versus layer/tool binding separation, dual map/world correspondence, case goals/invariants, causal ribbon default budget (<=5 material nodes / <=2 visible siblings), and reduced-motion/no-color/no-audio-safe state presentation foundations. Add headless/presentation-contract acceptance where practical and keep the automatic baseline notification-safe. Do not start 12F until the complete 12E exit gate is satisfied.
+First inspect the fresh notification-safe aggregate evidence for controller-history repair `2a089c9391c8f39ce9a7b9816b2c5326b3570f0a`; if any regression remains, repair that exact regression without weakening existing 12A-12D gates. Once the first 12E increment is runtime-green, continue **12E** with the next coherent production UX package: contextual semantic binding/remapping so edit gesture versus tool/layer/history actions do not conflict; content-driven authored focus graphs across all editable primitive candidate types/layers; full Inspect route/permission/tie-break presentation; history cards; functional Stability Start/Pause/Step/speed/interruption messaging; linked-layer breadcrumb/authority-source jumps; accessible settings for UI scale/reduced motion/flash/no-audio/no-color; localization-safe layout acceptance; and automated 1280×800/controller/keyboard-only presentation sweeps where practical. Do not start 12F until the complete 12E exit gate is satisfied.
