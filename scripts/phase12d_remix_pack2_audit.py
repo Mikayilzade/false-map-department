@@ -40,8 +40,7 @@ def validate_inputs(remix,src):
             actual |= ag[aid].get('semantic_target')!=target
     if 'jurisdiction_initial_ownership' in changed:
         known_j={j.get('jurisdiction_id') for j in src.get('jurisdictions',[])}
-        initial={}
-        known_cells=set()
+        initial={}; known_cells=set()
         for layer in src.get('map_layers',[]):
             known_cells |= {c.get('cell_id') for c in layer.get('cells',[])}
             initial.update(layer.get('initial_primitives',{}).get('jurisdiction_by_cell',{}))
@@ -69,6 +68,6 @@ def main():
             if meta.get(flag) is not True: fail(f'{rid} missing safety flag {flag}')
         validate_inputs(remix,load(CAM/f'{sid}.json'))
     if len(transforms)<3: fail('PACK02 must contain at least three distinct reasoning transformations')
-    print('Phase 12D Remix Pack 2 audit: PASS (REMIX05-REMIX08 P10-R10)')
+    print('Phase 12D Remix Pack 2 audit: PASS (REMIX05-REMIX08 P10-R10, bounded source overlays)')
 
 if __name__=='__main__': main()
