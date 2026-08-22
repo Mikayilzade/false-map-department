@@ -5,32 +5,40 @@ var failures: Array[String] = []
 func _initialize() -> void:
 	var registry: Dictionary = _load_json("res://content/registry.json")
 	var entries: Array = _array(registry.get("remixes", []))
-	_assert(entries.size() == 4, "Pack 1 registry must contain exactly REMIX01-REMIX04")
-	var expected_ids := ["REMIX01", "REMIX02", "REMIX03", "REMIX04"]
-	var transforms: Dictionary = {}
+	var expected_ids := ["REMIX01","REMIX02","REMIX03","REMIX04","REMIX05","REMIX06","REMIX07","REMIX08"]
+	_assert(entries.size() >= 8, "Remix registry must contain at least REMIX01-REMIX08")
+	var pack_transforms: Dictionary = {"PACK01": {}, "PACK02": {}}
 	for index in range(expected_ids.size()):
 		var expected_id: String = expected_ids[index]
 		if index >= entries.size():
 			continue
 		var entry: Dictionary = _dictionary(entries[index])
-		_assert(str(entry.get("dossier_id", "")) == expected_id, "Pack 1 remix registry order must remain contiguous")
+		_assert(str(entry.get("dossier_id", "")) == expected_id, "Remix registry order must remain contiguous through REMIX08")
 		var remix: Dictionary = _load_json(str(entry.get("path", "")))
 		_assert(str(remix.get("dossier_id", "")) == expected_id, "%s identity must match registry" % expected_id)
 		_assert(int(remix.get("remix_schema_version", 0)) == 1, "%s remix schema must remain version 1" % expected_id)
-		_assert(str(remix.get("remix_pack_id", "")) == "PACK01", "%s must remain in PACK01" % expected_id)
+		var expected_pack: String = "PACK01" if index < 4 else "PACK02"
+		_assert(str(remix.get("remix_pack_id", "")) == expected_pack, "%s must remain in %s" % [expected_id, expected_pack])
 		_assert(not _dictionary(remix.get("changed_inputs", {})).is_empty(), "%s must declare bounded changed inputs" % expected_id)
 		var metadata: Dictionary = _dictionary(remix.get("validation_metadata", {}))
 		_assert(bool(metadata.get("changed_dependency_proof", false)), "%s must prove an actual changed causal dependency" % expected_id)
 		_assert(str(metadata.get("actual_changed_causal_dependency", "")).length() >= 40, "%s changed dependency explanation must be material" % expected_id)
 		_assert(bool(metadata.get("no_new_graph_topology", false)) and bool(metadata.get("no_new_agent_scripts", false)) and bool(metadata.get("no_new_primitive_families", false)) and bool(metadata.get("no_new_linked_authority", false)), "%s must stay inside the frozen remix boundary" % expected_id)
 		var transform: String = str(remix.get("expected_new_reasoning_transformation", ""))
-		transforms[transform] = true
+		_dictionary(pack_transforms[expected_pack])[transform] = true
 		var source_id: String = str(remix.get("source_substrate_id", ""))
 		var source: Dictionary = _load_json("res://content/campaign/%s.json" % source_id)
 		_assert(str(source.get("dossier_id", "")) == source_id, "%s source substrate must resolve" % expected_id)
+		var source_transform: String = str(_dictionary(source.get("validation_metadata", {})).get("dominant_reasoning_transformation", ""))
+		if not source_transform.is_empty():
+			_assert(transform != source_transform, "%s must declare a new reasoning transformation relative to its source" % expected_id)
 		_assert(_changed_inputs_reference_source(remix, source), "%s changed inputs must reference authored substrate facts" % expected_id)
-	_assert(transforms.size() >= 3, "Every four-case remix pack must use at least three reasoning transformations")
-	_assert(str(_load_json("res://content/remix/REMIX03.json").get("source_substrate_id", "")) == "D28", "REMIX03 must use the prevalidated O12 D28 substrate")
+	_assert(_dictionary(pack_transforms["PACK01"]).size() >= 3, "PACK01 must retain at least three reasoning transformations")
+	_assert(_dictionary(pack_transforms["PACK02"]).size() >= 3, "PACK02 must contain at least three reasoning transformations")
+	_assert(str(_load_json("res://content/remix/REMIX05.json").get("source_substrate_id", "")) == "D12", "REMIX05 must reuse D12 crossing substrate")
+	_assert(str(_load_json("res://content/remix/REMIX06.json").get("source_substrate_id", "")) == "D35", "REMIX06 must reuse D35 selective-connectivity substrate")
+	_assert(str(_load_json("res://content/remix/REMIX07.json").get("source_substrate_id", "")) == "D38", "REMIX07 must reuse D38 Procession substrate")
+	_assert(str(_load_json("res://content/remix/REMIX08.json").get("source_substrate_id", "")) == "D36", "REMIX08 must reuse D36 border-authority substrate")
 	_finish()
 
 func _changed_inputs_reference_source(remix: Dictionary, source: Dictionary) -> bool:
@@ -86,10 +94,10 @@ func _assert(condition: bool, message: String) -> void:
 
 func _finish() -> void:
 	if failures.is_empty():
-		print("FMD Phase 12D Remix Pack 1 tests: PASS")
+		print("FMD Phase 12D Remix Pack 1+2 tests: PASS")
 		quit(0)
 	else:
-		print("FMD Phase 12D Remix Pack 1 tests: FAIL (%d failures)" % failures.size())
+		print("FMD Phase 12D Remix Pack 1+2 tests: FAIL (%d failures)" % failures.size())
 		quit(1)
 
 func _dictionary(value: Variant) -> Dictionary:
