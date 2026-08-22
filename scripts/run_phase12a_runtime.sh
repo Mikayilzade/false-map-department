@@ -114,6 +114,7 @@ run_logged phase12d-act3-content-contract python3 scripts/phase12d_act3_content_
 run_logged phase12d-act4-content-contract python3 scripts/phase12d_act4_content_audit.py
 run_logged phase12d-act5-content-contract python3 scripts/phase12d_act5_content_audit.py
 run_logged phase12d-remix-pack1-contract python3 scripts/phase12d_remix_pack1_audit.py
+run_logged phase12d-remix-pack2-contract python3 scripts/phase12d_remix_pack2_audit.py
 run_logged import-parse "$RESOLVED_GODOT" --headless --path . --editor --quit
 run_logged gdscript-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_runner.gd
 run_logged phase12b-history-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_slice_history_runner.gd
@@ -136,6 +137,7 @@ run_logged phase12d-act3-content-suite "$RESOLVED_GODOT" --headless --path . --s
 run_logged phase12d-act4-content-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_act4_content_runner.gd
 run_logged phase12d-act5-content-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_act5_content_runner.gd
 run_logged phase12d-remix-pack1-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_remix_pack1_runner.gd
+run_logged phase12d-remix-pack2-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_remix_pack2_runner.gd
 run_logged main-scene-boot "$RESOLVED_GODOT" --headless --path . --quit-after 2
 
 write_manifest "PASS" ""
