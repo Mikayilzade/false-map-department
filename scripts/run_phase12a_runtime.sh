@@ -46,6 +46,14 @@ run_logged() {
   "$@" 2>&1 | tee -a "$OUT_DIR/$name.log"
 }
 
+assert_no_script_errors() {
+  local name="$1"
+  if grep -Eq 'SCRIPT ERROR:|ERROR: Failed to load script' "$OUT_DIR/$name.log"; then
+    echo "ERROR: Godot script/compile error detected in $name" | tee -a "$OUT_DIR/$name.log" >&2
+    return 1
+  fi
+}
+
 resolve_godot() {
   if command -v "$GODOT_BIN" >/dev/null 2>&1; then
     command -v "$GODOT_BIN"
@@ -144,7 +152,9 @@ run_logged phase12d-remix-pack2-suite "$RESOLVED_GODOT" --headless --path . --sc
 run_logged phase12d-remix-pack3-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_remix_pack3_runner.gd
 run_logged phase12d-full-catalog-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_full_catalog_runner.gd
 run_logged phase12e-presentation-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_phase12e_presentation_runner.gd
+assert_no_script_errors phase12e-presentation-suite
 run_logged main-scene-boot "$RESOLVED_GODOT" --headless --path . --quit-after 2
+assert_no_script_errors main-scene-boot
 
 write_manifest "PASS" ""
 echo "Phase 12A + 12B + 12C + 12D + 12E runtime baseline: PASS"

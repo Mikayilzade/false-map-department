@@ -7,10 +7,6 @@ const PresentationContract = preload("res://src/presentation/presentation_contra
 var _failures: Array[String] = []
 
 func _initialize() -> void:
-	_assert_dependencies_compile()
-	if not _failures.is_empty():
-		_finish()
-		return
 	_test_deck_contract()
 	_test_semantic_actions()
 	_test_contextual_routing()
@@ -19,11 +15,6 @@ func _initialize() -> void:
 	_test_accessible_states()
 	_test_glyph_help()
 	_finish()
-
-func _assert_dependencies_compile() -> void:
-	_expect(InputActions.can_instantiate(), "InputActions dependency must compile before presentation acceptance runs")
-	_expect(InputContextRouter.can_instantiate(), "InputContextRouter dependency must compile before presentation acceptance runs")
-	_expect(PresentationContract.can_instantiate(), "PresentationContract dependency must compile before presentation acceptance runs")
 
 func _finish() -> void:
 	if _failures.is_empty():

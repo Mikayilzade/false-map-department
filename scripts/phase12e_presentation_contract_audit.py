@@ -97,16 +97,15 @@ def main() -> None:
         ],
     )
     require(
-        "tests/test_phase12e_presentation_runner.gd",
+        "scripts/run_phase12a_runtime.sh",
         [
-            "_assert_dependencies_compile",
-            "InputActions.can_instantiate()",
-            "InputContextRouter.can_instantiate()",
-            "PresentationContract.can_instantiate()",
-            "quit(1)",
+            "assert_no_script_errors()",
+            "SCRIPT ERROR:|ERROR: Failed to load script",
+            "assert_no_script_errors phase12e-presentation-suite",
+            "assert_no_script_errors main-scene-boot",
         ],
     )
-    print("Phase 12E presentation/input contract audit: PASS (Deck shell + contextual semantic routing/remap + compile-fail guard + accessibility foundations)")
+    print("Phase 12E presentation/input contract audit: PASS (Deck shell + contextual semantic routing/remap + runtime compile-log guard + accessibility foundations)")
 
 
 if __name__ == "__main__":
