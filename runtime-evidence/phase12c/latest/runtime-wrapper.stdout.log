@@ -42,6 +42,8 @@ Phase 12D Act-IV content audit: PASS (D25-D32 linked authority/A10/Stability/syn
 Phase 12D Act-V content audit: PASS (D33-D40 final campaign synthesis + zero-mastery D40; remix prefix allowed)
 == phase12d-remix-pack1-contract ==
 Phase 12D Remix Pack 1 audit: PASS (REMIX01-REMIX04 P10-R10)
+== phase12d-remix-pack2-contract ==
+Phase 12D Remix Pack 2 audit: PASS (REMIX05-REMIX08 P10-R10)
 == import-parse ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
@@ -209,6 +211,10 @@ FMD Phase 12D Act-V content/registry tests: PASS
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
 FMD Phase 12D Remix Pack 1 tests: PASS
+== phase12d-remix-pack2-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D Remix Pack 2 tests: PASS
 == main-scene-boot ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 

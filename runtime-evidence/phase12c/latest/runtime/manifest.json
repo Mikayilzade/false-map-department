@@ -224,6 +224,16 @@
       "bytes": 145,
       "name": "phase12d-remix-pack1-suite.log",
       "sha256": "5fc64626f5d44347a6b82018d612c661691dd9a0d73489a722abb87a2b12aa48"
+    },
+    {
+      "bytes": 97,
+      "name": "phase12d-remix-pack2-contract.log",
+      "sha256": "3ad2b4a4d9050a6b14af2db813e896d3551515a8349f0f7ec7009538d3f30dc0"
+    },
+    {
+      "bytes": 145,
+      "name": "phase12d-remix-pack2-suite.log",
+      "sha256": "f6fb8df3883d291c0197657da6dfa3bdf353abf02584d110e14cdb042180fee8"
     }
   ],
   "phase": "12A+12B+12C+12D",
