@@ -26,9 +26,9 @@
       "sha256": "9a82feb0ee061aed657f88539257a8d6b130034cadc6b0689f401952d4fec32b"
     },
     {
-      "bytes": 4852,
+      "bytes": 4968,
       "name": "import-parse.log",
-      "sha256": "5b4ba0ed9333363311021d7df53ffdab0e7070e117ddcbd2260b9d394fdf2890"
+      "sha256": "2a85a79756b590035d7f20c7d8a5028a2bc13232431e575c961fdee0f82da84c"
     },
     {
       "bytes": 95,
@@ -216,6 +216,16 @@
       "sha256": "3638033ebd1af40b47fca66501119c4b705c360948da6d2e4d495c1196d71769"
     },
     {
+      "bytes": 128,
+      "name": "phase12d-full-catalog-contract.log",
+      "sha256": "434a3415617bedd2e342303f7b572359d04fa8f16a135138b7c70fd6ae495c2d"
+    },
+    {
+      "bytes": 153,
+      "name": "phase12d-full-catalog-suite.log",
+      "sha256": "05727982b3d26da04637c76e680f44fde8121a2ec3a0636c7f5c4fbabbe65a6a"
+    },
+    {
       "bytes": 97,
       "name": "phase12d-remix-pack1-contract.log",
       "sha256": "69a6cbdcad3452a0883ff6cba86d340e0cce4a739e0c94044101eb23269f1a85"
@@ -234,6 +244,16 @@
       "bytes": 145,
       "name": "phase12d-remix-pack2-suite.log",
       "sha256": "f6fb8df3883d291c0197657da6dfa3bdf353abf02584d110e14cdb042180fee8"
+    },
+    {
+      "bytes": 122,
+      "name": "phase12d-remix-pack3-contract.log",
+      "sha256": "9370d485d1f43098674a76af15082dfb790ba1bb1f1eb6125abd887c60dbb82d"
+    },
+    {
+      "bytes": 145,
+      "name": "phase12d-remix-pack3-suite.log",
+      "sha256": "50540a6724c5b78598ffed37adbf23018a8d5e0b211d0ef2c7a1d89cf32fe1cb"
     }
   ],
   "phase": "12A+12B+12C+12D",
