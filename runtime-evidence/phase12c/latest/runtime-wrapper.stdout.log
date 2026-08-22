@@ -41,4 +41,176 @@ Phase 12D Act-IV content audit: PASS (D25-D32 linked authority/A10/Stability/syn
 == phase12d-act5-content-contract ==
 Phase 12D Act-V content audit: PASS (D33-D40 final campaign synthesis + zero-mastery D40; remix prefix allowed)
 == phase12d-remix-pack1-contract ==
-PHASE12D REMIX PACK1 FAIL: registry must production-register exact REMIX01-REMIX04 prefix
+Phase 12D Remix Pack 1 audit: PASS (REMIX01-REMIX04 P10-R10)
+== import-parse ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+[  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+[  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+[  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+[  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+[  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+[92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (63 steps)[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   1% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   3% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   4% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   6% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   7% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   9% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  10% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  12% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  15% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  17% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  18% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  23% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  29% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  31% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  35% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  37% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  39% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  43% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  45% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  46% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  48% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  51% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  53% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  54% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  56% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  57% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  59% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  62% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  64% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  67% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  68% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  79% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  92% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  93% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  95% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  96% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[92m[ DONE ][39m [1mupdate_scripts_classes[22m
+[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+[  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+[92m[ DONE ][39m [1mloading_editor_layout[22m
+[0m
+== gdscript-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD tests: PASS (8 groups)
+== phase12b-history-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12B history tests: PASS
+== phase12b-interaction-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12B interaction tests: PASS (2 groups)
+== phase12b-persistence-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12B persistence/loop tests: PASS (2 groups)
+== phase12c-primitive-authority-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C primitive authority tests: PASS
+== phase12c-agent-interpretation-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C agent interpretation tests: PASS (3 groups)
+== phase12c-late-agent-linked-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C late-agent/linked-authority tests: PASS (5 groups)
+== phase12c-core-transaction-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C core-transaction tests: PASS
+== phase12c-stability-durability-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C Stability/durability/idempotency tests: PASS
+== phase12c-procession-stability-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C Procession/Stability progression tests: PASS
+== phase12c-footprint-causal-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C footprint/causal tests: PASS
+== phase12c-profile-demo-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C profile/demo tests: PASS
+== phase12c-production-persistence-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C production persistence/migration tests: PASS
+== phase12c-frozen-content-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C frozen content validation tests: PASS
+== phase12d-act1-content-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D Act-I content/registry tests: PASS
+== phase12d-act2-content-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D Act-II content/registry tests: PASS
+== phase12d-demo-content-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D demo content/import tests: PASS
+== phase12d-act3-content-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D Act-III content/registry tests: PASS
+== phase12d-act4-content-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D Act-IV content/registry tests: PASS
+== phase12d-act5-content-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D Act-V content/registry tests: PASS
+== phase12d-remix-pack1-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D Remix Pack 1 tests: PASS
+== main-scene-boot ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+/home/runner/work/_temp/fmd-runtime-baseline/runtime/manifest.json
+Phase 12A + 12B + 12C + 12D runtime baseline: PASS
