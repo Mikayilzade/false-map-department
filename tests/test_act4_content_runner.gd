@@ -9,11 +9,12 @@ var linked := LinkedAuthorityEngine.new()
 
 func _initialize() -> void:
 	var loaded: Dictionary = registry.load_registry()
-	_assert(loaded.get("ok", false), "Production D01-D32 + demo registry must load: %s" % str(loaded))
+	_assert(loaded.get("ok", false), "Production D01-D32 prefix + later campaign + demo registry must load: %s" % str(loaded))
 	if not loaded.get("ok", false):
 		_finish(); return
 	var campaign: Array = _array(loaded.get("campaign", []))
-	_assert(campaign.size() == 32, "Act-IV increment must extend production prefix to exact D01-D32")
+	_assert(campaign.size() >= 32, "Act-IV regression requires at least the D01-D32 production prefix")
+	_assert(_ids(campaign).slice(0, 32) == _expected_prefix_32(), "Act-IV regression must preserve the exact immutable D01-D32 prefix")
 	_assert(_ids(campaign).slice(24, 32) == ["D25","D26","D27","D28","D29","D30","D31","D32"], "D25-D32 registry order must remain contiguous")
 
 	var d25 := _find(campaign, "D25")
@@ -73,6 +74,12 @@ func _initialize() -> void:
 			if not tags.has(raw_tag): tags.append(raw_tag)
 	_assert(registry.available_campaign_ids(campaign, cleared, tags) == ["D32"], "Baseline progression through D31 must expose D32 without mastery")
 	_finish()
+
+func _expected_prefix_32() -> Array[String]:
+	var out: Array[String] = []
+	for index in range(1, 33):
+		out.append("D%02d" % index)
+	return out
 
 func _project(dossier: Dictionary, facts: Dictionary) -> Dictionary:
 	var layers: Array[String] = []
