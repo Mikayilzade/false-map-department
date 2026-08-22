@@ -1,6 +1,7 @@
 extends Control
 
 const InputActions = preload("res://src/application/input_actions.gd")
+const PresentationContract = preload("res://src/presentation/presentation_contract.gd")
 const SliceInteractionController = preload("res://src/application/slice_interaction_controller.gd")
 
 @onready var status_label: Label = $Margin/Layout/Status
@@ -12,13 +13,20 @@ const SliceInteractionController = preload("res://src/application/slice_interact
 @onready var world_body: Label = $Margin/Layout/Views/WorldPanel/WorldLayout/WorldBody
 @onready var causal_ribbon: Label = $Margin/Layout/CausalPanel/CausalLayout/CausalRibbon
 @onready var inspect_body: Label = $Margin/Layout/CausalPanel/CausalLayout/InspectBody
-@onready var undo_button: Button = $Margin/Layout/HistoryControls/Undo
-@onready var redo_button: Button = $Margin/Layout/HistoryControls/Redo
-@onready var inspect_button: Button = $Margin/Layout/HistoryControls/Inspect
+@onready var undo_button: Button = $Margin/Layout/UtilityStrip/Undo
+@onready var redo_button: Button = $Margin/Layout/UtilityStrip/Redo
+@onready var inspect_button: Button = $Margin/Layout/UtilityStrip/Inspect
+@onready var correspondence_button: Button = $Margin/Layout/UtilityStrip/Correspondence
+@onready var case_button: Button = $Margin/Layout/UtilityStrip/CaseRail
+@onready var case_panel: PanelContainer = $CaseRailOverlay
+@onready var case_body: Label = $CaseRailOverlay/Margin/CaseLayout/CaseBody
+@onready var input_hint: Label = $Margin/Layout/InputHint
 
 var _definition: Dictionary = {}
 var _controller := SliceInteractionController.new()
-var _inspect_visible: bool = false
+var _inspect_visible := false
+var _case_visible := false
+var _active_device_family := "keyboard"
 
 func _ready() -> void:
 	InputActions.ensure_registered()
@@ -41,17 +49,25 @@ func _ready() -> void:
 	undo_button.pressed.connect(_on_undo)
 	redo_button.pressed.connect(_on_redo)
 	inspect_button.pressed.connect(_on_inspect)
+	correspondence_button.pressed.connect(_on_correspondence)
+	case_button.pressed.connect(_on_case_rail)
 	road_list.item_selected.connect(_on_road_selected)
 	road_list.item_activated.connect(_on_road_activated)
 
-	status_label.text = "Phase 12B — select a snapped road, edit, inspect consequence, revise"
+	case_panel.visible = false
+	status_label.text = "Phase 12E — semantic keyboard/controller shell over deterministic slice core"
 	_render_snapshot()
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed(InputActions.PREVIOUS_CANDIDATE):
+	if event is InputEventJoypadButton or event is InputEventJoypadMotion:
+		_active_device_family = "controller"
+	elif event is InputEventKey or event is InputEventMouse:
+		_active_device_family = "keyboard"
+
+	if event.is_action_pressed(InputActions.NAV_LEFT) or event.is_action_pressed(InputActions.PREVIOUS_CANDIDATE):
 		_on_previous()
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed(InputActions.NEXT_CANDIDATE):
+	elif event.is_action_pressed(InputActions.NAV_RIGHT) or event.is_action_pressed(InputActions.NEXT_CANDIDATE):
 		_on_next()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed(InputActions.SELECT):
@@ -66,6 +82,15 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed(InputActions.INSPECT):
 		_on_inspect()
 		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed(InputActions.CORRESPONDENCE):
+		_on_correspondence()
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed(InputActions.REGION_NEXT):
+		_focus_next_region(false)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed(InputActions.REGION_PREVIOUS):
+		_focus_next_region(true)
+		get_viewport().set_input_as_handled()
 
 func _on_previous() -> void:
 	_controller.select_previous()
@@ -77,10 +102,7 @@ func _on_next() -> void:
 
 func _on_toggle() -> void:
 	var result := _controller.toggle_selected()
-	if not result.get("accepted", false):
-		status_label.text = "Edit rejected: %s" % result.get("code", "unknown")
-	else:
-		status_label.text = "Edit committed through semantic command"
+	status_label.text = "Edit committed through semantic command" if result.get("accepted", false) else "Edit rejected: %s" % result.get("code", "unknown")
 	_render_snapshot()
 
 func _on_undo() -> void:
@@ -96,6 +118,24 @@ func _on_redo() -> void:
 func _on_inspect() -> void:
 	_inspect_visible = not _inspect_visible
 	_render_snapshot()
+
+func _on_correspondence() -> void:
+	status_label.text = "Correspondence framed: %s on official map ↔ derived world" % str(_controller.snapshot().get("selected_edge_id", ""))
+	_render_snapshot()
+
+func _on_case_rail() -> void:
+	_case_visible = not _case_visible
+	case_panel.visible = _case_visible
+	case_button.text = "Hide case" if _case_visible else "Case goals"
+
+func _focus_next_region(reverse: bool) -> void:
+	var focusable: Array[Control] = [road_list, world_body, case_button, inspect_button, undo_button]
+	if reverse:
+		focusable.reverse()
+	var current := get_viewport().gui_get_focus_owner()
+	var index := focusable.find(current)
+	var next_index := 0 if index < 0 else (index + 1) % focusable.size()
+	focusable[next_index].grab_focus()
 
 func _on_road_selected(index: int) -> void:
 	var edge_id := str(road_list.get_item_metadata(index))
@@ -127,7 +167,7 @@ func _render_snapshot() -> void:
 	if selected_item_index >= 0:
 		road_list.select(selected_item_index)
 		road_list.ensure_current_is_visible()
-	selection_label.text = "Selected snapped road: %s" % selected_edge_id
+	selection_label.text = "Map: snapped road %s ↔ World: connectivity fact %s" % [selected_edge_id, selected_edge_id]
 
 	var world_lines: Array[String] = []
 	for raw_row in snapshot["agents"]:
@@ -136,15 +176,35 @@ func _render_snapshot() -> void:
 		world_lines.append("route: %s" % " → ".join(row["route"]))
 	for objective_id in snapshot["objectives"].keys():
 		var objective: Dictionary = snapshot["objectives"][objective_id]
-		world_lines.append("%s: %s" % [objective_id, "satisfied" if bool(objective["satisfied"]) else "failed"])
+		var state := "satisfied" if bool(objective["satisfied"]) else "broken"
+		var accessible := PresentationContract.requirement_state(state, str(objective_id))
+		world_lines.append(accessible["text"])
 	world_body.text = "\n".join(world_lines)
 
 	var causal := _controller.latest_causal()
-	causal_ribbon.text = " → ".join(causal["ribbon"])
+	var ribbon: Array = causal["ribbon"]
+	if ribbon.size() > PresentationContract.DEFAULT_CAUSAL_NODE_BUDGET:
+		ribbon = ribbon.slice(0, PresentationContract.DEFAULT_CAUSAL_NODE_BUDGET)
+		ribbon.append("… expand")
+	causal_ribbon.text = " → ".join(ribbon)
 	inspect_body.visible = _inspect_visible
 	inspect_body.text = "\n".join(causal["inspect_lines"])
 	undo_button.disabled = not bool(snapshot["can_undo"])
 	redo_button.disabled = not bool(snapshot["can_redo"])
+
+	var case_lines: Array[String] = ["GOALS / INVARIANTS"]
+	for objective_id in snapshot["objectives"].keys():
+		var objective: Dictionary = snapshot["objectives"][objective_id]
+		var state := "satisfied" if bool(objective["satisfied"]) else "broken"
+		case_lines.append(PresentationContract.requirement_state(state, str(objective_id))["text"])
+	case_lines.append("Pattern + icon + text carry state; color is supplemental.")
+	case_body.text = "\n".join(case_lines)
+
+	input_hint.text = "%s select · %s inspect · %s correspondence · arrows/D-pad navigate · Tab regions · Q/E or LB/RB tools" % [
+		PresentationContract.glyph_for("select", _active_device_family),
+		PresentationContract.glyph_for("inspect", _active_device_family),
+		PresentationContract.glyph_for("correspondence", _active_device_family),
+	]
 
 func _load_slice_definition(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path):

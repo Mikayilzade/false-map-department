@@ -22,7 +22,7 @@ result = sys.argv[2]
 reason = sys.argv[3]
 files = sorted(out.glob('*.log'))
 manifest = {
-    'phase': '12A+12B+12C+12D',
+    'phase': '12A+12B+12C+12D+12E',
     'result': result,
     'reason': reason,
     'logs': [
@@ -117,6 +117,7 @@ run_logged phase12d-remix-pack1-contract python3 scripts/phase12d_remix_pack1_au
 run_logged phase12d-remix-pack2-contract python3 scripts/phase12d_remix_pack2_audit.py
 run_logged phase12d-remix-pack3-contract python3 scripts/phase12d_remix_pack3_audit.py
 run_logged phase12d-full-catalog-contract python3 scripts/phase12d_full_catalog_audit.py
+run_logged phase12e-presentation-contract python3 scripts/phase12e_presentation_contract_audit.py
 run_logged import-parse "$RESOLVED_GODOT" --headless --path . --editor --quit
 run_logged gdscript-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_runner.gd
 run_logged phase12b-history-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_slice_history_runner.gd
@@ -142,7 +143,8 @@ run_logged phase12d-remix-pack1-suite "$RESOLVED_GODOT" --headless --path . --sc
 run_logged phase12d-remix-pack2-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_remix_pack2_runner.gd
 run_logged phase12d-remix-pack3-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_remix_pack3_runner.gd
 run_logged phase12d-full-catalog-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_full_catalog_runner.gd
+run_logged phase12e-presentation-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_phase12e_presentation_runner.gd
 run_logged main-scene-boot "$RESOLVED_GODOT" --headless --path . --quit-after 2
 
 write_manifest "PASS" ""
-echo "Phase 12A + 12B + 12C + 12D runtime baseline: PASS"
+echo "Phase 12A + 12B + 12C + 12D + 12E runtime baseline: PASS"
