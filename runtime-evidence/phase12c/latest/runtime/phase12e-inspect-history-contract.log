@@ -1,0 +1,2 @@
+== phase12e-inspect-history-contract ==
+Phase 12E Inspect/history audit: PASS (current-fact agent cards + one-card-per-edit history + P10-R6 causal budget + no solution-oracle reads)
