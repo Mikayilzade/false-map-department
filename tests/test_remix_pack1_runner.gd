@@ -5,7 +5,7 @@ var failures: Array[String] = []
 func _initialize() -> void:
 	var registry: Dictionary = _load_json("res://content/registry.json")
 	var entries: Array = _array(registry.get("remixes", []))
-	_assert(entries.size() == 4, "Pack 1 registry must contain exactly REMIX01-REMIX04")
+	_assert(entries.size() >= 4, "Pack 1 registry prefix REMIX01-REMIX04 must remain present")
 	var expected_ids := ["REMIX01", "REMIX02", "REMIX03", "REMIX04"]
 	var transforms: Dictionary = {}
 	for index in range(expected_ids.size()):
