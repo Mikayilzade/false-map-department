@@ -14,7 +14,7 @@ Repository: `Mikayilzade/false-map-department`
 - 12A Technical Bootstrap: **COMPLETE — real Godot 4.7.1 PASS**
 - 12B Vertical Slice: **COMPLETE — deterministic playable micro-loop + Undo/Redo + reload PASS**
 - 12C Core Systems: **COMPLETE — frozen mechanical/application/persistence/content-validation core runtime-green**
-- 12D Content Population: **IN PROGRESS — D01-D40 + DEMO01-DEMO05 + REMIX01-REMIX08 runtime-green; REMIX09-REMIX12 remain**
+- 12D Content Population: **COMPLETE — exact D01-D40 + DEMO01-DEMO05 + REMIX01-REMIX12 strict full catalog runtime-green**
 - 12E UX / Accessibility / Controller / Deck: **NO**
 - 12F Adversarial QA: **NO**
 - 12G Empirical Gates: **NO**
@@ -24,49 +24,52 @@ Repository: `Mikayilzade/false-map-department`
 ## Latest implementation run — 2026-08-22
 
 ### Phase / subphase
-**12D Content Population / Remix Pack 2 integration (REMIX05-REMIX08) — RUNTIME GREEN**
+**12D Content Population / Remix Pack 3 + strict full-catalog exit gate — COMPLETE / RUNTIME GREEN**
 
 ### Completed
-- Authored REMIX05 from D35 by removing the initially harmful protected-side road, changing the task from selective disconnect+connect into cross-network identification of the still-missing service authority.
-- Authored REMIX06 from D20 using only the already-prevalidated O11 Stable Service State family, shifting the required reasoning toward temporal/Stability evolution rather than the original joint route-length + stable-state evaluation.
-- Authored REMIX07 from D34 by changing the semantic seeker's target from `market` to the already-prevalidated `depot` label, changing which semantic dependency begins satisfied while leaving the linked regional dependency unresolved.
-- Authored REMIX08 from D36 by changing only prevalidated jurisdiction initial ownership so the gate begins East-owned, making the original border compression already satisfied and exposing the separate linked regional-route dependency.
-- Production-registered a contiguous REMIX01-REMIX08 prefix in `content/registry.json` with a valid registry hash.
-- Hardened Pack-1 static/headless regressions from an invalid exact-size assumption to immutable REMIX01-REMIX04 prefix validation so later packs do not create false failures.
-- Added `phase12d_remix_pack2_audit.py` with source-bound checks for initial primitive state, objective selection, semantic-target assignments and jurisdiction ownership plus P10-R10 safety/dependency requirements.
-- Added `test_remix_pack2_runner.gd` and wired Pack-2 static + Godot gates into the notification-safe aggregate runtime wrapper.
-- PACK02 uses four distinct declared transformations: cross-network dependency, temporal/Stability dependency, semantic-target reinterpretation and linked-authority dependency.
-- No graph topology, agent script, primitive family, linked-authority relation, seventh primitive or canonical gameplay amendment was introduced.
+- Re-read the frozen P10-R10 remix contract and current Pack-2 handoff before authoring the final pack.
+- Authored `REMIX09` from D22 using only prevalidated jurisdiction ownership + objective-family selection; the changed problem is emergency access versus livestock exclusion through permission asymmetry rather than the source dossier's three-system compression.
+- Authored `REMIX10` from D37 with the regional source road initially active and the remote connector clause removed; the changed problem collapses from four-layer linked reasoning to local topology + continuity.
+- Authored `REMIX11` from D12 with water connectivity initially active and only the prevalidated road-reachability family required; the changed problem is recognizing the water/bridge crossing dependency rather than constructing both networks.
+- Authored `REMIX12` from D10 with the exact courier starting at the authored near node and only the prevalidated reachability family required; the changed problem becomes adding the existing detour road rather than semantic duplicate-target reasoning.
+- PACK03 uses three distinct frozen reasoning transformations: permission asymmetry, topology restructuring and cross-network dependency.
+- Production-registered the exact contiguous `REMIX01`–`REMIX12` catalog while preserving exact D01-D40 and DEMO01-DEMO05.
+- Added `phase12d_remix_pack3_audit.py` for PACK03 identity/source-bound/changed-input/P10-R10 validation.
+- Added `test_remix_pack3_runner.gd` for real Godot PACK03 registry/source/metadata acceptance.
+- Added `phase12d_full_catalog_audit.py` as the Phase-12D strict exit gate: canonical registry hash; exact 40/5/12 identities and paths; campaign/demo immutable hashes; demo mapping hash; exact remix pack grouping; overlay-only schema; source-bound changed-input validation; P10-R10 dependency/safety metadata; and >=3 reasoning transformations per pack.
+- Added `test_full_catalog_runner.gd` for independent Godot-side exact 40/5/12 catalog, registry hash, source-resolution, overlay-boundary, pack-diversity and D40 zero-mastery assertions.
+- Wired PACK03 + strict full-catalog static/headless gates into the existing notification-safe aggregate Godot baseline.
+- A concurrent Pack-2 implementation was detected during this run; stale local branch work was not force-pushed or allowed to overwrite the newer runtime-green `main`. Work resumed from the actual current Pack-2 head before Pack 3 was authored.
+- No graph topology, agent script, primitive family, linked-authority relation, seventh primitive, dossier-specific gameplay override or canonical amendment was introduced.
 
 ### Files / systems changed
-- `content/remix/REMIX05.json` ... `content/remix/REMIX08.json`
+- `content/remix/REMIX09.json` ... `content/remix/REMIX12.json`
 - `content/registry.json`
-- `scripts/phase12d_remix_pack1_audit.py`
-- `scripts/phase12d_remix_pack2_audit.py`
-- `tests/test_remix_pack1_runner.gd`
-- `tests/test_remix_pack2_runner.gd`
+- `scripts/phase12d_remix_pack3_audit.py`
+- `scripts/phase12d_full_catalog_audit.py`
+- `tests/test_remix_pack3_runner.gd`
+- `tests/test_full_catalog_runner.gd`
 - `scripts/run_phase12a_runtime.sh`
 - `IMPLEMENTATION_STATUS.md`
 
 ### Validation
-- Automatic real Godot 4.7.1 aggregate baseline: **PASS**, run `32556492187`.
-- Runtime target head: `a48ae30f16584c216e1f79583a7ff183c44afd02`.
-- Evidence commit: `cfedbe12174d25c95f9cb2e21c310528459b7c55`.
+- Automatic real Godot 4.7.1 aggregate baseline: **PASS**, run `32556963657`.
+- Runtime target head: `0ad175c9020eeb3c3e95945f972fb914eecc6c96`.
+- Evidence commit: `7bb2b221b6b3784d40eca6da49246d74b5e718c9`.
 - Aggregate result: `result = PASS`, `runtime_rc = 0`, `ci_policy_rc = 0`, `bootstrap_preflight_rc = 0`, `phase12a_contract_rc = 0`, `fetch_godot_rc = 0`.
-- Static Pack-1 regression: **PASS** — `Phase 12D Remix Pack 1 audit: PASS (REMIX01-REMIX04 P10-R10)`.
-- Static Pack-2 gate: **PASS** — `Phase 12D Remix Pack 2 audit: PASS (REMIX05-REMIX08 P10-R10)`.
-- Dedicated Godot Pack-1 suite: **PASS** — `FMD Phase 12D Remix Pack 1 tests: PASS`.
-- Dedicated Godot Pack-2 suite: **PASS** — `FMD Phase 12D Remix Pack 2 tests: PASS`.
-- Existing 12A/12B/12C, D01-D40, DEMO01-DEMO05 and Act-I..V regressions remained green in the same aggregate run.
-- Follow-up commit `f75248f1d24dd72ac293fdaded372b3b8b884e9f` only tightened Pack-2 audit formatting/pass text; it did not alter content or acceptance semantics.
+- Static PACK03 gate: **PASS** — `Phase 12D Remix Pack 3 audit: PASS (REMIX09-REMIX12 P10-R10, bounded source overlays)`.
+- Dedicated Godot PACK03 suite: **PASS** — `FMD Phase 12D Remix Pack 3 tests: PASS`.
+- Strict full-catalog static exit gate: **PASS** — `Phase 12D strict full-catalog audit: PASS (40 campaign + 5 demo + 12 source-bound remixes)`.
+- Strict full-catalog Godot suite: **PASS** — `FMD Phase 12D strict full-catalog tests: PASS`.
+- Existing 12A/12B/12C, D01-D40, DEMO01-DEMO05, Act-I..V, PACK01 and PACK02 regressions remained green in the same aggregate run.
+- D40 zero-mastery baseline remains explicitly protected by the strict catalog suite.
 
 ### Failures / blockers
 - **No user-action blocker.**
-- **No current PACK01/PACK02 content/runtime blocker.**
-- One expected regression hazard was found and fixed: Pack-1 tests originally assumed the registry could never grow beyond four remixes.
+- **No current 12D content/runtime blocker.**
 
 ### Canonical contradictions
-- **NONE discovered.** PACK02 stays inside the frozen bounded-parameter whitelist and P10-R10 changed-dependency requirement.
+- **NONE discovered.** All 12 remixes stay inside the frozen parameter whitelist and P10-R10 changed-dependency requirement; the full 1.0 content catalog stays inside the frozen primitive/archetype/objective/layer ceilings.
 
 ## NEXT ACTION
-Continue **12D Content Population** with **Remix Pack 3 — REMIX09-REMIX12**. Author the final four overlays from existing validated campaign substrates only, preserve the same remix schema and frozen changed-input whitelist, require an actual changed causal dependency in every case, and use at least three reasoning transformations across PACK03. Production-register an exact contiguous REMIX01-REMIX12 catalog, add PACK03 static/headless acceptance, then add one strict full-catalog gate for exactly D01-D40 + DEMO01-DEMO05 + REMIX01-REMIX12 including registry/hash/source-bound/P10-R10 checks. Run the notification-safe aggregate Godot baseline. If green, mark **12D Content Population COMPLETE** and advance NEXT ACTION to **12E UX / Accessibility / Controller / Deck**.
+Begin **12E UX / Accessibility / Controller / Deck**. Re-read the final frozen UX/input/accessibility clauses before implementation. Build the production presentation/input layer on top of the already runtime-green domain/content core, preserving semantic action remapping and authored deterministic focus graphs. The first coherent 12E increment should establish the complete non-mouse gameplay path architecture and 1280×800 two-surface/case-rail shell without changing deterministic gameplay: keyboard-only + controller semantic navigation, current-action glyph/help exposure, edit-gesture versus layer/tool binding separation, dual map/world correspondence, case goals/invariants, causal ribbon default budget (<=5 material nodes / <=2 visible siblings), and reduced-motion/no-color/no-audio-safe state presentation foundations. Add headless/presentation-contract acceptance where practical and keep the automatic baseline notification-safe. Do not start 12F until the complete 12E exit gate is satisfied.
