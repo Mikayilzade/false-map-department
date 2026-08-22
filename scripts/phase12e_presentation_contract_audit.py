@@ -31,6 +31,7 @@ def main() -> None:
             "validate_focus_graph",
             '"pattern", "icon", "text"',
             "LOCALIZATION_EXPANSION_FACTOR := 1.35",
+            "var current: String = str(queue.pop_front())",
         ],
     )
     require(
@@ -95,7 +96,17 @@ def main() -> None:
             "Pattern + icon + text carry state; color is supplemental.",
         ],
     )
-    print("Phase 12E presentation/input contract audit: PASS (Deck shell + contextual semantic routing/remap + accessibility foundations)")
+    require(
+        "tests/test_phase12e_presentation_runner.gd",
+        [
+            "_assert_dependencies_compile",
+            "InputActions.can_instantiate()",
+            "InputContextRouter.can_instantiate()",
+            "PresentationContract.can_instantiate()",
+            "quit(1)",
+        ],
+    )
+    print("Phase 12E presentation/input contract audit: PASS (Deck shell + contextual semantic routing/remap + compile-fail guard + accessibility foundations)")
 
 
 if __name__ == "__main__":

@@ -117,7 +117,7 @@ static func validate_focus_graph(graph: Dictionary, required_ids: Array[String])
 	var seen := {sorted_required[0]: true}
 	var queue: Array[String] = [sorted_required[0]]
 	while not queue.is_empty():
-		var current := queue.pop_front()
+		var current: String = str(queue.pop_front())
 		var directional: Dictionary = graph[current]
 		for direction in ["up", "down", "left", "right"]:
 			var neighbor := str(directional[direction])
