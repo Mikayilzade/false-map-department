@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "dispositions": {
+    "E3": {
+      "status": "PASS_OR_FAIL_OR_BLOCKED",
+      "rationale": "Replace with evidence-backed reasoning after real rows exist.",
+      "evidence_refs": ["E3.jsonl:1-N"]
+    }
+  },
+  "note": "Template only. Do not copy this file into empirical/evidence without replacing placeholders through phase12g_set_disposition.py. Threshold gates E1/E2/E7/T8-44 do not accept manual dispositions."
+}
