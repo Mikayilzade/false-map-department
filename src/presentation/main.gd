@@ -4,6 +4,7 @@ const InputActions = preload("res://src/application/input_actions.gd")
 const InputContextRouter = preload("res://src/application/input_context_router.gd")
 const PresentationContract = preload("res://src/presentation/presentation_contract.gd")
 const SliceInteractionController = preload("res://src/application/slice_interaction_controller.gd")
+const EmpiricalTelemetryService = preload("res://src/application/empirical_telemetry_service.gd")
 
 @onready var status_label: Label = $Margin/Layout/Status
 @onready var road_list: ItemList = $Margin/Layout/Views/MapPanel/MapLayout/RoadList
@@ -26,6 +27,8 @@ const SliceInteractionController = preload("res://src/application/slice_interact
 var _definition: Dictionary = {}
 var _controller := SliceInteractionController.new()
 var _input_router := InputContextRouter.new()
+var _empirical := EmpiricalTelemetryService.new()
+var _empirical_enabled := false
 var _inspect_visible := false
 var _case_visible := false
 var _active_device_family := "keyboard"
@@ -34,6 +37,7 @@ var _input_context := InputContextRouter.CONTEXT_EDIT
 
 func _ready() -> void:
 	InputActions.ensure_registered()
+	_configure_empirical_probe()
 	var load_result := _load_slice_definition("res://content/vertical_slice/VS01.json")
 	if not load_result.get("ok", false):
 		status_label.text = "Vertical slice load failed: %s" % load_result.get("code", "unknown")
@@ -61,6 +65,30 @@ func _ready() -> void:
 	case_panel.visible = false
 	status_label.text = "Phase 12E — contextual semantic routing over deterministic slice core"
 	_render_snapshot()
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_PREDELETE:
+		_flush_empirical_telemetry()
+
+func _configure_empirical_probe() -> void:
+	var tester_id := OS.get_environment("FMD_EMPIRICAL_TESTER_ID")
+	var session_id := OS.get_environment("FMD_EMPIRICAL_SESSION_ID")
+	if tester_id.is_empty() or session_id.is_empty():
+		return
+	var demo_build_id := OS.get_environment("FMD_EMPIRICAL_DEMO_BUILD_ID")
+	var result := _empirical.begin_session(tester_id, session_id, demo_build_id, Time.get_ticks_msec())
+	_empirical_enabled = bool(result.get("ok", false))
+
+func _flush_empirical_telemetry() -> void:
+	if not _empirical_enabled:
+		return
+	var path := OS.get_environment("FMD_EMPIRICAL_TELEMETRY_PATH")
+	if path.is_empty():
+		return
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	if file != null:
+		file.store_string(JSON.stringify(_empirical.telemetry_snapshot(), "  "))
+		file.close()
 
 func _unhandled_input(event: InputEvent) -> void:
 	_active_device_family = InputActions.device_family_for_event(event)
@@ -131,6 +159,13 @@ func _on_next() -> void:
 func _on_toggle() -> void:
 	var result := _controller.toggle_selected()
 	status_label.text = "Edit committed through semantic command" if result.get("accepted", false) else "Edit rejected: %s" % result.get("code", "unknown")
+	if _empirical_enabled and result.get("accepted", false):
+		var snapshot := _controller.snapshot()
+		for objective_id in snapshot.get("objectives", {}).keys():
+			var objective: Dictionary = snapshot["objectives"][objective_id]
+			if not bool(objective.get("satisfied", true)):
+				_empirical.record_collateral_consequence_seen(Time.get_ticks_msec(), str(objective_id))
+				break
 	_render_snapshot()
 
 func _on_undo() -> void:
@@ -150,6 +185,8 @@ func _on_inspect() -> void:
 
 func _on_correspondence() -> void:
 	status_label.text = "Correspondence framed: %s on official map ↔ derived world" % str(_controller.snapshot().get("selected_edge_id", ""))
+	if _empirical_enabled:
+		_empirical.record_correspondence_opened(Time.get_ticks_msec())
 	_render_snapshot()
 
 func _on_case_rail() -> void:
