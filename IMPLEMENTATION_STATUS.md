@@ -15,7 +15,7 @@ Repository: `Mikayilzade/false-map-department`
 - 12B Vertical Slice: **COMPLETE — deterministic playable micro-loop + Undo/Redo + reload PASS**
 - 12C Core Systems: **COMPLETE — frozen mechanical/application/persistence/content-validation core runtime-green**
 - 12D Content Population: **COMPLETE — exact D01-D40 + DEMO01-DEMO05 + REMIX01-REMIX12 strict full catalog runtime-green**
-- 12E UX / Accessibility / Controller / Deck: **IN PROGRESS — shell + semantic routing/remap + authored focus + Inspect/history/causal presentation + functional Stability UX + linked-layer authority UX + persisted accessibility settings RUNTIME GREEN**
+- 12E UX / Accessibility / Controller / Deck: **COMPLETE — full 1280x800 device/accessibility/layout exit sweep RUNTIME GREEN**
 - 12F Adversarial QA: **NO**
 - 12G Empirical Gates: **NO**
 - 12H Release Candidate: **NO**
@@ -24,47 +24,53 @@ Repository: `Mikayilzade/false-map-department`
 ## Latest implementation run — 2026-08-23
 
 ### Phase / subphase
-**12E UX / Accessibility / Controller / Deck / persisted accessibility settings — RUNTIME GREEN**
+**12E UX / Accessibility / Controller / Deck / complete exit sweeps — COMPLETE / RUNTIME GREEN**
 
 ### Completed
-- Added `src/application/accessibility_settings_service.gd` as a durable, versioned accessibility/settings document separate from campaign/profile-progress gameplay state.
-- Added payload version 2 with safe defaults/migration support, canonical hashing, monotonic generations and atomic `tmp -> primary` promotion with prior-primary backup/recovery using the existing persistence/storage architecture.
-- UI scale persists within the safe 80–150% range with standard/large/extra-large/custom presentation labels; invalid scale values are rejected rather than silently changing layout contracts.
-- Reduced motion and flash reduction persist while presentation explicitly guarantees that animation never carries unique gameplay information.
-- Essential causal/state information is always available through pattern/icon/text and visual/text equivalents; zero master/music/SFX/UI volume is valid and never makes goals, warnings or explanations audio-only.
-- Persisted controller-glyph preference, hold/toggle preference and semantic keyboard/controller remaps are validated and reapplied through the existing `InputActions` boundary rather than changing gameplay commands or domain semantics.
-- Runtime application explicitly reports `deterministic_mechanics_affected = false` and `mastery_validity_affected = false`; accessibility choices do not alter canonical simulation, scoring or mastery eligibility.
-- Added safe demo->full settings transfer helpers that obey the existing explicit mapping whitelist only: `flash_reduction`, `language`, `reduced_motion`, `ui_scale_percent`. Full-only glyph/remap preferences are preserved and are not inferred compatible.
-- Extended the in-memory storage adapter with remove/rename support so production-style atomic settings persistence/recovery is tested headlessly.
-- Added static and real-Godot acceptance for defaults, validation, save/reload, generation monotonicity, payload migration, backup recovery, no-audio/no-color information guarantees, semantic remap restoration and demo->full whitelist behavior.
+- Closed the complete frozen 12E device/accessibility/layout exit gate at the real Steam Deck target viewport **1280x800**.
+- Added missing controller-only major-region traversal using semantic `REGION_PREVIOUS` / `REGION_NEXT` actions on **LT / RT**, while preserving contextual routing and remappability.
+- Aligned controller help glyphs with actual bindings: region previous/next now report LT/RT and `Next affected` reports the existing R3 binding instead of presenting a misleading trigger glyph.
+- Added `src/presentation/presentation_accessibility_adapter.gd` so persisted UI scale is applied to the real Control tree instead of existing only as settings data. The adapter preserves base font size metadata and applies the frozen safe 80–150% scale range without touching simulation state.
+- Added `src/presentation/presentation_accessibility_bootstrap.gd` and wired it into `main.tscn`; persisted/default reduced-motion, flash-reduction, UI-scale and audio-independent presentation settings now reach the production dossier shell through the existing accessibility settings service and local storage adapter.
+- Verified keyboard-only and controller-only semantic access across every registered gameplay action.
+- Swept all production campaign + demo dossier focus graphs with the production `AuthoredFocusNavigator`; all required editable candidates remain logically reachable and the sweep covers all six primitive families: road, bridge, border, waterway, landmark and restricted zone.
+- Verified grayscale/non-color redundancy through pattern + icon + text state channels. Color remains supplemental.
+- Verified reduced-motion and no-audio modes preserve every tested gameplay fact; animation/audio carry no unique deterministic information.
+- Verified UI scale bounds/presets at 80%, 100%, 125% and 150%, including real application to the production Control tree.
+- Exercised approximately **+35% localization text expansion** on critical presentation surfaces at 1280x800; critical text wraps, the main layout remains bounded and the slide-over case rail remains inside the viewport without required horizontal scrolling.
+- Verified all critical shell buttons used by the sweep remain at least **44 logical px**.
+- Verified accessibility/device presentation settings do not alter deterministic mechanics: the same VS01 E13 accepted edit produces the same canonical post-edit state hash at default settings and at 150% UI scale + reduced motion + flash reduction + zero master audio.
+- Found and fixed a real Deck layout defect: `main.tscn` used the non-functional `stretch_ratio` property instead of Godot Control's `size_flags_stretch_ratio`, so the intended map/world 58/42 weighting was not actually applied. The production scene now uses `size_flags_stretch_ratio = 1.38` for Map and `1.0` for World, and the exit audit rejects the legacy property.
 - No gameplay/content/authority/progression/objective/scoring semantics were changed.
 
 ### Files / systems changed
-- `src/application/accessibility_settings_service.gd`
+- `src/application/input_actions.gd`
 - `src/presentation/presentation_contract.gd`
-- `tests/support/memory_storage_adapter.gd`
-- `scripts/phase12e_accessibility_settings_audit.py`
-- `tests/test_phase12e_accessibility_settings_runner.gd`
+- `src/presentation/presentation_accessibility_adapter.gd`
+- `src/presentation/presentation_accessibility_bootstrap.gd`
+- `src/presentation/main.tscn`
+- `scripts/phase12e_exit_sweep_audit.py`
+- `tests/test_phase12e_exit_sweep_runner.gd`
 - `scripts/run_phase12a_runtime.sh`
 - `IMPLEMENTATION_STATUS.md`
 
 ### Validation
-- Final clean accessibility-settings implementation head: `3c3d3d22cda4ec9ab9fac5e50a9801fb5bd49fa3`.
-- Automatic real Godot 4.7.1 aggregate run `32659250283`: **PASS**, exact target head `3c3d3d22cda4ec9ab9fac5e50a9801fb5bd49fa3`.
-- Evidence commit: `ff5956ad4e4e433a4b3e4ac043f12b395f4f07ac`.
+- Final 12E exit-sweep implementation head: `2b9de099c0cd2545b20f354639bba0843dcd0a5d`.
+- Automatic real Godot 4.7.1 aggregate run `32660318645`: **PASS**, exact target head `2b9de099c0cd2545b20f354639bba0843dcd0a5d`.
+- Evidence commit: `0c607afe6f1ce73ea319cececc6762a7dbf594bd`.
 - Aggregate result: `result = PASS`, `runtime_rc = 0`, `ci_policy_rc = 0`, `bootstrap_preflight_rc = 0`, `phase12a_contract_rc = 0`, `fetch_godot_rc = 0`.
-- Static accessibility-settings gate: **PASS** — versioned save/defaults/migration/remaps/demo whitelist.
-- Dedicated Godot accessibility-settings suite: **clean PASS** — `FMD Phase 12E persisted accessibility settings tests: PASS` on Godot 4.7.1, with the recovery fixture producing no false parser-error noise.
-- Existing 12A/12B/12C/12D and prior 12E presentation/input/focus/Inspect-history/Stability/linked-layer gates remained green in the same aggregate baseline.
+- Static 12E exit gate: **PASS** — `Phase 12E exit sweep audit: PASS (1280x800 + device/accessibility/layout contracts)`.
+- Dedicated real-Godot 12E exit suite: **clean PASS** — `FMD Phase 12E exit sweeps: PASS (1280x800 keyboard/controller + accessibility/layout)`.
+- Existing 12A/12B/12C/12D and all earlier 12E presentation/input/focus/Inspect-history/Stability/linked-layer/accessibility-settings gates remained green in the final aggregate baseline.
 
 ### Failures / blockers
 - **No user-action blocker.**
-- The first automatic accessibility run on implementation head `e8405c95c2f28094e6e499e77199787dd887e388` failed because GDScript resolved an unqualified `load(profile_id)` ambiguously against the built-in resource loader, causing `get()` parse/type errors. This was fixed with explicit `self.load(...)` and typed dictionaries before the final green run.
-- A subsequent green run intentionally exercised malformed JSON and emitted a harmless parser error in the test log; the fixture was changed to a valid-JSON/invalid-envelope corruption case and the final exact-head run is clean.
-- Complete 12E exit gate is still not satisfied until the device/accessibility/layout sweeps pass.
+- **No current 12E blocker. Phase 12E exit gate is satisfied.**
+- First exit-sweep run `32660037958` exposed two test diagnostics: an unescaped `%` in one GDScript test message and an overly narrow runtime ratio tolerance. The message was corrected and the runtime check was separated from the authored ratio-property assertion.
+- Second run `32660175884` then exposed the real production Deck ratio bug: `main.tscn` used `stretch_ratio` rather than Godot's `size_flags_stretch_ratio`. The scene and static audit were corrected; the final exact-head run is green.
 
 ### Canonical contradictions
-- **NONE discovered.** The frozen accessibility contract fits the existing persistence/input/presentation boundaries without changing deterministic mechanics or mastery semantics, and the existing demo mapping already supplies an explicit safe-settings transfer whitelist.
+- **NONE discovered.** The controller/accessibility/layout requirements fit the frozen design. The Deck ratio issue was an implementation property-name bug, not a design contradiction.
 
 ## NEXT ACTION
-Continue **12E** with the complete exit-sweep increment at **1280x800**. Exercise keyboard-only and controller-only logical focus traversal/completion paths, the two-surface/slide-over Deck layout contract, grayscale/non-color redundant state, reduced-motion, no-audio, UI-scale bounds/presets, and approximately **+35% localization text expansion** across critical presentation surfaces. Add capture-/layout-oriented static and real-Godot headless acceptance with explicit failures for clipping, unreachable required focus, color/audio/animation-only facts, undersized critical targets, or inaccessible required actions. Keep deterministic gameplay outputs identical across accessibility/device settings. Do not start 12F until the complete 12E exit gate is satisfied.
+Start **12F Adversarial QA** with a coherent **transaction/history attack pack** against production services. Attack illegal-vs-harmful legal edit distinction, duplicate/stale command idempotency, rapid/re-entrant semantic input during transaction presentation, Undo/Redo branch truncation, and exact checkpoint/hash preservation. Add static + real-Godot adversarial fixtures and record only reproduced spec breaks as bugs. Continue later 12F increments with persistence/process-death/Cloud/demo-import/authority/focus/content/performance attacks from the frozen 12F list. **Do not start 12G until the complete 12F exit gate is satisfied.**
