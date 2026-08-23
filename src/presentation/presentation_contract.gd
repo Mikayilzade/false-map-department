@@ -68,6 +68,27 @@ static func accessibility_contract() -> Dictionary:
 		"localization_expansion_factor": LOCALIZATION_EXPANSION_FACTOR,
 	}
 
+static func runtime_accessibility_contract(settings: Dictionary) -> Dictionary:
+	var scale_percent := int(settings.get("ui_scale_percent", 100))
+	return {
+		"ui_scale_percent": scale_percent,
+		"ui_scale_preset": str(settings.get("ui_scale_preset", "standard")),
+		"reduced_motion": bool(settings.get("reduced_motion", false)),
+		"flash_reduction": bool(settings.get("flash_reduction", false)),
+		"color_safe_patterns": true,
+		"audio_independent_presentation": true,
+		"subtitles_enabled": bool(settings.get("subtitles_enabled", true)),
+		"text_event_log_enabled": bool(settings.get("text_event_log_enabled", true)),
+		"controller_glyph_preference": str(settings.get("controller_glyph_preference", "auto")),
+		"language": str(settings.get("language", "auto")),
+		"hold_input_mode": str(settings.get("hold_input_mode", "hold")),
+		"localization_expansion_factor": LOCALIZATION_EXPANSION_FACTOR,
+		"state_channels": ["pattern", "icon", "text"],
+		"animation_carries_unique_information": false,
+		"audio_carries_unique_information": false,
+		"gameplay_semantics_affected": false,
+	}
+
 static func glyph_for(action: String, device_family: String) -> String:
 	var glyphs: Dictionary = CONTROLLER_GLYPHS if device_family == "controller" else KEYBOARD_GLYPHS
 	return str(glyphs.get(action, action))
