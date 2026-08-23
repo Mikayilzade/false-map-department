@@ -71,23 +71,81 @@ def load_rows(evidence_root: Path, gate_id: str) -> list[dict]:
     return rows
 
 
+def _missing_value(value) -> bool:
+    if value is None:
+        return True
+    if isinstance(value, str) and not value.strip():
+        return True
+    if isinstance(value, (list, dict)) and not value:
+        return True
+    return False
+
+
 def validate_required_fields(gate: dict, rows: list[dict]) -> list[str]:
     failures: list[str] = []
     required = list(gate.get("required_fields", []))
+    gate_id = gate.get("gate_id", "")
     for index, row in enumerate(rows, start=1):
-        missing = [field for field in required if field not in row]
+        if row.get("gate_id", gate_id) != gate_id:
+            failures.append(f"row {index} gate_id mismatch")
+        missing = [field for field in required if field not in row or _missing_value(row.get(field))]
         if missing:
-            failures.append(f"row {index} missing fields: {', '.join(missing)}")
+            failures.append(f"row {index} missing/blank fields: {', '.join(missing)}")
     return failures
+
+
+def load_dispositions(path: Path, registry: dict) -> dict[str, dict]:
+    if not path.exists():
+        return {}
+    payload = load_json(path)
+    if not isinstance(payload, dict) or not isinstance(payload.get("dispositions", {}), dict):
+        raise SystemExit(f"{path}: expected object with dispositions map")
+    by_gate = {gate["gate_id"]: gate for gate in registry["gates"]}
+    result: dict[str, dict] = {}
+    for gate_id, raw in payload.get("dispositions", {}).items():
+        if gate_id not in by_gate:
+            raise SystemExit(f"{path}: unknown disposition gate {gate_id}")
+        gate = by_gate[gate_id]
+        if gate_id == "T8-44" or gate.get("canonical_threshold") is not None:
+            raise SystemExit(f"{path}: manual disposition forbidden for threshold gate {gate_id}")
+        if not isinstance(raw, dict):
+            raise SystemExit(f"{path}: disposition {gate_id} must be an object")
+        status = raw.get("status")
+        rationale = raw.get("rationale")
+        refs = raw.get("evidence_refs")
+        if status not in {"PASS", "FAIL", "BLOCKED"}:
+            raise SystemExit(f"{path}: disposition {gate_id} has invalid status")
+        if not isinstance(rationale, str) or not rationale.strip():
+            raise SystemExit(f"{path}: disposition {gate_id} requires rationale")
+        if not isinstance(refs, list) or not refs or any(not isinstance(ref, str) or not ref.strip() for ref in refs):
+            raise SystemExit(f"{path}: disposition {gate_id} requires non-empty evidence_refs")
+        result[gate_id] = {"status": status, "rationale": rationale.strip(), "evidence_refs": refs}
+    return result
+
+
+def evaluate_qualitative(gate_id: str, rows: list[dict], dispositions: dict[str, dict]) -> tuple[str, dict]:
+    if not rows:
+        return "PENDING", {"reason": "no evidence rows"}
+    disposition = dispositions.get(gate_id)
+    if disposition is None:
+        return "PENDING", {"reason": "evidence rows exist but explicit evidence-backed disposition is missing"}
+    return disposition["status"], {
+        "rationale": disposition["rationale"],
+        "evidence_refs": disposition["evidence_refs"],
+        "evidence_rows": len(rows),
+    }
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Validate and summarize Phase 12G empirical evidence without fabricating missing observations.")
     parser.add_argument("--evidence-root", type=Path, default=DEFAULT_EVIDENCE_ROOT)
+    parser.add_argument("--dispositions", type=Path)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
 
     registry = load_json(REGISTRY)
+    disposition_path = args.dispositions or (args.evidence_root / "dispositions.json")
+    dispositions = load_dispositions(disposition_path, registry)
     results: list[dict] = []
     for gate in registry["gates"]:
         gate_id = gate["gate_id"]
@@ -98,10 +156,10 @@ def main() -> None:
             detail = {"schema_failures": field_failures}
         elif gate_id == "T8-44":
             status, detail = evaluate_t844(rows, gate["canonical_threshold"])
+        elif gate.get("canonical_threshold") is None:
+            status, detail = evaluate_qualitative(gate_id, rows, dispositions)
         else:
             status, detail = evaluate_numeric_threshold(rows, gate.get("canonical_threshold"))
-        if gate.get("evidence_class") in {"human_playtest", "human_comparative_playtest", "human_timing", "market_test", "release_market_recheck", "reference_hardware_profile", "mixed_capture_interaction"} and not rows:
-            status = "PENDING"
         results.append({
             "gate_id": gate_id,
             "name": gate["name"],
