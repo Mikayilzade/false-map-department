@@ -4,7 +4,11 @@ const CanonicalJson = preload("res://src/domain/canonical_json.gd")
 const RemixOverlayValidator = preload("res://src/application/remix_overlay_validator.gd")
 
 const REGISTRY_SCHEMA_VERSION := 1
-const REMIX_IDS := ["REMIX01", "REMIX02", "REMIX03", "REMIX04", "REMIX05", "REMIX06", "REMIX07", "REMIX08", "REMIX09", "REMIX10", "REMIX11", "REMIX12"]
+const REMIX_IDS := [
+	"REMIX01", "REMIX02", "REMIX03", "REMIX04",
+	"REMIX05", "REMIX06", "REMIX07", "REMIX08",
+	"REMIX09", "REMIX10", "REMIX11", "REMIX12",
+]
 
 var _validator := RemixOverlayValidator.new()
 
@@ -26,6 +30,7 @@ func load(campaign_by_id: Dictionary, registry_path: String = "res://content/reg
 	var entries: Array = _array(registry.get("remixes", []))
 	if entries.size() != 12:
 		return _fail("remix_registry_count_invalid", str(entries.size()))
+
 	var ids: Array[String] = []
 	var remixes: Array = []
 	var by_id: Dictionary = {}
@@ -52,7 +57,12 @@ func load(campaign_by_id: Dictionary, registry_path: String = "res://content/reg
 			return _fail("remix_registry_source_missing", "%s:%s" % [remix_id, source_id])
 		var validation: Dictionary = _validator.validate(remix, _dictionary(campaign_by_id[source_id]))
 		if not validation.get("ok", false):
-			return {"ok": false, "code": "remix_registry_overlay_invalid", "remix_id": remix_id, "issues": _array(validation.get("issues", [])).duplicate(true)}
+			return {
+				"ok": false,
+				"code": "remix_registry_overlay_invalid",
+				"remix_id": remix_id,
+				"issues": _array(validation.get("issues", [])).duplicate(true),
+			}
 		var pack_id: String = str(remix.get("remix_pack_id", ""))
 		counts_by_pack[pack_id] = int(counts_by_pack.get(pack_id, 0)) + 1
 		if not transforms_by_pack.has(pack_id):
@@ -62,9 +72,11 @@ func load(campaign_by_id: Dictionary, registry_path: String = "res://content/reg
 		transforms_by_pack[pack_id] = transforms
 		remixes.append(remix)
 		by_id[remix_id] = remix
+
 	if ids != REMIX_IDS:
 		return _fail("remix_registry_sequence_invalid", str(ids))
-	if _sorted_keys(counts_by_pack) != ["PACK01", "PACK02", "PACK03"]:
+	var expected_packs: Array[String] = ["PACK01", "PACK02", "PACK03"]
+	if _sorted_keys(counts_by_pack) != expected_packs:
 		return _fail("remix_registry_pack_identity_invalid", str(_sorted_keys(counts_by_pack)))
 	for pack_id in _sorted_keys(counts_by_pack):
 		if int(counts_by_pack[pack_id]) != 4:
@@ -81,11 +93,16 @@ func load(campaign_by_id: Dictionary, registry_path: String = "res://content/reg
 
 func _sorted_keys(value: Dictionary) -> Array[String]:
 	var out: Array[String] = []
-	for raw in value.keys(): out.append(str(raw))
-	out.sort(); return out
+	for raw_key in value.keys():
+		out.append(str(raw_key))
+	out.sort()
+	return out
+
 func _dictionary(value: Variant) -> Dictionary:
 	return value if value is Dictionary else {}
+
 func _array(value: Variant) -> Array:
 	return value if value is Array else []
+
 func _fail(code: String, detail: String) -> Dictionary:
 	return {"ok": false, "code": code, "detail": detail}
