@@ -74,8 +74,23 @@ def main() -> None:
     require_markers("scripts/phase12g_evidence_harness.py", [
         "no evidence rows",
         "no Deck-class reference hardware evidence",
-        "human_comparative_playtest",
-        "mixed_capture_interaction",
+        "evaluate_qualitative",
+        "manual disposition forbidden for threshold gate",
+        "evidence rows exist but explicit evidence-backed disposition is missing",
+    ])
+    require_markers("scripts/phase12g_collect_completed_rows.py", [
+        "missing/blank required fields",
+        "new_rows",
+        "--append",
+    ])
+    require_markers("scripts/phase12g_set_disposition.py", [
+        "manual disposition is forbidden for threshold gate",
+        "disposition_history.jsonl",
+        "no evidence rows exist",
+    ])
+    require_markers("scripts/phase12g_gate_dashboard.py", [
+        "12G exit candidate",
+        "This dashboard never upgrades missing evidence",
     ])
     require_markers("scripts/run_phase12a_runtime.sh", [
         "phase12e-exit-sweep-contract",
@@ -96,7 +111,7 @@ def main() -> None:
         "T8-44",
     ])
 
-    print("Phase 12G precondition audit: PASS (E1-E12 + T8-44 evidence registry/harness ready; no empirical PASS fabricated)")
+    print("Phase 12G precondition audit: PASS (E1-E12 + T8-44 registry/harness/operator workflow ready; no empirical PASS fabricated)")
 
 
 if __name__ == "__main__":
