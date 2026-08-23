@@ -26,9 +26,9 @@
       "sha256": "9a82feb0ee061aed657f88539257a8d6b130034cadc6b0689f401952d4fec32b"
     },
     {
-      "bytes": 6244,
+      "bytes": 6302,
       "name": "import-parse.log",
-      "sha256": "498a8df05a7013c6acfdd5bd5b77d85cadb7a83042be91f2c581191ada54f51d"
+      "sha256": "e6f90e12bccc3ca4361f49b6b22034aa9b48848bedbfb70e233a0502e8934a3a"
     },
     {
       "bytes": 95,
@@ -336,6 +336,11 @@
       "sha256": "16d809682c355b2fa977ef4c29402b1e1382e0ea6ee378e047c5eb7bbf35e05d"
     },
     {
+      "bytes": 177,
+      "name": "phase12f-exit-gate-contract.log",
+      "sha256": "904836928d03c44d2f06afb25b4f12c7117f67f16d7bb94a5c126a605d8b3195"
+    },
+    {
       "bytes": 191,
       "name": "phase12f-persistence-recovery-adversarial-suite.log",
       "sha256": "78dd598ff2245991623608efe96b7b9b4f37ab2e49c3f1c876739936d44b36ca"
@@ -344,6 +349,11 @@
       "bytes": 176,
       "name": "phase12f-profile-demo-adversarial-suite.log",
       "sha256": "14b471bce76f2f17d6e27ac6cbfb43de48b5c646ffe7e3a75af1dab9dacde96b"
+    },
+    {
+      "bytes": 353,
+      "name": "phase12f-reasoning-navigation-performance-adversarial-suite.log",
+      "sha256": "63b98f590ed62413c7c43536ae227864b0adc4b7d6a388427fc8a922a0a9c15c"
     },
     {
       "bytes": 163,
