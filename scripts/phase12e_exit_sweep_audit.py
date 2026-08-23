@@ -31,8 +31,10 @@ def main() -> None:
     require(scene, "presentation_accessibility_bootstrap.gd", "scene accessibility bootstrap")
     if scene.count("custom_minimum_size = Vector2(44, 44)") < 9:
         fail("critical buttons must retain >=44px minimum targets")
-    for path_marker in ("autowrap_mode = 2", "stretch_ratio = 1.38", "stretch_ratio = 1.0", "offset_left = -360.0"):
+    for path_marker in ("autowrap_mode = 2", "size_flags_stretch_ratio = 1.38", "size_flags_stretch_ratio = 1.0", "offset_left = -360.0"):
         require(scene, path_marker, "Deck layout")
+    if "\nstretch_ratio =" in scene:
+        fail("legacy non-Godot stretch_ratio property must not remain in Deck shell")
     if "ScrollContainer" in scene:
         fail("Deck shell must not require horizontal scrolling")
     require(runtime, "phase12e-exit-sweep-contract", "runtime static gate")
