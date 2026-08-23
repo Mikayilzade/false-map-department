@@ -26,9 +26,9 @@
       "sha256": "9a82feb0ee061aed657f88539257a8d6b130034cadc6b0689f401952d4fec32b"
     },
     {
-      "bytes": 5490,
+      "bytes": 5606,
       "name": "import-parse.log",
-      "sha256": "b88d4c5cce8f6f809b3bc534f8dbf1cd382eab58736de24f4ac276b812700470"
+      "sha256": "991dd22547f7e87e3bc637a860d2de0df90ca398ec5440222d43f67eb946684e"
     },
     {
       "bytes": 95,
@@ -274,6 +274,16 @@
       "bytes": 152,
       "name": "phase12e-inspect-history-suite.log",
       "sha256": "a9ea556f403835ae26f99e974023f7aa3fdbe0c7c04cda25a593917b832e6f1b"
+    },
+    {
+      "bytes": 147,
+      "name": "phase12e-linked-layer-ux-contract.log",
+      "sha256": "03653dafbecc488922a481f3fb39dfa9bea78217d1b2179389c0754bccf0eef8"
+    },
+    {
+      "bytes": 152,
+      "name": "phase12e-linked-layer-ux-suite.log",
+      "sha256": "bf40f3fe7ff45dd3045ac9f464bc2fbf9130d8ae42306eb4d133a7e41e3312e5"
     },
     {
       "bytes": 192,
