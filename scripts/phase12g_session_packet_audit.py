@@ -61,6 +61,17 @@ def main() -> None:
         if counts.get("E5_rows", 0) < 1:
             fail("no 3-4-layer linked-authority dossiers discovered for E5")
 
+        expected_families = [f"A{i}" for i in range(1, 11)]
+        if manifest.get("agent_archetypes") != expected_families:
+            fail(f"E10 canonical family set drift: {manifest.get('agent_archetypes')}")
+        variants = manifest.get("agent_archetype_variants_by_family", {})
+        if sorted(variants, key=lambda value: int(value[1:])) != expected_families:
+            fail("E10 variant manifest must cover every canonical A1-A10 family")
+        if any(not values for values in variants.values()):
+            fail("E10 canonical family has no production variant")
+        if counts.get("E10_raw_variant_ids", 0) < 10:
+            fail("E10 raw variant inventory cannot be smaller than the ten canonical families")
+
         e3 = load_jsonl(out / "E3_session_template.jsonl")
         if any(row.get("tester_id") is not None or row.get("completion_seconds") is not None or row.get("completed") is not None for row in e3):
             fail("E3 template contains fabricated observation outcome")
@@ -73,8 +84,11 @@ def main() -> None:
         e10 = load_jsonl(out / "E10_agent_pair_template.jsonl")
         if any(row.get("predicted_distinction") is not None or row.get("correct") is not None for row in e10):
             fail("E10 template contains fabricated human result")
+        pair_members = {str(row.get("agent_a")) for row in e10} | {str(row.get("agent_b")) for row in e10}
+        if pair_members != set(expected_families):
+            fail("E10 pair template must compare canonical A1-A10 families, not raw themed variant IDs")
 
-    print("Phase 12G session packet audit: PASS (E3-E7 + E9/E10 templates, 57x5 E7 matrix, zero fabricated outcomes)")
+    print("Phase 12G session packet audit: PASS (E3-E7 + E9/E10 templates, E10 canonical A1-A10 families, 57x5 E7 matrix, zero fabricated outcomes)")
 
 
 if __name__ == "__main__":
