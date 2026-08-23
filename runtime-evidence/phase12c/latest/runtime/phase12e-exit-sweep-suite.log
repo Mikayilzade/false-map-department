@@ -1,0 +1,14 @@
+== phase12e-exit-sweep-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+SCRIPT ERROR: unsupported format character in operator '%'.
+          at: _test_deck_layout_and_expansion (res://tests/test_phase12e_exit_sweep_runner.gd:179)
+          GDScript backtrace (most recent call first):
+              [0] _test_deck_layout_and_expansion (res://tests/test_phase12e_exit_sweep_runner.gd:179)
+ERROR: Deck Map/World split must remain approximately 58/42
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _finish (res://tests/test_phase12e_exit_sweep_runner.gd:207)
+       [1] _run (res://tests/test_phase12e_exit_sweep_runner.gd:22)
+       [2] _test_deck_layout_and_expansion (res://tests/test_phase12e_exit_sweep_runner.gd:179)
+FMD Phase 12E exit sweeps: FAIL (1 failures)
