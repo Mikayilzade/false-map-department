@@ -44,7 +44,7 @@ func defaults() -> Dictionary:
 	}
 
 func normalize(raw_settings: Dictionary) -> Dictionary:
-	var migrated := _migrate_legacy_settings(raw_settings)
+	var migrated: Dictionary = _migrate_legacy_settings(raw_settings)
 	if not migrated.get("ok", false):
 		return migrated
 	var source: Dictionary = _dictionary(migrated.get("settings", {}))
@@ -84,7 +84,7 @@ func normalize(raw_settings: Dictionary) -> Dictionary:
 	if not HOLD_INPUT_MODES.has(hold_mode):
 		return _fail("accessibility_hold_mode_invalid")
 	out["hold_input_mode"] = hold_mode
-	var remaps := _normalize_remaps(source.get("gameplay_remaps", {}))
+	var remaps: Dictionary = _normalize_remaps(source.get("gameplay_remaps", {}))
 	if not remaps.get("ok", false):
 		return remaps
 	out["gameplay_remaps"] = _dictionary(remaps.get("remaps", {})).duplicate(true)
@@ -99,19 +99,19 @@ func normalize(raw_settings: Dictionary) -> Dictionary:
 func save(profile_id: String, generation: int, raw_settings: Dictionary) -> Dictionary:
 	if profile_id.is_empty() or generation < 0:
 		return _fail("accessibility_save_arguments_invalid")
-	var normalized := normalize(raw_settings)
+	var normalized: Dictionary = normalize(raw_settings)
 	if not normalized.get("ok", false):
 		return normalized
-	var current := load(profile_id)
+	var current: Dictionary = self.load(profile_id)
 	if current.get("ok", false) and not bool(current.get("used_defaults", false)):
 		if generation <= int(current.get("generation", -1)):
 			return _fail("accessibility_generation_not_monotonic")
-	var payload := {"payload_version": PAYLOAD_VERSION, "settings": _dictionary(normalized["settings"]).duplicate(true)}
-	var envelope := _persistence.make_envelope(DOCUMENT_TYPE, profile_id, generation, payload)
+	var payload: Dictionary = {"payload_version": PAYLOAD_VERSION, "settings": _dictionary(normalized["settings"]).duplicate(true)}
+	var envelope: Dictionary = _persistence.make_envelope(DOCUMENT_TYPE, profile_id, generation, payload)
 	var write_error: Error = _storage.write_text(TEMP_PATH, CanonicalJson.stringify(envelope))
 	if write_error != OK:
 		return {"ok": false, "code": "accessibility_temp_write_failed", "error": write_error}
-	var temp_read := _read_candidate(TEMP_PATH, profile_id)
+	var temp_read: Dictionary = _read_candidate(TEMP_PATH, profile_id)
 	if not temp_read.get("ok", false):
 		return {"ok": false, "code": "accessibility_temp_readback_invalid", "readback": temp_read}
 	if _storage.exists(PRIMARY_PATH):
@@ -125,7 +125,7 @@ func save(profile_id: String, generation: int, raw_settings: Dictionary) -> Dict
 	var promote_error: Error = _storage.rename_path(TEMP_PATH, PRIMARY_PATH)
 	if promote_error != OK:
 		return {"ok": false, "code": "accessibility_temp_promote_failed", "error": promote_error}
-	var verified := _read_candidate(PRIMARY_PATH, profile_id)
+	var verified: Dictionary = _read_candidate(PRIMARY_PATH, profile_id)
 	if not verified.get("ok", false):
 		return {"ok": false, "code": "accessibility_primary_readback_invalid", "readback": verified}
 	return {
@@ -143,13 +143,13 @@ func load(profile_id: String) -> Dictionary:
 	for path in [PRIMARY_PATH, TEMP_PATH, BACKUP_PATH]:
 		if not _storage.exists(path):
 			continue
-		var candidate := _read_candidate(path, profile_id)
+		var candidate: Dictionary = _read_candidate(path, profile_id)
 		if candidate.get("ok", false):
 			candidates.append(candidate)
 		else:
 			invalid_paths.append(path)
 	if candidates.is_empty():
-		var normalized_defaults := normalize(defaults())
+		var normalized_defaults: Dictionary = normalize(defaults())
 		return {
 			"ok": true,
 			"code": "accessibility_defaults",
@@ -187,7 +187,7 @@ func load(profile_id: String) -> Dictionary:
 	}
 
 func apply_to_runtime(raw_settings: Dictionary) -> Dictionary:
-	var normalized := normalize(raw_settings)
+	var normalized: Dictionary = normalize(raw_settings)
 	if not normalized.get("ok", false):
 		return normalized
 	var settings: Dictionary = _dictionary(normalized["settings"])
@@ -200,10 +200,10 @@ func apply_to_runtime(raw_settings: Dictionary) -> Dictionary:
 	for action_id in action_ids:
 		var events: Array[InputEvent] = []
 		for raw_descriptor in _array(remaps.get(action_id, [])):
-			var event := _event_from_descriptor(_dictionary(raw_descriptor))
+			var event: InputEvent = _event_from_descriptor(_dictionary(raw_descriptor))
 			if event != null:
 				events.append(event)
-		var replace := InputActions.replace_bindings(StringName(action_id), events)
+		var replace: Dictionary = InputActions.replace_bindings(StringName(action_id), events)
 		if not replace.get("ok", false):
 			return replace
 	return {
@@ -216,7 +216,7 @@ func apply_to_runtime(raw_settings: Dictionary) -> Dictionary:
 	}
 
 func demo_transfer_subset(raw_settings: Dictionary, compatible_keys: Array) -> Dictionary:
-	var normalized := normalize(raw_settings)
+	var normalized: Dictionary = normalize(raw_settings)
 	if not normalized.get("ok", false):
 		return normalized
 	var allowed: Array[String] = []
@@ -232,7 +232,7 @@ func demo_transfer_subset(raw_settings: Dictionary, compatible_keys: Array) -> D
 	return {"ok": true, "settings_subset": subset, "compatible_keys": allowed}
 
 func merge_imported_subset(current_settings: Dictionary, imported_subset: Dictionary, compatible_keys: Array) -> Dictionary:
-	var current := normalize(current_settings)
+	var current: Dictionary = normalize(current_settings)
 	if not current.get("ok", false):
 		return current
 	var merged: Dictionary = _dictionary(current["settings"]).duplicate(true)
@@ -263,7 +263,7 @@ func _read_candidate(path: String, profile_id: String) -> Dictionary:
 		return _fail("accessibility_payload_version_unsupported")
 	var settings_source: Dictionary = _dictionary(payload.get("settings", {})).duplicate(true)
 	settings_source["payload_version"] = source_version
-	var normalized := normalize(settings_source)
+	var normalized: Dictionary = normalize(settings_source)
 	if not normalized.get("ok", false):
 		return normalized
 	return {
@@ -323,7 +323,7 @@ func _normalize_remaps(raw_value: Variant) -> Dictionary:
 		for raw_descriptor in _array(descriptors_value):
 			if not (raw_descriptor is Dictionary):
 				return _fail("accessibility_remap_descriptor_invalid:" + action_id)
-			var descriptor := _normalize_descriptor(_dictionary(raw_descriptor))
+			var descriptor: Dictionary = _normalize_descriptor(_dictionary(raw_descriptor))
 			if not descriptor.get("ok", false):
 				return descriptor
 			descriptors.append(_dictionary(descriptor["descriptor"]))
