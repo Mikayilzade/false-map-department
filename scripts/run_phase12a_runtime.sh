@@ -22,7 +22,7 @@ result = sys.argv[2]
 reason = sys.argv[3]
 files = sorted(out.glob('*.log'))
 manifest = {
-    'phase': '12A+12B+12C+12D+12E',
+    'phase': '12A+12B+12C+12D+12E+12F',
     'result': result,
     'reason': reason,
     'logs': [
@@ -132,6 +132,7 @@ run_logged phase12e-stability-ux-contract python3 scripts/phase12e_stability_ux_
 run_logged phase12e-linked-layer-ux-contract python3 scripts/phase12e_linked_layer_ux_audit.py
 run_logged phase12e-accessibility-settings-contract python3 scripts/phase12e_accessibility_settings_audit.py
 run_logged phase12e-exit-sweep-contract python3 scripts/phase12e_exit_sweep_audit.py
+run_logged phase12f-transaction-history-adversarial-contract python3 scripts/phase12f_transaction_history_adversarial_audit.py
 run_logged import-parse "$RESOLVED_GODOT" --headless --path . --editor --quit
 run_logged gdscript-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_runner.gd
 run_logged phase12b-history-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_slice_history_runner.gd
@@ -171,8 +172,10 @@ run_logged phase12e-accessibility-settings-suite "$RESOLVED_GODOT" --headless --
 assert_no_script_errors phase12e-accessibility-settings-suite
 run_logged phase12e-exit-sweep-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_phase12e_exit_sweep_runner.gd
 assert_no_script_errors phase12e-exit-sweep-suite
+run_logged phase12f-transaction-history-adversarial-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_phase12f_transaction_history_adversarial_runner.gd
+assert_no_script_errors phase12f-transaction-history-adversarial-suite
 run_logged main-scene-boot "$RESOLVED_GODOT" --headless --path . --quit-after 2
 assert_no_script_errors main-scene-boot
 
 write_manifest "PASS" ""
-echo "Phase 12A + 12B + 12C + 12D + 12E runtime baseline: PASS"
+echo "Phase 12A + 12B + 12C + 12D + 12E + 12F runtime baseline: PASS"
