@@ -58,6 +58,8 @@ Phase 12E Inspect/history audit: PASS (current-fact agent cards + one-card-per-e
 Phase 12E Stability UX audit: PASS (Start/Pause/Resume/Step + 1x/2x/4x + failure ancestry + P10-R8 recovery)
 == phase12e-linked-layer-ux-contract ==
 Phase 12E linked-layer UX audit: PASS (18 linked dossiers; breadcrumbs/source jumps; <=2 editing surfaces)
+== phase12e-accessibility-settings-contract ==
+Phase 12E persisted accessibility settings audit: PASS (versioned save/defaults/migration/remaps/demo whitelist)
 == import-parse ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
@@ -70,7 +72,7 @@ Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
 [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
 [0m
-[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (76 steps)[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (78 steps)[39m[0m
 [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [   1% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [   2% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -78,33 +80,34 @@ Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 [   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [   6% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [   7% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[   9% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   8% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  10% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  11% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  12% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  13% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  15% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  16% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  17% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  18% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  19% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  22% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  23% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  24% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  27% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  29% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  30% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  31% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  33% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  35% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  36% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  37% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  39% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  43% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  44% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  45% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  46% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -115,33 +118,34 @@ Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 [  53% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  54% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  55% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  57% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  56% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  58% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  59% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  61% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  62% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  63% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  64% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  66% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  67% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  68% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  69% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  72% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  77% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  79% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  83% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  88% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  92% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  93% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -270,8 +274,44 @@ FMD Phase 12E functional Stability UX tests: PASS
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
 FMD Phase 12E linked-layer UX tests: PASS
-== main-scene-boot ==
+== phase12e-accessibility-settings-suite ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
-/home/runner/work/_temp/fmd-runtime-baseline/runtime/manifest.json
-Phase 12A + 12B + 12C + 12D + 12E runtime baseline: PASS
+SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
+          at: GDScript::reload (res://src/application/accessibility_settings_service.gd:106)
+SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
+          at: GDScript::reload (res://src/application/accessibility_settings_service.gd:106)
+SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
+          at: GDScript::reload (res://src/application/accessibility_settings_service.gd:107)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "envelope" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://src/application/accessibility_settings_service.gd:110)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/test_phase12e_accessibility_settings_runner.gd:0)
+ERROR: Failed to load script "res://tests/test_phase12e_accessibility_settings_runner.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+          at: _test_defaults_and_normalization (res://tests/test_phase12e_accessibility_settings_runner.gd:28)
+          GDScript backtrace (most recent call first):
+              [0] _test_defaults_and_normalization (res://tests/test_phase12e_accessibility_settings_runner.gd:28)
+              [1] _init (res://tests/test_phase12e_accessibility_settings_runner.gd:12)
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+          at: _test_save_reload_runtime_application (res://tests/test_phase12e_accessibility_settings_runner.gd:53)
+          GDScript backtrace (most recent call first):
+              [0] _test_save_reload_runtime_application (res://tests/test_phase12e_accessibility_settings_runner.gd:53)
+              [1] _init (res://tests/test_phase12e_accessibility_settings_runner.gd:13)
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+          at: _test_payload_migration (res://tests/test_phase12e_accessibility_settings_runner.gd:114)
+          GDScript backtrace (most recent call first):
+              [0] _test_payload_migration (res://tests/test_phase12e_accessibility_settings_runner.gd:114)
+              [1] _init (res://tests/test_phase12e_accessibility_settings_runner.gd:14)
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+          at: _test_backup_recovery (res://tests/test_phase12e_accessibility_settings_runner.gd:140)
+          GDScript backtrace (most recent call first):
+              [0] _test_backup_recovery (res://tests/test_phase12e_accessibility_settings_runner.gd:140)
+              [1] _init (res://tests/test_phase12e_accessibility_settings_runner.gd:15)
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+          at: _test_demo_to_full_settings_whitelist (res://tests/test_phase12e_accessibility_settings_runner.gd:156)
+          GDScript backtrace (most recent call first):
+              [0] _test_demo_to_full_settings_whitelist (res://tests/test_phase12e_accessibility_settings_runner.gd:156)
+              [1] _init (res://tests/test_phase12e_accessibility_settings_runner.gd:16)
+FMD Phase 12E persisted accessibility settings tests: PASS
