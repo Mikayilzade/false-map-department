@@ -134,6 +134,7 @@ run_logged phase12e-accessibility-settings-contract python3 scripts/phase12e_acc
 run_logged phase12e-exit-sweep-contract python3 scripts/phase12e_exit_sweep_audit.py
 run_logged phase12f-transaction-history-adversarial-contract python3 scripts/phase12f_transaction_history_adversarial_audit.py
 run_logged phase12f-broad-adversarial-contract python3 scripts/phase12f_broad_adversarial_audit.py
+run_logged phase12f-exit-gate-contract python3 scripts/phase12f_exit_gate_audit.py
 run_logged import-parse "$RESOLVED_GODOT" --headless --path . --editor --quit
 run_logged gdscript-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_runner.gd
 run_logged phase12b-history-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_slice_history_runner.gd
@@ -181,6 +182,8 @@ run_logged phase12f-profile-demo-adversarial-suite "$RESOLVED_GODOT" --headless 
 assert_no_script_errors phase12f-profile-demo-adversarial-suite
 run_logged phase12f-authority-focus-content-adversarial-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_phase12f_authority_focus_content_adversarial_runner.gd
 assert_no_script_errors phase12f-authority-focus-content-adversarial-suite
+run_logged phase12f-reasoning-navigation-performance-adversarial-suite "$RESOLVED_GODOT" --headless --path . --script res://tests/test_phase12f_reasoning_navigation_performance_adversarial_runner.gd
+assert_no_script_errors phase12f-reasoning-navigation-performance-adversarial-suite
 run_logged main-scene-boot "$RESOLVED_GODOT" --headless --path . --quit-after 2
 assert_no_script_errors main-scene-boot
 
