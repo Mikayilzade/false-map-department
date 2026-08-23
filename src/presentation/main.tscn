@@ -80,7 +80,7 @@ theme_override_constants/separation = 10
 [node name="MapPanel" type="PanelContainer" parent="Margin/Layout/Views"]
 layout_mode = 2
 size_flags_horizontal = 3
-stretch_ratio = 1.38
+size_flags_stretch_ratio = 1.38
 
 [node name="MapLayout" type="VBoxContainer" parent="Margin/Layout/Views/MapPanel"]
 layout_mode = 2
@@ -127,7 +127,7 @@ text = "Next"
 [node name="WorldPanel" type="PanelContainer" parent="Margin/Layout/Views"]
 layout_mode = 2
 size_flags_horizontal = 3
-stretch_ratio = 1.0
+size_flags_stretch_ratio = 1.0
 
 [node name="WorldLayout" type="VBoxContainer" parent="Margin/Layout/Views/WorldPanel"]
 layout_mode = 2
