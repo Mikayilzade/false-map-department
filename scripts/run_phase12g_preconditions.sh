@@ -7,6 +7,7 @@ mkdir -p "$OUT_DIR"
 cd "$ROOT"
 
 python3 scripts/phase12g_precondition_audit.py | tee "$OUT_DIR/precondition-audit.log"
+python3 scripts/phase12g_instrumentation_audit.py | tee "$OUT_DIR/instrumentation-audit.log"
 python3 scripts/phase12g_evidence_harness.py --output "$OUT_DIR/evidence-summary.json" | tee "$OUT_DIR/evidence-harness.log"
 
 python3 - "$OUT_DIR/evidence-summary.json" <<'PY'
