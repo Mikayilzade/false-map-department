@@ -1,0 +1,45 @@
+{
+  "protocol_version": 1,
+  "rules": {
+    "templates_are_not_evidence": true,
+    "blank_outcomes_must_remain_null": true,
+    "counterbalance_comparative_methods": true,
+    "raw_debug_log_forbidden_for_e6": true
+  },
+  "protocols": {
+    "E3": {
+      "methods": ["causal_reasoning", "systematic_legal_edit_search"],
+      "representative_dossiers": ["D13", "D18", "D22", "D29", "D33", "D36"]
+    },
+    "E4": {
+      "windows": {
+        "D13_D22": ["D13", "D14", "D15", "D16", "D17", "D18", "D19", "D20", "D21", "D22"],
+        "D29_D36": ["D29", "D30", "D31", "D32", "D33", "D34", "D35", "D36"]
+      },
+      "assessment_values": ["distinct", "mixed", "predominantly_same_trick"]
+    },
+    "E5": {
+      "dossier_selection": "campaign dossiers with at least 3 map layers"
+    },
+    "E6": {
+      "representative_dossiers": ["D33", "D34", "D35", "D36", "D37", "D38", "D39", "D40"]
+    },
+    "E7": {
+      "content_scope": ["campaign", "demo", "remix"],
+      "expected_shippable_count": 57,
+      "capture_scenarios": [
+        {"scenario_id": "deck_controller_base", "device_mode": "steam_deck_controller_1280x800", "ui_scale": 100, "reduced_motion": false, "non_color": false, "no_audio": false},
+        {"scenario_id": "deck_controller_max_ui", "device_mode": "steam_deck_controller_1280x800", "ui_scale": 150, "reduced_motion": false, "non_color": false, "no_audio": false},
+        {"scenario_id": "deck_reduced_motion", "device_mode": "steam_deck_controller_1280x800", "ui_scale": 100, "reduced_motion": true, "non_color": false, "no_audio": false},
+        {"scenario_id": "deck_non_color", "device_mode": "steam_deck_controller_1280x800", "ui_scale": 100, "reduced_motion": false, "non_color": true, "no_audio": false},
+        {"scenario_id": "deck_no_audio", "device_mode": "steam_deck_controller_1280x800", "ui_scale": 100, "reduced_motion": false, "non_color": false, "no_audio": true}
+      ]
+    },
+    "E9": {
+      "dossier_selection": "REMIX01-REMIX12 with declared source_substrate_id"
+    },
+    "E10": {
+      "agent_selection": "distinct taught archetype IDs discovered in campaign content"
+    }
+  }
+}
