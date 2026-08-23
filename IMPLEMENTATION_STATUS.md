@@ -16,58 +16,59 @@ Repository: `Mikayilzade/false-map-department`
 - 12C Core Systems: **COMPLETE — frozen mechanical/application/persistence/content-validation core runtime-green**
 - 12D Content Population: **COMPLETE — exact D01-D40 + DEMO01-DEMO05 + REMIX01-REMIX12 strict full catalog runtime-green**
 - 12E UX / Accessibility / Controller / Deck: **COMPLETE — full 1280x800 device/accessibility/layout exit sweep runtime-green**
-- 12F Adversarial QA: **IN PROGRESS — automated exit sweep merged; target-head runtime evidence pending**
-- 12G Empirical Gates: **NO**
+- 12F Adversarial QA: **COMPLETE — automated exit sweep real-Godot runtime-green; empirical questions separated**
+- 12G Empirical Gates: **NEXT**
 - 12H Release Candidate: **NO**
 - IMPLEMENTATION COMPLETE: **NO**
 
 ## Latest implementation run — 2026-08-24
 
 ### Phase / subphase
-**12F Adversarial QA / automated exit sweep — MERGED, TARGET-HEAD RUNTIME PENDING**
+**12F Adversarial QA / automated exit sweep — COMPLETE**
 
 ### Completed
-- Reconciled the stale status file against the real repository head and confirmed that persistence/process-death, profile/Cloud/demo-import, and authority/focus/content adversarial packs were already implemented and runtime-green in the latest recorded baseline before this increment.
-- Added the remaining automated 12F reasoning/navigation/performance stress suite.
-- Added a long/high-descendant causal fixture proving that the canonical ancestry remains intact while the default requirement-focused reasoning view stays bounded to the frozen presentation limits and deterministically collapses descendant noise.
-- Added controller/Deck dense-candidate navigation stress against the densest authored production campaign focus layer rather than a toy-only graph. Every authored candidate is exercised from two independent navigator instances to prove stable focus outcomes.
-- Added 120 repeated deterministic core-transaction observations, recording median/p95/p99 runtime and canonical checkpoint bytes while proving identical replays do not grow their serialized checkpoint footprint.
-- The frozen Phase-8 timing targets are carried into the test as evidence thresholds: typical edit 8 ms median / 25 ms p95 and late-game 50 ms p99. CI timing is intentionally observational because GitHub-hosted hardware is not the frozen Deck-class T8-44 reference target.
-- Added `phase12f_exit_gate_audit.py` to enumerate the automated high-risk classes and explicitly preserve the distinction between automated correctness and unresolved empirical gates.
-- Explicitly retained E10-2 (hypothesis-driven human solving versus blind legal-edit enumeration) as an empirical playtest gate; it is not falsely converted into a unit-test claim.
-- Wired the new static exit gate and real-Godot suite into the aggregate runtime baseline.
-- PR #1 `Complete Phase 12F automated exit sweep` was squash-merged to `main` as `cb2459f81f38d98e5f5fc345357d7d9c727b1aa2`.
+- Reconciled the stale status against actual repository state; persistence/process-death, profile/Cloud/demo-import, authority/focus/content packs were already present and green.
+- Added and merged the final automated 12F reasoning/navigation/performance stress pack in PR #1, merge head `cb2459f81f38d98e5f5fc345357d7d9c727b1aa2`.
+- Added high-descendant causal reasoning stress: full ancestry remains canonical while the default requirement explanation stays at <=5 material nodes and <=2 sibling branches.
+- Added densest-production authored-focus/controller stress using two independent navigators to prove deterministic focus outcomes across every candidate on the densest campaign focus layer.
+- Added 120 repeated core-transaction observations with deterministic post-state hashes and stable serialized checkpoint footprint.
+- Added a static 12F exit-gate audit enumerating the full automated high-risk coverage and preserving empirical-vs-correctness boundaries.
+- Wired the new static and real-Godot suites into the aggregate baseline.
 
-### Automated 12F coverage now wired
+### Automated 12F coverage
 - illegal versus harmful legal edits;
 - duplicate/stale commands and rapid same-snapshot input;
 - Undo/Redo branch truncation;
-- save corruption/newest-valid-generation recovery;
+- corruption/newest-valid-generation recovery;
 - process death during edit presentation and Stability verification;
-- divergent Cloud/profile branches without active-session synthesis;
+- divergent Cloud/profile branches without illegal active-session synthesis;
 - demo replay/idempotency/version mismatch;
 - authority cycles/double ownership;
 - focus unreachable/edit-surface violations;
 - relabel shortcut, mastery, linked-readability, causal-depth and remix bypasses;
 - bounded causal reasoning under high descendant noise;
-- densest authored controller/Deck focus navigation;
-- repeatable transaction timing/checkpoint-footprint observation.
+- dense controller/Deck focus navigation;
+- repeatable transaction timing/checkpoint-footprint stress.
 
-### Empirical dispositions intentionally NOT faked as CI correctness
-- **E10-2:** mature-dossier human causal reasoning versus deliberate blind enumeration requires representative player evidence.
-- **T8-44:** exact late-game performance-budget acceptance requires Deck-class reference hardware or a profiling disposition.
-- Other Phase-12G E1-E12 playtest/market/accessibility perception gates remain empirical by definition.
+### Validation
+- Automatic Godot baseline run: `32669721367`.
+- Target head: `cb2459f81f38d98e5f5fc345357d7d9c727b1aa2`.
+- Engine: **Godot 4.7.1 stable**.
+- Aggregate result: **PASS** — `runtime_rc=0`, `ci_policy_rc=0`, `bootstrap_preflight_rc=0`, `phase12a_contract_rc=0`, `fetch_godot_rc=0`.
+- New dedicated suite: **PASS** — `FMD Phase 12F reasoning/navigation/performance adversarial tests: PASS`.
+- Observed 120-sample CI timing: median **14.686 ms**, p95 **14.839 ms**, p99 **15.043 ms**, stable checkpoint **3596 bytes**.
+- Frozen targets carried into evidence: typical edit <=8 ms median / <=25 ms p95; late-game <=50 ms p99.
+- The observed CI median is above the 8 ms typical-edit target, but GitHub-hosted CI is not the frozen Deck-class T8-44 reference platform. This is therefore recorded as a performance signal for empirical profiling, not hidden and not misclassified as a deterministic/spec correctness failure.
 
-### Validation state
-- Pre-increment automatic baseline: **PASS** on Godot 4.7.1.
-- Merge head requiring new evidence: `cb2459f81f38d98e5f5fc345357d7d9c727b1aa2`.
-- Current committed runtime evidence still points to the previous baseline head, so 12F is **not yet marked COMPLETE**.
-- Notification-safe automatic baseline is path-scoped to the changed `tests/**` and `scripts/**` and records PASS/FAIL as repository evidence while keeping the workflow itself green.
+### Empirical dispositions carried into 12G
+- **E10-2:** representative mature-dossier players must compare hypothesis-driven solving against deliberate legal-edit enumeration; unit tests cannot prove which is easier/faster for humans.
+- **T8-44:** performance acceptance must be measured on Deck-class reference hardware or receive a profiling disposition. The CI median signal above should be investigated there.
+- Remaining E1-E12 comprehension/repetition/accessibility/marketing/value gates require prototype/playtest evidence as frozen.
 
 ### Failures / blockers
-- **No user-action blocker.**
-- No new canonical contradiction identified in this increment.
-- Only blocker to declaring automated 12F exit complete is target-head real-Godot evidence for the newly merged suite.
+- **No known spec-breaking automated blocker remains.**
+- **No user-action blocker for starting 12G instrumentation/preparation.**
+- Human/market/hardware empirical evidence is intentionally not fabricated.
 
 ## NEXT ACTION
-Inspect the automatic Godot 4.7.1 evidence for merge head `cb2459f81f38d98e5f5fc345357d7d9c727b1aa2`. If the aggregate runtime and the new `phase12f-reasoning-navigation-performance-adversarial-suite` are clean, mark **12F automated adversarial exit COMPLETE** and move to **12G Empirical Design Gates**, beginning with the prototype-measurable gates that can be instrumented without pretending human/market evidence exists. If the evidence is FAIL, reproduce the exact failing suite, make the smallest repair, and rerun before 12G.
+Start **12G Empirical Design Gates**. Build the evidence harness and test protocol for E1-E12 first: automate every objectively measurable capture/telemetry/precondition, define pass/fail evidence fields, and separate gates that require human testers, Deck-class hardware, marketing expectation data, demo timing, or release-time pricing evidence. Begin with the instrumentable prototype gates and T8-44 performance profiling preparation; do not mark any human/market gate PASS without actual evidence.
