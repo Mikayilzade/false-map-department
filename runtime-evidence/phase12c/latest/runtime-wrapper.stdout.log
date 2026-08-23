@@ -277,13 +277,6 @@ FMD Phase 12E linked-layer UX tests: PASS
 == phase12e-accessibility-settings-suite ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
-ERROR: Parse JSON failed. Error at line 0: Expected key
-   at: parse_string (core/io/json.cpp:629)
-   GDScript backtrace (most recent call first):
-       [0] _read_candidate (res://src/application/accessibility_settings_service.gd:249)
-       [1] load (res://src/application/accessibility_settings_service.gd:146)
-       [2] _test_backup_recovery (res://tests/test_phase12e_accessibility_settings_runner.gd:146)
-       [3] _init (res://tests/test_phase12e_accessibility_settings_runner.gd:15)
 FMD Phase 12E persisted accessibility settings tests: PASS
 == main-scene-boot ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
