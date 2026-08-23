@@ -1,0 +1,16 @@
+== phase12f-authority-focus-content-adversarial-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+ERROR: Production remix registry service must load and validate all frozen overlays
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/test_phase12f_authority_focus_content_adversarial_runner.gd:209)
+       [1] _attack_production_remix_registry (res://tests/test_phase12f_authority_focus_content_adversarial_runner.gd:140)
+       [2] _initialize (res://tests/test_phase12f_authority_focus_content_adversarial_runner.gd:17)
+ERROR: Production remix registry must expose exact REMIX01-REMIX12
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/test_phase12f_authority_focus_content_adversarial_runner.gd:209)
+       [1] _attack_production_remix_registry (res://tests/test_phase12f_authority_focus_content_adversarial_runner.gd:141)
+       [2] _initialize (res://tests/test_phase12f_authority_focus_content_adversarial_runner.gd:17)
+FMD Phase 12F authority/focus/content adversarial tests: FAIL (2 failures)
