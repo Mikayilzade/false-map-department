@@ -18,9 +18,7 @@ def require(path: str, markers: list[str]) -> None:
 
 def main() -> None:
     require("tests/test_phase12f_transaction_history_adversarial_runner.gd", [
-        "duplicate_command_id_conflict",
-        "stale_pre_state_hash",
-        "Redo branch",
+        "duplicate_command_id_conflict", "stale_pre_state_hash", "Redo branch",
     ])
     require("tests/test_phase12f_persistence_recovery_adversarial_runner.gd", [
         "Uncommitted in-memory edit must never become authoritative after process death",
@@ -50,13 +48,14 @@ def main() -> None:
         "LATE_P99_BUDGET_US := 50000",
         "T8-44 remains an empirical hardware disposition",
     ])
-    require("scripts/run_phase12a_runtime.sh", [
-        "phase12f-transaction-history-adversarial-suite",
-        "phase12f-persistence-recovery-adversarial-suite",
-        "phase12f-profile-demo-adversarial-suite",
-        "phase12f-authority-focus-content-adversarial-suite",
-        "phase12f-reasoning-navigation-performance-adversarial-suite",
-        "phase12f-exit-gate-contract",
+    require("scripts/run_phase12f_exit_sweep.sh", [
+        "phase12f_exit_gate_audit.py",
+        "test_phase12f_transaction_history_adversarial_runner.gd",
+        "test_phase12f_persistence_recovery_adversarial_runner.gd",
+        "test_phase12f_profile_demo_adversarial_runner.gd",
+        "test_phase12f_authority_focus_content_adversarial_runner.gd",
+        "test_phase12f_reasoning_navigation_performance_adversarial_runner.gd",
+        "Phase 12F exit sweep: PASS",
     ])
 
     freeze = (ROOT / "GAME2_PHASE11_FINAL_FREEZE.md").read_text(encoding="utf-8")
@@ -72,7 +71,7 @@ def main() -> None:
         if marker not in adversarial:
             fail(f"blind-enumeration empirical separation missing: {marker}")
 
-    print("Phase 12F exit gate audit: PASS (all automated high-risk classes wired; E10-2/T8-44 retained as explicit empirical hardware/playtest dispositions)")
+    print("Phase 12F exit gate audit: PASS (automated high-risk classes wired; E10-2/T8-44 retained as explicit empirical playtest/hardware dispositions)")
 
 
 if __name__ == "__main__":
