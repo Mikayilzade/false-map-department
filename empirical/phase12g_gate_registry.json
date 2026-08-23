@@ -1,0 +1,122 @@
+{
+  "registry_version": 1,
+  "phase": "12G",
+  "rules": {
+    "never_fabricate_human_market_hardware_evidence": true,
+    "allowed_statuses": ["PENDING", "PASS", "FAIL", "BLOCKED"],
+    "evidence_root": "empirical/evidence"
+  },
+  "gates": [
+    {
+      "gate_id": "E1",
+      "name": "map->world comprehension",
+      "evidence_class": "human_playtest",
+      "canonical_threshold": {"metric": "comprehension_rate", "operator": ">=", "value": 0.80},
+      "timing_constraint_seconds": 180,
+      "required_fields": ["tester_id", "naive", "session_id", "understood_within_seconds", "success"],
+      "automated_preconditions": ["tutorial_runtime_green", "map_world_correspondence_present"]
+    },
+    {
+      "gate_id": "E2",
+      "name": "second-order prediction",
+      "evidence_class": "human_playtest",
+      "canonical_threshold": {"metric": "prediction_success_rate", "operator": ">=", "value": 0.70},
+      "required_fields": ["tester_id", "session_id", "packet_completed", "prediction_prompt_id", "success"],
+      "automated_preconditions": ["collateral_consequence_fixture_present", "causal_explanation_runtime_green"]
+    },
+    {
+      "gate_id": "E3",
+      "name": "mature reasoning beats blind enumeration",
+      "evidence_class": "human_comparative_playtest",
+      "canonical_threshold": null,
+      "required_fields": ["tester_id", "dossier_id", "method", "completion_seconds", "completed", "rule_knowledge_confirmed"],
+      "automated_preconditions": ["mature_dossier_set_identified", "legal_edit_space_instrumentable"]
+    },
+    {
+      "gate_id": "E4",
+      "name": "campaign repetition",
+      "evidence_class": "human_playtest",
+      "canonical_threshold": null,
+      "required_fields": ["tester_id", "window_id", "dossier_ids", "same_trick_assessment", "notes"],
+      "automated_preconditions": ["reasoning_transformation_diversity_validation_green"]
+    },
+    {
+      "gate_id": "E5",
+      "name": "linked authority comprehension",
+      "evidence_class": "human_playtest",
+      "canonical_threshold": null,
+      "required_fields": ["tester_id", "dossier_id", "requirement_id", "identified_authority_layer", "correct", "tutorial_recall_used"],
+      "automated_preconditions": ["authority_source_inspection_present", "linked_readability_budget_green"]
+    },
+    {
+      "gate_id": "E6",
+      "name": "causal readability",
+      "evidence_class": "human_playtest",
+      "canonical_threshold": null,
+      "required_fields": ["tester_id", "dossier_id", "requirement_id", "answered_cause", "used_raw_debug_log", "correct"],
+      "automated_preconditions": ["causal_ribbon_budget_green", "inspect_path_present"]
+    },
+    {
+      "gate_id": "E7",
+      "name": "accessibility/device sweep",
+      "evidence_class": "mixed_capture_interaction",
+      "canonical_threshold": {"metric": "shippable_dossiers_pass_rate", "operator": "==", "value": 1.0},
+      "required_fields": ["dossier_id", "device_mode", "ui_scale", "reduced_motion", "non_color", "no_audio", "interaction_complete", "capture_review_pass"],
+      "automated_preconditions": ["phase12e_exit_sweep_green", "controller_focus_green", "1280x800_layout_green"]
+    },
+    {
+      "gate_id": "E8",
+      "name": "marketing expectation",
+      "evidence_class": "market_test",
+      "canonical_threshold": null,
+      "required_fields": ["respondent_id", "asset_version", "expected_play_category", "freeform_builder_expectation", "notes"],
+      "automated_preconditions": ["store_claims_match_implemented_capabilities"]
+    },
+    {
+      "gate_id": "E9",
+      "name": "remix distinctness",
+      "evidence_class": "human_playtest",
+      "canonical_threshold": null,
+      "required_fields": ["tester_id", "remix_id", "source_dossier_id", "described_as_changed_causal_problem", "notes"],
+      "automated_preconditions": ["remix_changed_dependency_validation_green", "exact_12_remixes_present"]
+    },
+    {
+      "gate_id": "E10",
+      "name": "agent distinctness",
+      "evidence_class": "human_playtest",
+      "canonical_threshold": null,
+      "required_fields": ["tester_id", "agent_a", "agent_b", "scenario_id", "predicted_distinction", "correct"],
+      "automated_preconditions": ["agent_archetype_runtime_green", "no_dossier_script_override"]
+    },
+    {
+      "gate_id": "E11",
+      "name": "demo timing",
+      "evidence_class": "human_timing",
+      "canonical_threshold": null,
+      "target_demo_window_minutes": [15, 25],
+      "required_fields": ["tester_id", "demo_build_id", "start_timestamp", "first_collateral_aha_seconds", "completion_seconds", "completed"],
+      "automated_preconditions": ["exact_demo01_demo05_present", "demo_exclusions_green"]
+    },
+    {
+      "gate_id": "E12",
+      "name": "perceived value / final pricing",
+      "evidence_class": "release_market_recheck",
+      "canonical_threshold": null,
+      "required_fields": ["research_date", "build_id", "completion_time_hours", "polish_assessment", "replay_value_assessment", "localization_breadth", "market_comparables", "price_disposition"],
+      "automated_preconditions": ["release_candidate_near_final"]
+    },
+    {
+      "gate_id": "T8-44",
+      "name": "Deck-class late-game performance",
+      "evidence_class": "reference_hardware_profile",
+      "canonical_threshold": {
+        "typical_edit_median_ms": 8,
+        "typical_edit_p95_ms": 25,
+        "late_game_edit_p99_ms": 50,
+        "stability_cycle_p95_ms": 16
+      },
+      "required_fields": ["hardware_id", "build_id", "dossier_id", "sample_count", "typical_edit_median_ms", "typical_edit_p95_ms", "late_game_edit_p99_ms", "stability_cycle_p95_ms", "profiling_disposition"],
+      "automated_preconditions": ["repeatable_transaction_profiler_present", "performance_signal_recorded"]
+    }
+  ]
+}
