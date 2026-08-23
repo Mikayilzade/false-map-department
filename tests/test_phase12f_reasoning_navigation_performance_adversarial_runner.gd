@@ -22,21 +22,18 @@ func _initialize() -> void:
 func _attack_causal_reasoning_projection() -> void:
 	var events: Array = []
 	for index in range(12):
-		var event_id := "E%02d" % index
 		events.append({
-			"event_id": event_id,
+			"event_id": "E%02d" % index,
 			"sequence_index": index,
 			"event_type": "WORLD_FACT_CHANGED",
 			"subject_stable_id": "FACT_%02d" % index,
 			"parent_event_ids": [] if index == 0 else ["E%02d" % (index - 1)],
 			"requirement_relevance_tags": ["objective:O_STRESS"],
 		})
-	# Add more descendant noise than the default ribbon may expose.
 	for sibling_index in range(5):
-		var sequence := 12 + sibling_index
 		events.append({
 			"event_id": "S%02d" % sibling_index,
-			"sequence_index": sequence,
+			"sequence_index": 12 + sibling_index,
 			"event_type": "AGENT_STATE_CHANGED",
 			"subject_stable_id": "AG_%02d" % sibling_index,
 			"parent_event_ids": ["E05"],
@@ -72,6 +69,11 @@ func _attack_dense_authored_focus() -> void:
 	_assert(bind_a.get("ok", false) and bind_b.get("ok", false), "Densest production focus graph must bind for controller/Deck navigation")
 	if not bind_a.get("ok", false) or not bind_b.get("ok", false):
 		return
+	var set_a: Dictionary = navigator_a.set_layer(layer_id)
+	var set_b: Dictionary = navigator_b.set_layer(layer_id)
+	_assert(set_a.get("ok", false) and set_b.get("ok", false), "Densest production focus layer must be selectable")
+	if not set_a.get("ok", false) or not set_b.get("ok", false):
+		return
 	var ids: Array[String] = navigator_a.focusable_ids(layer_id)
 	_assert(ids.size() == int(densest.get("candidate_count", -1)), "Dense focus graph must expose every authored candidate")
 	_assert(ids == navigator_b.focusable_ids(layer_id), "Dense focus candidate ordering must be deterministic")
@@ -85,7 +87,6 @@ func _attack_dense_authored_focus() -> void:
 			var a_move: Dictionary = navigator_a.move(direction)
 			var b_move: Dictionary = navigator_b.move(direction)
 			_assert(str(a_move.get("code", "")) == str(b_move.get("code", "")) and str(a_move.get("focused_candidate_id", "")) == str(b_move.get("focused_candidate_id", "")), "Dense controller move must be deterministic for %s:%s" % [candidate_id, direction])
-			# Reset so each direction is tested from the same authored candidate.
 			navigator_a.jump_to(str(a_before.get("focused_candidate_id", candidate_id)))
 			navigator_b.jump_to(str(b_before.get("focused_candidate_id", candidate_id)))
 
@@ -101,11 +102,10 @@ func _observe_transaction_performance_and_memory() -> void:
 	var timings: Array[int] = []
 	var state_sizes: Array[int] = []
 	var post_hash := ""
-	for sample in range(PERF_SAMPLES):
+	for _sample in range(PERF_SAMPLES):
 		var coordinator := CoreTransactionCoordinator.new()
 		var state: Dictionary = _build_state(raw_initial)
 		var command: Dictionary = raw_command.duplicate(true)
-		command["command_id"] = "PERF_%03d" % sample
 		command["expected_pre_state_hash"] = coordinator.state_hash(state)
 		var started := Time.get_ticks_usec()
 		var result: Dictionary = coordinator.execute_edit(definition, state, command)
@@ -116,7 +116,7 @@ func _observe_transaction_performance_and_memory() -> void:
 		timings.append(elapsed)
 		state_sizes.append(JSON.stringify(_dictionary(result.get("state", {}))).to_utf8_buffer().size())
 		var current_hash := str(result.get("post_state_hash", ""))
-		if sample == 0:
+		if post_hash.is_empty():
 			post_hash = current_hash
 		else:
 			_assert(current_hash == post_hash, "Performance stress replays must preserve deterministic post-state hash")
@@ -139,10 +139,9 @@ func _observe_transaction_performance_and_memory() -> void:
 
 func _find_densest_production_focus_layer() -> Dictionary:
 	var best: Dictionary = {}
-	var best_count := -1
+	var best_count := 0
 	for index in range(1, 41):
-		var path := "res://content/campaign/D%02d.json" % index
-		var dossier := _load_json(path)
+		var dossier := _load_json("res://content/campaign/D%02d.json" % index)
 		for raw_layer in _array(dossier.get("map_layers", [])):
 			var layer: Dictionary = _dictionary(raw_layer)
 			var count := _array(layer.get("editable_candidates", [])).size()
