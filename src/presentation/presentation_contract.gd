@@ -36,9 +36,9 @@ const CONTROLLER_GLYPHS := {
 	"surface_toggle": "Y",
 	"tool_previous": "LB",
 	"tool_next": "RB",
-	"region_next": "RB",
-	"region_previous": "LB",
-	"next_affected": "RT",
+	"region_next": "RT",
+	"region_previous": "LT",
+	"next_affected": "R3",
 }
 
 static func deck_layout_contract() -> Dictionary:
