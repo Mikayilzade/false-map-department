@@ -9,6 +9,7 @@ on:
       - 'tests/**'
       - 'content/**'
       - 'scripts/**'
+      - 'empirical/**'
       - 'project.godot'
       - '.godot-version'
 
@@ -53,6 +54,7 @@ jobs:
           fetch_rc=$?
 
           runtime_rc=98
+          phase12g_rc=98
           if [ "$fetch_rc" -eq 0 ]; then
             GODOT_BIN="$(tail -n 1 "$EVIDENCE_DIR/fetch-godot.stdout.log")"
             export GODOT_BIN
@@ -62,6 +64,13 @@ jobs:
                 > "$EVIDENCE_DIR/runtime-wrapper.stdout.log" \
                 2> "$EVIDENCE_DIR/runtime-wrapper.stderr.log"
             runtime_rc=$?
+
+            FMD_PHASE12G_OUT="$EVIDENCE_DIR/phase12g" \
+            GODOT_BIN="$GODOT_BIN" \
+              bash scripts/run_phase12g_instrumentation.sh \
+                > "$EVIDENCE_DIR/phase12g-wrapper.stdout.log" \
+                2> "$EVIDENCE_DIR/phase12g-wrapper.stderr.log"
+            phase12g_rc=$?
           fi
 
           python3 scripts/ci_policy_preflight.py \
@@ -81,12 +90,12 @@ jobs:
 
           result=FAIL
           if [ "$fetch_rc" -eq 0 ] && [ "$runtime_rc" -eq 0 ] && \
-             [ "$ci_policy_rc" -eq 0 ] && [ "$bootstrap_rc" -eq 0 ] && \
-             [ "$contract_rc" -eq 0 ]; then
+             [ "$phase12g_rc" -eq 0 ] && [ "$ci_policy_rc" -eq 0 ] && \
+             [ "$bootstrap_rc" -eq 0 ] && [ "$contract_rc" -eq 0 ]; then
             result=PASS
           fi
 
-          python3 - "$EVIDENCE_DIR/result.json" "$result" "$fetch_rc" "$runtime_rc" "$ci_policy_rc" "$bootstrap_rc" "$contract_rc" <<'PY'
+          python3 - "$EVIDENCE_DIR/result.json" "$result" "$fetch_rc" "$runtime_rc" "$phase12g_rc" "$ci_policy_rc" "$bootstrap_rc" "$contract_rc" <<'PY'
           import json
           import sys
           from pathlib import Path
@@ -96,9 +105,10 @@ jobs:
               "result": sys.argv[2],
               "fetch_godot_rc": int(sys.argv[3]),
               "runtime_rc": int(sys.argv[4]),
-              "ci_policy_rc": int(sys.argv[5]),
-              "bootstrap_preflight_rc": int(sys.argv[6]),
-              "phase12a_contract_rc": int(sys.argv[7]),
+              "phase12g_instrumentation_rc": int(sys.argv[5]),
+              "ci_policy_rc": int(sys.argv[6]),
+              "bootstrap_preflight_rc": int(sys.argv[7]),
+              "phase12a_contract_rc": int(sys.argv[8]),
           }
           path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
           PY
