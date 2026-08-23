@@ -85,6 +85,8 @@ static func ensure_registered() -> void:
 	_bind_joy_button_once(NAV_DOWN, JOY_BUTTON_DPAD_DOWN)
 	_bind_joy_button_once(NAV_LEFT, JOY_BUTTON_DPAD_LEFT)
 	_bind_joy_button_once(NAV_RIGHT, JOY_BUTTON_DPAD_RIGHT)
+	_bind_joy_axis_once(REGION_PREVIOUS, JOY_AXIS_TRIGGER_LEFT, 1.0)
+	_bind_joy_axis_once(REGION_NEXT, JOY_AXIS_TRIGGER_RIGHT, 1.0)
 	_bind_joy_button_once(TOOL_PREVIOUS, JOY_BUTTON_LEFT_SHOULDER)
 	_bind_joy_button_once(TOOL_NEXT, JOY_BUTTON_RIGHT_SHOULDER)
 	_bind_joy_button_once(LAYER_PREVIOUS, JOY_BUTTON_LEFT_SHOULDER)
@@ -148,4 +150,13 @@ static func _bind_joy_button_once(action: StringName, button_index: JoyButton) -
 			return
 	var event := InputEventJoypadButton.new()
 	event.button_index = button_index
+	InputMap.action_add_event(action, event)
+
+static func _bind_joy_axis_once(action: StringName, axis: JoyAxis, axis_value: float) -> void:
+	for existing in InputMap.action_get_events(action):
+		if existing is InputEventJoypadMotion and existing.axis == axis and is_equal_approx(existing.axis_value, axis_value):
+			return
+	var event := InputEventJoypadMotion.new()
+	event.axis = axis
+	event.axis_value = axis_value
 	InputMap.action_add_event(action, event)
