@@ -14,37 +14,43 @@ Repository: `Mikayilzade/false-map-department`
 - 12D Content Population: **COMPLETE**
 - 12E UX / Accessibility / Controller / Deck: **COMPLETE**
 - 12F Adversarial QA: **COMPLETE — real-Godot runtime-green**
-- 12G Empirical Gates: **IN PROGRESS — evidence harness/protocol implemented**
+- 12G Empirical Gates: **IN PROGRESS — evidence harness + executable telemetry/profiler packet implemented**
 - 12H Release Candidate: **NO**
 - IMPLEMENTATION COMPLETE: **NO**
 
 ## Latest implementation run — 2026-08-24
 
 ### Phase / subphase
-**12G Empirical Design Gates / evidence instrumentation**
+**12G Empirical Design Gates / E1-E2-E11 telemetry + T8-44 profiler packet**
 
 ### Completed
-- Added machine-readable registry for canonical E1-E12 plus T8-44.
-- Preserved the exact frozen numeric thresholds that actually exist: E1 >=80% comprehension within 180 seconds; E2 >=70% second-order prediction; E7 100% tested shippable-dossier capture+interaction rows; T8-44 8 ms median / 25 ms p95 typical edit, 50 ms p99 late-game edit, 16 ms p95 Stability cycle.
-- Kept qualitative gates qualitative rather than inventing thresholds.
-- Added raw-evidence field contracts for every human, market, capture, timing, and reference-hardware gate.
-- Added `phase12g_evidence_harness.py` to validate JSONL evidence and compute only the dispositions justified by canonical thresholds.
-- Missing human/market/hardware evidence is explicitly `PENDING`; it is never auto-promoted to PASS or FAIL.
-- Added `phase12g_precondition_audit.py` to lock registry identity, thresholds, evidence classes, anti-fabrication rule, and canonical source markers.
-- Added `run_phase12g_preconditions.sh`, whose empty-evidence baseline requires exactly 13 PENDING and zero fabricated PASS/FAIL/BLOCKED results.
-- Added `empirical/PHASE12G_PROTOCOL.md` defining collection order and minimal-reopen disposition rules.
+- Kept the existing machine-readable E1-E12 + T8-44 registry and anti-fabrication evidence harness intact.
+- Added `EmpiricalTelemetryService` with opt-in pseudonymous session identity and relative monotonic timing.
+- Added explicit E1, E2 and E11 observation builders whose human outcome fields are supplied by the observer/test protocol; clicks, objective flips and elapsed time never auto-promote a human gate to PASS.
+- Added idempotent raw telemetry events for first map/world correspondence use, first broken objective after an accepted edit, session start and demo completion.
+- Integrated the telemetry probe into the playable `src/presentation/main.gd` path. It activates only when `FMD_EMPIRICAL_TESTER_ID` and `FMD_EMPIRICAL_SESSION_ID` are provided, and writes a raw telemetry snapshot only when `FMD_EMPIRICAL_TELEMETRY_PATH` is explicitly configured.
+- Added `ReferenceHardwareProfiler` producing the exact T8-44 evidence fields from raw microsecond sample families: typical median/p95, late-game p99, Stability p95 and sample count.
+- Empty profiler sample families reject instead of fabricating partial hardware evidence.
+- Added real-Godot instrumentation tests covering observer-controlled outcomes, relative E1/E11 timing, telemetry idempotency, explicit identity requirement, percentile conversion and empty-profile rejection.
+- Added `phase12g_instrumentation_audit.py` and wired it into `run_phase12g_preconditions.sh`.
+- Added standalone `run_phase12g_instrumentation.sh` for registry + anti-fabrication + real-Godot instrumentation validation.
+- Expanded `empirical/PHASE12G_PROTOCOL.md` with exact environment variables and profiler collection rules.
 
 ### Current empirical state
-- E1-E12: **PENDING actual evidence**.
+- E1-E12: **PENDING actual representative evidence**.
 - T8-44: **PENDING Deck-class reference hardware evidence**.
-- Existing automated implementation preconditions from 12A-12F remain green.
-- Prior CI timing signal remains median 14.686 ms / p95 14.839 ms / p99 15.043 ms on GitHub-hosted Linux; this is not treated as Deck-class acceptance evidence.
+- No empirical PASS/FAIL has been fabricated by this implementation packet.
+- Existing 12A-12F runtime baseline was green before this increment.
+
+### Validation state
+- Static instrumentation contract: implemented on branch `phase12g-telemetry-profiler-20260824`.
+- Real-Godot instrumentation runner: implemented and awaiting target-head aggregate/runtime evidence after merge.
+- The main-scene import/boot baseline will also compile the newly integrated playable telemetry path.
 
 ### Failures / blockers
-- **No implementation blocker.**
-- Human comprehension/repetition/readability/remix/agent/demo evidence cannot be fabricated.
-- Marketing expectation and final pricing require representative external evidence at the appropriate stage.
-- Exact T8-44 acceptance requires reference hardware or an explicit profiling disposition.
+- **No user-action blocker.**
+- Human comprehension/prediction/aha outcomes still require actual testers or explicit observer input.
+- Exact T8-44 acceptance still requires Deck-class reference hardware.
 
 ## NEXT ACTION
-Continue 12G with the first executable evidence packet: instrument E1/E2 first-session telemetry and E11 demo timing in the playable presentation path, plus a reusable T8-44 profiler output format. Keep the raw evidence schema compatible with `empirical/phase12g_gate_registry.json`. Do not mark a human/market/hardware gate PASS until real rows exist.
+Merge the 12G telemetry/profiler packet and inspect target-head Godot 4.7.1 evidence. If green, continue 12G with the next executable packet: build practical evidence-capture templates/workflows for E3-E6 and E7, then prepare E9/E10 comparative prompts while keeping all human dispositions PENDING until real rows exist. Do not start 12H until every E1-E12 gate has an evidence-backed disposition or an explicit release blocker.
