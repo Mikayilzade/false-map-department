@@ -14,5 +14,18 @@ func read_text(relative_path: String) -> Dictionary:
 func exists(relative_path: String) -> bool:
 	return _files.has(relative_path)
 
+func remove_path(relative_path: String) -> Error:
+	if not _files.has(relative_path):
+		return ERR_FILE_NOT_FOUND
+	_files.erase(relative_path)
+	return OK
+
+func rename_path(from_relative_path: String, to_relative_path: String) -> Error:
+	if not _files.has(from_relative_path):
+		return ERR_FILE_NOT_FOUND
+	_files[to_relative_path] = _files[from_relative_path]
+	_files.erase(from_relative_path)
+	return OK
+
 func overwrite_for_test(relative_path: String, contents: String) -> void:
 	_files[relative_path] = contents
