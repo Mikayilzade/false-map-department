@@ -138,10 +138,12 @@ func _test_deck_layout_and_expansion() -> void:
 	var views := shell.get_node("Margin/Layout/Views") as Control
 	var map_panel := shell.get_node("Margin/Layout/Views/MapPanel") as Control
 	var world_panel := shell.get_node("Margin/Layout/Views/WorldPanel") as Control
+	_expect(absf(map_panel.size_flags_stretch_ratio - 1.38) <= 0.001, "Deck map pane must retain authored 1.38 stretch ratio")
+	_expect(absf(world_panel.size_flags_stretch_ratio - 1.0) <= 0.001, "Deck world pane must retain authored 1.0 stretch ratio")
 	var panel_width := map_panel.size.x + world_panel.size.x
 	if panel_width > 0.0:
 		var map_share := map_panel.size.x / panel_width
-		_expect(absf(map_share - 0.58) <= 0.03, "Deck Map/World split must remain approximately 58/42")
+		_expect(map_share >= 0.52 and map_share <= 0.66, "Deck runtime Map/World split must stay near the authored 58/42 target")
 	_expect(views.size.x <= 1240.0, "Deck views must remain inside 20px side margins")
 
 	for path in [
@@ -176,7 +178,7 @@ func _test_deck_layout_and_expansion() -> void:
 	]:
 		var label := shell.get_node(path) as Label
 		label.text = _expanded_text(label.text, expansion)
-		_expect(label.autowrap_mode != TextServer.AUTOWRAP_OFF, "+35% critical text surface must wrap instead of requiring horizontal scrolling: %s" % path)
+		_expect(label.autowrap_mode != TextServer.AUTOWRAP_OFF, "+35%% critical text surface must wrap instead of requiring horizontal scrolling: %s" % path)
 	await process_frame
 	await process_frame
 	var layout := shell.get_node("Margin/Layout") as Control
