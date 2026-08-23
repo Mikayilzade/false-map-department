@@ -49,7 +49,6 @@ func normalize(raw_settings: Dictionary) -> Dictionary:
 		return migrated
 	var source: Dictionary = _dictionary(migrated.get("settings", {}))
 	var out: Dictionary = defaults()
-
 	var scale_value: Variant = source.get("ui_scale_percent", out["ui_scale_percent"])
 	if not CanonicalJson.is_integral_number(scale_value):
 		return _fail("accessibility_ui_scale_invalid")
@@ -58,17 +57,13 @@ func normalize(raw_settings: Dictionary) -> Dictionary:
 		return _fail("accessibility_ui_scale_out_of_range")
 	out["ui_scale_percent"] = scale_percent
 	out["ui_scale_preset"] = _scale_preset(scale_percent)
-
 	for key in ["reduced_motion", "flash_reduction", "color_safe_patterns", "subtitles_enabled", "text_event_log_enabled"]:
 		if source.has(key) and not (source[key] is bool):
 			return _fail("accessibility_boolean_invalid:" + key)
 		if source.has(key):
 			out[key] = bool(source[key])
-
-	# Essential causal/state information is always duplicated visually/textually.
 	out["audio_independent_presentation"] = true
 	out["color_safe_patterns"] = true
-
 	for volume_key in ["master_volume_percent", "music_volume_percent", "sfx_volume_percent", "ui_volume_percent"]:
 		var volume: Variant = source.get(volume_key, out[volume_key])
 		if not CanonicalJson.is_integral_number(volume):
@@ -77,27 +72,22 @@ func normalize(raw_settings: Dictionary) -> Dictionary:
 		if volume_percent < 0 or volume_percent > 100:
 			return _fail("accessibility_volume_out_of_range:" + volume_key)
 		out[volume_key] = volume_percent
-
 	var glyph_preference := str(source.get("controller_glyph_preference", out["controller_glyph_preference"]))
 	if not GLYPH_PREFERENCES.has(glyph_preference):
 		return _fail("accessibility_controller_glyph_invalid")
 	out["controller_glyph_preference"] = glyph_preference
-
 	var language := str(source.get("language", out["language"]))
 	if language.is_empty():
 		return _fail("accessibility_language_invalid")
 	out["language"] = language
-
 	var hold_mode := str(source.get("hold_input_mode", out["hold_input_mode"]))
 	if not HOLD_INPUT_MODES.has(hold_mode):
 		return _fail("accessibility_hold_mode_invalid")
 	out["hold_input_mode"] = hold_mode
-
 	var remaps := _normalize_remaps(source.get("gameplay_remaps", {}))
 	if not remaps.get("ok", false):
 		return remaps
 	out["gameplay_remaps"] = _dictionary(remaps.get("remaps", {})).duplicate(true)
-
 	return {
 		"ok": true,
 		"settings": out,
@@ -116,10 +106,7 @@ func save(profile_id: String, generation: int, raw_settings: Dictionary) -> Dict
 	if current.get("ok", false) and not bool(current.get("used_defaults", false)):
 		if generation <= int(current.get("generation", -1)):
 			return _fail("accessibility_generation_not_monotonic")
-	var payload := {
-		"payload_version": PAYLOAD_VERSION,
-		"settings": _dictionary(normalized["settings"]).duplicate(true),
-	}
+	var payload := {"payload_version": PAYLOAD_VERSION, "settings": _dictionary(normalized["settings"]).duplicate(true)}
 	var envelope := _persistence.make_envelope(DOCUMENT_TYPE, profile_id, generation, payload)
 	var write_error: Error = _storage.write_text(TEMP_PATH, CanonicalJson.stringify(envelope))
 	if write_error != OK:
@@ -184,11 +171,7 @@ func load(profile_id: String) -> Dictionary:
 	var chosen_hash := str(chosen.get("settings_hash", ""))
 	for candidate in candidates:
 		if int(candidate.get("generation", -1)) == chosen_generation and str(candidate.get("settings_hash", "")) != chosen_hash:
-			return {
-				"ok": false,
-				"code": "accessibility_equal_generation_conflict",
-				"generation": chosen_generation,
-			}
+			return {"ok": false, "code": "accessibility_equal_generation_conflict", "generation": chosen_generation}
 	return {
 		"ok": true,
 		"code": "accessibility_loaded",
@@ -278,7 +261,7 @@ func _read_candidate(path: String, profile_id: String) -> Dictionary:
 	var source_version := int(payload_version_value)
 	if source_version < 0 or source_version > PAYLOAD_VERSION:
 		return _fail("accessibility_payload_version_unsupported")
-	var settings_source: Dictionary = _dictionary(payload.get("settings", {}))
+	var settings_source: Dictionary = _dictionary(payload.get("settings", {})).duplicate(true)
 	settings_source["payload_version"] = source_version
 	var normalized := normalize(settings_source)
 	if not normalized.get("ok", false):
@@ -310,7 +293,6 @@ func _migrate_legacy_settings(raw_settings: Dictionary) -> Dictionary:
 			source["reduced_motion"] = source["reduce_motion"]
 		if source.has("reduce_flashes") and not source.has("flash_reduction"):
 			source["flash_reduction"] = source["reduce_flashes"]
-	# V1 had no persisted glyph/remap/hold preferences; defaults safely fill them.
 	source.erase("payload_version")
 	source.erase("ui_scale")
 	source.erase("reduce_motion")
@@ -334,7 +316,7 @@ func _normalize_remaps(raw_value: Variant) -> Dictionary:
 	for action_id in actions:
 		if not InputActions.ACTIONS.has(action_id):
 			return _fail("accessibility_remap_action_unknown:" + action_id)
-		var descriptors_value: Variant = raw_remaps[action_id]
+		var descriptors_value: Variant = raw_remaps.get(action_id, null)
 		if not (descriptors_value is Array):
 			return _fail("accessibility_remap_descriptors_invalid:" + action_id)
 		var descriptors: Array = []
@@ -373,13 +355,13 @@ func _event_from_descriptor(descriptor: Dictionary) -> InputEvent:
 	var device := str(descriptor.get("device", ""))
 	if device == "keyboard":
 		var event := InputEventKey.new()
-		event.keycode = int(descriptor.get("keycode", 0)) as Key
+		event.keycode = int(descriptor.get("keycode", 0))
 		event.ctrl_pressed = bool(descriptor.get("ctrl", false))
 		event.shift_pressed = bool(descriptor.get("shift", false))
 		return event
 	if device == "controller":
 		var event := InputEventJoypadButton.new()
-		event.button_index = int(descriptor.get("button", 0)) as JoyButton
+		event.button_index = int(descriptor.get("button", 0))
 		return event
 	return null
 
