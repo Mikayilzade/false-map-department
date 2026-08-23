@@ -40,7 +40,7 @@
         "legal_edit_space_instrumentable"
       ],
       "detail": {
-        "reason": "canonical gate is qualitative or requires explicit disposition"
+        "reason": "no evidence rows"
       },
       "evidence_class": "human_comparative_playtest",
       "gate_id": "E3",
@@ -53,7 +53,7 @@
         "reasoning_transformation_diversity_validation_green"
       ],
       "detail": {
-        "reason": "canonical gate is qualitative or requires explicit disposition"
+        "reason": "no evidence rows"
       },
       "evidence_class": "human_playtest",
       "gate_id": "E4",
@@ -67,7 +67,7 @@
         "linked_readability_budget_green"
       ],
       "detail": {
-        "reason": "canonical gate is qualitative or requires explicit disposition"
+        "reason": "no evidence rows"
       },
       "evidence_class": "human_playtest",
       "gate_id": "E5",
@@ -81,7 +81,7 @@
         "inspect_path_present"
       ],
       "detail": {
-        "reason": "canonical gate is qualitative or requires explicit disposition"
+        "reason": "no evidence rows"
       },
       "evidence_class": "human_playtest",
       "gate_id": "E6",
@@ -109,7 +109,7 @@
         "store_claims_match_implemented_capabilities"
       ],
       "detail": {
-        "reason": "canonical gate is qualitative or requires explicit disposition"
+        "reason": "no evidence rows"
       },
       "evidence_class": "market_test",
       "gate_id": "E8",
@@ -123,7 +123,7 @@
         "exact_12_remixes_present"
       ],
       "detail": {
-        "reason": "canonical gate is qualitative or requires explicit disposition"
+        "reason": "no evidence rows"
       },
       "evidence_class": "human_playtest",
       "gate_id": "E9",
@@ -137,7 +137,7 @@
         "no_dossier_script_override"
       ],
       "detail": {
-        "reason": "canonical gate is qualitative or requires explicit disposition"
+        "reason": "no evidence rows"
       },
       "evidence_class": "human_playtest",
       "gate_id": "E10",
@@ -151,7 +151,7 @@
         "demo_exclusions_green"
       ],
       "detail": {
-        "reason": "canonical gate is qualitative or requires explicit disposition"
+        "reason": "no evidence rows"
       },
       "evidence_class": "human_timing",
       "gate_id": "E11",
@@ -164,7 +164,7 @@
         "release_candidate_near_final"
       ],
       "detail": {
-        "reason": "canonical gate is qualitative or requires explicit disposition"
+        "reason": "no evidence rows"
       },
       "evidence_class": "release_market_recheck",
       "gate_id": "E12",
