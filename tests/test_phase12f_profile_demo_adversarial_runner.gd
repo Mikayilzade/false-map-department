@@ -13,9 +13,9 @@ func _initialize() -> void:
 
 func _attack_profile_merge_without_active_branch_synthesis() -> void:
 	var profiles := ProfileProgressService.new()
-	var d01 := _clear("D01")
-	var d02 := _clear("D02")
-	var d40 := _clear("D40")
+	var d01: Dictionary = _clear("D01")
+	var d02: Dictionary = _clear("D02")
+	var d40: Dictionary = _clear("D40")
 	var left: Dictionary = profiles.empty_progress()
 	left = _progress(profiles.add_clear_record(left, d01))
 	left = _progress(profiles.add_clear_record(left, d40))
@@ -25,7 +25,7 @@ func _attack_profile_merge_without_active_branch_synthesis() -> void:
 	right = _progress(profiles.add_clear_record(right, d02))
 	right = _progress(profiles.add_tutorial_tags(right, ["tutorial.bridge"]))
 	right["active_session_state"] = {"session_id": "BRANCH_B", "map": {"R_B": true}}
-	var rules := {"REMIX_AB": {"required_cleared_dossier_ids": ["D01", "D02"]}}
+	var rules: Dictionary = {"REMIX_AB": {"required_cleared_dossier_ids": ["D01", "D02"]}}
 
 	var merged_result: Dictionary = profiles.merge(left, right, rules)
 	_assert(merged_result.get("ok", false), "Compatible durable profile facts must merge")
@@ -39,12 +39,13 @@ func _attack_profile_merge_without_active_branch_synthesis() -> void:
 	_assert(reverse.get("ok", false), "Reverse-order durable merge must also succeed")
 	_assert(str(reverse.get("canonical_hash", "")) == str(merged_result.get("canonical_hash", "")), "Profile merge must be deterministic/commutative for compatible durable facts")
 
-	# Same durable record identity with different payload is a conflict, never last-writer-wins synthesis.
 	var conflict_a: Dictionary = profiles.empty_progress()
-	var record_a := _clear("D11"); record_a["diagnostic_proof"] = "LEFT"
+	var record_a: Dictionary = _clear("D11")
+	record_a["diagnostic_proof"] = "LEFT"
 	conflict_a = _progress(profiles.add_clear_record(conflict_a, record_a))
 	var conflict_b: Dictionary = profiles.empty_progress()
-	var record_b := _clear("D11"); record_b["diagnostic_proof"] = "RIGHT"
+	var record_b: Dictionary = _clear("D11")
+	record_b["diagnostic_proof"] = "RIGHT"
 	conflict_b = _progress(profiles.add_clear_record(conflict_b, record_b))
 	var conflict: Dictionary = profiles.merge(conflict_a, conflict_b)
 	_assert(str(conflict.get("code", "")) == "profile_record_identity_conflict", "Divergent payloads under one durable record identity must reject deterministically")
@@ -52,8 +53,8 @@ func _attack_profile_merge_without_active_branch_synthesis() -> void:
 func _attack_demo_import_boundaries() -> void:
 	var profiles := ProfileProgressService.new()
 	var demo := DemoImportService.new()
-	var d01 := _clear("D01")
-	var d40 := _clear("D40")
+	var d01: Dictionary = _clear("D01")
+	var d40: Dictionary = _clear("D40")
 	var mapping: Dictionary = {
 		"mapping_version": "P12F_MAP_V1",
 		"compatible_setting_keys": ["language", "ui_scale_percent"],
@@ -80,7 +81,6 @@ func _attack_demo_import_boundaries() -> void:
 		[{"demo_node_id": "DEMO01"}, {"demo_node_id": "DEMO05"}],
 		[]
 	)
-	# Even a checksum-valid injected active session is ignored: import surface is durable facts/settings only.
 	candidate["active_session_state"] = {"session_id": "DEMO_BRANCH", "map": {"R_FAKE": true}}
 	_rehash_candidate(candidate)
 	var full: Dictionary = profiles.empty_progress()
@@ -124,7 +124,12 @@ func _rehash_candidate(candidate: Dictionary) -> void:
 	candidate["demo_import_receipt_id"] = "demo-import:" + hash
 
 func _clear(dossier_id: String) -> Dictionary:
-	return {"dossier_id": dossier_id, "dossier_content_version": "1", "ruleset_version": "1", "canonical_hash_version": "1"}
+	return {
+		"dossier_id": dossier_id,
+		"dossier_content_version": "1",
+		"ruleset_version": "1",
+		"canonical_hash_version": "1",
+	}
 
 func _progress(result: Dictionary) -> Dictionary:
 	_assert(result.get("ok", false), "Profile mutation helper must succeed")
@@ -134,8 +139,9 @@ func _has_clear(progress: Dictionary, record_id: String) -> bool:
 	return _dictionary(progress.get("clear_records_by_id", {})).has(record_id)
 
 func _contains_dossier(progress: Dictionary, dossier_id: String) -> bool:
-	for raw in _dictionary(progress.get("clear_records_by_id", {})).values():
-		if str(_dictionary(raw).get("dossier_id", "")) == dossier_id: return true
+	for raw_record in _dictionary(progress.get("clear_records_by_id", {})).values():
+		if str(_dictionary(raw_record).get("dossier_id", "")) == dossier_id:
+			return true
 	return false
 
 func _assert(condition: bool, message: String) -> void:
@@ -153,5 +159,6 @@ func _finish() -> void:
 
 func _dictionary(value: Variant) -> Dictionary:
 	return value if value is Dictionary else {}
+
 func _array(value: Variant) -> Array:
 	return value if value is Array else []
