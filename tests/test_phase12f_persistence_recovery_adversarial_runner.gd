@@ -20,11 +20,10 @@ func _attack_active_session_process_death() -> void:
 	var storage := MemoryStorageAdapter.new()
 	var durable := DurableSessionService.new(storage)
 	var codec := CoreStateCodec.new()
-	var committed := _state(1, ["R_SAFE"])
-	var in_memory_next := _state(2, ["R_SAFE", "R_NEW"])
+	var committed: Dictionary = _state(1, ["R_SAFE"])
+	var in_memory_next: Dictionary = _state(2, ["R_SAFE", "R_NEW"])
 	_assert(durable.save_editable("P12F_SESSION", 1, committed, {}).get("ok", false), "Editable generation 1 must persist")
 
-	# Simulated process death after domain work but before the new durable checkpoint.
 	var restarted := DurableSessionService.new(storage)
 	var after_uncommitted_death: Dictionary = restarted.load_recover("P12F_SESSION")
 	_assert(after_uncommitted_death.get("ok", false), "Process restart must recover the last durable session")
@@ -36,7 +35,6 @@ func _attack_active_session_process_death() -> void:
 	var after_committed_restart: Dictionary = DurableSessionService.new(storage).load_recover("P12F_SESSION")
 	_assert(int(after_committed_restart.get("generation", -1)) == 2 and _has_road(_dictionary(after_committed_restart.get("state", {})), "R_NEW"), "Fully durable edit must survive process restart")
 
-	# P10-R8: an in-progress Stability generation owns only the exact pre-verification checkpoint.
 	_assert(durable.begin_stability("P12F_SESSION", 3, in_memory_next, {}).get("ok", false), "Stability pre-verification marker must persist")
 	var interrupted: Dictionary = DurableSessionService.new(storage).load_recover("P12F_SESSION")
 	_assert(interrupted.get("ok", false) and bool(interrupted.get("interrupted", false)), "Process death during Stability must be reported as interrupted")
@@ -45,16 +43,14 @@ func _attack_active_session_process_death() -> void:
 	_assert(_has_road(_dictionary(interrupted.get("state", {})), "R_NEW"), "Interrupted Stability must preserve already committed map edits")
 	_assert(str(interrupted.get("recovery_notice", "")).contains("interrupted") and str(interrupted.get("recovery_notice", "")).contains("preserved"), "Interrupted Stability recovery notice must be human-readable")
 
-	# Corrupt the newest in-progress generation: the older valid editable generation must win.
 	storage.overwrite_for_test("active_session_core.slot1.json", "{\"corrupt\":true}")
 	var fallback: Dictionary = DurableSessionService.new(storage).load_recover("P12F_SESSION")
 	_assert(fallback.get("ok", false) and int(fallback.get("generation", -1)) == 2, "Corrupt newest session generation must fall back to newest valid compatible generation")
 	_assert(not bool(fallback.get("interrupted", false)), "Fallback to editable generation must not invent interrupted Stability")
 	_assert(_hash(codec, _dictionary(fallback.get("state", {}))) == _hash(codec, in_memory_next), "Corruption fallback must preserve exact committed state")
 
-	# A checksum-valid but payload-version-incompatible newer generation must also be ignored.
 	var persistence := PersistenceService.new(storage)
-	var incompatible := persistence.make_envelope("active_session_core", "P12F_SESSION", 5, {
+	var incompatible: Dictionary = persistence.make_envelope("active_session_core", "P12F_SESSION", 5, {
 		"payload_version": 99,
 		"verification_status": "EDITABLE",
 		"state": codec.encode(_state(99, ["R_EVIL"])),
@@ -76,9 +72,8 @@ func _attack_profile_generation_recovery() -> void:
 	_assert(durable.save("P12F_PROFILE", 1, p1).get("ok", false), "Profile generation 1 must persist")
 	_assert(durable.save("P12F_PROFILE", 2, p2).get("ok", false), "Profile generation 2 must persist")
 
-	# Crash after a complete validated temp write but before promotion, while primary is torn.
 	var persistence := PersistenceService.new(storage)
-	var temp3 := persistence.make_envelope("profile_progress", "P12F_PROFILE", 3, {"payload_version": 1, "progress": p3})
+	var temp3: Dictionary = persistence.make_envelope("profile_progress", "P12F_PROFILE", 3, {"payload_version": 1, "progress": p3})
 	storage.overwrite_for_test("profile_progress.tmp", CanonicalJson.stringify(temp3))
 	storage.overwrite_for_test("profile_progress.json", "{\"torn_primary\":true}")
 	var recovered: Dictionary = durable.load_recover("P12F_PROFILE")
@@ -86,16 +81,16 @@ func _attack_profile_generation_recovery() -> void:
 	_assert(str(recovered.get("recovered_from_path", "")) == "profile_progress.tmp", "Recovery must identify the selected crash remnant")
 	_assert(_array(_dictionary(recovered.get("progress", {})).get("tutorial_tags", [])) == ["tutorial.border", "tutorial.bridge", "tutorial.road"], "Recovered newest generation must preserve all durable facts")
 
-	# Tamper a newer temp without recomputing its payload hash; valid primary must remain authoritative.
-	var tampered := persistence.make_envelope("profile_progress", "P12F_PROFILE", 4, {"payload_version": 1, "progress": p3})
-	_dictionary(tampered.get("payload", {}))["payload_version"] = 77
+	var tampered: Dictionary = persistence.make_envelope("profile_progress", "P12F_PROFILE", 4, {"payload_version": 1, "progress": p3})
+	var tampered_payload: Dictionary = _dictionary(tampered.get("payload", {}))
+	tampered_payload["payload_version"] = 77
+	tampered["payload"] = tampered_payload
 	storage.overwrite_for_test("profile_progress.tmp", CanonicalJson.stringify(tampered))
 	var before_primary: String = str(storage.read_text("profile_progress.json").get("contents", ""))
 	var ignored_tamper: Dictionary = durable.load_recover("P12F_PROFILE")
 	_assert(ignored_tamper.get("ok", false) and int(ignored_tamper.get("generation", -1)) == 3, "Checksum-invalid newer temp must not outrank valid primary")
 	_assert(str(storage.read_text("profile_progress.json").get("contents", "")) == before_primary, "Invalid newer temp must not rewrite the valid primary")
 
-	# If every recognized candidate is invalid, recovery must preserve evidence and refuse new writes.
 	storage.overwrite_for_test("profile_progress.json", "{\"broken_primary\":true}")
 	storage.overwrite_for_test("profile_progress.bak", "{\"broken_backup\":true}")
 	storage.overwrite_for_test("profile_progress.tmp", "{\"broken_temp\":true}")
@@ -129,7 +124,8 @@ func _state(revision: int, roads: Array[String]) -> Dictionary:
 
 func _has_road(state: Dictionary, road_id: String) -> bool:
 	var maps: Dictionary = _dictionary(state.get("map_state_by_layer", {}))
-	if not maps.has("L1"): return false
+	if not maps.has("L1"):
+		return false
 	var map_state: RefCounted = maps["L1"]
 	return map_state.active_road_edge_ids.has(road_id)
 
@@ -155,5 +151,6 @@ func _finish() -> void:
 
 func _dictionary(value: Variant) -> Dictionary:
 	return value if value is Dictionary else {}
+
 func _array(value: Variant) -> Array:
 	return value if value is Array else []
