@@ -26,9 +26,9 @@
       "sha256": "9a82feb0ee061aed657f88539257a8d6b130034cadc6b0689f401952d4fec32b"
     },
     {
-      "bytes": 5896,
+      "bytes": 5954,
       "name": "import-parse.log",
-      "sha256": "92215349a73b7652d401130ce045850e092b63f76406dc71a5d3592cbfc24131"
+      "sha256": "7df0a274fd415fb8e0dfb33012a74512633e08e196f40e47237d2f9adf8ecbb9"
     },
     {
       "bytes": 95,
@@ -324,9 +324,19 @@
       "bytes": 157,
       "name": "phase12e-stability-ux-suite.log",
       "sha256": "4782c8d125cefa41a7e9130b93210817e604133a8f8cc112f9f4c285e4b5d623"
+    },
+    {
+      "bytes": 163,
+      "name": "phase12f-transaction-history-adversarial-contract.log",
+      "sha256": "64cdf2a3a21db5bd7154469e90e1592bec61fee2222ac437fff1ac6a329858c4"
+    },
+    {
+      "bytes": 184,
+      "name": "phase12f-transaction-history-adversarial-suite.log",
+      "sha256": "4cbc262b5619c272efcfaabccc471fce5b9b40921bbf6f61ba629eea3065871e"
     }
   ],
-  "phase": "12A+12B+12C+12D+12E",
+  "phase": "12A+12B+12C+12D+12E+12F",
   "reason": "",
   "result": "PASS"
 }
