@@ -1,6 +1,3 @@
-Phase 12G precondition audit: PASS (E1-E12 + T8-44 evidence registry/harness ready; no empirical PASS fabricated)
-Phase 12G instrumentation audit: PASS (E1/E2/E11 telemetry + T8-44 profile format; observer outcomes remain explicit)
-Phase 12G session packet audit: PASS (E3-E7 + E9/E10 templates, E10 canonical A1-A10 families, 57x5 E7 matrix, zero fabricated outcomes)
 {
   "counts": {
     "BLOCKED": 0,
@@ -193,8 +190,3 @@ Phase 12G session packet audit: PASS (E3-E7 + E9/E10 templates, E10 canonical A1
   "phase": "12G",
   "registry_version": 1
 }
-Phase 12G empty-evidence baseline: PASS (13 PENDING, zero fabricated empirical PASS/FAIL)
-Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
-
-FMD Phase 12G instrumentation tests: PASS
-Phase 12G instrumentation packet: PASS
