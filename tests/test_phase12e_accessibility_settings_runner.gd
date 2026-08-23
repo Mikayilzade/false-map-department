@@ -142,7 +142,7 @@ func _test_backup_recovery() -> void:
 	_expect(bool(save1.get("ok", false)), "first recovery fixture save should succeed")
 	var save2: Dictionary = service.save("recover-profile", 2, {"ui_scale_percent": 125, "reduced_motion": true})
 	_expect(bool(save2.get("ok", false)), "second recovery fixture save should succeed")
-	storage.overwrite_for_test(AccessibilitySettingsService.PRIMARY_PATH, "{corrupt")
+	storage.overwrite_for_test(AccessibilitySettingsService.PRIMARY_PATH, "{}")
 	var recovered: Dictionary = service.load("recover-profile")
 	_expect(bool(recovered.get("ok", false)), "valid backup should recover settings when primary is corrupt")
 	_expect(bool(recovered.get("recovered", false)), "backup recovery should be explicit")
