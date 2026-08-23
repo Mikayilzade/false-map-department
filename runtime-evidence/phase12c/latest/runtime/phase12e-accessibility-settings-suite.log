@@ -1,42 +1,11 @@
 == phase12e-accessibility-settings-suite ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
-SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
-          at: GDScript::reload (res://src/application/accessibility_settings_service.gd:106)
-SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
-          at: GDScript::reload (res://src/application/accessibility_settings_service.gd:106)
-SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
-          at: GDScript::reload (res://src/application/accessibility_settings_service.gd:107)
-SCRIPT ERROR: Parse Error: Cannot infer the type of "envelope" variable because the value doesn't have a set type.
-          at: GDScript::reload (res://src/application/accessibility_settings_service.gd:110)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://tests/test_phase12e_accessibility_settings_runner.gd:0)
-ERROR: Failed to load script "res://tests/test_phase12e_accessibility_settings_runner.gd" with error "Compilation failed".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
-SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
-          at: _test_defaults_and_normalization (res://tests/test_phase12e_accessibility_settings_runner.gd:28)
-          GDScript backtrace (most recent call first):
-              [0] _test_defaults_and_normalization (res://tests/test_phase12e_accessibility_settings_runner.gd:28)
-              [1] _init (res://tests/test_phase12e_accessibility_settings_runner.gd:12)
-SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
-          at: _test_save_reload_runtime_application (res://tests/test_phase12e_accessibility_settings_runner.gd:53)
-          GDScript backtrace (most recent call first):
-              [0] _test_save_reload_runtime_application (res://tests/test_phase12e_accessibility_settings_runner.gd:53)
-              [1] _init (res://tests/test_phase12e_accessibility_settings_runner.gd:13)
-SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
-          at: _test_payload_migration (res://tests/test_phase12e_accessibility_settings_runner.gd:114)
-          GDScript backtrace (most recent call first):
-              [0] _test_payload_migration (res://tests/test_phase12e_accessibility_settings_runner.gd:114)
-              [1] _init (res://tests/test_phase12e_accessibility_settings_runner.gd:14)
-SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
-          at: _test_backup_recovery (res://tests/test_phase12e_accessibility_settings_runner.gd:140)
-          GDScript backtrace (most recent call first):
-              [0] _test_backup_recovery (res://tests/test_phase12e_accessibility_settings_runner.gd:140)
-              [1] _init (res://tests/test_phase12e_accessibility_settings_runner.gd:15)
-SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
-          at: _test_demo_to_full_settings_whitelist (res://tests/test_phase12e_accessibility_settings_runner.gd:156)
-          GDScript backtrace (most recent call first):
-              [0] _test_demo_to_full_settings_whitelist (res://tests/test_phase12e_accessibility_settings_runner.gd:156)
-              [1] _init (res://tests/test_phase12e_accessibility_settings_runner.gd:16)
+ERROR: Parse JSON failed. Error at line 0: Expected key
+   at: parse_string (core/io/json.cpp:629)
+   GDScript backtrace (most recent call first):
+       [0] _read_candidate (res://src/application/accessibility_settings_service.gd:249)
+       [1] load (res://src/application/accessibility_settings_service.gd:146)
+       [2] _test_backup_recovery (res://tests/test_phase12e_accessibility_settings_runner.gd:146)
+       [3] _init (res://tests/test_phase12e_accessibility_settings_runner.gd:15)
 FMD Phase 12E persisted accessibility settings tests: PASS
-ERROR: Godot script/compile error detected in phase12e-accessibility-settings-suite
