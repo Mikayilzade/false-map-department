@@ -7,7 +7,7 @@ FMD bootstrap preflight: PASS
 fixture_sha256=d64daedbdb4d685fe85b345cf0d6780dc18d89c532a892dc7b4dce43a8e3b303
 session_sha256=c7e3412436a0182737ff67470b015c4d057326ca9475abc565cbe53232536751
 == phase12a-contract ==
-Phase 12A contract audit: PASS (16 domain files checked; guarded playtest entrypoint allowed)
+Phase 12A contract audit: PASS (17 domain files checked; guarded playtest entrypoint allowed)
 == phase12b-contract ==
 Phase 12B contract audit: PASS
 == phase12c-contract ==
@@ -80,7 +80,8 @@ Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
 [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
 [0m
-[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (96 steps)[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (102 steps)[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [   1% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [   2% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -114,6 +115,8 @@ Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 [  30% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  31% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  33% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  33% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  35% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  36% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -146,6 +149,8 @@ Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 [  63% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  64% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  66% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  66% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  67% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  68% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  69% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -177,6 +182,7 @@ Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 [  95% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  96% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  97% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  98% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [92m[ DONE ][39m [1mupdate_scripts_classes[22m
 [0m
 [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
@@ -327,7 +333,7 @@ FMD Phase 12F authority/focus/content adversarial tests: PASS
 == phase12f-reasoning-navigation-performance-adversarial-suite ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
-FMD Phase 12F performance observation: samples=120 median_us=15292 p95_us=15538 p99_us=16059 checkpoint_bytes=3596 budgets_us=8000/25000/50000
+FMD Phase 12F performance observation: samples=120 median_us=11376 p95_us=11512 p99_us=11673 checkpoint_bytes=3596 budgets_us=8000/25000/50000
 FMD Phase 12F reasoning/navigation/performance adversarial tests: PASS
 == main-scene-boot ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
@@ -335,6 +341,6 @@ Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 ERROR: Parent node is busy adding/removing children, `remove_child()` can't be called at this time. Consider using `remove_child.call_deferred(child)` instead.
    at: remove_child (scene/main/node.cpp:1750)
    GDScript backtrace (most recent call first):
-       [0] _ready (res://src/presentation/entrypoint.gd:9)
+       [0] _ready (res://src/presentation/entrypoint.gd:13)
 /home/runner/work/_temp/fmd-runtime-baseline/runtime/manifest.json
 Phase 12A + 12B + 12C + 12D + 12E + 12F runtime baseline: PASS
