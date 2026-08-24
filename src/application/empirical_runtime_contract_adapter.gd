@@ -13,7 +13,7 @@ func adapt(dossier: Dictionary, binding_document: Dictionary, session_id: String
 	_patch_a8_targets(dossier, definition)
 	_patch_contract_shapes(dossier, definition)
 
-	var binding_id := _binding_identity(dossier)
+	var binding_id: String = str(dossier.get("source_substrate_id", "")) if bool(dossier.get("runtime_materialized_remix", false)) else str(dossier.get("dossier_id", ""))
 	var binding: Dictionary = _dictionary(_dictionary(binding_document.get("dossiers", {})).get(binding_id, {}))
 	definition["projection_expectation_by_id"] = _dictionary(binding.get("projection_expectations", {})).duplicate(true)
 	definition["derived_fact_binding_by_id"] = _dictionary(binding.get("derived_fact_bindings", {})).duplicate(true)
