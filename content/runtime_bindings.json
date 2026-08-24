@@ -157,6 +157,9 @@
           "cell_id": "D26_C_GATE",
           "target_jurisdiction_id": "D26_J_EAST"
         }
+      },
+      "projection_expectations": {
+        "D26_REG_JURISDICTION_ACCESS": "D26_J_EAST"
       }
     },
     "D33": {
@@ -174,7 +177,9 @@
         "D34_NO_EXTRA_INFRASTRUCTURE": {
           "kind": "no_active_editable_family_outside_allowlist",
           "primitive_family": "road",
-          "allowed_candidate_ids": ["D34_R_REG"]
+          "allowed_candidate_ids": [
+            "D34_R_REG"
+          ]
         }
       }
     },

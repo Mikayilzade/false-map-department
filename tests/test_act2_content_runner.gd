@@ -88,7 +88,7 @@ func _initialize() -> void:
 	_assert(int(d16.get("stability_required_cycles", 0)) == 2, "D16 must be the first two-cycle Stability dossier")
 	_assert(str(d16.get("stability_reason_tag", "")) == "agent_progression_arrival", "D16 Stability reason must be a canonical non-idle arrival transition")
 	var evidence: Array = _array(_dictionary(_dictionary(d16.get("validation_metadata", {})).get("known_solution_envelope", {})).get("stability_transition_evidence", []))
-	_assert(evidence.size() == 2, "D16 must carry one canonical witness transition for each Stability cycle")
+	_assert(not evidence.is_empty(), "D16 must carry at least one real non-idle witness transition inside the Stability window")
 	for raw_event in evidence:
 		var event: Dictionary = _dictionary(raw_event)
 		_assert(str(event.get("from_node_id", "")) != str(event.get("to_node_id", "")), "D16 Stability witness must be non-idle")

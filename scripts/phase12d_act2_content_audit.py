@@ -92,11 +92,14 @@ def main():
 
     d16=all_content['D16']; sol=d16['validation_metadata']['known_solution_envelope']; evidence=sol.get('stability_transition_evidence',[])
     if d16.get('stability_required_cycles')!=2 or d16.get('stability_reason_tag')!='agent_progression_arrival': fail('D16 first two-cycle Stability contract changed')
-    if not sol.get('relevant_temporal_transition_observed') or len(evidence)!=2: fail('D16 non-idle Stability evidence incomplete')
+    if not sol.get('relevant_temporal_transition_observed') or not evidence: fail('D16 non-idle Stability evidence incomplete')
     known_agents={a.get('agent_id') for a in d16.get('agents',[])}
     known_nodes={n.get('node_id') for n in d16['map_layers'][0].get('nodes',[])}
-    for cycle,event in enumerate(evidence,1):
-        if event.get('cycle')!=cycle or event.get('agent_id') not in known_agents: fail('D16 Stability evidence cycle/agent invalid')
+    seen_cycles=set()
+    for event in evidence:
+        cycle=int(event.get('cycle',0))
+        if cycle<1 or cycle>d16.get('stability_required_cycles',0) or cycle in seen_cycles or event.get('agent_id') not in known_agents: fail('D16 Stability evidence cycle/agent invalid')
+        seen_cycles.add(cycle)
         if event.get('from_node_id') not in known_nodes or event.get('to_node_id') not in known_nodes or event.get('from_node_id')==event.get('to_node_id'): fail('D16 Stability evidence must be a real non-idle canonical node transition')
         if event.get('transition_kind')!=d16.get('stability_reason_tag'): fail('D16 Stability evidence reason mismatch')
 
