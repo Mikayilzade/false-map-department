@@ -619,7 +619,9 @@ func _ids_from_collection(value: Variant) -> Array[String]:
 				result.append(str(raw_item))
 			elif raw_item is Dictionary:
 				var item: Dictionary = raw_item
-				for id_field in ["id", "node_id", "edge_id", "cell_id", "crossing_slot_id", "landmark_slot_id", "portal_id", "feature_id", "candidate_id"]:
+				# Prefer the record's own stable identity over reference fields such as
+				# landmark-slot/portal node_id. A node record still falls back to node_id.
+				for id_field in ["id", "edge_id", "cell_id", "crossing_slot_id", "landmark_slot_id", "portal_id", "feature_id", "candidate_id", "node_id"]:
 					if item.has(id_field):
 						result.append(str(item[id_field]))
 						break
