@@ -130,11 +130,108 @@ jobs:
           # so runtime defects do not recreate failure-email spam.
           exit 0
 
+      - name: Run requested E7 live capture batch
+        id: e7live
+        shell: bash
+        run: |
+          set +e
+          REQUEST="empirical/E7_LIVE_BATCH_REQUEST.json"
+          if [ ! -f "$REQUEST" ]; then
+            echo "requested=false" >> "$GITHUB_OUTPUT"
+            echo "No E7 live-capture request marker; skipping."
+            exit 0
+          fi
+          echo "requested=true" >> "$GITHUB_OUTPUT"
+
+          OUT="${RUNNER_TEMP}/fmd-e7-live-batch"
+          DEST="runtime-evidence/phase12g/e7-live-batch"
+          BASELINE_DIR="${RUNNER_TEMP}/fmd-runtime-baseline"
+          mkdir -p "$OUT" "$DEST"
+
+          request_sha="$(sha256sum "$REQUEST" | awk '{print $1}')"
+          scenario_id="$(python3 - "$REQUEST" <<'PY'
+          import json, sys
+          p=json.load(open(sys.argv[1], encoding='utf-8'))
+          print(p.get('scenario_id',''))
+          PY
+          )"
+          mapfile -t dossier_ids < <(python3 - "$REQUEST" <<'PY'
+          import json, sys
+          p=json.load(open(sys.argv[1], encoding='utf-8'))
+          for item in p.get('dossier_ids', []):
+              print(item)
+          PY
+          )
+
+          capture_rc=97
+          GODOT_BIN=""
+          if [ -s "$BASELINE_DIR/fetch-godot.stdout.log" ]; then
+            GODOT_BIN="$(tail -n 1 "$BASELINE_DIR/fetch-godot.stdout.log")"
+          fi
+          if [ -n "$GODOT_BIN" ] && [ -n "$scenario_id" ] && [ "${#dossier_ids[@]}" -gt 0 ]; then
+            args=(
+              --execute
+              --godot "$GODOT_BIN"
+              --output-dir "$OUT"
+              --scenario-id "$scenario_id"
+            )
+            for dossier_id in "${dossier_ids[@]}"; do
+              args+=(--dossier-id "$dossier_id")
+            done
+            python3 scripts/phase12g_e7_capture.py "${args[@]}" \
+              > "$OUT/capture-command.stdout.log" \
+              2> "$OUT/capture-command.stderr.log"
+            capture_rc=$?
+          else
+            printf 'Request/Godot precondition failed: godot=%s scenario=%s dossier_count=%s\n' "$GODOT_BIN" "$scenario_id" "${#dossier_ids[@]}" > "$OUT/capture-command.stderr.log"
+          fi
+
+          if [ -f "$OUT/capture-manifest.json" ]; then
+            cp "$OUT/capture-manifest.json" "$DEST/capture-manifest.json"
+          else
+            printf '{"schema_version":1,"gate_id":"E7","evidence_kind":"CAPTURE_ACQUISITION_MANIFEST_NOT_REVIEW_OUTCOME","status":"CAPTURE_COMMAND_DID_NOT_PRODUCE_MANIFEST","capture_rc":%s}\n' "$capture_rc" > "$DEST/capture-manifest.json"
+          fi
+          if [ -f "$OUT/runtime-readiness.json" ]; then
+            cp "$OUT/runtime-readiness.json" "$DEST/runtime-readiness.json"
+          fi
+          printf '%s\n' "${dossier_ids[@]}" > "$DEST/requested-dossiers.txt"
+          cat > "$DEST/run-metadata.txt" <<EOF
+          run_id=$GITHUB_RUN_ID
+          run_attempt=$GITHUB_RUN_ATTEMPT
+          source_head_sha=$GITHUB_SHA
+          request_sha256=$request_sha
+          scenario_id=$scenario_id
+          capture_rc=$capture_rc
+          artifact_name=phase12g-e7-live-batch
+          review_outcome=UNREVIEWED
+          interaction_outcome=UNREVIEWED
+          EOF
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -f "$REQUEST"
+          git add "$DEST"
+          git commit -m "Record requested E7 live capture batch [skip ci]" || true
+          git pull --rebase origin main || true
+          git push origin HEAD:main || true
+
+          echo "capture_rc=$capture_rc; capture artifacts remain UNREVIEWED and cannot create E7 PASS."
+          exit 0
+
       - name: Upload runtime evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: phase12c-runtime-evidence
           path: ${{ runner.temp }}/fmd-runtime-baseline
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload requested E7 live captures
+        if: always() && steps.e7live.outputs.requested == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase12g-e7-live-batch
+          path: ${{ runner.temp }}/fmd-e7-live-batch
           if-no-files-found: warn
           retention-days: 14
