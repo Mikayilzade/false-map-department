@@ -11,6 +11,7 @@ bash scripts/run_phase12g_preconditions.sh
 python3 scripts/phase12g_first_session_operator_audit.py
 python3 scripts/phase12g_sample_adequacy_audit.py
 python3 scripts/phase12g_e7_capture_mode_audit.py
+python3 scripts/phase12g_e7_coverage_audit.py
 python3 scripts/phase12g_runtime_readiness.py --output "$OUT_DIR/runtime-readiness.json" > "$OUT_DIR/runtime-readiness.log"
 python3 scripts/phase12g_e7_capture.py --output-dir "$OUT_DIR/e7-capture-plan" --dossier-id D29 --scenario-id deck_controller_base > "$OUT_DIR/e7-capture-plan.log"
 python3 scripts/phase12g_e7_interaction.py \
@@ -37,4 +38,4 @@ FMD_PLAYTEST_DOSSIER_ID=DEMO01 \
 FMD_PLAYTEST_DOSSIER_ID=D29 FMD_EMPIRICAL_BROAD=1 \
   "$GODOT_BIN" --headless --path . --quit-after 2
 
-echo "Phase 12G instrumentation + first-session operator + representative-sample guard + E7 graphical-capture guard + representative controller interaction probes + demo + broad production acquisition-readiness packet: PASS"
+echo "Phase 12G instrumentation + first-session operator + representative-sample guard + exhaustive E7 coverage guard + graphical-capture guard + representative controller interaction probes + demo + broad production acquisition-readiness packet: PASS"
