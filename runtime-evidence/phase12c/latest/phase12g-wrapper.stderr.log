@@ -1,8 +1,24 @@
-ERROR: Parent node is busy adding/removing children, `remove_child()` can't be called at this time. Consider using `remove_child.call_deferred(child)` instead.
-   at: remove_child (scene/main/node.cpp:1750)
+ERROR: D06 solution step 1 rejected: { "ok": false, "accepted": false, "code": "contract_landmark_missing", "pre_state_hash": "574a955f0e6358eb8a09d9cd3520a21f5bf19a877c4673128b7081c400901100", "post_state_hash": "574a955f0e6358eb8a09d9cd3520a21f5bf19a877c4673128b7081c400901100", "history_entries": [], "phase_trace": ["A", "B", "C", "D", "E", "F", "G"] }
+   at: push_error (core/variant/variant_utility.cpp:1023)
    GDScript backtrace (most recent call first):
-       [0] _ready (res://src/presentation/entrypoint.gd:13)
-ERROR: Parent node is busy adding/removing children, `remove_child()` can't be called at this time. Consider using `remove_child.call_deferred(child)` instead.
-   at: remove_child (scene/main/node.cpp:1750)
+       [0] _assert (res://tests/test_phase12g_readiness_repair_solutions_runner.gd:77)
+       [1] _test_known_solution (res://tests/test_phase12g_readiness_repair_solutions_runner.gd:38)
+       [2] _initialize (res://tests/test_phase12g_readiness_repair_solutions_runner.gd:19)
+ERROR: D08 Stability failed to start: { "ok": false, "status": "IDLE", "required_cycles": 0, "verified_cycles": 0, "speed_multiplier": 1, "progress_text": "Stability not active", "message": "Stability is not active.", "editing_disabled": false, "can_start": true, "can_pause": false, "can_resume": false, "can_step": false, "can_change_speed": false, "first_broken_requirement_id": "", "first_broken_requirement_token": "", "open_causal_ancestry": false, "state": {  }, "code": "stability_not_eligible" }
+   at: push_error (core/variant/variant_utility.cpp:1023)
    GDScript backtrace (most recent call first):
-       [0] _ready (res://src/presentation/entrypoint.gd:13)
+       [0] _assert (res://tests/test_phase12g_readiness_repair_solutions_runner.gd:77)
+       [1] _test_known_solution (res://tests/test_phase12g_readiness_repair_solutions_runner.gd:45)
+       [2] _initialize (res://tests/test_phase12g_readiness_repair_solutions_runner.gd:19)
+ERROR: D16 Stability failed to start: { "ok": false, "code": "stability_reason_transition_not_observed", "reason_tag": "agent_progression_arrival", "pre_verification_checkpoint": { "session_revision": 1, "history_cursor": 1, "last_transaction_id": "READINESS_REPAIR_D16:000001", "map_state_by_layer": { "D16_L1": { "active_bridge_slot_ids": [], "active_road_edge_ids": ["D16_R_DEPOT_GATE", "D16_R_GATE_SERVICE"], "active_water_edge_ids": [], "authoritative_linked_facts": {  }, "border_ownership_by_cell": {  }, "landmark_semantic_labels": { "D16_LM_SERVICE": "service" }, "layer_id": "D16_L1", "restricted_zone_cells_by_policy": { "D16_ZP_SERVICE": [] } } }, "agent_state_by_id": { "D16_AG_CARRIER": { "agent_id": "D16_AG_CARRIER", "archetype": "A6_COMMERCIAL_CARRIER", "node_id": "D16_N_SERVICE", "state": "ARRIVED", "resolved_target_id": "D16_LM_SERVICE", "resolved_target_node_id": "D16_N_SERVICE", "route_mode": "road", "route": ["D16_N_SERVICE"], "route_cost": 0, "trapped_reason": "" }, "D16_AG_EMERGENCY": { "agent_id": "D16_AG_EMERGENCY", "archetype": "A5_EMERGENCY_SERVICE", "node_id": "D16_N_SERVICE", "state": "ARRIVED", "resolved_target_id": "D16_LM_SERVICE", "resolved_target_node_id": "D16_N_SERVICE", "route_mode": "road", "route": ["D16_N_SERVICE"], "route_cost": 0, "trapped_reason": "" } }, "objective_state_by_id": { "D16_OBJ_SERVICE_REACH": { "family_id": "O5_PERMISSION_COMPLIANCE", "value": true, "status": "SATISFIED", "first_failing_fact_ref": "" } }, "invariant_state_by_id": { "D16_INV_ROUTE_BOUND": { "family_id": "O3_ROUTE_LENGTH", "value": true, "status": "SATISFIED", "first_failing_fact_ref": "" } }, "stability_state": { "eligible": true, "required_cycles": 2, "verified_cycles": 0, "status": "ELIGIBLE" }, "authoritative_fact_values_by_layer": { "D16_L1": {  } } }, "pre_verification_hash": "220bbb99c4140504b834381d9d4c63613477654c6a6789dcb6620fc97811f0b8", "history_entries": [] }
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/test_phase12g_readiness_repair_solutions_runner.gd:77)
+       [1] _test_known_solution (res://tests/test_phase12g_readiness_repair_solutions_runner.gd:45)
+       [2] _initialize (res://tests/test_phase12g_readiness_repair_solutions_runner.gd:19)
+ERROR: D26 solution step 1 rejected: { "ok": false, "accepted": false, "code": "contract_projection_expectation_missing", "pre_state_hash": "661255f11761283d7041f0d5d25cc1d6d825374eacb6a11e6f5b1d97f23ce3e4", "post_state_hash": "661255f11761283d7041f0d5d25cc1d6d825374eacb6a11e6f5b1d97f23ce3e4", "history_entries": [], "phase_trace": ["A", "B", "C", "D", "E", "F", "G"] }
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/test_phase12g_readiness_repair_solutions_runner.gd:77)
+       [1] _test_known_solution (res://tests/test_phase12g_readiness_repair_solutions_runner.gd:38)
+       [2] _initialize (res://tests/test_phase12g_readiness_repair_solutions_runner.gd:19)

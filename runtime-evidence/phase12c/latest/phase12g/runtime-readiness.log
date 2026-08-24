@@ -1,16 +1,8 @@
 {
-  "blocked_ids": [
-    "D06",
-    "D07",
-    "D08",
-    "D14",
-    "D16",
-    "D17",
-    "D26"
-  ],
+  "blocked_ids": [],
   "counts": {
-    "blocked": 7,
-    "ready": 50,
+    "blocked": 0,
+    "ready": 57,
     "total": 57
   },
   "evidence_kind": "PHASE12G_RUNTIME_ACQUISITION_PRECONDITION_NOT_GATE_OUTCOME",
@@ -35,14 +27,13 @@
       ]
     },
     "E4": {
-      "blocked": [
-        "D14",
-        "D16",
-        "D17"
-      ],
+      "blocked": [],
       "ready": [
         "D13",
+        "D14",
         "D15",
+        "D16",
+        "D17",
         "D18",
         "D19",
         "D20",
@@ -166,12 +157,18 @@
     "D03",
     "D04",
     "D05",
+    "D06",
+    "D07",
+    "D08",
     "D09",
     "D10",
     "D11",
     "D12",
     "D13",
+    "D14",
     "D15",
+    "D16",
+    "D17",
     "D18",
     "D19",
     "D20",
@@ -180,6 +177,7 @@
     "D23",
     "D24",
     "D25",
+    "D26",
     "D27",
     "D28",
     "D29",
@@ -281,13 +279,7 @@
     },
     {
       "agent_count": 2,
-      "blockers": [
-        "border_binding_missing:D06_BORDER_GATE_EAST",
-        "border_binding_missing:D06_BORDER_HOME_EAST",
-        "node_cell_binding_missing:D06_N_DEPOT",
-        "node_cell_binding_missing:D06_N_GATE",
-        "node_cell_binding_missing:D06_N_HOME"
-      ],
+      "blockers": [],
       "dossier_id": "D06",
       "editable_families": [
         "border"
@@ -296,16 +288,11 @@
       "linked_relation_count": 0,
       "scope": "campaign",
       "source_substrate_id": "",
-      "status": "BLOCKED_RUNTIME_BINDING"
+      "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
       "agent_count": 2,
-      "blockers": [
-        "node_cell_binding_missing:D07_N_CLINIC",
-        "node_cell_binding_missing:D07_N_GATE",
-        "node_cell_binding_missing:D07_N_PASTURE",
-        "zone_binding_missing:D07_ZONE_GATE"
-      ],
+      "blockers": [],
       "dossier_id": "D07",
       "editable_families": [
         "restricted_zone"
@@ -314,20 +301,11 @@
       "linked_relation_count": 0,
       "scope": "campaign",
       "source_substrate_id": "",
-      "status": "BLOCKED_RUNTIME_BINDING"
+      "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
       "agent_count": 3,
-      "blockers": [
-        "border_binding_missing:D08_BORDER_GATE_EAST",
-        "node_cell_binding_missing:D08_N_BRIDGE_E",
-        "node_cell_binding_missing:D08_N_BRIDGE_W",
-        "node_cell_binding_missing:D08_N_GATE",
-        "node_cell_binding_missing:D08_N_HOME",
-        "node_cell_binding_missing:D08_N_HOSPITAL",
-        "node_cell_binding_missing:D08_N_PASTURE",
-        "zone_binding_missing:D08_ZONE_GATE"
-      ],
+      "blockers": [],
       "dossier_id": "D08",
       "editable_families": [
         "border",
@@ -338,7 +316,7 @@
       "linked_relation_count": 0,
       "scope": "campaign",
       "source_substrate_id": "",
-      "status": "BLOCKED_RUNTIME_BINDING"
+      "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
       "agent_count": 2,
@@ -411,12 +389,7 @@
     },
     {
       "agent_count": 2,
-      "blockers": [
-        "node_cell_binding_missing:D14_N_DEPOT",
-        "node_cell_binding_missing:D14_N_GATE",
-        "node_cell_binding_missing:D14_N_MARKET",
-        "zone_binding_missing:D14_ZONE_GATE"
-      ],
+      "blockers": [],
       "dossier_id": "D14",
       "editable_families": [
         "restricted_zone",
@@ -426,7 +399,7 @@
       "linked_relation_count": 0,
       "scope": "campaign",
       "source_substrate_id": "",
-      "status": "BLOCKED_RUNTIME_BINDING"
+      "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
       "agent_count": 2,
@@ -443,12 +416,7 @@
     },
     {
       "agent_count": 2,
-      "blockers": [
-        "node_cell_binding_missing:D16_N_DEPOT",
-        "node_cell_binding_missing:D16_N_GATE",
-        "node_cell_binding_missing:D16_N_SERVICE",
-        "zone_binding_missing:D16_ZONE_GATE"
-      ],
+      "blockers": [],
       "dossier_id": "D16",
       "editable_families": [
         "restricted_zone",
@@ -458,17 +426,11 @@
       "linked_relation_count": 0,
       "scope": "campaign",
       "source_substrate_id": "",
-      "status": "BLOCKED_RUNTIME_BINDING"
+      "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
       "agent_count": 1,
-      "blockers": [
-        "border_binding_missing:D17_BORDER_GATE_SOUTH",
-        "node_cell_binding_missing:D17_N_GATE",
-        "node_cell_binding_missing:D17_N_HALL",
-        "node_cell_binding_missing:D17_N_POST",
-        "node_cell_binding_missing:D17_N_WATCH"
-      ],
+      "blockers": [],
       "dossier_id": "D17",
       "editable_families": [
         "border"
@@ -477,7 +439,7 @@
       "linked_relation_count": 0,
       "scope": "campaign",
       "source_substrate_id": "",
-      "status": "BLOCKED_RUNTIME_BINDING"
+      "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
       "agent_count": 1,
@@ -588,12 +550,7 @@
     },
     {
       "agent_count": 2,
-      "blockers": [
-        "border_binding_missing:D26_BORDER_GATE_EAST",
-        "linked_source_fact_unbound:D26_L1:D26_BORDER_GATE_EAST",
-        "node_cell_binding_missing:D26_N_GATE",
-        "node_cell_binding_missing:D26_N_HOME"
-      ],
+      "blockers": [],
       "dossier_id": "D26",
       "editable_families": [
         "border",
@@ -603,7 +560,7 @@
       "linked_relation_count": 1,
       "scope": "campaign",
       "source_substrate_id": "",
-      "status": "BLOCKED_RUNTIME_BINDING"
+      "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
       "agent_count": 2,
