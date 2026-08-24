@@ -198,6 +198,7 @@ Phase 12G acquisition readiness audit: PASS (demo path preserved; mature empiric
 /home/runner/work/_temp/fmd-runtime-baseline/phase12g/gate-dashboard.md
 Phase 12G empty-evidence baseline: PASS (13 PENDING, zero fabricated empirical PASS/FAIL)
 Phase 12G first-session operator audit: PASS (observer outcomes explicit; raw collateral != human aha; no repository evidence mutation)
+Phase 12G sample adequacy audit: PASS (one-row PASS blocked; exact batch confirmation required; evidence changes invalidate confirmation; no invented minimum N)
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
 FMD Phase 12G instrumentation tests: PASS
@@ -214,4 +215,4 @@ Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
-Phase 12G instrumentation + first-session operator + demo + broad production acquisition-readiness packet: PASS
+Phase 12G instrumentation + first-session operator + representative-sample guard + demo + broad production acquisition-readiness packet: PASS
