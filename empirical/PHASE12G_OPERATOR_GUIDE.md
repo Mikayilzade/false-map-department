@@ -60,7 +60,25 @@ python3 scripts/phase12g_collect_completed_rows.py --input completed-E3.jsonl --
 
 The collector rejects blank required fields and skips exact duplicate observations.
 
-## 5. Qualitative gates need a disposition
+## 5. E1/E2 also require representative-sample adequacy
+
+The canonical E1/E2 rules say **representative testers**, but they do not freeze a minimum sample size. Do not invent a minimum N, and do not let one successful tester become a gate PASS merely because the percentage math is 100%.
+
+After a real E1/E2 batch has been collected and its recruitment/sampling is judged representative enough for the intended prototype decision, record that judgment against the exact current evidence file:
+
+```bash
+python3 scripts/phase12g_set_sample_adequacy.py \
+  --gate E1 \
+  --confirmed true \
+  --rationale "Explain why this recruited batch is representative for the prototype decision." \
+  --evidence-ref E1.jsonl:1-12
+```
+
+This records the exact evidence SHA-256 and row count. If any row is later appended/changed, the adequacy confirmation becomes stale and E1/E2 return to `PENDING` until the updated batch is reviewed again.
+
+Sample adequacy **does not override** the frozen thresholds. Once confirmed, E1 still needs >=80% qualifying naive comprehension within 180 seconds and E2 still needs >=70% qualifying prediction success. `--confirmed false` records that the current batch is not yet representative and therefore remains PENDING.
+
+## 6. Qualitative gates need a disposition
 
 For E3, E4, E5, E6, E8, E9, E10, E11 and E12, evidence rows alone remain `PENDING`. After reviewing the evidence, record an explicit PASS/FAIL/BLOCKED disposition with a rationale and concrete evidence references:
 
@@ -72,11 +90,11 @@ python3 scripts/phase12g_set_disposition.py \
   --evidence-ref E3.jsonl:1-12
 ```
 
-Numeric/threshold gates E1, E2, E7 and T8-44 cannot be manually overridden by this tool; the harness computes them from evidence.
+Numeric/threshold gates E1, E2, E7 and T8-44 cannot be manually overridden by this tool; the harness computes them from evidence. E1/E2 sample-adequacy confirmation only unlocks evaluation of their fixed percentage thresholds.
 
 Every qualitative decision updates `dispositions.json` and appends an immutable audit row to `disposition_history.jsonl`.
 
-## 6. Render current state
+## 7. Render current state
 
 Run:
 
@@ -85,4 +103,4 @@ python3 scripts/phase12g_evidence_harness.py --output .phase12g-summary.json
 python3 scripts/phase12g_gate_dashboard.py --output .phase12g-dashboard.md
 ```
 
-The dashboard is an operational view only. 12G is an exit candidate only when all 13 registered gates are PASS. Missing evidence remains PENDING; malformed evidence becomes BLOCKED; observed threshold failure becomes FAIL.
+The dashboard is an operational view only. 12G is an exit candidate only when all 13 registered gates are PASS. Missing evidence remains PENDING; malformed evidence becomes BLOCKED; observed threshold failure becomes FAIL; an E1/E2 percentage result cannot become PASS/FAIL until the exact current sample has an evidence-backed representativeness adequacy record.
