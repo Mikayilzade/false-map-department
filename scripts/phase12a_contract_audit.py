@@ -26,8 +26,21 @@ def require_tokens(relative: str, tokens: list[str]) -> None:
 
 def main() -> None:
     project = read("project.godot")
+    legacy_main = 'run/main_scene="res://src/presentation/main.tscn"'
+    routed_main = 'run/main_scene="res://src/presentation/entrypoint.tscn"'
+    if legacy_main not in project and routed_main not in project:
+        fail("project.godot must boot either the frozen main scene or the guarded playtest entrypoint")
+    if routed_main in project:
+        require_tokens(
+            "src/presentation/entrypoint.gd",
+            [
+                'OS.get_environment("FMD_PLAYTEST_DOSSIER_ID")',
+                'res://src/presentation/main.tscn',
+                'res://src/presentation/production_playtest.tscn',
+                "requested.is_empty()",
+            ],
+        )
     for token in [
-        'run/main_scene="res://src/presentation/main.tscn"',
         'renderer/rendering_method="gl_compatibility"',
         "viewport_width=1280",
         "viewport_height=800",
@@ -160,7 +173,7 @@ def main() -> None:
         if token not in runtime_runner:
             fail(f"runtime runner missing verification/evidence contract: {token}")
 
-    print(f"Phase 12A contract audit: PASS ({len(domain_files)} domain files checked)")
+    print(f"Phase 12A contract audit: PASS ({len(domain_files)} domain files checked; guarded playtest entrypoint allowed)")
 
 
 if __name__ == "__main__":
