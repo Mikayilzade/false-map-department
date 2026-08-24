@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -21,11 +22,72 @@ def safe_name(value: str) -> str:
     return "".join(ch if ch.isalnum() or ch in "-_" else "_" for ch in value)
 
 
+def resolve_capture_command(
+    godot: str,
+    root: Path,
+    requested_mode: str = "auto",
+    *,
+    platform: str | None = None,
+    display: str | None = None,
+    xvfb_path: str | None = None,
+) -> tuple[list[str], str]:
+    """Resolve a bounded E7 launch mode.
+
+    E7 capture review needs a real rendered window. Linux CI therefore prefers Xvfb
+    instead of Godot --headless. Headless remains an explicit diagnostic option but
+    is never counted as a reviewable visual capture.
+    """
+    platform = sys.platform if platform is None else platform
+    display = os.environ.get("DISPLAY", "") if display is None else display
+    xvfb_path = shutil.which("xvfb-run") if xvfb_path is None else xvfb_path
+
+    native = [godot, "--path", str(root), "--quit-after", "240"]
+    headless = [godot, "--headless", "--path", str(root), "--quit-after", "240"]
+
+    if requested_mode == "native":
+        return native, "native"
+    if requested_mode == "headless":
+        return headless, "headless_diagnostic"
+    if requested_mode == "xvfb":
+        if not xvfb_path:
+            raise RuntimeError("xvfb-run is required for requested E7 graphical capture mode")
+        return [
+            xvfb_path,
+            "-a",
+            "-s",
+            "-screen 0 1280x800x24",
+            godot,
+            "--path",
+            str(root),
+            "--quit-after",
+            "240",
+        ], "xvfb"
+    if requested_mode != "auto":
+        raise ValueError(f"Unknown capture launch mode: {requested_mode}")
+
+    if platform.startswith("linux") and not display:
+        if not xvfb_path:
+            raise RuntimeError("E7 graphical capture requires DISPLAY or xvfb-run on Linux; refusing silent headless fallback")
+        return [
+            xvfb_path,
+            "-a",
+            "-s",
+            "-screen 0 1280x800x24",
+            godot,
+            "--path",
+            str(root),
+            "--quit-after",
+            "240",
+        ], "xvfb"
+    return native, "native"
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Create E7 capture artifacts. Artifacts remain unreviewed evidence inputs, never gate PASS outcomes.")
     parser.add_argument("--output-dir", default=str(ROOT / ".phase12g-e7-captures"))
     parser.add_argument("--godot", default=os.environ.get("GODOT_BIN", "godot"))
     parser.add_argument("--execute", action="store_true", help="Actually launch Godot. Without this flag the command only writes a capture plan.")
+    parser.add_argument("--capture-launch-mode", choices=["auto", "xvfb", "native", "headless"], default="auto")
     parser.add_argument("--dossier-id", action="append", default=[])
     parser.add_argument("--scenario-id", action="append", default=[])
     parser.add_argument("--max-captures", type=int, default=0)
@@ -53,6 +115,16 @@ def main() -> None:
 
     rows = []
     executed = 0
+    launch_resolution_error: str | None = None
+    capture_command: list[str] | None = None
+    launch_mode = "not_executed"
+    if args.execute:
+        try:
+            capture_command, launch_mode = resolve_capture_command(args.godot, ROOT, args.capture_launch_mode)
+        except (RuntimeError, ValueError) as exc:
+            launch_resolution_error = str(exc)
+            launch_mode = "unavailable"
+
     for dossier_id in selected_ids:
         for scenario_id in selected_scenarios:
             scenario = scenarios[scenario_id]
@@ -69,12 +141,18 @@ def main() -> None:
                 "capture_path": None,
                 "sidecar_path": None,
                 "process_returncode": None,
+                "launch_mode": launch_mode,
             }
             if dossier_id not in ready_set:
                 row["status"] = "BLOCKED_RUNTIME_BINDING"
                 rows.append(row)
                 continue
             if not args.execute:
+                rows.append(row)
+                continue
+            if launch_resolution_error is not None or capture_command is None:
+                row["status"] = "CAPTURE_DISPLAY_UNAVAILABLE"
+                row["launch_error"] = launch_resolution_error
                 rows.append(row)
                 continue
             if args.max_captures > 0 and executed >= args.max_captures:
@@ -86,6 +164,7 @@ def main() -> None:
             capture_dir.mkdir(parents=True, exist_ok=True)
             capture_path = capture_dir / f"{safe_name(dossier_id)}.png"
             env = os.environ.copy()
+            env.setdefault("LIBGL_ALWAYS_SOFTWARE", "1")
             env.update({
                 "FMD_PLAYTEST_DOSSIER_ID": dossier_id,
                 "FMD_EMPIRICAL_BROAD": "1",
@@ -96,10 +175,11 @@ def main() -> None:
                 "FMD_E7_NO_AUDIO": "1" if scenario["no_audio"] else "0",
                 "FMD_E7_CAPTURE_PATH": str(capture_path),
                 "FMD_E7_QUIT_AFTER_CAPTURE": "1",
+                "FMD_E7_CAPTURE_LAUNCH_MODE": launch_mode,
             })
             try:
                 completed = subprocess.run(
-                    [args.godot, "--headless", "--path", str(ROOT)],
+                    capture_command,
                     cwd=ROOT,
                     env=env,
                     capture_output=True,
@@ -114,7 +194,13 @@ def main() -> None:
                 row["capture_path"] = str(capture_path) if capture_path.is_file() else None
                 sidecar = Path(str(capture_path) + ".json")
                 row["sidecar_path"] = str(sidecar) if sidecar.is_file() else None
-                row["status"] = "CAPTURED_UNREVIEWED" if completed.returncode == 0 and capture_path.is_file() and sidecar.is_file() else "CAPTURE_FAILED"
+                visual_mode = launch_mode in {"xvfb", "native"}
+                if completed.returncode == 0 and capture_path.is_file() and sidecar.is_file() and visual_mode:
+                    row["status"] = "CAPTURED_UNREVIEWED"
+                elif completed.returncode == 0 and capture_path.is_file() and sidecar.is_file():
+                    row["status"] = "CAPTURED_NONVISUAL_UNREVIEWABLE"
+                else:
+                    row["status"] = "CAPTURE_FAILED"
             except subprocess.TimeoutExpired as exc:
                 row["status"] = "CAPTURE_TIMEOUT"
                 row["process_returncode"] = None
@@ -122,16 +208,20 @@ def main() -> None:
             executed += 1
             rows.append(row)
 
+    failure_statuses = {"CAPTURE_FAILED", "CAPTURE_TIMEOUT", "CAPTURE_DISPLAY_UNAVAILABLE"}
     manifest = {
         "schema_version": 1,
         "gate_id": "E7",
         "evidence_kind": "CAPTURE_ACQUISITION_MANIFEST_NOT_REVIEW_OUTCOME",
         "execute_requested": args.execute,
+        "requested_launch_mode": args.capture_launch_mode,
+        "resolved_launch_mode": launch_mode,
         "counts": {
             "rows": len(rows),
             "captured_unreviewed": sum(row["status"] == "CAPTURED_UNREVIEWED" for row in rows),
+            "captured_nonvisual_unreviewable": sum(row["status"] == "CAPTURED_NONVISUAL_UNREVIEWABLE" for row in rows),
             "blocked_runtime_binding": sum(row["status"] == "BLOCKED_RUNTIME_BINDING" for row in rows),
-            "failed_or_timeout": sum(row["status"] in {"CAPTURE_FAILED", "CAPTURE_TIMEOUT"} for row in rows),
+            "failed_or_timeout": sum(row["status"] in failure_statuses for row in rows),
             "reviewed_pass": 0,
         },
         "rows": rows,
@@ -140,7 +230,7 @@ def main() -> None:
     manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(manifest_path)
     print(json.dumps(manifest["counts"], sort_keys=True))
-    if args.execute and any(row["status"] in {"CAPTURE_FAILED", "CAPTURE_TIMEOUT"} for row in rows):
+    if args.execute and any(row["status"] in failure_statuses for row in rows):
         raise SystemExit(2)
 
 
