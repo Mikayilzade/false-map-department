@@ -1,0 +1,70 @@
+name: Phase 12G E7 Live Capture Batch
+
+on:
+  push:
+    branches:
+      - phase12g-e7-live-batch-20260824
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout capture branch
+        uses: actions/checkout@v5
+        with:
+          ref: phase12g-e7-live-batch-20260824
+
+      - name: Fetch pinned Godot
+        shell: bash
+        run: |
+          bash scripts/fetch_pinned_godot.sh /tmp/godot-4.7.1 > /tmp/fmd-godot-path.txt
+          echo "GODOT_BIN=$(tail -n 1 /tmp/fmd-godot-path.txt)" >> "$GITHUB_ENV"
+
+      - name: Execute first real E7 capture batch
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/fmd-e7-live-batch"
+          python3 scripts/phase12g_e7_capture.py \
+            --execute \
+            --godot "$GODOT_BIN" \
+            --output-dir "$OUT" \
+            --scenario-id deck_controller_base \
+            --dossier-id D29 \
+            --dossier-id D33 \
+            --dossier-id D36 \
+            --dossier-id D38 \
+            --dossier-id D40
+
+          DEST="runtime-evidence/phase12g/e7-live-batch"
+          mkdir -p "$DEST"
+          cp "$OUT/capture-manifest.json" "$DEST/capture-manifest.json"
+          cp "$OUT/runtime-readiness.json" "$DEST/runtime-readiness.json"
+          cat > "$DEST/run-metadata.txt" <<EOF
+          run_id=$GITHUB_RUN_ID
+          head_sha=$GITHUB_SHA
+          scenario_id=deck_controller_base
+          dossiers=D29,D33,D36,D38,D40
+          artifact_name=phase12g-e7-live-batch
+          EOF
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$DEST"
+          git commit -m "Record E7 live capture batch metadata [skip ci]"
+          git pull --rebase origin phase12g-e7-live-batch-20260824
+          git push origin HEAD:phase12g-e7-live-batch-20260824
+
+      - name: Upload actual E7 captures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase12g-e7-live-batch
+          path: ${{ runner.temp }}/fmd-e7-live-batch
+          if-no-files-found: error
+          retention-days: 14
