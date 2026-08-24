@@ -199,7 +199,7 @@ Phase 12G acquisition readiness audit: PASS (demo path preserved; mature empiric
 Phase 12G empty-evidence baseline: PASS (13 PENDING, zero fabricated empirical PASS/FAIL)
 Phase 12G first-session operator audit: PASS (observer outcomes explicit; raw collateral != human aha; no repository evidence mutation)
 Phase 12G sample adequacy audit: PASS (one-row PASS blocked; exact batch confirmation required; evidence changes invalidate confirmation; no invented minimum N)
-Phase 12G E7 capture mode audit: PASS (Linux CI uses graphical Xvfb; no silent headless review fallback; bounded exit guard present)
+Phase 12G E7 capture mode audit: PASS (graphical Xvfb + bounded composite interaction acquisition; no synthetic capture-review outcome)
 Phase 12G E7 coverage audit: PASS (5/285 and 284/285 stay PENDING; exact 285 required; latest rerun wins without inflating coverage)
 Phase 12G full runtime readiness audit: PASS (57/57 shippable IDs ready; zero binding blockers)
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org

@@ -1,2 +1,2 @@
 /home/runner/work/_temp/fmd-runtime-baseline/phase12g/e7-capture-plan/capture-manifest.json
-{"blocked_runtime_binding": 0, "captured_nonvisual_unreviewable": 0, "captured_unreviewed": 0, "failed_or_timeout": 0, "reviewed_pass": 0, "rows": 1}
+{"capture": {"blocked_runtime_binding": 0, "captured_nonvisual_unreviewable": 0, "captured_unreviewed": 0, "failed_or_timeout": 0, "reviewed_pass": 0, "rows": 1}, "interaction": {"counts": {}, "manifest_path": null, "requested": false, "returncode": null, "status": "NOT_REQUESTED"}}

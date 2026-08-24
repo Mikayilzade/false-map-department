@@ -7,9 +7,16 @@
     "reviewed_pass": 0,
     "rows": 1
   },
-  "evidence_kind": "CAPTURE_ACQUISITION_MANIFEST_NOT_REVIEW_OUTCOME",
+  "evidence_kind": "CAPTURE_AND_INTERACTION_ACQUISITION_MANIFEST_NOT_REVIEW_OUTCOME",
   "execute_requested": false,
   "gate_id": "E7",
+  "interaction_acquisition": {
+    "counts": {},
+    "manifest_path": null,
+    "requested": false,
+    "returncode": null,
+    "status": "NOT_REQUESTED"
+  },
   "requested_launch_mode": "auto",
   "resolved_launch_mode": "not_executed",
   "rows": [
@@ -29,5 +36,5 @@
       "ui_scale": 100
     }
   ],
-  "schema_version": 1
+  "schema_version": 2
 }
