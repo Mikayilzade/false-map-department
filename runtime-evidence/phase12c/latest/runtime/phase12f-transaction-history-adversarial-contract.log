@@ -1,2 +1,0 @@
-== phase12f-transaction-history-adversarial-contract ==
-Phase 12F transaction/history adversarial audit: PASS (legality + idempotency + burst + branch truncation)

@@ -1,0 +1,18 @@
+ERROR: UI candidate identity must remain authored bridge ID
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/test_phase12g_production_playtest_runner.gd:139)
+       [1] _test_bridge_runtime_binding (res://tests/test_phase12g_production_playtest_runner.gd:92)
+       [2] _initialize (res://tests/test_phase12g_production_playtest_runner.gd:57)
+ERROR: Re-authored D05 must retain valid frozen content hash/schema
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/test_phase12g_production_playtest_runner.gd:139)
+       [1] _test_intro_border_contract (res://tests/test_phase12g_production_playtest_runner.gd:105)
+       [2] _initialize (res://tests/test_phase12g_production_playtest_runner.gd:58)
+ERROR: Re-authored DEMO05 must retain valid frozen content hash/schema
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/test_phase12g_production_playtest_runner.gd:139)
+       [1] _test_intro_border_contract (res://tests/test_phase12g_production_playtest_runner.gd:106)
+       [2] _initialize (res://tests/test_phase12g_production_playtest_runner.gd:58)
