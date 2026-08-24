@@ -22,7 +22,15 @@ func initialize(dossier: Dictionary, session_id: String) -> Dictionary:
 	var bindings_result := _adapter.load_bindings()
 	if not bool(bindings_result.get("ok", false)):
 		return bindings_result
-	var adapted := _adapter.adapt(dossier, _dictionary(bindings_result.get("bindings", {})), session_id)
+	var binding_document: Dictionary = _dictionary(bindings_result.get("bindings", {})).duplicate(true)
+	if bool(dossier.get("runtime_materialized_remix", false)):
+		var remix_id := str(dossier.get("dossier_id", ""))
+		var source_id := str(dossier.get("source_substrate_id", ""))
+		var by_dossier: Dictionary = _dictionary(binding_document.get("dossiers", {})).duplicate(true)
+		if by_dossier.has(source_id) and not by_dossier.has(remix_id):
+			by_dossier[remix_id] = _dictionary(by_dossier[source_id]).duplicate(true)
+		binding_document["dossiers"] = by_dossier
+	var adapted := _adapter.adapt(dossier, binding_document, session_id)
 	if not bool(adapted.get("ok", false)):
 		return adapted
 	_dossier = dossier.duplicate(true)
@@ -141,6 +149,8 @@ func snapshot() -> Dictionary:
 		selected = _descriptors[_selected_index].duplicate(true)
 	return {
 		"dossier_id": str(_dossier.get("dossier_id", "")),
+		"source_substrate_id": str(_dossier.get("source_substrate_id", "")),
+		"runtime_materialized_remix": bool(_dossier.get("runtime_materialized_remix", false)),
 		"title_token": str(_dossier.get("title_token", "")),
 		"brief_text_token": str(_dossier.get("brief_text_token", "")),
 		"selected_index": _selected_index,
