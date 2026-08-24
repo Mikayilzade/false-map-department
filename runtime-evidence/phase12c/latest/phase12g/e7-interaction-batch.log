@@ -1,2 +1,2 @@
 /home/runner/work/_temp/fmd-runtime-baseline/phase12g/e7-interaction-batch/interaction-manifest.json
-{"blocked_runtime_binding": 0, "failed_or_timeout": 5, "interaction_pass": 0, "rows": 5}
+{"blocked_runtime_binding": 0, "failed_or_timeout": 0, "interaction_pass": 5, "rows": 5}

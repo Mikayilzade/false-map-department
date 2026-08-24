@@ -3,7 +3,7 @@
     "apply_produced_presentational_response": true,
     "controller_apply": true,
     "controller_correspondence": true,
-    "controller_navigation_next": false,
+    "controller_navigation_next": true,
     "controller_navigation_previous": true,
     "controller_redo": true,
     "controller_stability": true,
@@ -15,7 +15,7 @@
   "dossier_id": "D40",
   "evidence_kind": "E7_PRESENTATION_INTERACTION_CHECK_NOT_CAPTURE_REVIEW",
   "gate_id": "E7",
-  "interaction_complete": false,
+  "interaction_complete": true,
   "notes": [],
   "scenario_id": "deck_controller_base",
   "schema_version": 1
