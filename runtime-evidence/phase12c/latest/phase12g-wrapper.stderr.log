@@ -1,12 +1,8 @@
-ERROR: D38 Stability failed to start after known solution: { "ok": false, "status": "IDLE", "required_cycles": 0, "verified_cycles": 0, "speed_multiplier": 1, "progress_text": "Stability not active", "message": "Stability is not active.", "editing_disabled": false, "can_start": true, "can_pause": false, "can_resume": false, "can_step": false, "can_change_speed": false, "first_broken_requirement_id": "", "first_broken_requirement_token": "", "open_causal_ancestry": false, "state": {  }, "code": "stability_not_eligible" }
-   at: push_error (core/variant/variant_utility.cpp:1023)
+ERROR: Parent node is busy adding/removing children, `remove_child()` can't be called at this time. Consider using `remove_child.call_deferred(child)` instead.
+   at: remove_child (scene/main/node.cpp:1750)
    GDScript backtrace (most recent call first):
-       [0] _assert (res://tests/test_phase12g_broad_acquisition_runner.gd:219)
-       [1] _test_known_solution_runtime (res://tests/test_phase12g_broad_acquisition_runner.gd:60)
-       [2] _initialize (res://tests/test_phase12g_broad_acquisition_runner.gd:30)
-ERROR: D38 expected D38_OBJ_PROCESSION=true after authored solution/Stability, got false
-   at: push_error (core/variant/variant_utility.cpp:1023)
+       [0] _ready (res://src/presentation/entrypoint.gd:13)
+ERROR: Parent node is busy adding/removing children, `remove_child()` can't be called at this time. Consider using `remove_child.call_deferred(child)` instead.
+   at: remove_child (scene/main/node.cpp:1750)
    GDScript backtrace (most recent call first):
-       [0] _assert (res://tests/test_phase12g_broad_acquisition_runner.gd:219)
-       [1] _test_known_solution_runtime (res://tests/test_phase12g_broad_acquisition_runner.gd:72)
-       [2] _initialize (res://tests/test_phase12g_broad_acquisition_runner.gd:30)
+       [0] _ready (res://src/presentation/entrypoint.gd:13)
