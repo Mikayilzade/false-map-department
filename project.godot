@@ -4,7 +4,7 @@ config_version=5
 
 [application]
 config/name="False Map Department"
-run/main_scene="res://src/presentation/main.tscn"
+run/main_scene="res://src/presentation/entrypoint.tscn"
 config/features=PackedStringArray("4.7")
 
 [display]

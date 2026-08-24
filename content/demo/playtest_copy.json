@@ -1,0 +1,44 @@
+{
+  "copy_schema_version": 1,
+  "purpose": "Phase 12G representative demo playtest copy; describes visible goals and taught rules without embedding authored solution commands.",
+  "dossiers": {
+    "DEMO01": {
+      "title": "Demo 1 — The Official Road",
+      "brief": "The courier needs a route from home to the office. Change the official map, then watch the derived world react to that map fact.",
+      "requirements": {
+        "DEMO01_OBJ_COURIER_OFFICE": "Courier must be able to reach the office."
+      }
+    },
+    "DEMO02": {
+      "title": "Demo 2 — Wrong Turn",
+      "brief": "One road can help one journey and create another. Keep the courier able to reach the depot while preventing livestock from reaching the pasture.",
+      "requirements": {
+        "DEMO02_INV_COURIER_DEPOT": "Courier must remain able to reach the depot.",
+        "DEMO02_OBJ_LIVESTOCK_BLOCK": "Livestock must not be able to reach the pasture."
+      }
+    },
+    "DEMO03": {
+      "title": "Demo 3 — Across the Canal",
+      "brief": "The courier needs to reach the workshop across a static canal. The official map controls whether the authored crossing is usable.",
+      "requirements": {
+        "DEMO03_OBJ_COURIER_WORKSHOP": "Courier must be able to reach the workshop."
+      }
+    },
+    "DEMO04": {
+      "title": "Demo 4 — Helpful to Whom?",
+      "brief": "The same connectivity can serve different agents differently. Get the courier to the clinic while keeping livestock away from the pasture.",
+      "requirements": {
+        "DEMO04_INV_LIVESTOCK_PASTURE": "Livestock must not be able to reach the pasture.",
+        "DEMO04_OBJ_COURIER_CLINIC": "Courier must be able to reach the clinic."
+      }
+    },
+    "DEMO05": {
+      "title": "Demo 5 — A Line That Is Not a Wall",
+      "brief": "The resident may travel only where East jurisdiction permits. Make the resident's clinic trip legal while preserving the courier's route; the border changes authority, not physical road geometry.",
+      "requirements": {
+        "DEMO05_INV_COURIER_CLINIC": "Courier must remain able to reach the clinic.",
+        "DEMO05_OBJ_RESIDENT_CLINIC": "Resident must have a legal permission-compliant route to the clinic."
+      }
+    }
+  }
+}

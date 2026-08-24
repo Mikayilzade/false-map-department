@@ -1,0 +1,33 @@
+{
+  "binding_schema_version": 1,
+  "dossiers": {
+    "D05": {
+      "node_cell_id": {
+        "D05_N_HOME": "D05_C_HOME",
+        "D05_N_GATE": "D05_C_GATE",
+        "D05_N_CLINIC": "D05_C_CLINIC"
+      },
+      "border_candidates": {
+        "D05_BORDER_HOME_EAST": {
+          "cell_id": "D05_C_HOME",
+          "target_jurisdiction_id": "D05_J_EAST"
+        }
+      }
+    },
+    "DEMO05": {
+      "node_cell_id": {
+        "DEMO05_N_HOME": "DEMO05_C_HOME",
+        "DEMO05_N_GATE": "DEMO05_C_GATE",
+        "DEMO05_N_BRIDGE_W": "DEMO05_C_GATE",
+        "DEMO05_N_BRIDGE_E": "DEMO05_C_CLINIC",
+        "DEMO05_N_CLINIC": "DEMO05_C_CLINIC"
+      },
+      "border_candidates": {
+        "DEMO05_BORDER_HOME_EAST": {
+          "cell_id": "DEMO05_C_HOME",
+          "target_jurisdiction_id": "DEMO05_J_EAST"
+        }
+      }
+    }
+  }
+}
