@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 from pathlib import Path
 
@@ -9,6 +10,13 @@ ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "content" / "registry.json"
 BINDINGS = ROOT / "content" / "runtime_bindings.json"
 PROTOCOLS = ROOT / "empirical" / "phase12g_session_protocols.json"
+ALLOWED_REMIX_CHANGES = {
+    "initial_primitive_state",
+    "agent_start_nodes",
+    "objective_selection",
+    "semantic_target_assignments",
+    "jurisdiction_initial_ownership",
+}
 
 
 def load(path: Path) -> dict:
@@ -27,6 +35,67 @@ def records(value):
 
 def record_ids(items, field):
     return {str(row.get(field, "")) for row in records(items) if isinstance(row, dict)}
+
+
+def materialize_remix(overlay: dict, campaign_by_id: dict[str, dict]) -> dict:
+    remix_id = str(overlay.get("dossier_id", ""))
+    source_id = str(overlay.get("source_substrate_id", ""))
+    if overlay.get("remix_schema_version") != 1 or not remix_id.startswith("REMIX"):
+        raise ValueError(f"Invalid remix identity: {remix_id}")
+    if source_id not in campaign_by_id:
+        raise ValueError(f"Missing remix source substrate: {source_id}")
+    changed = overlay.get("changed_inputs") or {}
+    unknown = set(changed) - ALLOWED_REMIX_CHANGES
+    if unknown:
+        raise ValueError(f"Unsupported remix change families for {remix_id}: {sorted(unknown)}")
+    if not changed:
+        raise ValueError(f"Remix {remix_id} has no changed_inputs")
+    guards = overlay.get("validation_metadata") or {}
+    for guard in ("no_new_agent_scripts", "no_new_graph_topology", "no_new_linked_authority", "no_new_primitive_families", "changed_dependency_proof"):
+        if guards.get(guard) is not True:
+            raise ValueError(f"Remix {remix_id} failed guard {guard}")
+
+    dossier = copy.deepcopy(campaign_by_id[source_id])
+    layer_by_id = {str(layer.get("layer_id", "")): layer for layer in records(dossier.get("map_layers")) if isinstance(layer, dict)}
+    for layer_id, patch in (changed.get("initial_primitive_state") or {}).items():
+        if layer_id not in layer_by_id:
+            raise ValueError(f"Remix {remix_id} missing layer {layer_id}")
+        initial = layer_by_id[layer_id].setdefault("initial_primitives", {})
+        for key, value in (patch or {}).items():
+            initial[str(key)] = copy.deepcopy(value)
+
+    agents = {str(row.get("agent_id", "")): row for row in records(dossier.get("agents")) if isinstance(row, dict)}
+    for agent_id, node_id in (changed.get("agent_start_nodes") or {}).items():
+        if agent_id not in agents:
+            raise ValueError(f"Remix {remix_id} missing agent {agent_id}")
+        agents[agent_id]["start_node_or_cell"] = str(node_id)
+    for agent_id, semantic_target in (changed.get("semantic_target_assignments") or {}).items():
+        if agent_id not in agents:
+            raise ValueError(f"Remix {remix_id} missing agent {agent_id}")
+        agents[agent_id]["semantic_target"] = str(semantic_target)
+
+    for cell_id, jurisdiction_id in (changed.get("jurisdiction_initial_ownership") or {}).items():
+        owner_layer = next((layer for layer in records(dossier.get("map_layers")) if cell_id in record_ids(layer.get("cells"), "cell_id")), None)
+        if owner_layer is None:
+            raise ValueError(f"Remix {remix_id} missing cell {cell_id}")
+        owner_layer.setdefault("initial_primitives", {}).setdefault("jurisdiction_by_cell", {})[cell_id] = str(jurisdiction_id)
+
+    selection = changed.get("objective_selection") or {}
+    if selection:
+        required = list(selection.get("required_family_ids") or [])
+        if not required:
+            raise ValueError(f"Remix {remix_id} has empty objective_selection")
+        for field in ("objectives", "protected_invariants"):
+            for contract in records(dossier.get(field)):
+                if isinstance(contract, dict):
+                    contract["required"] = str(contract.get("family_id", "")) in required
+
+    dossier["dossier_id"] = remix_id
+    dossier.pop("content_hash", None)
+    dossier["source_substrate_id"] = source_id
+    dossier["runtime_materialized_remix"] = True
+    dossier["remix_changed_inputs"] = copy.deepcopy(changed)
+    return dossier
 
 
 def analyze(dossier: dict, scope: str, binding: dict) -> dict:
@@ -122,6 +191,7 @@ def analyze(dossier: dict, scope: str, binding: dict) -> dict:
     blockers = sorted(set(blockers))
     return {
         "dossier_id": dossier_id,
+        "source_substrate_id": str(dossier.get("source_substrate_id", "")),
         "scope": scope,
         "status": "READY_FOR_RUNTIME_CAPTURE" if not blockers else "BLOCKED_RUNTIME_BINDING",
         "blockers": blockers,
@@ -143,14 +213,26 @@ def main() -> None:
     binding_by_id = bindings_doc.get("dossiers") or {}
     rows = []
     dossier_by_id: dict[str, dict] = {}
+    campaign_by_id: dict[str, dict] = {}
 
-    for registry_field, scope in (("campaign", "campaign"), ("demo", "demo"), ("remixes", "remix")):
-        for entry in registry.get(registry_field, []):
-            path = res_path(str(entry["path"]))
-            dossier = load(path)
-            dossier_id = str(dossier.get("dossier_id", ""))
-            dossier_by_id[dossier_id] = dossier
-            rows.append(analyze(dossier, scope, binding_by_id.get(dossier_id) or {}))
+    for entry in registry.get("campaign", []):
+        dossier = load(res_path(str(entry["path"])))
+        dossier_id = str(dossier.get("dossier_id", ""))
+        campaign_by_id[dossier_id] = dossier
+        dossier_by_id[dossier_id] = dossier
+        rows.append(analyze(dossier, "campaign", binding_by_id.get(dossier_id) or {}))
+    for entry in registry.get("demo", []):
+        dossier = load(res_path(str(entry["path"])))
+        dossier_id = str(dossier.get("dossier_id", ""))
+        dossier_by_id[dossier_id] = dossier
+        rows.append(analyze(dossier, "demo", binding_by_id.get(dossier_id) or {}))
+    for entry in registry.get("remixes", []):
+        overlay = load(res_path(str(entry["path"])))
+        dossier = materialize_remix(overlay, campaign_by_id)
+        dossier_id = str(dossier.get("dossier_id", ""))
+        source_id = str(dossier.get("source_substrate_id", ""))
+        dossier_by_id[dossier_id] = dossier
+        rows.append(analyze(dossier, "remix", binding_by_id.get(dossier_id) or binding_by_id.get(source_id) or {}))
 
     rows.sort(key=lambda row: row["dossier_id"])
     ready = [row["dossier_id"] for row in rows if row["status"] == "READY_FOR_RUNTIME_CAPTURE"]
