@@ -1,11 +1,11 @@
 extends RefCounted
 
 const CoreTransactionCoordinator = preload("res://src/domain/core_transaction_coordinator.gd")
-const EmpiricalProductionRuntimeAdapter = preload("res://src/application/empirical_production_runtime_adapter.gd")
+const EmpiricalRuntimeContractAdapter = preload("res://src/application/empirical_runtime_contract_adapter.gd")
 const StabilityInteractionService = preload("res://src/application/stability_interaction_service.gd")
 
 var _coordinator := CoreTransactionCoordinator.new()
-var _adapter := EmpiricalProductionRuntimeAdapter.new()
+var _adapter := EmpiricalRuntimeContractAdapter.new()
 var _stability := StabilityInteractionService.new()
 var _dossier: Dictionary = {}
 var _definition: Dictionary = {}
