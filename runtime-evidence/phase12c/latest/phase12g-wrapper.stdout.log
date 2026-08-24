@@ -101,12 +101,100 @@ Phase 12G acquisition readiness audit: PASS (demo path preserved; mature empiric
         "1280x800_layout_green"
       ],
       "detail": {
-        "reason": "no evidence rows"
+        "expected_unique_rows": 285,
+        "metric": "shippable_dossiers_pass_rate",
+        "missing_preview": [
+          [
+            "D01",
+            "steam_deck_controller_1280x800",
+            100,
+            false,
+            false,
+            false
+          ],
+          [
+            "D01",
+            "steam_deck_controller_1280x800",
+            100,
+            false,
+            false,
+            true
+          ],
+          [
+            "D01",
+            "steam_deck_controller_1280x800",
+            100,
+            true,
+            false,
+            false
+          ],
+          [
+            "D01",
+            "steam_deck_controller_1280x800",
+            150,
+            false,
+            false,
+            false
+          ],
+          [
+            "D02",
+            "steam_deck_controller_1280x800",
+            100,
+            false,
+            false,
+            false
+          ],
+          [
+            "D02",
+            "steam_deck_controller_1280x800",
+            100,
+            false,
+            false,
+            true
+          ],
+          [
+            "D02",
+            "steam_deck_controller_1280x800",
+            100,
+            true,
+            false,
+            false
+          ],
+          [
+            "D02",
+            "steam_deck_controller_1280x800",
+            150,
+            false,
+            false,
+            false
+          ],
+          [
+            "D03",
+            "steam_deck_controller_1280x800",
+            100,
+            false,
+            false,
+            false
+          ],
+          [
+            "D03",
+            "steam_deck_controller_1280x800",
+            100,
+            false,
+            false,
+            true
+          ]
+        ],
+        "missing_unique_rows": 228,
+        "observed_unique_rows": 57,
+        "raw_evidence_rows": 57,
+        "reason": "E7 requires exhaustive shippable dossier x accessibility/device scenario coverage before disposition",
+        "target": 1.0
       },
       "evidence_class": "mixed_capture_interaction",
       "gate_id": "E7",
       "name": "accessibility/device sweep",
-      "rows": 0,
+      "rows": 57,
       "status": "PENDING"
     },
     {
