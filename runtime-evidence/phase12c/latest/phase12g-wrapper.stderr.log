@@ -1,5 +1,72 @@
-ERROR: Empirical 57-item catalog must load: { "ok": false, "code": "empirical_catalog_remix_validation_failed", "dossier_id": "REMIX01", "issues": [{ "code": "base_schema_invalid", "path": "content", "message": "Missing required field: content_schema_version" }, { "code": "base_schema_invalid", "path": "content", "message": "Missing required field: dossier_content_version" }, { "code": "base_schema_invalid", "path": "content", "message": "Missing required field: ruleset_version" }, { "code": "base_schema_invalid", "path": "content", "message": "Missing required field: title_token" }, { "code": "base_schema_invalid", "path": "content", "message": "Missing required field: brief_text_token" }, { "code": "base_schema_invalid", "path": "content", "message": "Missing required field: theme_id" }, { "code": "base_schema_invalid", "path": "content", "message": "Missing required field: tutorial_tags" }, { "code": "base_schema_invalid", "path": "content", "message": "Missing required field: map_layers" }, { "code": "base_schema_invalid", "path": "content", "message": "Missing required field: jurisdictions" }, { "code": "base_schema_invalid", "path": "content", "message": "Missing required field: landmarks" }, { "code": "base_schema_invalid", "path": "content", "message": "Missing required field: restricted_zone_policies" }, { "code": "base_schema_invalid", "path": "content", "message": "Missing required field: agents" }, { "code": "base_schema_invalid", "path": "content", "message": "Missing required field: objectives" }, { "code": "base_schema_invalid", "path": "content", "message": "Missing required field: protected_invariants" }, { "code": "base_schema_invalid", "path": "content", "message": "Missing required field: reaction_beats_after_edit" }, { "code": "base_schema_invalid", "path": "content", "message": "Missing required field: stability_required_cycles" }, { "code": "base_schema_invalid", "path": "content", "message": "Missing required field: editable_primitive_permissions" }, { "code": "base_schema_invalid", "path": "content", "message": "Missing required field: semantic_label_vocabulary" }, { "code": "base_schema_invalid", "path": "content", "message": "Missing required field: linked_authority_relations" }, { "code": "base_schema_invalid", "path": "content", "message": "Missing required field: mastery_contracts" }, { "code": "base_schema_invalid", "path": "content", "message": "Missing required field: hint_contracts" }, { "code": "immutable_identity_field_missing", "path": "content_schema_version", "message": "Immutable dossier identity is incomplete." }, { "code": "immutable_identity_field_missing", "path": "dossier_content_version", "message": "Immutable dossier identity is incomplete." }, { "code": "immutable_identity_field_missing", "path": "ruleset_version", "message": "Immutable dossier identity is incomplete." }, { "code": "immutable_identity_field_missing", "path": "content_hash", "message": "Immutable dossier identity is incomplete." }, { "code": "map_layer_missing", "path": "map_layers", "message": "Every shippable dossier needs at least one map layer." }, { "code": "reaction_beat_ceiling_invalid", "path": "reaction_beats_after_edit", "message": "Reaction beats must be an integer from 0 through 5." }, { "code": "stability_cycle_ceiling_invalid", "path": "stability_required_cycles", "message": "Stability cycles must be an integer from 0 through 5." }, { "code": "linked_authority_layers_missing", "path": "linked_authority_relations", "message": "Linked authority must be one-way, acyclic, single-owner and non-editable on projected targets." }, { "code": "known_solution_baseline_missing", "path": "validation_metadata.known_solution_envelope", "message": "Every dossier needs a known baseline-valid completion proof." }, { "code": "known_solution_required_predicates_unproven", "path": "validation_metadata.known_solution_envelope", "message": "Known solution must prove all required objectives/invariants true." }, { "code": "known_solution_legality_unproven", "path": "validation_metadata.known_solution_envelope", "message": "Known solution must prove every required edit is structurally legal." }, { "code": "known_solution_stability_outcome_invalid", "path": "validation_metadata.known_solution_envelope", "message": "Known solution must declare PASS or NOT_REQUIRED Stability outcome." }, { "code": "p10_r6_material_node_budget_exceeded", "path": "validation_metadata.causal_presentation_budget", "message": "Default required explanation must fit within five material nodes." }, { "code": "p10_r6_sibling_budget_exceeded", "path": "validation_metadata.causal_presentation_budget", "message": "Default required explanation must show at most two sibling branches." }, { "code": "p10_r6_chain_not_compressible", "path": "validation_metadata.causal_presentation_budget", "message": "Every required chain must remain truthful when reduced to the frozen default causal budget." }, { "code": "editing_surface_ceiling_invalid", "path": "validation_metadata.max_simultaneous_editing_surfaces", "message": "At most two editing surfaces may be visible/editable simultaneously." }, { "code": "p10_r10_source_substrate_missing", "path": "validation_metadata.source_substrate_id", "message": "Remix must name one valid source_substrate_id." }, { "code": "p10_r10_changed_inputs_missing", "path": "validation_metadata.changed_inputs", "message": "Remix must declare changed inputs." }, { "code": "p10_r10_changed_dependency_missing", "path": "validation_metadata.changed_causal_dependency", "message": "Remix must describe an actual changed causal dependency." }, { "code": "p10_r10_reasoning_transformation_invalid", "path": "validation_metadata.expected_new_reasoning_transformation", "message": "Remix must declare one valid expected new reasoning transformation." }, { "code": "p10_r10_pack_id_missing", "path": "validation_metadata.remix_pack_id", "message": "Remix must declare its four-case pack ID." }, { "code": "p10_r10_causal_insight_unchanged", "path": "validation_metadata.causal_insight_changed", "message": "A remix that only moves starts/thresholds without changing causal insight fails validation." }] }
+ERROR: D18 solution step 0 failed in real coordinator: { "ok": false, "accepted": false, "code": "procession_target_missing", "pre_state_hash": "e0af394f60ab32e5a55dabedb981ff3f58fe4a2fc381ecd2d5f28c72a7d41a1d", "post_state_hash": "e0af394f60ab32e5a55dabedb981ff3f58fe4a2fc381ecd2d5f28c72a7d41a1d", "history_entries": [], "phase_trace": ["A", "B", "C", "D"] }
    at: push_error (core/variant/variant_utility.cpp:1023)
    GDScript backtrace (most recent call first):
-       [0] _assert (res://tests/test_phase12g_broad_acquisition_runner.gd:151)
-       [1] _initialize (res://tests/test_phase12g_broad_acquisition_runner.gd:15)
+       [0] _assert (res://tests/test_phase12g_broad_acquisition_runner.gd:219)
+       [1] _test_known_solution_runtime (res://tests/test_phase12g_broad_acquisition_runner.gd:53)
+       [2] _initialize (res://tests/test_phase12g_broad_acquisition_runner.gd:30)
+ERROR: D22 expected D22_INV_LIVESTOCK_OUT=true after authored solution/Stability, got false
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/test_phase12g_broad_acquisition_runner.gd:219)
+       [1] _test_known_solution_runtime (res://tests/test_phase12g_broad_acquisition_runner.gd:72)
+       [2] _initialize (res://tests/test_phase12g_broad_acquisition_runner.gd:30)
+ERROR: D33 solution step 0 failed in real coordinator: { "ok": false, "accepted": false, "code": "contract_portal_missing", "pre_state_hash": "93c9d82c4d797543d5e5cae898baa1d9186570c863e893fa0bb65a36d2afcdb9", "post_state_hash": "93c9d82c4d797543d5e5cae898baa1d9186570c863e893fa0bb65a36d2afcdb9", "history_entries": [], "phase_trace": ["A", "B", "C", "D", "E", "F", "G"] }
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/test_phase12g_broad_acquisition_runner.gd:219)
+       [1] _test_known_solution_runtime (res://tests/test_phase12g_broad_acquisition_runner.gd:53)
+       [2] _initialize (res://tests/test_phase12g_broad_acquisition_runner.gd:30)
+ERROR: D36 solution step 0 failed in real coordinator: { "ok": false, "accepted": false, "code": "contract_cell_missing", "pre_state_hash": "39088376b0a56e95d261a87fcd6bc47fbdf42770048da897271344a3f38485f6", "post_state_hash": "39088376b0a56e95d261a87fcd6bc47fbdf42770048da897271344a3f38485f6", "history_entries": [], "phase_trace": ["A", "B", "C", "D", "E", "F", "G"] }
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/test_phase12g_broad_acquisition_runner.gd:219)
+       [1] _test_known_solution_runtime (res://tests/test_phase12g_broad_acquisition_runner.gd:53)
+       [2] _initialize (res://tests/test_phase12g_broad_acquisition_runner.gd:30)
+ERROR: D34 solution step 0 failed in real coordinator: { "ok": false, "accepted": false, "code": "contract_portal_missing", "pre_state_hash": "fb06802475363b8025bb40c0e1ac7551ec2c06e180e38012ff279ae8464ae373", "post_state_hash": "fb06802475363b8025bb40c0e1ac7551ec2c06e180e38012ff279ae8464ae373", "history_entries": [], "phase_trace": ["A", "B", "C", "D", "E", "F", "G"] }
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/test_phase12g_broad_acquisition_runner.gd:219)
+       [1] _test_known_solution_runtime (res://tests/test_phase12g_broad_acquisition_runner.gd:53)
+       [2] _initialize (res://tests/test_phase12g_broad_acquisition_runner.gd:30)
+ERROR: D35 solution step 0 failed in real coordinator: { "ok": false, "accepted": false, "code": "contract_boolean_fact_missing", "pre_state_hash": "9b0fc6c02f96ec83ef067001627e8b2ee21ea05fca2d10f4fe46f077c9805174", "post_state_hash": "9b0fc6c02f96ec83ef067001627e8b2ee21ea05fca2d10f4fe46f077c9805174", "history_entries": [], "phase_trace": ["A", "B", "C", "D", "E", "F", "G"] }
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/test_phase12g_broad_acquisition_runner.gd:219)
+       [1] _test_known_solution_runtime (res://tests/test_phase12g_broad_acquisition_runner.gd:53)
+       [2] _initialize (res://tests/test_phase12g_broad_acquisition_runner.gd:30)
+ERROR: D37 solution step 0 failed in real coordinator: { "ok": false, "accepted": false, "code": "contract_boolean_fact_missing", "pre_state_hash": "22375ebb477600ee2fac075db31c59a989b42648f1a0c4d06b3c6d6288f01f3e", "post_state_hash": "22375ebb477600ee2fac075db31c59a989b42648f1a0c4d06b3c6d6288f01f3e", "history_entries": [], "phase_trace": ["A", "B", "C", "D", "E", "F", "G"] }
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/test_phase12g_broad_acquisition_runner.gd:219)
+       [1] _test_known_solution_runtime (res://tests/test_phase12g_broad_acquisition_runner.gd:53)
+       [2] _initialize (res://tests/test_phase12g_broad_acquisition_runner.gd:30)
+ERROR: D38 broad runtime initialization failed: { "ok": false, "code": "runtime_node_cell_binding_missing", "detail": "D38_N_START" }
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/test_phase12g_broad_acquisition_runner.gd:219)
+       [1] _test_known_solution_runtime (res://tests/test_phase12g_broad_acquisition_runner.gd:46)
+       [2] _initialize (res://tests/test_phase12g_broad_acquisition_runner.gd:30)
+ERROR: D39 solution step 0 failed in real coordinator: { "ok": false, "accepted": false, "code": "contract_boolean_fact_missing", "pre_state_hash": "486d53ce94dbea69a1c34869d6477330a737118538767b13085e62c41f7a938e", "post_state_hash": "486d53ce94dbea69a1c34869d6477330a737118538767b13085e62c41f7a938e", "history_entries": [], "phase_trace": ["A", "B", "C", "D", "E", "F", "G"] }
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/test_phase12g_broad_acquisition_runner.gd:219)
+       [1] _test_known_solution_runtime (res://tests/test_phase12g_broad_acquisition_runner.gd:53)
+       [2] _initialize (res://tests/test_phase12g_broad_acquisition_runner.gd:30)
+ERROR: D40 solution step 0 failed in real coordinator: { "ok": false, "accepted": false, "code": "procession_target_missing", "pre_state_hash": "703eb448672f8e89e630add6595010a9a7c0ea1e9c6c6dbb738a818f73f73301", "post_state_hash": "703eb448672f8e89e630add6595010a9a7c0ea1e9c6c6dbb738a818f73f73301", "history_entries": [], "phase_trace": ["A", "B", "C", "D"] }
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/test_phase12g_broad_acquisition_runner.gd:219)
+       [1] _test_known_solution_runtime (res://tests/test_phase12g_broad_acquisition_runner.gd:53)
+       [2] _initialize (res://tests/test_phase12g_broad_acquisition_runner.gd:30)
+ERROR: border manual semantic toggle must commit: { "ok": false, "accepted": false, "code": "contract_cell_missing", "pre_state_hash": "39088376b0a56e95d261a87fcd6bc47fbdf42770048da897271344a3f38485f6", "post_state_hash": "39088376b0a56e95d261a87fcd6bc47fbdf42770048da897271344a3f38485f6", "history_entries": [], "phase_trace": ["A", "B", "C", "D", "E", "F", "G"] }
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/test_phase12g_broad_acquisition_runner.gd:219)
+       [1] _test_six_family_manual_path (res://tests/test_phase12g_broad_acquisition_runner.gd:144)
+       [2] _initialize (res://tests/test_phase12g_broad_acquisition_runner.gd:34)
+ERROR: D33 first linked-source edit must commit: { "ok": false, "accepted": false, "code": "contract_portal_missing", "pre_state_hash": "93c9d82c4d797543d5e5cae898baa1d9186570c863e893fa0bb65a36d2afcdb9", "post_state_hash": "93c9d82c4d797543d5e5cae898baa1d9186570c863e893fa0bb65a36d2afcdb9", "history_entries": [], "phase_trace": ["A", "B", "C", "D", "E", "F", "G"] }
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _assert (res://tests/test_phase12g_broad_acquisition_runner.gd:219)
+       [1] _test_linked_fact_refresh (res://tests/test_phase12g_broad_acquisition_runner.gd:177)
+       [2] _initialize (res://tests/test_phase12g_broad_acquisition_runner.gd:36)

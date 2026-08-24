@@ -225,6 +225,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -237,6 +238,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -249,6 +251,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -262,6 +265,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -274,6 +278,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -292,6 +297,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "BLOCKED_RUNTIME_BINDING"
     },
     {
@@ -309,6 +315,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "BLOCKED_RUNTIME_BINDING"
     },
     {
@@ -332,6 +339,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "BLOCKED_RUNTIME_BINDING"
     },
     {
@@ -345,6 +353,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -358,6 +367,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -370,6 +380,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -383,6 +394,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -396,6 +408,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -414,6 +427,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "BLOCKED_RUNTIME_BINDING"
     },
     {
@@ -426,6 +440,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -444,6 +459,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "BLOCKED_RUNTIME_BINDING"
     },
     {
@@ -462,6 +478,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "BLOCKED_RUNTIME_BINDING"
     },
     {
@@ -474,6 +491,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -487,6 +505,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -499,6 +518,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -511,6 +531,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -525,6 +546,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -537,6 +559,7 @@
       "layer_count": 2,
       "linked_relation_count": 1,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -549,6 +572,7 @@
       "layer_count": 2,
       "linked_relation_count": 1,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -561,6 +585,7 @@
       "layer_count": 2,
       "linked_relation_count": 1,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -579,6 +604,7 @@
       "layer_count": 2,
       "linked_relation_count": 1,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "BLOCKED_RUNTIME_BINDING"
     },
     {
@@ -592,6 +618,7 @@
       "layer_count": 2,
       "linked_relation_count": 1,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -605,6 +632,7 @@
       "layer_count": 2,
       "linked_relation_count": 1,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -617,6 +645,7 @@
       "layer_count": 3,
       "linked_relation_count": 1,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -629,6 +658,7 @@
       "layer_count": 2,
       "linked_relation_count": 1,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -641,6 +671,7 @@
       "layer_count": 2,
       "linked_relation_count": 1,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -653,6 +684,7 @@
       "layer_count": 3,
       "linked_relation_count": 2,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -665,6 +697,7 @@
       "layer_count": 3,
       "linked_relation_count": 2,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -678,6 +711,7 @@
       "layer_count": 3,
       "linked_relation_count": 2,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -690,6 +724,7 @@
       "layer_count": 3,
       "linked_relation_count": 2,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -703,6 +738,7 @@
       "layer_count": 3,
       "linked_relation_count": 2,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -715,6 +751,7 @@
       "layer_count": 4,
       "linked_relation_count": 2,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -732,6 +769,7 @@
       "layer_count": 4,
       "linked_relation_count": 2,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "BLOCKED_RUNTIME_BINDING"
     },
     {
@@ -744,6 +782,7 @@
       "layer_count": 4,
       "linked_relation_count": 2,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -758,6 +797,7 @@
       "layer_count": 4,
       "linked_relation_count": 3,
       "scope": "campaign",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -770,6 +810,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "demo",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -782,6 +823,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "demo",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -794,6 +836,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "demo",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -807,6 +850,7 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "demo",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
@@ -820,126 +864,170 @@
       "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "demo",
+      "source_substrate_id": "",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
-      "agent_count": 0,
+      "agent_count": 2,
       "blockers": [],
       "dossier_id": "REMIX01",
-      "editable_families": [],
-      "layer_count": 0,
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "remix",
+      "source_substrate_id": "D15",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
-      "agent_count": 0,
+      "agent_count": 2,
       "blockers": [],
       "dossier_id": "REMIX02",
-      "editable_families": [],
-      "layer_count": 0,
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "remix",
+      "source_substrate_id": "D20",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
-      "agent_count": 0,
+      "agent_count": 2,
       "blockers": [],
       "dossier_id": "REMIX03",
-      "editable_families": [],
-      "layer_count": 0,
-      "linked_relation_count": 0,
+      "editable_families": [
+        "road",
+        "waterway"
+      ],
+      "layer_count": 2,
+      "linked_relation_count": 1,
       "scope": "remix",
+      "source_substrate_id": "D28",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
-      "agent_count": 0,
+      "agent_count": 2,
       "blockers": [],
       "dossier_id": "REMIX04",
-      "editable_families": [],
-      "layer_count": 0,
-      "linked_relation_count": 0,
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 3,
+      "linked_relation_count": 2,
       "scope": "remix",
+      "source_substrate_id": "D33",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
-      "agent_count": 0,
+      "agent_count": 2,
       "blockers": [],
       "dossier_id": "REMIX05",
-      "editable_families": [],
-      "layer_count": 0,
-      "linked_relation_count": 0,
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 3,
+      "linked_relation_count": 2,
       "scope": "remix",
+      "source_substrate_id": "D35",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
-      "agent_count": 0,
+      "agent_count": 2,
       "blockers": [],
       "dossier_id": "REMIX06",
-      "editable_families": [],
-      "layer_count": 0,
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "remix",
+      "source_substrate_id": "D20",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
-      "agent_count": 0,
+      "agent_count": 2,
       "blockers": [],
       "dossier_id": "REMIX07",
-      "editable_families": [],
-      "layer_count": 0,
-      "linked_relation_count": 0,
+      "editable_families": [
+        "landmark",
+        "road"
+      ],
+      "layer_count": 3,
+      "linked_relation_count": 2,
       "scope": "remix",
+      "source_substrate_id": "D34",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
-      "agent_count": 0,
+      "agent_count": 2,
       "blockers": [],
       "dossier_id": "REMIX08",
-      "editable_families": [],
-      "layer_count": 0,
-      "linked_relation_count": 0,
+      "editable_families": [
+        "border",
+        "road"
+      ],
+      "layer_count": 3,
+      "linked_relation_count": 2,
       "scope": "remix",
+      "source_substrate_id": "D36",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
-      "agent_count": 0,
+      "agent_count": 3,
       "blockers": [],
       "dossier_id": "REMIX09",
-      "editable_families": [],
-      "layer_count": 0,
+      "editable_families": [
+        "border",
+        "restricted_zone",
+        "road"
+      ],
+      "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "remix",
+      "source_substrate_id": "D22",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
-      "agent_count": 0,
+      "agent_count": 2,
       "blockers": [],
       "dossier_id": "REMIX10",
-      "editable_families": [],
-      "layer_count": 0,
-      "linked_relation_count": 0,
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 4,
+      "linked_relation_count": 2,
       "scope": "remix",
+      "source_substrate_id": "D37",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
-      "agent_count": 0,
+      "agent_count": 2,
       "blockers": [],
       "dossier_id": "REMIX11",
-      "editable_families": [],
-      "layer_count": 0,
+      "editable_families": [
+        "bridge",
+        "waterway"
+      ],
+      "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "remix",
+      "source_substrate_id": "D12",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
-      "agent_count": 0,
+      "agent_count": 2,
       "blockers": [],
       "dossier_id": "REMIX12",
-      "editable_families": [],
-      "layer_count": 0,
+      "editable_families": [
+        "landmark",
+        "road"
+      ],
+      "layer_count": 1,
       "linked_relation_count": 0,
       "scope": "remix",
+      "source_substrate_id": "D10",
       "status": "READY_FOR_RUNTIME_CAPTURE"
     }
   ],

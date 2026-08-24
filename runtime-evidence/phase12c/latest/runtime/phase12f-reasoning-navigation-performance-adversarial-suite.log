@@ -1,5 +1,5 @@
 == phase12f-reasoning-navigation-performance-adversarial-suite ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
-FMD Phase 12F performance observation: samples=120 median_us=11376 p95_us=11512 p99_us=11673 checkpoint_bytes=3596 budgets_us=8000/25000/50000
+FMD Phase 12F performance observation: samples=120 median_us=11415 p95_us=11535 p99_us=11595 checkpoint_bytes=3596 budgets_us=8000/25000/50000
 FMD Phase 12F reasoning/navigation/performance adversarial tests: PASS
