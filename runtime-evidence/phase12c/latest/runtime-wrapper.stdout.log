@@ -339,7 +339,7 @@ FMD Phase 12F authority/focus/content adversarial tests: PASS
 == phase12f-reasoning-navigation-performance-adversarial-suite ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
 
-FMD Phase 12F performance observation: samples=120 median_us=12984 p95_us=13599 p99_us=13879 checkpoint_bytes=3645 budgets_us=8000/25000/50000
+FMD Phase 12F performance observation: samples=120 median_us=15617 p95_us=15837 p99_us=17521 checkpoint_bytes=3645 budgets_us=8000/25000/50000
 FMD Phase 12F reasoning/navigation/performance adversarial tests: PASS
 == main-scene-boot ==
 Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
