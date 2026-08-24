@@ -6,12 +6,11 @@
     "D14",
     "D16",
     "D17",
-    "D26",
-    "D38"
+    "D26"
   ],
   "counts": {
-    "blocked": 8,
-    "ready": 49,
+    "blocked": 7,
+    "ready": 50,
     "total": 57
   },
   "evidence_kind": "PHASE12G_RUNTIME_ACQUISITION_PRECONDITION_NOT_GATE_OUTCOME",
@@ -80,9 +79,7 @@
       ]
     },
     "E5": {
-      "blocked": [
-        "D38"
-      ],
+      "blocked": [],
       "ready": [
         "D29",
         "D32",
@@ -91,6 +88,7 @@
         "D35",
         "D36",
         "D37",
+        "D38",
         "D39",
         "D40"
       ],
@@ -108,15 +106,14 @@
       ]
     },
     "E6": {
-      "blocked": [
-        "D38"
-      ],
+      "blocked": [],
       "ready": [
         "D33",
         "D34",
         "D35",
         "D36",
         "D37",
+        "D38",
         "D39",
         "D40"
       ],
@@ -194,6 +191,7 @@
     "D35",
     "D36",
     "D37",
+    "D38",
     "D39",
     "D40",
     "DEMO01",
@@ -756,12 +754,7 @@
     },
     {
       "agent_count": 2,
-      "blockers": [
-        "node_cell_binding_missing:D38_N_A",
-        "node_cell_binding_missing:D38_N_B",
-        "node_cell_binding_missing:D38_N_END",
-        "node_cell_binding_missing:D38_N_START"
-      ],
+      "blockers": [],
       "dossier_id": "D38",
       "editable_families": [
         "road"
@@ -770,7 +763,7 @@
       "linked_relation_count": 2,
       "scope": "campaign",
       "source_substrate_id": "",
-      "status": "BLOCKED_RUNTIME_BINDING"
+      "status": "READY_FOR_RUNTIME_CAPTURE"
     },
     {
       "agent_count": 2,
