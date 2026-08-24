@@ -70,6 +70,10 @@ def main() -> None:
         "CANONICAL_ARCHETYPES",
         'operation = "reassign" if operation == "assign" else operation',
     ])
+    require_markers("src/application/frozen_content_validator.gd", [
+        '["id", "edge_id", "cell_id", "crossing_slot_id", "landmark_slot_id", "portal_id", "feature_id", "candidate_id", "node_id"]',
+        "Prefer the record's own stable identity over reference fields",
+    ])
     require_markers("tests/test_phase12g_production_playtest_runner.gd", [
         '"DEMO01", "DEMO02", "DEMO03", "DEMO04", "DEMO05"',
         "execute_authored_command",
@@ -118,7 +122,7 @@ def main() -> None:
         if dossier.get("content_hash") != expected:
             fail(f"{path} content_hash was not recomputed after smallest-instance re-authoring")
 
-    print("Phase 12G acquisition readiness audit: PASS (real DEMO01-DEMO05 entrypoint + runtime adapter/controller + visible copy + Stability path; no VS01 fallback for requested playtests)")
+    print("Phase 12G acquisition readiness audit: PASS (real DEMO01-DEMO05 entrypoint + runtime adapter/controller + visible copy + Stability path; stable slot/portal identities preserved; no VS01 fallback for requested playtests)")
 
 
 if __name__ == "__main__":
