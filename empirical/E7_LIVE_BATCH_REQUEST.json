@@ -1,7 +1,0 @@
-{
-  "request_schema_version": 1,
-  "request_id": "E7_BATCH1_RERUN_20260824",
-  "scenario_id": "deck_controller_base",
-  "dossier_ids": ["D29", "D33", "D36", "D38", "D40"],
-  "purpose": "Repeat the first real 1280x800 E7 capture batch after the rendered Xvfb acquisition fix. This request is not evidence and cannot create E7 PASS by itself."
-}
