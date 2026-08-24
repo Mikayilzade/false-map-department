@@ -1,9 +1,8 @@
-run_id=32708416684
+run_id=32708805311
 run_attempt=1
-source_head_sha=b5b31863e0e51923e303c3acbbd0aec7ba231046
+source_head_sha=bd7289ce58acbe6712d97f52a579442ed0ace020
+request_sha256=5c8d163786f104e6e87f53f49e33e13bcde2befe0c3b23229e1f6a701462033a
 scenario_id=deck_controller_base
-dossiers=D29,D33,D36,D38,D40
-fetch_rc=0
 capture_rc=2
 artifact_name=phase12g-e7-live-batch
 review_outcome=UNREVIEWED
