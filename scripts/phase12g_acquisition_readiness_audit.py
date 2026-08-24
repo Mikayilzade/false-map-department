@@ -7,6 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DEMO_IDS = [f"DEMO{i:02d}" for i in range(1, 6)]
+REPRESENTATIVE_BINDING_IDS = {"D13", "D18", "D22", "D36", "D40"}
 
 
 def fail(message: str) -> None:
@@ -46,7 +47,9 @@ def main() -> None:
     require_markers("src/presentation/entrypoint.gd", [
         'OS.get_environment("FMD_PLAYTEST_DOSSIER_ID")',
         'res://src/presentation/production_playtest.tscn',
+        'res://src/presentation/empirical_production_playtest.tscn',
         'res://src/presentation/main.tscn',
+        'FMD_EMPIRICAL_BROAD',
     ])
     require_markers("src/presentation/production_playtest.gd", [
         'DEMO_SEQUENCE := ["DEMO01", "DEMO02", "DEMO03", "DEMO04", "DEMO05"]',
@@ -69,6 +72,27 @@ def main() -> None:
         "runtime_node_cell_binding_missing",
         "CANONICAL_ARCHETYPES",
         'operation = "reassign" if operation == "assign" else operation',
+    ])
+    require_markers("src/application/empirical_production_runtime_adapter.gd", [
+        "EmpiricalProductionRuntimeAdapter" if False else "AuthoritativeFactProjector",
+        "restricted_zone_candidates",
+        "allowed_semantic_tokens",
+        "linked_source_fact_binding_by_layer",
+        "regional_nodes",
+        "regional_edges",
+        "empirical_runtime_agent_layer_ambiguous",
+    ])
+    require_markers("src/domain/core_transaction_coordinator.gd", [
+        "AuthoritativeFactProjector",
+        "linked_source_fact_binding_by_layer",
+        'next_state["authoritative_fact_values_by_layer"] = authoritative_facts',
+    ])
+    require_markers("src/presentation/empirical_production_playtest.gd", [
+        "Authority source:",
+        "_readable_causal_ribbon",
+        "FMD_E7_CAPTURE_PATH",
+        "E7_CAPTURE_ARTIFACT_NOT_REVIEW_OUTCOME",
+        "known-solution commands",
     ])
     require_markers("src/application/frozen_content_validator.gd", [
         '["id", "edge_id", "cell_id", "crossing_slot_id", "landmark_slot_id", "portal_id", "feature_id", "candidate_id", "node_id"]',
@@ -101,12 +125,23 @@ def main() -> None:
     bindings = load_json("content/runtime_bindings.json")
     if bindings.get("binding_schema_version") != 1:
         fail("runtime binding schema mismatch")
-    if set(bindings.get("dossiers", {})) != {"D05", "DEMO05"}:
-        fail("only the currently necessary explicit border/node-cell bindings should be frozen in this packet")
+    binding_ids = set(bindings.get("dossiers", {}))
+    required_binding_ids = {"D05", "DEMO05"} | REPRESENTATIVE_BINDING_IDS
+    if not required_binding_ids.issubset(binding_ids):
+        fail(f"runtime bindings missing required explicit acquisition cases: {sorted(required_binding_ids - binding_ids)}")
     for dossier_id in ["D05", "DEMO05"]:
         row = bindings["dossiers"][dossier_id]
         if not row.get("node_cell_id") or not row.get("border_candidates"):
             fail(f"{dossier_id} runtime binding incomplete")
+    for dossier_id in REPRESENTATIVE_BINDING_IDS:
+        if not bindings["dossiers"][dossier_id].get("node_cell_id"):
+            fail(f"{dossier_id} representative binding must explicitly resolve authored node/cell semantics")
+    for dossier_id in ["D13", "D22"]:
+        if not bindings["dossiers"][dossier_id].get("restricted_zone_candidates"):
+            fail(f"{dossier_id} restricted-zone candidate binding is required")
+    for dossier_id in ["D22", "D36", "D40"]:
+        if not bindings["dossiers"][dossier_id].get("border_candidates"):
+            fail(f"{dossier_id} border candidate binding is required")
 
     d05 = load_json("content/campaign/D05.json")
     d06 = load_json("content/campaign/D06.json")
@@ -122,7 +157,7 @@ def main() -> None:
         if dossier.get("content_hash") != expected:
             fail(f"{path} content_hash was not recomputed after smallest-instance re-authoring")
 
-    print("Phase 12G acquisition readiness audit: PASS (real DEMO01-DEMO05 entrypoint + runtime adapter/controller + visible copy + Stability path; stable slot/portal identities preserved; no VS01 fallback for requested playtests)")
+    print("Phase 12G acquisition readiness audit: PASS (demo path preserved; mature empirical scene + explicit representative bindings + map-backed linked facts present; no human/capture PASS fabricated)")
 
 
 if __name__ == "__main__":

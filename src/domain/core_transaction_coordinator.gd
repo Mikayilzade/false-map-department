@@ -6,6 +6,7 @@ const DirectCourierEngine = preload("res://src/domain/direct_courier_engine.gd")
 const AgentInterpretationEngine = preload("res://src/domain/agent_interpretation_engine.gd")
 const LateAgentInterpretationEngine = preload("res://src/domain/late_agent_interpretation_engine.gd")
 const LinkedAuthorityEngine = preload("res://src/domain/linked_authority_engine.gd")
+const AuthoritativeFactProjector = preload("res://src/domain/authoritative_fact_projector.gd")
 const ObjectiveInvariantEngine = preload("res://src/domain/objective_invariant_engine.gd")
 
 const PHASE_TRACE := ["A", "B", "C", "D", "E", "F", "G", "H", "I"]
@@ -74,6 +75,23 @@ func execute_edit(definition: Dictionary, state: Dictionary, command: Dictionary
 	next_maps[layer_id] = primitive_result["state"]
 	next_state["map_state_by_layer"] = next_maps
 
+	var authoritative_facts: Dictionary = _dictionary(next_state.get("authoritative_fact_values_by_layer", {}))
+	var linked_source_bindings: Dictionary = _dictionary(definition.get("linked_source_fact_binding_by_layer", {}))
+	if not linked_source_bindings.is_empty():
+		var fact_refresh: Dictionary = AuthoritativeFactProjector.new().refresh(definition, next_maps, authoritative_facts)
+		if not fact_refresh.get("ok", false):
+			return {
+				"ok": false,
+				"accepted": false,
+				"code": str(fact_refresh.get("code", "linked_fact_projection_failed")),
+				"pre_state_hash": pre_hash,
+				"post_state_hash": pre_hash,
+				"history_entries": [],
+				"phase_trace": ["A", "B", "C"],
+			}
+		authoritative_facts = _dictionary(fact_refresh.get("values", {}))
+		next_state["authoritative_fact_values_by_layer"] = authoritative_facts
+
 	var next_revision: int = int(state.get("session_revision", 0)) + 1
 	var transaction_id: String = "%s:%06d" % [str(state.get("session_id", "SESSION")), next_revision]
 	var events: Array = []
@@ -111,7 +129,6 @@ func execute_edit(definition: Dictionary, state: Dictionary, command: Dictionary
 			[structural_event_id]
 		)
 
-	var authoritative_facts: Dictionary = _dictionary(next_state.get("authoritative_fact_values_by_layer", {}))
 	var linked_result: Dictionary = _linked_projection(definition, authoritative_facts)
 	if not linked_result.get("ok", false):
 		return {

@@ -3,16 +3,24 @@ set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 GODOT_BIN="${GODOT_BIN:-godot}"
+OUT_DIR="${FMD_PHASE12G_OUT:-$ROOT/.phase12g-evidence}"
+mkdir -p "$OUT_DIR"
 cd "$ROOT"
 
 bash scripts/run_phase12g_preconditions.sh
+python3 scripts/phase12g_runtime_readiness.py --output "$OUT_DIR/runtime-readiness.json" > "$OUT_DIR/runtime-readiness.log"
+python3 scripts/phase12g_e7_capture.py --output-dir "$OUT_DIR/e7-capture-plan" --dossier-id D29 --scenario-id deck_controller_base > "$OUT_DIR/e7-capture-plan.log"
 "$GODOT_BIN" --headless --path . --script res://tests/test_phase12g_instrumentation_runner.gd
 "$GODOT_BIN" --headless --path . --script res://tests/test_phase12g_production_playtest_runner.gd
+"$GODOT_BIN" --headless --path . --script res://tests/test_phase12g_broad_acquisition_runner.gd
 
-# Verify that an explicitly requested production playtest routes through the real
-# production scene and boots without script errors. The timeout is intentionally
-# short; this is an acquisition-readiness smoke test, not empirical evidence.
+# Legacy demo acquisition path remains isolated for E1/E2/E11.
 FMD_PLAYTEST_DOSSIER_ID=DEMO01 \
   "$GODOT_BIN" --headless --path . --quit-after 2
 
-echo "Phase 12G instrumentation + production acquisition-readiness packet: PASS"
+# Mature empirical content uses a separate scene; D29 is deliberately chosen here
+# because it exercises multiple layers without requiring human outcomes.
+FMD_PLAYTEST_DOSSIER_ID=D29 FMD_EMPIRICAL_BROAD=1 \
+  "$GODOT_BIN" --headless --path . --quit-after 2
+
+echo "Phase 12G instrumentation + demo + broad production acquisition-readiness packet: PASS"
