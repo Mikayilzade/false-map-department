@@ -1,0 +1,42 @@
+name: Phase12G One-Shot Temporal Repair
+
+on:
+  push:
+    branches:
+      - phase12g-temporal-content-repair-20260824
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    if: ${{ !contains(github.event.head_commit.message, '[temporal-repair]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repair branch
+        uses: actions/checkout@v5
+        with:
+          ref: phase12g-temporal-content-repair-20260824
+
+      - name: Apply and validate smallest-instance temporal repair
+        shell: bash
+        run: |
+          set +e
+          python3 scripts/phase12g_apply_temporal_content_repair.py
+          repair_rc=$?
+          python3 scripts/phase12d_act5_content_audit.py
+          act5_rc=$?
+          python3 scripts/phase12d_full_catalog_audit.py
+          catalog_rc=$?
+
+          if [ "$repair_rc" -ne 0 ] || [ "$act5_rc" -ne 0 ] || [ "$catalog_rc" -ne 0 ]; then
+            echo "Temporal repair validation failed: repair=$repair_rc act5=$act5_rc catalog=$catalog_rc"
+            exit 0
+          fi
+
+          git rm scripts/phase12g_apply_temporal_content_repair.py .github/workflows/phase12g-temporal-repair.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add content/campaign/D38.json content/campaign/D39.json
+          git commit -m "Repair D38/D39 Stability pacing [temporal-repair]"
+          git push origin HEAD:phase12g-temporal-content-repair-20260824
