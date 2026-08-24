@@ -141,12 +141,22 @@ func _evaluate_procession(
 	var progress_index: int = int(progress_result["progress_index"])
 	var visited_landmark_ids: Array[String] = _typed_string_array(_array(progress_result["visited_landmark_ids"]))
 	var progress_node_id: String = str(progress_result.get("progress_node_id", ""))
+	var visited_jurisdiction_result := _normalize_procession_jurisdiction_progress(
+		definition,
+		map_state,
+		source_state,
+		start_node_id
+	)
+	if not visited_jurisdiction_result.get("ok", false):
+		return visited_jurisdiction_result
+	var visited_jurisdiction_ids: Array[String] = _typed_string_array(_array(visited_jurisdiction_result.get("visited_jurisdiction_ids", [])))
 	var required_landmark_ids: Array[String] = _typed_string_array(_array(predicate.get("visit_landmark_ids_in_order", [])))
 	var remaining_landmark_ids: Array[String] = []
 	for index in range(progress_index, required_landmark_ids.size()):
 		remaining_landmark_ids.append(required_landmark_ids[index])
 	var remaining_predicate: Dictionary = predicate.duplicate(true)
 	remaining_predicate["visit_landmark_ids_in_order"] = remaining_landmark_ids
+	remaining_predicate["already_visited_jurisdiction_ids"] = visited_jurisdiction_ids.duplicate()
 
 	var route_result: Dictionary = _best_procession_route(
 		definition,
@@ -175,6 +185,7 @@ func _evaluate_procession(
 	state["procession_predicate_satisfied"] = bool(route_result.get("ok", false))
 	state["procession_progress_index"] = progress_index
 	state["procession_visited_landmark_ids"] = visited_landmark_ids
+	state["procession_visited_jurisdiction_ids"] = visited_jurisdiction_ids
 	state["procession_progress_node_id"] = progress_node_id
 	state["procession_sequence_total"] = required_landmark_ids.size()
 	state["procession_sequence_complete"] = sequence_complete
@@ -192,6 +203,7 @@ func _evaluate_procession(
 			"procession_predicate_satisfied": bool(route_result.get("ok", false)),
 			"procession_progress_index": progress_index,
 			"procession_visited_landmark_ids": visited_landmark_ids,
+			"procession_visited_jurisdiction_ids": visited_jurisdiction_ids,
 			"procession_sequence_total": required_landmark_ids.size(),
 			"procession_sequence_complete": sequence_complete,
 			"procession_next_landmark_id": remaining_landmark_ids[0] if not remaining_landmark_ids.is_empty() else "",
@@ -235,6 +247,27 @@ func _normalize_procession_progress(
 		"visited_landmark_ids": visited,
 		"progress_node_id": progress_node_id,
 	}
+
+func _normalize_procession_jurisdiction_progress(
+		definition: Dictionary,
+		map_state: RefCounted,
+		source_state: Dictionary,
+		current_node_id: String
+) -> Dictionary:
+	var seen: Dictionary = {}
+	for raw_jurisdiction_id in _array(source_state.get("procession_visited_jurisdiction_ids", [])):
+		var jurisdiction_id := str(raw_jurisdiction_id)
+		if jurisdiction_id.is_empty():
+			return _fail("procession_jurisdiction_progress_invalid")
+		seen[jurisdiction_id] = true
+	var node_cell_id: Dictionary = _dictionary(definition.get("node_cell_id", {}))
+	if node_cell_id.has(current_node_id):
+		var cell_id := str(node_cell_id[current_node_id])
+		var current_jurisdiction_id := str(map_state.border_ownership_by_cell.get(cell_id, ""))
+		if not current_jurisdiction_id.is_empty():
+			seen[current_jurisdiction_id] = true
+	var result: Array[String] = _sorted_string_keys(seen)
+	return {"ok": true, "visited_jurisdiction_ids": result}
 
 func _evaluate_regional_connector(
 		definition: Dictionary,
@@ -369,6 +402,13 @@ func _procession_predicate_satisfied(
 	if predicate.has("exact_distinct_jurisdiction_count"):
 		var expected_count: int = int(predicate["exact_distinct_jurisdiction_count"])
 		var jurisdictions: Dictionary = {}
+		for raw_jurisdiction_id in _array(predicate.get("already_visited_jurisdiction_ids", [])):
+			var prior_jurisdiction_id := str(raw_jurisdiction_id)
+			if prior_jurisdiction_id.is_empty():
+				return false
+			jurisdictions[prior_jurisdiction_id] = true
+		if jurisdictions.size() > expected_count:
+			return false
 		var node_cell_id: Dictionary = _dictionary(definition["node_cell_id"])
 		for node_id in path:
 			var cell_id: String = str(node_cell_id.get(node_id, ""))
@@ -376,6 +416,8 @@ func _procession_predicate_satisfied(
 			if jurisdiction_id.is_empty():
 				return false
 			jurisdictions[jurisdiction_id] = true
+			if jurisdictions.size() > expected_count:
+				return false
 		if jurisdictions.size() != expected_count:
 			return false
 
