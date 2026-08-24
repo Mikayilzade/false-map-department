@@ -1,0 +1,76 @@
+{
+  "review_schema_version": 1,
+  "gate_id": "E7",
+  "review_kind": "CAPTURE_REVIEW_INPUT_NOT_COMPLETE_E7_EVIDENCE",
+  "review_date": "2026-08-24",
+  "reviewer": "OpenAI assistant visual inspection",
+  "source_run_id": 32709453681,
+  "source_head_sha": "3634952bab482600f90bca2d74ed17a9ba1281fd",
+  "artifact_name": "phase12g-e7-live-batch",
+  "artifact_digest": "sha256:8dd4876e1c45caa0e6405f8984c47420c14145d8c5fd892dedce17094d04d13a",
+  "scenario_id": "deck_controller_base",
+  "device_mode": "steam_deck_controller_1280x800",
+  "review_rules": {
+    "capture_review_is_not_interaction_review": true,
+    "this_file_must_not_be_appended_as_E7_jsonl": true,
+    "pass_requires_visible_layout_without_material_clipping_or_overlap": true
+  },
+  "rows": [
+    {
+      "dossier_id": "D29",
+      "viewport_confirmed": [1280, 800],
+      "layout_readable": true,
+      "requirements_readable": true,
+      "controls_visible": true,
+      "material_clipping_or_overlap": false,
+      "capture_review_pass": true,
+      "notes": "Official Map, Derived World, two visible requirements, causal panel and controller hint are all visible without material clipping."
+    },
+    {
+      "dossier_id": "D33",
+      "viewport_confirmed": [1280, 800],
+      "layout_readable": true,
+      "requirements_readable": true,
+      "controls_visible": true,
+      "material_clipping_or_overlap": false,
+      "capture_review_pass": true,
+      "notes": "Three requirements including protected continuity remain readable; all primary controls and status text fit at 1280x800."
+    },
+    {
+      "dossier_id": "D36",
+      "viewport_confirmed": [1280, 800],
+      "layout_readable": true,
+      "requirements_readable": true,
+      "controls_visible": true,
+      "material_clipping_or_overlap": false,
+      "capture_review_pass": true,
+      "notes": "Wrapped permission/jurisdiction/linked requirements fit in the Derived World panel; no material overlap observed."
+    },
+    {
+      "dossier_id": "D38",
+      "viewport_confirmed": [1280, 800],
+      "layout_readable": true,
+      "requirements_readable": true,
+      "controls_visible": true,
+      "material_clipping_or_overlap": false,
+      "capture_review_pass": true,
+      "notes": "Four-layer case header, sequence/linked/protected requirements and causal panel remain visible without clipping."
+    },
+    {
+      "dossier_id": "D40",
+      "viewport_confirmed": [1280, 800],
+      "layout_readable": true,
+      "requirements_readable": true,
+      "controls_visible": true,
+      "material_clipping_or_overlap": false,
+      "capture_review_pass": true,
+      "notes": "Densest reviewed case: five agents and six visible requirement lines still fit; no material clipping or control overlap observed."
+    }
+  ],
+  "summary": {
+    "reviewed": 5,
+    "capture_review_pass": 5,
+    "capture_review_fail": 0,
+    "interaction_reviewed": 0
+  }
+}
