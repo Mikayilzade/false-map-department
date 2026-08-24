@@ -13,6 +13,7 @@ python3 scripts/phase12g_e7_capture.py --output-dir "$OUT_DIR/e7-capture-plan" -
 "$GODOT_BIN" --headless --path . --script res://tests/test_phase12g_instrumentation_runner.gd
 "$GODOT_BIN" --headless --path . --script res://tests/test_phase12g_production_playtest_runner.gd
 "$GODOT_BIN" --headless --path . --script res://tests/test_phase12g_broad_acquisition_runner.gd
+"$GODOT_BIN" --headless --path . --script res://tests/test_phase12g_remix_review_fixes_runner.gd
 
 # Legacy demo acquisition path remains isolated for E1/E2/E11.
 FMD_PLAYTEST_DOSSIER_ID=DEMO01 \

@@ -1,5 +1,7 @@
 extends RefCounted
 
+const RemixOverlayValidator = preload("res://src/application/remix_overlay_validator.gd")
+
 const ALLOWED_CHANGE_FAMILIES := {
 	"initial_primitive_state": true,
 	"agent_start_nodes": true,
@@ -26,6 +28,18 @@ func validate_overlay(overlay: Dictionary, campaign_by_id: Dictionary) -> Dictio
 	for guard in ["no_new_agent_scripts", "no_new_graph_topology", "no_new_linked_authority", "no_new_primitive_families", "changed_dependency_proof"]:
 		if not bool(validation_metadata.get(guard, false)):
 			return _fail("remix_overlay_guard_failed", remix_id + ":" + guard)
+
+	# Reuse the frozen authoring validator before any runtime materialization so
+	# source-relative values (nodes, roads, jurisdictions, semantic targets, and
+	# objective families) cannot silently introduce nonexistent authored facts.
+	var source_validation := RemixOverlayValidator.new().validate(overlay, _dictionary(campaign_by_id[source_id]))
+	if not bool(source_validation.get("ok", false)):
+		return {
+			"ok": false,
+			"code": "remix_overlay_source_validation_failed",
+			"dossier_id": remix_id,
+			"issues": _array(source_validation.get("issues", [])).duplicate(true),
+		}
 	return {"ok": true}
 
 func materialize(overlay: Dictionary, campaign_by_id: Dictionary) -> Dictionary:
@@ -98,12 +112,13 @@ func materialize(overlay: Dictionary, campaign_by_id: Dictionary) -> Dictionary:
 		if required_families.is_empty():
 			return _fail("remix_overlay_required_family_selection_empty", remix_id)
 		for field in ["objectives", "protected_invariants"]:
-			var contracts: Array = _array(dossier.get(field, [])).duplicate(true)
-			for index in range(contracts.size()):
-				var contract: Dictionary = _dictionary(contracts[index]).duplicate(true)
-				contract["required"] = required_families.has(str(contract.get("family_id", "")))
-				contracts[index] = contract
-			dossier[field] = contracts
+			var selected_contracts: Array = []
+			for raw_contract in _array(dossier.get(field, [])):
+				var contract: Dictionary = _dictionary(raw_contract).duplicate(true)
+				if required_families.has(str(contract.get("family_id", ""))):
+					contract["required"] = true
+					selected_contracts.append(contract)
+			dossier[field] = selected_contracts
 
 	# Runtime identity is the remix identity, while every stable fact/agent/candidate ID
 	# remains the source substrate's authored ID. We deliberately do not invent a new
