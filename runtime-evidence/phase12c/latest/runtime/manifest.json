@@ -26,9 +26,9 @@
       "sha256": "9a82feb0ee061aed657f88539257a8d6b130034cadc6b0689f401952d4fec32b"
     },
     {
-      "bytes": 7463,
+      "bytes": 7521,
       "name": "import-parse.log",
-      "sha256": "81a1d78d11012caa680f751af619c61dcf57f174692ecb089bcaffc761110a0f"
+      "sha256": "890842fb950919865edc484b64364fd4b7176204ee243a907c14392805fe77f9"
     },
     {
       "bytes": 410,
@@ -353,7 +353,7 @@
     {
       "bytes": 353,
       "name": "phase12f-reasoning-navigation-performance-adversarial-suite.log",
-      "sha256": "93fe9f8d26a9f27204a4799f08b10d39ddd71f6db24c7f838666339ead7ecaf7"
+      "sha256": "60a5034bc47a2783e8e1c49159c5faafa818d43f639a24b86637170beffc15df"
     },
     {
       "bytes": 163,
