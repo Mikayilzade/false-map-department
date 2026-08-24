@@ -14,6 +14,58 @@
         }
       }
     },
+    "D06": {
+      "node_cell_id": {
+        "D06_N_HOME": "D06_C_HOME",
+        "D06_N_GATE": "D06_C_GATE",
+        "D06_N_DEPOT": "D06_C_DEPOT"
+      },
+      "border_candidates": {
+        "D06_BORDER_GATE_EAST": {
+          "cell_id": "D06_C_GATE",
+          "target_jurisdiction_id": "D06_J_EAST"
+        },
+        "D06_BORDER_HOME_EAST": {
+          "cell_id": "D06_C_HOME",
+          "target_jurisdiction_id": "D06_J_EAST"
+        }
+      }
+    },
+    "D07": {
+      "node_cell_id": {
+        "D07_N_PASTURE": "D07_C_GATE",
+        "D07_N_GATE": "D07_C_GATE",
+        "D07_N_CLINIC": "D07_C_GATE"
+      },
+      "restricted_zone_candidates": {
+        "D07_ZONE_GATE": {
+          "cell_id": "D07_C_GATE",
+          "policy_id": "D07_ZP_CIVIC"
+        }
+      }
+    },
+    "D08": {
+      "node_cell_id": {
+        "D08_N_HOME": "D08_C_HOME",
+        "D08_N_GATE": "D08_C_GATE",
+        "D08_N_BRIDGE_W": "D08_C_GATE",
+        "D08_N_BRIDGE_E": "D08_C_HOSPITAL",
+        "D08_N_HOSPITAL": "D08_C_HOSPITAL",
+        "D08_N_PASTURE": "D08_C_GATE"
+      },
+      "border_candidates": {
+        "D08_BORDER_GATE_EAST": {
+          "cell_id": "D08_C_GATE",
+          "target_jurisdiction_id": "D08_J_EAST"
+        }
+      },
+      "restricted_zone_candidates": {
+        "D08_ZONE_GATE": {
+          "cell_id": "D08_C_GATE",
+          "policy_id": "D08_ZP_CIVIC"
+        }
+      }
+    },
     "D13": {
       "node_cell_id": {
         "D13_N_START": "D13_C_GATE",
@@ -24,6 +76,46 @@
         "D13_ZONE_GATE": {
           "cell_id": "D13_C_GATE",
           "policy_id": "D13_ZP_QUIET"
+        }
+      }
+    },
+    "D14": {
+      "node_cell_id": {
+        "D14_N_DEPOT": "D14_C_GATE",
+        "D14_N_GATE": "D14_C_GATE",
+        "D14_N_MARKET": "D14_C_GATE"
+      },
+      "restricted_zone_candidates": {
+        "D14_ZONE_GATE": {
+          "cell_id": "D14_C_GATE",
+          "policy_id": "D14_ZP_MARKET"
+        }
+      }
+    },
+    "D16": {
+      "node_cell_id": {
+        "D16_N_DEPOT": "D16_C_GATE",
+        "D16_N_GATE": "D16_C_GATE",
+        "D16_N_SERVICE": "D16_C_GATE"
+      },
+      "restricted_zone_candidates": {
+        "D16_ZONE_GATE": {
+          "cell_id": "D16_C_GATE",
+          "policy_id": "D16_ZP_SERVICE"
+        }
+      }
+    },
+    "D17": {
+      "node_cell_id": {
+        "D17_N_POST": "D17_C_POST",
+        "D17_N_GATE": "D17_C_GATE",
+        "D17_N_HALL": "D17_C_HALL",
+        "D17_N_WATCH": "D17_C_WATCH"
+      },
+      "border_candidates": {
+        "D17_BORDER_GATE_SOUTH": {
+          "cell_id": "D17_C_GATE",
+          "target_jurisdiction_id": "D17_J_SOUTH"
         }
       }
     },
@@ -52,6 +144,18 @@
         "D22_ZONE_GATE": {
           "cell_id": "D22_C_GATE",
           "policy_id": "D22_ZP_CIVIC"
+        }
+      }
+    },
+    "D26": {
+      "node_cell_id": {
+        "D26_N_HOME": "D26_C_HOME",
+        "D26_N_GATE": "D26_C_GATE"
+      },
+      "border_candidates": {
+        "D26_BORDER_GATE_EAST": {
+          "cell_id": "D26_C_GATE",
+          "target_jurisdiction_id": "D26_J_EAST"
         }
       }
     },
