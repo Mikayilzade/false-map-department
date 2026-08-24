@@ -1,1 +1,1 @@
-Phase 12G acquisition readiness audit: PASS (real DEMO01-DEMO05 entrypoint + runtime adapter/controller + visible copy + Stability path; no VS01 fallback for requested playtests)
+Phase 12G acquisition readiness audit: PASS (real DEMO01-DEMO05 entrypoint + runtime adapter/controller + visible copy + Stability path; stable slot/portal identities preserved; no VS01 fallback for requested playtests)

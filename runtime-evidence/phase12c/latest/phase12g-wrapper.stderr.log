@@ -1,12 +1,4 @@
-ERROR: Re-authored D05 must retain valid frozen content hash/schema: [{ "code": "duplicate_stable_id", "path": "D05_L1.landmark_slots", "message": "Stable ID D05_N_CLINIC is duplicated inside the dossier." }]
-   at: push_error (core/variant/variant_utility.cpp:1023)
+ERROR: Parent node is busy adding/removing children, `remove_child()` can't be called at this time. Consider using `remove_child.call_deferred(child)` instead.
+   at: remove_child (scene/main/node.cpp:1750)
    GDScript backtrace (most recent call first):
-       [0] _assert (res://tests/test_phase12g_production_playtest_runner.gd:141)
-       [1] _test_intro_border_contract (res://tests/test_phase12g_production_playtest_runner.gd:107)
-       [2] _initialize (res://tests/test_phase12g_production_playtest_runner.gd:58)
-ERROR: Re-authored DEMO05 must retain valid frozen content hash/schema: [{ "code": "duplicate_stable_id", "path": "DEMO05_L1.landmark_slots", "message": "Stable ID DEMO05_N_CLINIC is duplicated inside the dossier." }]
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] _assert (res://tests/test_phase12g_production_playtest_runner.gd:141)
-       [1] _test_intro_border_contract (res://tests/test_phase12g_production_playtest_runner.gd:108)
-       [2] _initialize (res://tests/test_phase12g_production_playtest_runner.gd:58)
+       [0] _ready (res://src/presentation/entrypoint.gd:9)
