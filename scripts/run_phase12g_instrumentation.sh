@@ -12,6 +12,7 @@ python3 scripts/phase12g_first_session_operator_audit.py
 python3 scripts/phase12g_sample_adequacy_audit.py
 python3 scripts/phase12g_e7_capture_mode_audit.py
 python3 scripts/phase12g_e7_coverage_audit.py
+python3 scripts/phase12g_full_readiness_audit.py
 python3 scripts/phase12g_runtime_readiness.py --output "$OUT_DIR/runtime-readiness.json" > "$OUT_DIR/runtime-readiness.log"
 python3 scripts/phase12g_e7_capture.py --output-dir "$OUT_DIR/e7-capture-plan" --dossier-id D29 --scenario-id deck_controller_base > "$OUT_DIR/e7-capture-plan.log"
 python3 scripts/phase12g_e7_interaction.py \
@@ -27,6 +28,7 @@ python3 scripts/phase12g_e7_interaction.py \
 "$GODOT_BIN" --headless --path . --script res://tests/test_phase12g_instrumentation_runner.gd
 "$GODOT_BIN" --headless --path . --script res://tests/test_phase12g_production_playtest_runner.gd
 "$GODOT_BIN" --headless --path . --script res://tests/test_phase12g_broad_acquisition_runner.gd
+"$GODOT_BIN" --headless --path . --script res://tests/test_phase12g_readiness_repair_solutions_runner.gd
 "$GODOT_BIN" --headless --path . --script res://tests/test_phase12g_remix_review_fixes_runner.gd
 
 # Production demo acquisition path for real E1/E2/E11 sessions.
@@ -38,4 +40,4 @@ FMD_PLAYTEST_DOSSIER_ID=DEMO01 \
 FMD_PLAYTEST_DOSSIER_ID=D29 FMD_EMPIRICAL_BROAD=1 \
   "$GODOT_BIN" --headless --path . --quit-after 2
 
-echo "Phase 12G instrumentation + first-session operator + representative-sample guard + exhaustive E7 coverage guard + graphical-capture guard + representative controller interaction probes + demo + broad production acquisition-readiness packet: PASS"
+echo "Phase 12G instrumentation + first-session operator + representative-sample guard + exhaustive E7 coverage guard + 57/57 runtime readiness + graphical-capture guard + representative controller interaction probes + demo + broad production acquisition-readiness packet: PASS"
