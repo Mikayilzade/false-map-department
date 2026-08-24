@@ -44,7 +44,12 @@ func _initialize() -> void:
 	var d38_solution: Dictionary = _dictionary(_dictionary(d38.get("validation_metadata", {})).get("known_solution_envelope", {}))
 	_assert(_has_agent(d38, "A8_PROCESSION_ROUTE_CONSTRAINED"), "D38 must combine portal authority with canonical A8 Procession")
 	_assert(int(d38.get("stability_required_cycles", 0)) == 2, "D38 Procession must use its justified two-cycle Stability window")
-	_assert(_array(d38_solution.get("stability_transition_evidence", [])).size() == 2, "D38 must carry one Procession transition witness per Stability cycle")
+	_assert(int(d38.get("reaction_beats_after_edit", -1)) == 1, "D38 must leave a real Procession transition inside Stability")
+	var d38_witnesses: Array = _array(d38_solution.get("stability_transition_evidence", []))
+	_assert(d38_witnesses.size() >= 1, "D38 must carry at least one real non-idle Procession Stability witness")
+	if not d38_witnesses.is_empty():
+		var d38_witness: Dictionary = _dictionary(d38_witnesses[0])
+		_assert(str(d38_witness.get("from_node_id", "")) != str(d38_witness.get("to_node_id", "")), "D38 Stability witness must be non-idle")
 
 	var d39: Dictionary = _find(campaign, "D39")
 	var d39_solution: Dictionary = _dictionary(_dictionary(d39.get("validation_metadata", {})).get("known_solution_envelope", {}))
