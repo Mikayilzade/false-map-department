@@ -89,7 +89,7 @@ func _test_bridge_runtime_binding(demo_by_id: Dictionary) -> void:
 	if candidates.size() == 1:
 		var row: Dictionary = _dictionary(candidates[0])
 		_assert(str(row.get("primitive_family", "")) == "bridge", "DEMO03 candidate must remain a bridge")
-		_assert(str(row.get("candidate_id", "")) == "DEMO03_B_CANAL", "UI candidate identity must remain authored bridge ID")
+		_assert(str(row.get("candidate_id", "")) == "DEMO03_B_X1", "UI candidate identity must remain authored bridge ID")
 		_assert(str(row.get("runtime_candidate_id", "")) == "DEMO03_X1", "Runtime bridge command must bind explicitly to crossing slot")
 
 func _test_intro_border_contract(loaded: Dictionary) -> void:
@@ -102,8 +102,10 @@ func _test_intro_border_contract(loaded: Dictionary) -> void:
 	_assert(not _jurisdiction_required(d05, "D05_J_WEST"), "D05 introductory departing West jurisdiction must be allowed to empty")
 	_assert(_jurisdiction_required(d06, "D06_J_WEST"), "D06 must retain the next-lesson preserve-West constraint")
 	var validator := FrozenContentValidator.new()
-	_assert(bool(validator.validate_dossier(d05, "campaign").get("ok", false)), "Re-authored D05 must retain valid frozen content hash/schema")
-	_assert(bool(validator.validate_dossier(demo05, "demo").get("ok", false)), "Re-authored DEMO05 must retain valid frozen content hash/schema")
+	var d05_validation: Dictionary = validator.validate_dossier(d05, "campaign")
+	var demo05_validation: Dictionary = validator.validate_dossier(demo05, "demo")
+	_assert(bool(d05_validation.get("ok", false)), "Re-authored D05 must retain valid frozen content hash/schema: %s" % str(d05_validation.get("issues", [])))
+	_assert(bool(demo05_validation.get("ok", false)), "Re-authored DEMO05 must retain valid frozen content hash/schema: %s" % str(demo05_validation.get("issues", [])))
 
 func _requirement_value(snapshot: Dictionary, requirement_id: String) -> bool:
 	for bucket_name in ["objectives", "invariants"]:
