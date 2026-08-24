@@ -1,3 +1,4 @@
+# Trigger revision: workflow already exists on main, so this push is the one-shot execution event.
 name: Phase 12G E7 Live Capture One Shot
 
 on:
