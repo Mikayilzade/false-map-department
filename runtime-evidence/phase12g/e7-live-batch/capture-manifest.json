@@ -7,9 +7,21 @@
     "reviewed_pass": 0,
     "rows": 57
   },
-  "evidence_kind": "CAPTURE_ACQUISITION_MANIFEST_NOT_REVIEW_OUTCOME",
+  "evidence_kind": "CAPTURE_AND_INTERACTION_ACQUISITION_MANIFEST_NOT_REVIEW_OUTCOME",
   "execute_requested": true,
   "gate_id": "E7",
+  "interaction_acquisition": {
+    "counts": {
+      "blocked_runtime_binding": 0,
+      "failed_or_timeout": 0,
+      "interaction_pass": 57,
+      "rows": 57
+    },
+    "manifest_path": "/home/runner/work/_temp/fmd-e7-live-batch/interaction/interaction-manifest.json",
+    "requested": true,
+    "returncode": 0,
+    "status": "INTERACTION_ACQUISITION_PASS"
+  },
   "requested_launch_mode": "auto",
   "resolved_launch_mode": "xvfb",
   "rows": [
@@ -869,5 +881,5 @@
       "ui_scale": 100
     }
   ],
-  "schema_version": 1
+  "schema_version": 2
 }
