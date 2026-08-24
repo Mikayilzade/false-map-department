@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "gate_id": "E7",
+  "evidence_kind": "OPERATOR_VISUAL_CAPTURE_REVIEW_NOT_HUMAN_PLAYTEST_NOT_HARDWARE_PROFILE",
+  "reviewer_class": "assistant_visual_inspection",
+  "review_date": "2026-08-25",
+  "scenario_id": "deck_controller_base",
+  "device_mode": "steam_deck_controller_1280x800",
+  "ui_scale": 100,
+  "reduced_motion": false,
+  "non_color": false,
+  "no_audio": false,
+  "source": {
+    "workflow_run_id": 32781998141,
+    "source_head_sha": "9f8caf870d859deb2e08092dfefd9aa27144cdad",
+    "artifact_id": 9540134926,
+    "artifact_name": "phase12g-e7-live-batch",
+    "artifact_sha256": "50fbac37b6cede054ea05284ab1f28d63d1238a3283a097cf718e122798530bb",
+    "capture_manifest": "runtime-evidence/phase12g/e7-live-batch/capture-manifest.json"
+  },
+  "review_method": "All 57 rendered 1280x800 PNGs were inspected in contact-sheet groups; the densest D40 frame and D08 were additionally inspected at full frame size.",
+  "shared_checks_applied_to_every_row": [
+    "viewport_is_1280x800",
+    "title_and_scenario_header_visible",
+    "authoritative_map_panel_visible",
+    "derived_world_panel_visible",
+    "requirements_visible",
+    "candidate_controls_visible",
+    "causal_panel_visible",
+    "input_hint_and_status_visible",
+    "no_obvious_viewport_clipping",
+    "no_obvious_component_overlap"
+  ],
+  "limitations": [
+    "This is rendered Linux Xvfb capture review, not a physical Steam Deck hardware test.",
+    "This is not human comprehension, timing, market, or playtest evidence for E1-E6/E8-E12.",
+    "A visual capture review does not establish controller interaction completeness; matching presentation interaction evidence is required separately.",
+    "T8-44 remains dependent on Deck-class reference hardware profiling."
+  ],
+  "rows": [
+    {"dossier_id":"D01","capture_review_pass":true},{"dossier_id":"D02","capture_review_pass":true},{"dossier_id":"D03","capture_review_pass":true},{"dossier_id":"D04","capture_review_pass":true},{"dossier_id":"D05","capture_review_pass":true},{"dossier_id":"D06","capture_review_pass":true},{"dossier_id":"D07","capture_review_pass":true},{"dossier_id":"D08","capture_review_pass":true},{"dossier_id":"D09","capture_review_pass":true},{"dossier_id":"D10","capture_review_pass":true},
+    {"dossier_id":"D11","capture_review_pass":true},{"dossier_id":"D12","capture_review_pass":true},{"dossier_id":"D13","capture_review_pass":true},{"dossier_id":"D14","capture_review_pass":true},{"dossier_id":"D15","capture_review_pass":true},{"dossier_id":"D16","capture_review_pass":true},{"dossier_id":"D17","capture_review_pass":true},{"dossier_id":"D18","capture_review_pass":true},{"dossier_id":"D19","capture_review_pass":true},{"dossier_id":"D20","capture_review_pass":true},
+    {"dossier_id":"D21","capture_review_pass":true},{"dossier_id":"D22","capture_review_pass":true},{"dossier_id":"D23","capture_review_pass":true},{"dossier_id":"D24","capture_review_pass":true},{"dossier_id":"D25","capture_review_pass":true},{"dossier_id":"D26","capture_review_pass":true},{"dossier_id":"D27","capture_review_pass":true},{"dossier_id":"D28","capture_review_pass":true},{"dossier_id":"D29","capture_review_pass":true},{"dossier_id":"D30","capture_review_pass":true},
+    {"dossier_id":"D31","capture_review_pass":true},{"dossier_id":"D32","capture_review_pass":true},{"dossier_id":"D33","capture_review_pass":true},{"dossier_id":"D34","capture_review_pass":true},{"dossier_id":"D35","capture_review_pass":true},{"dossier_id":"D36","capture_review_pass":true},{"dossier_id":"D37","capture_review_pass":true},{"dossier_id":"D38","capture_review_pass":true},{"dossier_id":"D39","capture_review_pass":true},{"dossier_id":"D40","capture_review_pass":true},
+    {"dossier_id":"DEMO01","capture_review_pass":true},{"dossier_id":"DEMO02","capture_review_pass":true},{"dossier_id":"DEMO03","capture_review_pass":true},{"dossier_id":"DEMO04","capture_review_pass":true},{"dossier_id":"DEMO05","capture_review_pass":true},
+    {"dossier_id":"REMIX01","capture_review_pass":true},{"dossier_id":"REMIX02","capture_review_pass":true},{"dossier_id":"REMIX03","capture_review_pass":true},{"dossier_id":"REMIX04","capture_review_pass":true},{"dossier_id":"REMIX05","capture_review_pass":true},{"dossier_id":"REMIX06","capture_review_pass":true},{"dossier_id":"REMIX07","capture_review_pass":true},{"dossier_id":"REMIX08","capture_review_pass":true},{"dossier_id":"REMIX09","capture_review_pass":true},{"dossier_id":"REMIX10","capture_review_pass":true},{"dossier_id":"REMIX11","capture_review_pass":true},{"dossier_id":"REMIX12","capture_review_pass":true}
+  ]
+}
