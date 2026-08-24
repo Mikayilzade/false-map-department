@@ -55,6 +55,32 @@
         }
       }
     },
+    "D33": {
+      "derived_fact_bindings": {
+        "D33_COMPACT_NETWORK_OK": {
+          "kind": "subject_route_reachable"
+        }
+      }
+    },
+    "D34": {
+      "projection_expectations": {
+        "D34_DESTINATION_CLASS": "market"
+      },
+      "derived_fact_bindings": {
+        "D34_NO_EXTRA_INFRASTRUCTURE": {
+          "kind": "no_active_editable_family_outside_allowlist",
+          "primitive_family": "road",
+          "allowed_candidate_ids": ["D34_R_REG"]
+        }
+      }
+    },
+    "D35": {
+      "derived_fact_bindings": {
+        "D35_SERVICE_BACKBONE_OK": {
+          "kind": "subject_route_reachable"
+        }
+      }
+    },
     "D36": {
       "node_cell_id": {
         "D36_N_HOME": "D36_C_HOME",
@@ -64,6 +90,36 @@
         "D36_BORDER_GATE_EAST": {
           "cell_id": "D36_C_GATE",
           "target_jurisdiction_id": "D36_J_EAST"
+        }
+      },
+      "projection_expectations": {
+        "D36_REGIONAL_OWNERSHIP": "D36_J_EAST"
+      }
+    },
+    "D37": {
+      "derived_fact_bindings": {
+        "D37_TWO_VIEW_CONTINUITY": {
+          "kind": "subject_route_reachable"
+        }
+      }
+    },
+    "D38": {
+      "node_cell_id": {
+        "D38_N_START": "D38_C_START",
+        "D38_N_A": "D38_C_A",
+        "D38_N_B": "D38_C_B",
+        "D38_N_END": "D38_C_END"
+      },
+      "derived_fact_bindings": {
+        "D38_PROCESSION_ROUTE_CONTINUITY": {
+          "kind": "subject_route_reachable"
+        }
+      }
+    },
+    "D39": {
+      "derived_fact_bindings": {
+        "D39_CIVIC_CONTINUITY": {
+          "kind": "subject_route_reachable"
         }
       }
     },
@@ -77,6 +133,11 @@
         "D40_BORDER_HALL_EAST": {
           "cell_id": "D40_C_HALL",
           "target_jurisdiction_id": "D40_J_EAST"
+        }
+      },
+      "derived_fact_bindings": {
+        "D40_DEPARTMENT_CONTINUITY": {
+          "kind": "subject_route_reachable"
         }
       }
     },
