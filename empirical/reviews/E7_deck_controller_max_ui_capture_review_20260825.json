@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "gate_id": "E7",
+  "scenario_id": "deck_controller_max_ui",
+  "evidence_kind": "ASSISTANT_VISUAL_CAPTURE_REVIEW_NOT_HARDWARE_OR_GATE_DISPOSITION",
+  "reviewer_class": "assistant_visual_inspection",
+  "source_run_id": 32786082067,
+  "source_head_sha": "74f08e9b0de367a0ccfef18db74238aaf4584681",
+  "source_artifact_id": 9541582153,
+  "source_artifact_digest": "sha256:c086a41458b696a4c69b45a5e0944ef40da1277a50a7103b34cacc007a390188",
+  "scenario_signature": {
+    "viewport": [1280, 800],
+    "ui_scale_percent": 150,
+    "device_mode": "steam_deck_controller_1280x800",
+    "non_color": false,
+    "reduced_motion": false,
+    "no_audio": false
+  },
+  "review_method": "All 57 capture frames were visually inspected in six contact sheets; the previously failing dense D39 and D40 frames were additionally inspected at full 1280x800 resolution after repair.",
+  "reviewed_dossier_ids": [
+    "D01", "D02", "D03", "D04", "D05", "D06", "D07", "D08", "D09", "D10",
+    "D11", "D12", "D13", "D14", "D15", "D16", "D17", "D18", "D19", "D20",
+    "D21", "D22", "D23", "D24", "D25", "D26", "D27", "D28", "D29", "D30",
+    "D31", "D32", "D33", "D34", "D35", "D36", "D37", "D38", "D39", "D40",
+    "DEMO01", "DEMO02", "DEMO03", "DEMO04", "DEMO05",
+    "REMIX01", "REMIX02", "REMIX03", "REMIX04", "REMIX05", "REMIX06", "REMIX07", "REMIX08", "REMIX09", "REMIX10", "REMIX11", "REMIX12"
+  ],
+  "capture_review_pass_count": 57,
+  "capture_review_fail_count": 0,
+  "dense_repair_verification": {
+    "D39": "PASS — title, history controls, map/world panes, requirements focus/scroll affordance, causal panel, input hint and bottom status are all inside the 1280x800 frame.",
+    "D40": "PASS — the prior vertical overflow is removed; dense requirements are bounded to a focusable semantic-scroll region with an explicit D-pad/arrow affordance while all critical fixed controls and status remain inside the frame."
+  },
+  "interaction_acquisition": {
+    "source_manifest_status": "INTERACTION_ACQUISITION_PASS",
+    "rows": 57,
+    "interaction_pass": 57,
+    "failed_or_timeout": 0,
+    "blocked_runtime_binding": 0,
+    "note": "Automated interaction acquisition is runtime evidence only; it is not a human accessibility review and not Steam Deck hardware evidence."
+  },
+  "gate_disposition": "PENDING",
+  "remaining_e7_evidence": [
+    "grayscale_non_color full 57-case capture/review",
+    "reduced_motion full 57-case capture/review",
+    "no_audio full 57-case capture/review",
+    "actual Deck-class hardware T8-44",
+    "any human accessibility observations required by the empirical protocol"
+  ],
+  "notes": "This review supersedes only the repaired deck_controller_max_ui capture presentation class. It does not fabricate hardware or human outcomes and does not make E7 PASS."
+}
