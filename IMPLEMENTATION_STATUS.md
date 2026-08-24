@@ -1,6 +1,6 @@
 # FALSE MAP DEPARTMENT — IMPLEMENTATION STATUS
 
-Last updated: 2026-08-24
+Last updated: 2026-08-25
 Repository: `Mikayilzade/false-map-department`
 
 ## Master state
@@ -14,79 +14,64 @@ Repository: `Mikayilzade/false-map-department`
 - 12D Content Population: **COMPLETE**
 - 12E UX / Accessibility / Controller / Deck: **COMPLETE**
 - 12F Adversarial QA: **COMPLETE — real-Godot runtime-green**
-- 12G Empirical Gates: **IN PROGRESS — acquisition/runtime readiness GREEN; actual empirical evidence pending**
+- 12G Empirical Gates: **IN PROGRESS — real E7 capture/interaction evidence acquisition underway; human/hardware gates still pending**
 - 12H Release Candidate: **NO**
 - IMPLEMENTATION COMPLETE: **NO**
 
-## Latest implementation milestone — 2026-08-24
+## Latest implementation milestone — 2026-08-25
 
 ### Phase / subphase
-**12G Empirical Design Gates / broad production acquisition readiness — RUNTIME GREEN**
+**12G Empirical Design Gates / E7 maximum-UI capture acquisition, observed overflow repair and exact-head recapture — RUNTIME GREEN / E7 STILL PENDING**
 
-### What is now implemented
-- Machine-readable E1-E12 + T8-44 gate registry with anti-fabrication rules.
-- E1/E2/E11 opt-in telemetry and T8-44 reference-hardware profiler format.
-- E3-E7/E9-E10 session/capture packet generation and blank evidence templates.
-- Safe append-only evidence collection, qualitative dispositions and gate dashboard.
-- E7 planning matrix covers all **57 shippable IDs x 5 scenarios = 285 blank capture rows**.
-- Production DEMO01-DEMO05 playable path using the real `CoreTransactionCoordinator`, Undo/Redo and Stability.
-- Mature production empirical scene for representative campaign/remix acquisition cases.
-- Six primitive-family runtime acquisition support, multi-layer authority inspection, readable causal presentation and executable E7 capture path.
-- Remix overlays are materialized over their declared `source_substrate_id`; they are not misread as standalone dossiers.
-- Linked authority source facts are projected from authoritative map state rather than a manually synchronized shadow state.
-- Explicit runtime bindings are used where authored node/cell/border/zone semantics are not self-contained; stable-ID spelling is not treated as hidden geometry.
+### What was performed
+- Continued from repository `NEXT ACTION` and used the existing notification-safe E7 live-batch mechanism rather than creating a new workflow.
+- Requested the complete `deck_controller_max_ui` scenario for all **57 shippable IDs** at **1280x800 / 150% UI scale / Steam-Deck-controller presentation mode**.
+- First actual rendered batch (`run 32785341845`, source head `4bcacc1f6843248faf8147189d0900aac6f074be`) acquired **57/57 captures** and **57/57 automated interaction rows** with zero runtime failures/timeouts.
+- Visual inspection exposed a real E7 presentation blocker rather than masking it: D40 overflowed the 800px viewport vertically and D39 partially clipped the bottom status line at 150% UI scale.
+- Recorded the directly observed pre-repair evidence in `empirical/reviews/E7_deck_controller_max_ui_targeted_review_20260825_prefx.json`; it is explicitly targeted evidence, not a gate disposition.
+- Added `src/presentation/scrollable_requirements_label.gd` and updated the empirical production scene so dense requirement text at maximum UI scale is bounded inside a focusable Label region and can be semantically scrolled with keyboard arrows/D-pad. The fixed title/history/map/world/causal/input/status regions no longer get pushed outside the Deck viewport.
+- Added an explicit visible scroll affordance for dense maximum-scale requirement text; no mouse wheel, hover or pointer-only path is required.
+- Re-requested the same complete 57-case scenario after repair, preserving the exact test conditions instead of weakening the scenario.
 
-### Runtime/content repairs exposed by real acquisition execution
-The broad suite found and repaired implementation-sensitive gaps instead of masking them:
-- guarded app entrypoint so empirical sessions cannot silently run the old VS01 vertical slice;
-- D05/DEMO05 introductory border ownership contradiction, while D06 retains the preserve-West lesson;
-- frozen-content stable-ID extraction priority for landmark/portal slot records;
-- A8 target adaptation and cumulative Procession sequence/jurisdiction state;
-- late O4/O9/O10/O11/O12 runtime contract normalization/evaluation;
-- map-backed linked-authority projection and explicit D38 continuity binding;
-- D22 known-solution command order so livestock exclusion is established before time-advancing connectivity changes;
-- Stability initial transition hashing now uses the real initial linked projection and cannot earn a false non-idle P10-R3 transition from an empty portal dictionary;
-- D39 `reaction_beats_after_edit=0`, preserving its authored five-step A10 witness inside the five explicit Stability cycles;
-- D38 final pacing `reaction_beats_after_edit=1`: the two solution edits advance Procession START→A→B, make O8 eligible, and explicit Stability retains a real B→END non-idle transition;
-- Act-V P10-R3 validation corrected to the canonical rule: a >1-cycle Stability window must contain **at least one relevant real non-idle transition**, not one transition witness in every cycle.
+### Exact post-repair validation/evidence
+- Post-repair source/request head: `74f08e9b0de367a0ccfef18db74238aaf4584681`.
+- Notification-safe automatic Godot run: **32786082067** — **SUCCESS**.
+- Exact run metadata targets `74f08e9b0de367a0ccfef18db74238aaf4584681`.
+- Aggregate baseline result: **PASS**; `runtime_rc=0`, `phase12a_contract_rc=0`, `phase12g_instrumentation_rc=0`, bootstrap/CI-policy/pinned-Godot checks all zero.
+- Requested E7 live capture step: **SUCCESS**.
+- Recapture metadata: `scenario_id=deck_controller_max_ui`, `capture_rc=0`, source head exactly `74f08e9b0de367a0ccfef18db74238aaf4584681`.
+- Post-repair capture artifact: ID `9541582153`, digest `sha256:c086a41458b696a4c69b45a5e0944ef40da1277a50a7103b34cacc007a390188`.
+- Acquisition manifest: **57/57 captured**, **0 failed/timeout**, **0 blocked runtime binding**; automated interaction acquisition **57/57 pass**, return code 0.
+- All 57 post-repair frames were visually reviewed in six contact sheets; the previously failing D39/D40 frames were also reviewed at full 1280x800 resolution.
+- D39 post-repair: **capture review PASS** — bottom status/control region remains inside the viewport.
+- D40 post-repair: **capture review PASS** — fixed regions remain inside 1280x800 and dense requirements use the explicit focus + arrow/D-pad scroll affordance.
+- Full post-repair visual review recorded in `empirical/reviews/E7_deck_controller_max_ui_capture_review_20260825.json`: **57 capture-review pass / 0 fail**.
+- Evidence commit produced by the capture workflow: `58059f12f6a2d50a4a095c9c654e9d4613b96ba6`; review evidence followed in `6b84515258cb90bba58b28dcfcbadf55f5d2401a`.
 
-### Exact factual validation
-- Final narrow D38 repair merged in PR #18 as `0e26110cdae5593a117b5e4e34139c76796521d7`.
-- Notification-safe automatic Godot run: **32704001995**.
-- Run metadata targets exactly `0e26110cdae5593a117b5e4e34139c76796521d7`.
-- Evidence result: **PASS**.
-- `runtime_rc=0`.
-- `phase12a_contract_rc=0`.
-- `phase12g_instrumentation_rc=0`.
-- bootstrap / CI policy / pinned-Godot fetch checks: all zero.
-- Godot version: **4.7.1-stable**.
-- Phase 12G precondition audit: **PASS**.
-- Phase 12G instrumentation audit: **PASS**.
-- Phase 12G session packet audit: **PASS**.
-- Phase 12G operator workflow audit: **PASS**.
-- Phase 12G acquisition readiness audit: **PASS**.
-- E1/E2/E11 instrumentation tests: **PASS**.
-- DEMO01-DEMO05 production playtest tests: **PASS**.
-- Broad production acquisition tests: **PASS**.
-- Remix review-fix tests: **PASS**.
-- Aggregate packet: **`Phase 12G instrumentation + demo + broad production acquisition-readiness packet: PASS`**.
-- Evidence commit produced by the notification-safe workflow: `84b17ed6583ab1c426a2eb932c07a3f1c8f3bc1e`.
+### Canonical/design impact
+- **No canonical contradiction discovered.**
+- Frozen gameplay, deterministic domain behavior, authored content and progression were not changed.
+- The repair is presentation/accessibility-only and directly serves the frozen 1280x800, UI-scaling and non-pointer semantic-input contracts.
 
 ## Current empirical state
-The runtime/readiness milestone above is **not** empirical PASS evidence. Dashboard remains intentionally:
+Runtime/readiness checks and reviewed machine-capture evidence are **not substitutes for human or Deck-hardware evidence**. Gate dashboard remains intentionally:
 - **13 PENDING**
 - **0 PASS**
 - **0 FAIL**
 - **0 BLOCKED**
 
-Current required evidence:
+E7 evidence acquired so far includes:
+- `deck_controller_base`: complete 57-case rendered capture visual review already recorded in the repository.
+- `deck_controller_max_ui`: complete 57-case post-repair capture visual review **PASS**, plus 57/57 automated interaction acquisition on the exact repaired source head.
+- Still required before E7 can receive an evidence-backed disposition: complete `grayscale_non_color`, `reduced_motion` and `no_audio` scenario acquisition/review; actual Deck-class T8-44 evidence; and any human accessibility observations required by the frozen empirical protocol.
+
+Other required evidence remains unchanged:
 - E1: representative naive-player map→world comprehension sessions.
 - E2: representative second-order consequence prediction sessions.
 - E3: mature causal reasoning versus deliberate legal-edit enumeration comparison.
 - E4: representative D13-D22 / D29-D36 repetition perception.
 - E5: linked authority-owner identification by players without relying on tutorial memory.
 - E6: late-game causal-readability observation through normal ribbon/Inspect.
-- E7: actual capture + interaction review across required device/accessibility scenarios; blank/generated rows are not review outcomes.
 - E8: representative store/trailer expectation test when marketing assets exist.
 - E9: human remix-distinctness perception.
 - E10: human behavioral-distinctness evidence for taught archetypes; merge/cut only if evidence requires it.
@@ -95,20 +80,21 @@ Current required evidence:
 - T8-44: Deck-class reference-hardware profile.
 
 ## Failures / blockers
-- **No known implementation/runtime blocker remains for the current Phase 12G acquisition packet.**
+- The observed D39/D40 `deck_controller_max_ui` overflow blocker is **REPAIRED AND RECAPTURED GREEN**.
+- **No known implementation/runtime blocker remains for the currently acquired E7 max-UI path.**
 - Human gates cannot be completed synthetically.
-- T8-44 still requires Deck-class reference hardware.
+- T8-44 still requires actual Deck-class reference hardware.
 - E8 waits for representative store/trailer assets.
 - E12 remains intentionally near-release.
 
 ## NEXT ACTION
-Begin **actual 12G evidence acquisition**, not another synthetic correctness-tooling pass.
+Continue **actual 12G evidence acquisition**, not synthetic gate completion.
 
 Priority order:
-1. Run the earliest practical **E1 + E2 + E11** representative DEMO01-DEMO05 first-session batch and collect observer-controlled rows/timing.
-2. Run representative **E3-E6 + E9-E10** mature campaign/remix playtests using the now-green production empirical path.
-3. Execute and manually review **E7** capture/interaction scenarios for the runtime-ready shippable cases, expanding/repairing only concrete capture blockers that appear.
-4. Run **T8-44** when Deck-class reference hardware is available.
+1. Acquire and visually review the next complete E7 accessibility scenario, **`grayscale_non_color` across all 57 shippable IDs**, using the existing live-batch mechanism; repair only directly observed blockers. Then do `reduced_motion` and `no_audio` the same way.
+2. Run the earliest practical **E1 + E2 + E11** representative DEMO01-DEMO05 first-session human batch and collect observer-controlled rows/timing; do not infer these outcomes from automation.
+3. Run representative **E3-E6 + E9-E10** mature campaign/remix human playtests using the green production empirical path.
+4. Run **T8-44** only on actual Deck-class reference hardware.
 5. Run **E8** only when representative store/trailer assets exist.
 6. Keep **E12** for near-release market/value recheck.
 
