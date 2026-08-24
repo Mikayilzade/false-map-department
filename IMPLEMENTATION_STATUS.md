@@ -7,78 +7,109 @@ Repository: `Mikayilzade/false-map-department`
 - Design frozen: **YES**
 - Fresh-session design audit: **PASS — 32/32**
 - Design migration: **COMPLETE / VERIFIED**
-- Final-freeze integrity: **VERIFIED — blob SHA `fc988f8eaa031507f5ae84d6e60316356bc6cb2a` matches factory source**
+- Final-freeze integrity: **VERIFIED**
 - 12A Technical Bootstrap: **COMPLETE**
 - 12B Vertical Slice: **COMPLETE**
 - 12C Core Systems: **COMPLETE**
 - 12D Content Population: **COMPLETE**
 - 12E UX / Accessibility / Controller / Deck: **COMPLETE**
 - 12F Adversarial QA: **COMPLETE — real-Godot runtime-green**
-- 12G Empirical Gates: **IN PROGRESS — DEMO01-DEMO05 production acquisition path runtime-green; actual observations pending**
+- 12G Empirical Gates: **IN PROGRESS — acquisition/runtime readiness GREEN; actual empirical evidence pending**
 - 12H Release Candidate: **NO**
 - IMPLEMENTATION COMPLETE: **NO**
 
-## Latest implementation run — 2026-08-24
+## Latest implementation milestone — 2026-08-24
 
 ### Phase / subphase
-**12G Empirical Design Gates / production demo acquisition readiness — RUNTIME GREEN**
+**12G Empirical Design Gates / broad production acquisition readiness — RUNTIME GREEN**
 
-### Completed before this packet
-- Machine-readable E1-E12 + T8-44 registry and anti-fabrication evidence harness are implemented.
-- E1/E2/E11 opt-in telemetry, T8-44 profiler, E3-E7/E9-E10 session/capture packet generation, safe evidence collector, qualitative dispositions and gate dashboard are implemented.
-- E7 planning packet covers all **57 shippable IDs** across five Deck/accessibility scenarios = **285 blank capture rows**.
-- E10 correctly represents the frozen ten mechanical families A1-A10 = 45 comparison pairs, while retaining themed raw variant IDs separately for auditability.
-- All unobserved human/market/hardware gates remain PENDING by construction.
+### What is now implemented
+- Machine-readable E1-E12 + T8-44 gate registry with anti-fabrication rules.
+- E1/E2/E11 opt-in telemetry and T8-44 reference-hardware profiler format.
+- E3-E7/E9-E10 session/capture packet generation and blank evidence templates.
+- Safe append-only evidence collection, qualitative dispositions and gate dashboard.
+- E7 planning matrix covers all **57 shippable IDs x 5 scenarios = 285 blank capture rows**.
+- Production DEMO01-DEMO05 playable path using the real `CoreTransactionCoordinator`, Undo/Redo and Stability.
+- Mature production empirical scene for representative campaign/remix acquisition cases.
+- Six primitive-family runtime acquisition support, multi-layer authority inspection, readable causal presentation and executable E7 capture path.
+- Remix overlays are materialized over their declared `source_substrate_id`; they are not misread as standalone dossiers.
+- Linked authority source facts are projected from authoritative map state rather than a manually synchronized shadow state.
+- Explicit runtime bindings are used where authored node/cell/border/zone semantics are not self-contained; stable-ID spelling is not treated as hidden geometry.
 
-### Acquisition-readiness blocker found and repaired
-- Before this packet, the only playable app presentation still loaded `content/vertical_slice/VS01.json` through `SliceInteractionController`. Production DEMO01-DEMO05 existed and validated as content, but a representative E11 run would have measured the wrong playable build.
-- Added a guarded application entrypoint. Normal launch still routes to the legacy validated `main.tscn`; an explicit `FMD_PLAYTEST_DOSSIER_ID` routes to the production playtest scene. This prevents a requested empirical session from silently falling back to VS01.
-- Added `ProductionDossierRuntimeAdapter` to translate authored production dossier schema into the existing deterministic `CoreTransactionCoordinator` runtime without guessing hidden geometry.
-- Added explicit `content/runtime_bindings.json` for the currently necessary D05/DEMO05 node-to-cell and border-target bindings. Missing production geometry is rejected instead of inferred from stable-ID names.
-- Added `ProductionPlaytestController` using the real transaction coordinator, Undo/Redo and `StabilityInteractionService`.
-- Added a real 1280x800 production playtest scene for DEMO01-DEMO05 with official-map controls, derived-world state, visible requirements, causal events, controller/keyboard semantic input, correspondence, Undo/Redo, Stability and sequential demo progression.
-- Added human-readable DEMO01-DEMO05 playtest copy. It exposes the frozen visible goals/lessons but contains no known-solution commands.
-- Existing opt-in empirical telemetry is wired into the production scene: correspondence opening, first observed broken requirement and final DEMO05 completion are timed; human comprehension/prediction/aha success is still explicit observer evidence and is never inferred from clicks.
+### Runtime/content repairs exposed by real acquisition execution
+The broad suite found and repaired implementation-sensitive gaps instead of masking them:
+- guarded app entrypoint so empirical sessions cannot silently run the old VS01 vertical slice;
+- D05/DEMO05 introductory border ownership contradiction, while D06 retains the preserve-West lesson;
+- frozen-content stable-ID extraction priority for landmark/portal slot records;
+- A8 target adaptation and cumulative Procession sequence/jurisdiction state;
+- late O4/O9/O10/O11/O12 runtime contract normalization/evaluation;
+- map-backed linked-authority projection and explicit D38 continuity binding;
+- D22 known-solution command order so livestock exclusion is established before time-advancing connectivity changes;
+- Stability initial transition hashing now uses the real initial linked projection and cannot earn a false non-idle P10-R3 transition from an empty portal dictionary;
+- D39 `reaction_beats_after_edit=0`, preserving its authored five-step A10 witness inside the five explicit Stability cycles;
+- D38 final pacing `reaction_beats_after_edit=1`: the two solution edits advance Procession START→A→B, make O8 eligible, and explicit Stability retains a real B→END non-idle transition;
+- Act-V P10-R3 validation corrected to the canonical rule: a >1-cycle Stability window must contain **at least one relevant real non-idle transition**, not one transition witness in every cycle.
 
-### Smallest content repair found by real runtime execution
-- Real transaction execution exposed a contradiction in the introductory border lesson D05/DEMO05: West owned only HOME, while the frozen one-cell solution transfers HOME to East, yet West had been marked `required_exist=true`; the authority engine correctly rejects emptying a required jurisdiction.
-- Re-authored only the smallest affected intro instances: D05 West and DEMO05 West are now non-required, allowing the taught ownership transfer. D06 remains `required_exist=true` for West and therefore retains the next lesson's explicit preserve-West constraint.
-- Content hashes were recomputed; no new mechanic or solution command was introduced.
+### Exact factual validation
+- Final narrow D38 repair merged in PR #18 as `0e26110cdae5593a117b5e4e34139c76796521d7`.
+- Notification-safe automatic Godot run: **32704001995**.
+- Run metadata targets exactly `0e26110cdae5593a117b5e4e34139c76796521d7`.
+- Evidence result: **PASS**.
+- `runtime_rc=0`.
+- `phase12a_contract_rc=0`.
+- `phase12g_instrumentation_rc=0`.
+- bootstrap / CI policy / pinned-Godot fetch checks: all zero.
+- Godot version: **4.7.1-stable**.
+- Phase 12G precondition audit: **PASS**.
+- Phase 12G instrumentation audit: **PASS**.
+- Phase 12G session packet audit: **PASS**.
+- Phase 12G operator workflow audit: **PASS**.
+- Phase 12G acquisition readiness audit: **PASS**.
+- E1/E2/E11 instrumentation tests: **PASS**.
+- DEMO01-DEMO05 production playtest tests: **PASS**.
+- Broad production acquisition tests: **PASS**.
+- Remix review-fix tests: **PASS**.
+- Aggregate packet: **`Phase 12G instrumentation + demo + broad production acquisition-readiness packet: PASS`**.
+- Evidence commit produced by the notification-safe workflow: `84b17ed6583ab1c426a2eb932c07a3f1c8f3bc1e`.
 
-### Systemic validator repair found by the new acquisition suite
-- The first production validation pass exposed an old false-positive in `FrozenContentValidator`: `_ids_from_collection` selected reference `node_id` before a landmark slot's own `landmark_slot_id` (and likewise could do so for portal nodes), producing false duplicate stable IDs.
-- Fixed identity extraction to prefer each record's own identity (`edge_id`, `cell_id`, `crossing_slot_id`, `landmark_slot_id`, `portal_id`, `feature_id`, `candidate_id`) before fallback `node_id`.
-- Phase 12G acquisition-readiness audit now statically locks that corrected priority, and real D05/DEMO05 validator assertions provide runtime regression coverage.
+## Current empirical state
+The runtime/readiness milestone above is **not** empirical PASS evidence. Dashboard remains intentionally:
+- **13 PENDING**
+- **0 PASS**
+- **0 FAIL**
+- **0 BLOCKED**
 
-### Real production-path validation
-- Added `test_phase12g_production_playtest_runner.gd`.
-- It loads the exact production DEMO01-DEMO05 catalog and executes every authored `known_solution_envelope.solution_commands` through the real `CoreTransactionCoordinator`, rather than merely inspecting JSON.
-- It verifies authored expected requirement truth, immediate completion where Stability is not required, real Stability completion for DEMO05, exact Undo/Redo state-hash restoration, authored bridge-candidate -> crossing-slot binding, and D05/DEMO05/D06 border-contract intent.
-- Added a headless smoke launch with `FMD_PLAYTEST_DOSSIER_ID=DEMO01` so the actual production playtest scene must parse and boot.
-- The pre-existing Phase 12A bootstrap audit was updated narrowly: it accepts the guarded entrypoint only when the explicit empirical selector and legacy `main.tscn` fallback are both present.
+Current required evidence:
+- E1: representative naive-player map→world comprehension sessions.
+- E2: representative second-order consequence prediction sessions.
+- E3: mature causal reasoning versus deliberate legal-edit enumeration comparison.
+- E4: representative D13-D22 / D29-D36 repetition perception.
+- E5: linked authority-owner identification by players without relying on tutorial memory.
+- E6: late-game causal-readability observation through normal ribbon/Inspect.
+- E7: actual capture + interaction review across required device/accessibility scenarios; blank/generated rows are not review outcomes.
+- E8: representative store/trailer expectation test when marketing assets exist.
+- E9: human remix-distinctness perception.
+- E10: human behavioral-distinctness evidence for taught archetypes; merge/cut only if evidence requires it.
+- E11: real demo timing and collateral-consequence “aha” observation in the 15–25 minute target window.
+- E12: near-release perceived-value/pricing recheck.
+- T8-44: Deck-class reference-hardware profile.
 
-### Validation history for this packet
-- PR #7 production acquisition path merged as `32386b9f81fe6f2bb35232d165565709a971b0ff`. First factual run correctly failed, revealing the stale Phase12A main-scene assertion, one test fixture ID typo and the frozen-validator false duplicate issue.
-- PR #8 repaired the guarded-entrypoint audit and bridge fixture, merged as `3c69ec714b75d9095e1b456335d702a024f6de61`. Second factual run returned `runtime_rc=0` and `phase12a_contract_rc=0`; only the newly diagnosed frozen-validator bug remained.
-- PR #9 repaired stable-identity extraction, merged as `c41da9eca0ded2e8c361ee170d1a88be524acf01`.
-- Automatic baseline run `32695197454` targeted exactly `c41da9eca0ded2e8c361ee170d1a88be524acf01`.
-- Final aggregate evidence: **PASS** — `runtime_rc=0`, `phase12a_contract_rc=0`, `phase12g_instrumentation_rc=0`, all bootstrap/CI/fetch checks zero.
-- Detailed Phase 12G results: preconditions PASS; instrumentation audit PASS; session packet audit PASS; operator workflow audit PASS; acquisition readiness audit PASS; Godot 4.7.1 instrumentation tests PASS; **production DEMO01-DEMO05 playtest tests PASS**; production playtest scene smoke PASS.
-- Empirical dashboard remains correctly **13 PENDING / 0 PASS / 0 FAIL / 0 BLOCKED** because these are acquisition-readiness facts, not human/hardware/market observations.
-
-### Current empirical state
-- E1/E2/E11: **production DEMO01-DEMO05 build is now technically ready for representative acquisition; actual tester rows remain PENDING**.
-- E3-E6/E9-E10: protocols/templates exist, but representative campaign/remix production-playtest coverage still needs the necessary explicit runtime geometry/bindings before claiming acquisition readiness for those selected cases.
-- E7: 285-row capture matrix exists, but this must not be confused with 57 production dossiers all being interactively capture-ready yet.
-- T8-44: **PENDING Deck-class reference hardware evidence**.
-- E8: **PENDING representative store/trailer expectation evidence**.
-- E12: **PENDING near-release market/value recheck**.
-
-### Failures / blockers
-- **No known correctness blocker remains for the production DEMO01-DEMO05 acquisition path.**
-- Actual E1/E2/E11 PASS/FAIL still requires representative human observations.
-- Broader E3-E7/E9-E10 acquisition requires extending the production playtest adapter/bindings to the representative campaign/remix cases used by those protocols.
-- T8-44 requires Deck-class reference hardware; E8/E12 require their appropriate external evidence stages.
+## Failures / blockers
+- **No known implementation/runtime blocker remains for the current Phase 12G acquisition packet.**
+- Human gates cannot be completed synthetically.
+- T8-44 still requires Deck-class reference hardware.
+- E8 waits for representative store/trailer assets.
+- E12 remains intentionally near-release.
 
 ## NEXT ACTION
-Continue 12G acquisition readiness in a broad implementation packet: extend the production playtest path from DEMO01-DEMO05 to the representative E3-E6/E9-E10 campaign/remix cases selected by the existing session protocols, using explicit authored/runtime bindings rather than stable-ID-name inference; then add an executable E7 production capture harness for the shippable cases that are genuinely runtime-ready. Keep all human/capture-review/hardware/market outcomes PENDING until real evidence exists. In parallel, the now-ready DEMO01-DEMO05 build may be used for real E1/E2/E11 sessions. **Do not start 12H until all E1-E12 gates have evidence-backed dispositions or an explicit release blocker.**
+Begin **actual 12G evidence acquisition**, not another synthetic correctness-tooling pass.
+
+Priority order:
+1. Run the earliest practical **E1 + E2 + E11** representative DEMO01-DEMO05 first-session batch and collect observer-controlled rows/timing.
+2. Run representative **E3-E6 + E9-E10** mature campaign/remix playtests using the now-green production empirical path.
+3. Execute and manually review **E7** capture/interaction scenarios for the runtime-ready shippable cases, expanding/repairing only concrete capture blockers that appear.
+4. Run **T8-44** when Deck-class reference hardware is available.
+5. Run **E8** only when representative store/trailer assets exist.
+6. Keep **E12** for near-release market/value recheck.
+
+Keep every unobserved gate **PENDING**. A failed empirical gate reopens only the minimum affected rule/content. **Do not start 12H until E1-E12 have evidence-backed dispositions or an explicit release blocker.**
