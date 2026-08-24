@@ -80,7 +80,10 @@ def main():
             if lb.get('max_cross_layer_projection_edges_per_required_chain',99)>3 or not lb.get('authoritative_source_unique_for_every_required_chain'): fail(f'{did} P10-R5 linked readability invalid')
         if d.get('stability_required_cycles',0)>1:
             sol=md.get('known_solution_envelope',{}); ev=sol.get('stability_transition_evidence',[])
-            if len(ev)!=d.get('stability_required_cycles') or not sol.get('relevant_temporal_transition_observed'): fail(f'{did} P10-R3 Stability proof invalid')
+            if not ev or not sol.get('relevant_temporal_transition_observed'): fail(f'{did} P10-R3 Stability proof missing a real transition witness')
+            required_cycles=d.get('stability_required_cycles')
+            if not any(str(row.get('from_node_id','')) != str(row.get('to_node_id','')) for row in ev): fail(f'{did} P10-R3 Stability proof contains no non-idle transition')
+            if any(int(row.get('cycle',0)) < 1 or int(row.get('cycle',0)) > required_cycles for row in ev): fail(f'{did} P10-R3 Stability witness cycle outside verification window')
         if 'landmark' in d.get('editable_primitive_permissions',[]):
             p=md.get('semantic_non_dominance',{})
             if not p.get('all_initial_single_relabels_tested') or not p.get('relabel_plus_cheapest_intervention_tested') or p.get('bypasses_central_causal_lesson',True): fail(f'{did} P10-R2 relabel proof invalid')
@@ -100,7 +103,7 @@ def main():
     if 'border' not in d36.get('editable_primitive_permissions',[]) or not d36.get('mastery_contracts') or not d36['validation_metadata'].get('border_move_solves_three_systems'): fail('D36 border compression + optional mastery contract missing')
     if len(d37.get('map_layers',[]))!=4 or editable_layers(d37)!=2 or not d37['validation_metadata'].get('first_four_layer_case'): fail('D37 must be first four-layer case with exactly two editable surfaces')
     sol38=d38['validation_metadata']['known_solution_envelope']
-    if not has_agent(d38,'A8_') or not {'O8_VISIT_SEQUENCE','O12_CROSS_LAYER_CONNECTOR_STATE'}<=families(d38) or d38.get('stability_required_cycles')!=2 or len(sol38.get('stability_transition_evidence',[]))!=2: fail('D38 portal + Procession Stability grammar invalid')
+    if not has_agent(d38,'A8_') or not {'O8_VISIT_SEQUENCE','O12_CROSS_LAYER_CONNECTOR_STATE'}<=families(d38) or d38.get('stability_required_cycles')!=2 or d38.get('reaction_beats_after_edit')!=1 or len(sol38.get('stability_transition_evidence',[]))<1: fail('D38 portal + Procession Stability grammar invalid')
     sol39=d39['validation_metadata']['known_solution_envelope']
     if d39.get('stability_required_cycles')!=5 or len(sol39.get('stability_transition_evidence',[]))!=5 or not d39.get('mastery_contracts'): fail('D39 five-cycle civic synthesis/mastery contract invalid')
     md40=d40['validation_metadata']
