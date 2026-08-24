@@ -1,0 +1,8 @@
+run_id=32708021848
+head_sha=8228fd07f793663291646355d6b6b4dacc8518b8
+scenario_id=deck_controller_base
+dossiers=D29,D33,D36,D38,D40
+fetch_rc=0
+capture_rc=2
+artifact_name=phase12g-e7-live-batch
+review_outcome=UNREVIEWED

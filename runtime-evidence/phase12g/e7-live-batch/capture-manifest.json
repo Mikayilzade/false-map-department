@@ -1,0 +1,85 @@
+{
+  "counts": {
+    "blocked_runtime_binding": 0,
+    "captured_unreviewed": 0,
+    "failed_or_timeout": 5,
+    "reviewed_pass": 0,
+    "rows": 5
+  },
+  "evidence_kind": "CAPTURE_ACQUISITION_MANIFEST_NOT_REVIEW_OUTCOME",
+  "execute_requested": true,
+  "gate_id": "E7",
+  "rows": [
+    {
+      "capture_path": null,
+      "device_mode": "steam_deck_controller_1280x800",
+      "dossier_id": "D29",
+      "no_audio": false,
+      "non_color": false,
+      "process_returncode": null,
+      "reduced_motion": false,
+      "review_outcome": null,
+      "scenario_id": "deck_controller_base",
+      "sidecar_path": null,
+      "status": "CAPTURE_TIMEOUT",
+      "ui_scale": 100
+    },
+    {
+      "capture_path": null,
+      "device_mode": "steam_deck_controller_1280x800",
+      "dossier_id": "D33",
+      "no_audio": false,
+      "non_color": false,
+      "process_returncode": null,
+      "reduced_motion": false,
+      "review_outcome": null,
+      "scenario_id": "deck_controller_base",
+      "sidecar_path": null,
+      "status": "CAPTURE_TIMEOUT",
+      "ui_scale": 100
+    },
+    {
+      "capture_path": null,
+      "device_mode": "steam_deck_controller_1280x800",
+      "dossier_id": "D36",
+      "no_audio": false,
+      "non_color": false,
+      "process_returncode": null,
+      "reduced_motion": false,
+      "review_outcome": null,
+      "scenario_id": "deck_controller_base",
+      "sidecar_path": null,
+      "status": "CAPTURE_TIMEOUT",
+      "ui_scale": 100
+    },
+    {
+      "capture_path": null,
+      "device_mode": "steam_deck_controller_1280x800",
+      "dossier_id": "D38",
+      "no_audio": false,
+      "non_color": false,
+      "process_returncode": null,
+      "reduced_motion": false,
+      "review_outcome": null,
+      "scenario_id": "deck_controller_base",
+      "sidecar_path": null,
+      "status": "CAPTURE_TIMEOUT",
+      "ui_scale": 100
+    },
+    {
+      "capture_path": null,
+      "device_mode": "steam_deck_controller_1280x800",
+      "dossier_id": "D40",
+      "no_audio": false,
+      "non_color": false,
+      "process_returncode": null,
+      "reduced_motion": false,
+      "review_outcome": null,
+      "scenario_id": "deck_controller_base",
+      "sidecar_path": null,
+      "status": "CAPTURE_TIMEOUT",
+      "ui_scale": 100
+    }
+  ],
+  "schema_version": 1
+}
