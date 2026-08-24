@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "gate_id": "E7",
+  "scenario_id": "deck_non_color",
+  "evidence_kind": "ASSISTANT_VISUAL_CAPTURE_REVIEW_NOT_HARDWARE_OR_HUMAN_GATE_DISPOSITION",
+  "reviewer_class": "assistant_visual_inspection",
+  "review_date": "2026-08-25",
+  "source": {
+    "workflow_run_id": 32790280274,
+    "source_head_sha": "1936e184f72fd3aec8863b7c254cde725232d51f",
+    "evidence_commit": "a460ca095d36ef0ceffa1d7599ef472b7d666aae",
+    "artifact_id": 9542939803,
+    "artifact_name": "phase12g-e7-live-batch",
+    "artifact_digest": "sha256:30ee487702693c9b1230f47b4555ff02a69f168703cf292725c83683ac9c6436",
+    "capture_manifest": "runtime-evidence/phase12g/e7-live-batch/capture-manifest.json"
+  },
+  "scenario_signature": {
+    "viewport": [1280, 800],
+    "ui_scale_percent": 100,
+    "device_mode": "steam_deck_controller_1280x800",
+    "non_color": true,
+    "reduced_motion": false,
+    "no_audio": false
+  },
+  "review_method": "All 57 rendered PNGs were visually inspected in seven contact sheets. D39 and D40 were included in the dense late-campaign group. A local artifact integrity check additionally confirmed every PNG is exactly 1280x800 and every pixel has equal R/G/B channels under the non-color scenario.",
+  "reviewed_dossier_ids": [
+    "D01", "D02", "D03", "D04", "D05", "D06", "D07", "D08", "D09", "D10",
+    "D11", "D12", "D13", "D14", "D15", "D16", "D17", "D18", "D19", "D20",
+    "D21", "D22", "D23", "D24", "D25", "D26", "D27", "D28", "D29", "D30",
+    "D31", "D32", "D33", "D34", "D35", "D36", "D37", "D38", "D39", "D40",
+    "DEMO01", "DEMO02", "DEMO03", "DEMO04", "DEMO05",
+    "REMIX01", "REMIX02", "REMIX03", "REMIX04", "REMIX05", "REMIX06", "REMIX07", "REMIX08", "REMIX09", "REMIX10", "REMIX11", "REMIX12"
+  ],
+  "shared_checks_applied_to_every_row": [
+    "viewport_is_1280x800",
+    "title_and_scenario_header_visible",
+    "authoritative_map_panel_visible",
+    "derived_world_panel_visible",
+    "requirements_visible",
+    "candidate_controls_visible",
+    "causal_panel_visible",
+    "input_hint_and_status_visible",
+    "no_obvious_viewport_clipping",
+    "no_obvious_component_overlap",
+    "non_color_render_is_visibly_monochrome"
+  ],
+  "capture_review_pass_count": 57,
+  "capture_review_fail_count": 0,
+  "interaction_acquisition": {
+    "source_manifest_status": "INTERACTION_ACQUISITION_PASS",
+    "rows": 57,
+    "interaction_pass": 57,
+    "failed_or_timeout": 0,
+    "blocked_runtime_binding": 0
+  },
+  "limitations": [
+    "Rendered Linux Xvfb capture review is not physical Steam Deck hardware evidence.",
+    "This is not human accessibility, comprehension, timing, market, remix-perception, or agent-distinction evidence.",
+    "T8-44 and every human-required 12G gate remain pending until actually observed."
+  ],
+  "gate_disposition": "PENDING",
+  "remaining_e7_matrix_scenarios": ["deck_reduced_motion", "deck_no_audio"],
+  "notes": "deck_controller_base and deck_controller_max_ui review summaries already exist in the repository, but this row set records only the newly acquired deck_non_color observations. E7 remains exhaustive-matrix PENDING until all 57x5 signatures are represented by append-only evidence."
+}
