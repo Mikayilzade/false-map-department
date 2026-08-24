@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource path="res://src/presentation/empirical_production_playtest.gd" type="Script" id="1"]
 [ext_resource path="res://src/presentation/presentation_accessibility_bootstrap.gd" type="Script" id="2"]
 [ext_resource path="res://src/presentation/controller_semantic_input_bridge.gd" type="Script" id="3"]
+[ext_resource path="res://src/presentation/scrollable_requirements_label.gd" type="Script" id="4"]
 
 [node name="EmpiricalProductionPlaytest" type="Control"]
 layout_mode = 3
@@ -149,8 +150,17 @@ focus_mode = 2
 
 [node name="Requirements" type="Label" parent="Margin/Layout/Views/WorldPanel/WorldLayout"]
 layout_mode = 2
+size_flags_vertical = 3
 text = "Requirements"
 autowrap_mode = 2
+focus_mode = 2
+script = ExtResource("4")
+
+[node name="RequirementsScrollHint" type="Label" parent="Margin/Layout/Views/WorldPanel/WorldLayout"]
+layout_mode = 2
+text = "Focus requirements · ↑/↓ or D-pad scrolls dense text at maximum UI scale"
+autowrap_mode = 2
+horizontal_alignment = 1
 
 [node name="CausalPanel" type="PanelContainer" parent="Margin/Layout"]
 layout_mode = 2
