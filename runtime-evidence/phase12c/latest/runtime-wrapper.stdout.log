@@ -7,4 +7,334 @@ FMD bootstrap preflight: PASS
 fixture_sha256=d64daedbdb4d685fe85b345cf0d6780dc18d89c532a892dc7b4dce43a8e3b303
 session_sha256=c7e3412436a0182737ff67470b015c4d057326ca9475abc565cbe53232536751
 == phase12a-contract ==
-PHASE12A AUDIT FAIL: project.godot missing bootstrap contract: run/main_scene="res://src/presentation/main.tscn"
+Phase 12A contract audit: PASS (16 domain files checked; guarded playtest entrypoint allowed)
+== phase12b-contract ==
+Phase 12B contract audit: PASS
+== phase12c-contract ==
+Phase 12C contract audit: PASS (six primitives + A2-A7 agent interpretation)
+== phase12c-late-contract ==
+Phase 12C late contract audit: PASS (A8-A10 + linked authority DAG)
+== phase12c-transaction-contract ==
+Phase 12C transaction contract audit: PASS (A-I + A1-A10 + O1-O12 foundation)
+== phase12c-stability-contract ==
+Phase 12C Stability contract audit: PASS (P10-R3/P10-R8 + durability + idempotency)
+== phase12c-procession-progress-contract ==
+Phase 12C Procession progress audit: PASS (persistent A8 sequence + O8 + P10-R3 recovery)
+== phase12c-footprint-causal-contract ==
+Phase 12C footprint/causal audit: PASS (final footprint + canonical DAG + P10-R6 projection)
+== phase12c-profile-demo-contract ==
+Phase 12C profile/demo contract audit: PASS (T8-28/T8-31/T8-32 + recovery)
+== phase12c-production-persistence-contract ==
+Phase 12C production persistence audit: PASS (primary/tmp/bak + migration + corrupt-evidence preservation)
+== phase12c-frozen-content-contract ==
+Phase 12C frozen content contract audit: PASS (six/A1-A10/O1-O12 + P10 metadata/catalog ceilings)
+== phase12d-act1-content-contract ==
+Phase 12D Act-I content audit: PASS (D01-D08 prefix/progression/hashes/teaching order)
+== phase12d-act2-content-contract ==
+Phase 12D Act-II content audit: PASS (D09-D16 semantics/water/P10/Stability/progression)
+== phase12d-demo-content-contract ==
+Phase 12D demo content audit: PASS (DEMO01-DEMO05 + explicit versioned import mapping)
+== phase12d-act3-content-contract ==
+Phase 12D Act-III content audit: PASS (D17-D24 Procession/continuity/mastery/linked preview+projection)
+== phase12d-act4-content-contract ==
+Phase 12D Act-IV content audit: PASS (D25-D32 linked authority/A10/Stability/synthesis)
+== phase12d-act5-content-contract ==
+Phase 12D Act-V content audit: PASS (D33-D40 final campaign synthesis + zero-mastery D40; remix prefix allowed)
+== phase12d-remix-pack1-contract ==
+Phase 12D Remix Pack 1 audit: PASS (REMIX01-REMIX04 P10-R10)
+== phase12d-remix-pack2-contract ==
+Phase 12D Remix Pack 2 audit: PASS (REMIX05-REMIX08 P10-R10, bounded source overlays)
+== phase12d-remix-pack3-contract ==
+Phase 12D Remix Pack 3 audit: PASS (REMIX09-REMIX12 P10-R10, bounded source overlays)
+== phase12d-full-catalog-contract ==
+Phase 12D strict full-catalog audit: PASS (40 campaign + 5 demo + 12 source-bound remixes)
+== phase12e-presentation-contract ==
+Phase 12E presentation/input contract audit: PASS (Deck shell + contextual semantic routing/remap + runtime compile-log guard + accessibility foundations)
+== phase12e-focus-navigation-contract ==
+Phase 12E authored focus audit: PASS (45 dossiers, 60 editable layers, six primitive families, authored stable-ID navigation)
+== phase12e-inspect-history-contract ==
+Phase 12E Inspect/history audit: PASS (current-fact agent cards + one-card-per-edit history + P10-R6 causal budget + no solution-oracle reads)
+== phase12e-stability-ux-contract ==
+Phase 12E Stability UX audit: PASS (Start/Pause/Resume/Step + 1x/2x/4x + failure ancestry + P10-R8 recovery)
+== phase12e-linked-layer-ux-contract ==
+Phase 12E linked-layer UX audit: PASS (18 linked dossiers; breadcrumbs/source jumps; <=2 editing surfaces)
+== phase12e-accessibility-settings-contract ==
+Phase 12E persisted accessibility settings audit: PASS (versioned save/defaults/migration/remaps/demo whitelist)
+== phase12e-exit-sweep-contract ==
+Phase 12E exit sweep audit: PASS (1280x800 + device/accessibility/layout contracts)
+== phase12f-transaction-history-adversarial-contract ==
+Phase 12F transaction/history adversarial audit: PASS (legality + idempotency + burst + branch truncation)
+== phase12f-broad-adversarial-contract ==
+Phase 12F broad adversarial audit: PASS (persistence + process death + profile/demo + authority/focus/content)
+== phase12f-exit-gate-contract ==
+Phase 12F exit gate audit: PASS (automated high-risk classes wired; E10-2/T8-44 retained as explicit empirical playtest/hardware dispositions)
+== import-parse ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+[  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+[  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+[  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+[  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+[  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+[92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (96 steps)[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   1% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   2% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   3% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   4% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   6% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   7% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   8% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   9% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  10% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  11% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  12% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  13% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  15% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  16% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  17% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  18% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  19% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  22% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  23% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  27% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  29% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  30% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  31% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  35% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  36% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  37% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  39% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  43% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  44% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  45% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  46% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  48% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  49% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  51% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  52% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  53% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  54% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  55% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  56% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  57% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  58% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  59% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  61% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  62% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  63% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  64% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  67% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  68% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  69% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  72% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  77% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  79% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  83% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  88% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  92% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  93% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  95% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  96% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  97% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[92m[ DONE ][39m [1mupdate_scripts_classes[22m
+[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+[  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+[92m[ DONE ][39m [1mloading_editor_layout[22m
+[0m
+== gdscript-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD tests: PASS (8 groups)
+== phase12b-history-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12B history tests: PASS
+== phase12b-interaction-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12B interaction tests: PASS (2 groups)
+== phase12b-persistence-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12B persistence/loop tests: PASS (2 groups)
+== phase12c-primitive-authority-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C primitive authority tests: PASS
+== phase12c-agent-interpretation-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C agent interpretation tests: PASS (3 groups)
+== phase12c-late-agent-linked-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C late-agent/linked-authority tests: PASS (5 groups)
+== phase12c-core-transaction-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C core-transaction tests: PASS
+== phase12c-stability-durability-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C Stability/durability/idempotency tests: PASS
+== phase12c-procession-stability-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C Procession/Stability progression tests: PASS
+== phase12c-footprint-causal-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C footprint/causal tests: PASS
+== phase12c-profile-demo-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C profile/demo tests: PASS
+== phase12c-production-persistence-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C production persistence/migration tests: PASS
+== phase12c-frozen-content-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12C frozen content validation tests: PASS
+== phase12d-act1-content-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D Act-I content/registry tests: PASS
+== phase12d-act2-content-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D Act-II content/registry tests: PASS
+== phase12d-demo-content-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D demo content/import tests: PASS
+== phase12d-act3-content-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D Act-III content/registry tests: PASS
+== phase12d-act4-content-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D Act-IV content/registry tests: PASS
+== phase12d-act5-content-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D Act-V content/registry tests: PASS
+== phase12d-remix-pack1-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D Remix Pack 1 tests: PASS
+== phase12d-remix-pack2-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D Remix Pack 2 tests: PASS
+== phase12d-remix-pack3-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D Remix Pack 3 tests: PASS
+== phase12d-full-catalog-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12D strict full-catalog tests: PASS
+== phase12e-presentation-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12E presentation contract tests: PASS
+== phase12e-focus-navigation-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12E authored focus navigation tests: PASS
+== phase12e-inspect-history-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12E Inspect/history tests: PASS
+== phase12e-stability-ux-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12E functional Stability UX tests: PASS
+== phase12e-linked-layer-ux-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12E linked-layer UX tests: PASS
+== phase12e-accessibility-settings-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12E persisted accessibility settings tests: PASS
+== phase12e-exit-sweep-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12E exit sweeps: PASS (1280x800 keyboard/controller + accessibility/layout)
+== phase12f-transaction-history-adversarial-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12F transaction/history adversarial tests: PASS
+== phase12f-persistence-recovery-adversarial-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12F persistence/process-death adversarial tests: PASS
+== phase12f-profile-demo-adversarial-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12F profile/cloud/demo adversarial tests: PASS
+== phase12f-authority-focus-content-adversarial-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12F authority/focus/content adversarial tests: PASS
+== phase12f-reasoning-navigation-performance-adversarial-suite ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12F performance observation: samples=120 median_us=13560 p95_us=15438 p99_us=15867 checkpoint_bytes=3596 budgets_us=8000/25000/50000
+FMD Phase 12F reasoning/navigation/performance adversarial tests: PASS
+== main-scene-boot ==
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+ERROR: Parent node is busy adding/removing children, `remove_child()` can't be called at this time. Consider using `remove_child.call_deferred(child)` instead.
+   at: remove_child (scene/main/node.cpp:1750)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://src/presentation/entrypoint.gd:9)
+/home/runner/work/_temp/fmd-runtime-baseline/runtime/manifest.json
+Phase 12A + 12B + 12C + 12D + 12E + 12F runtime baseline: PASS

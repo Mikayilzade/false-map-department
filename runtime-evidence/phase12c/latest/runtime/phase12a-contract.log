@@ -1,2 +1,2 @@
 == phase12a-contract ==
-PHASE12A AUDIT FAIL: project.godot missing bootstrap contract: run/main_scene="res://src/presentation/main.tscn"
+Phase 12A contract audit: PASS (16 domain files checked; guarded playtest entrypoint allowed)
