@@ -1,7 +1,7 @@
-run_id=32709453681
+run_id=32781998141
 run_attempt=1
-source_head_sha=3634952bab482600f90bca2d74ed17a9ba1281fd
-request_sha256=5e7444d3aceca27d83fb4203c9a5fc62919f71400e80e66e06a4faf97fb5b1d3
+source_head_sha=9f8caf870d859deb2e08092dfefd9aa27144cdad
+request_sha256=8aa06b5037876583bb5bc304da89f2b45b2aed4a56aba6ccc6e72ab3b0a2c6f9
 scenario_id=deck_controller_base
 capture_rc=0
 artifact_name=phase12g-e7-live-batch
