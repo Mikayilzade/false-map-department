@@ -42,17 +42,22 @@ func execute(definition: Dictionary, state: Dictionary) -> Dictionary:
 	var pre_hash: String = CanonicalJson.sha256(pre_checkpoint)
 	var current_state: Dictionary = _copy_state(state)
 	var current_agents: Dictionary = _dictionary(current_state.get("agent_state_by_id", {})).duplicate(true)
+	var authoritative_facts: Dictionary = _dictionary(current_state.get("authoritative_fact_values_by_layer", {}))
 	var current_queries_result: Dictionary = _coordinator._evaluate_agents(
 		definition,
 		_dictionary(current_state["map_state_by_layer"]),
 		current_agents,
-		_dictionary(current_state.get("authoritative_fact_values_by_layer", {}))
+		authoritative_facts
 	)
 	if not current_queries_result.get("ok", false):
 		return {"ok": false, "code": str(current_queries_result.get("code", "stability_initial_query_failed"))}
 	var current_queries: Dictionary = _dictionary(current_queries_result.get("query_by_agent_id", {})).duplicate(true)
+	var initial_linked_result: Dictionary = _coordinator._linked_projection(definition, authoritative_facts)
+	if not initial_linked_result.get("ok", false):
+		return {"ok": false, "code": str(initial_linked_result.get("code", "stability_initial_linked_projection_failed"))}
+	var initial_portal_state_by_id: Dictionary = _dictionary(initial_linked_result.get("portal_state_by_id", {})).duplicate(true)
 	var prior_transition_hash: String = _transition_hash(
-		str(contract.get("reason_tag", "")), current_agents, current_queries, {},
+		str(contract.get("reason_tag", "")), current_agents, current_queries, initial_portal_state_by_id,
 		_dictionary(current_state.get("objective_state_by_id", {})),
 		_dictionary(current_state.get("invariant_state_by_id", {}))
 	)
@@ -69,17 +74,14 @@ func execute(definition: Dictionary, state: Dictionary) -> Dictionary:
 			definition,
 			_dictionary(current_state["map_state_by_layer"]),
 			current_agents,
-			_dictionary(current_state.get("authoritative_fact_values_by_layer", {}))
+			authoritative_facts
 		)
 		if not beat_result.get("ok", false):
 			return {"ok": false, "code": str(beat_result.get("code", "stability_reaction_beat_failed"))}
 		current_agents = _dictionary(beat_result.get("agent_state_by_id", {})).duplicate(true)
 		current_queries = _dictionary(beat_result.get("query_by_agent_id", {})).duplicate(true)
 
-		var linked_result: Dictionary = _coordinator._linked_projection(
-			definition,
-			_dictionary(current_state.get("authoritative_fact_values_by_layer", {}))
-		)
+		var linked_result: Dictionary = _coordinator._linked_projection(definition, authoritative_facts)
 		if not linked_result.get("ok", false):
 			return {"ok": false, "code": str(linked_result.get("code", "stability_linked_projection_failed"))}
 		var portal_state_by_id: Dictionary = _dictionary(linked_result.get("portal_state_by_id", {})).duplicate(true)
