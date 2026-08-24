@@ -1,0 +1,22 @@
+{
+  "checks": {
+    "apply_produced_presentational_response": true,
+    "controller_apply": true,
+    "controller_correspondence": true,
+    "controller_navigation_next": false,
+    "controller_navigation_previous": true,
+    "controller_redo": true,
+    "controller_stability": true,
+    "controller_undo": true,
+    "requirements_visible": true,
+    "scene_ready": true
+  },
+  "device_mode": "steam_deck_controller_1280x800",
+  "dossier_id": "D40",
+  "evidence_kind": "E7_PRESENTATION_INTERACTION_CHECK_NOT_CAPTURE_REVIEW",
+  "gate_id": "E7",
+  "interaction_complete": false,
+  "notes": [],
+  "scenario_id": "deck_controller_base",
+  "schema_version": 1
+}
