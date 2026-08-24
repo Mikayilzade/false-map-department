@@ -112,7 +112,10 @@
       },
       "derived_fact_bindings": {
         "D38_PROCESSION_ROUTE_CONTINUITY": {
-          "kind": "subject_route_reachable"
+          "kind": "primitive_active",
+          "layer_id": "D38_L1",
+          "primitive_family": "road",
+          "candidate_id": "D38_R_A_B"
         }
       }
     },

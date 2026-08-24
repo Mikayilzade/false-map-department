@@ -12,6 +12,7 @@ func adapt(dossier: Dictionary, binding_document: Dictionary, session_id: String
 	var definition: Dictionary = _dictionary(adapted.get("definition", {})).duplicate(true)
 	_patch_a8_targets(dossier, definition)
 	_patch_contract_shapes(dossier, definition)
+	definition["stability_reason_tag"] = str(dossier.get("stability_reason_tag", ""))
 
 	var binding_id: String = str(dossier.get("source_substrate_id", "")) if bool(dossier.get("runtime_materialized_remix", false)) else str(dossier.get("dossier_id", ""))
 	var binding: Dictionary = _dictionary(_dictionary(binding_document.get("dossiers", {})).get(binding_id, {}))
