@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "gate_id": "E7",
+  "scenario_id": "deck_controller_max_ui",
+  "evidence_kind": "TARGETED_VISUAL_CAPTURE_REVIEW_NOT_GATE_DISPOSITION",
+  "reviewer_class": "assistant_visual_inspection",
+  "source_run_id": 32785341845,
+  "source_head_sha": "4bcacc1f6843248faf8147189d0900aac6f074be",
+  "source_artifact_id": 9541332259,
+  "source_artifact_digest": "sha256:73d6fa61437bb6424fc2490eb8e2ad95139494eb339d223a51bfb974eba084fc",
+  "scenario_signature": {
+    "viewport": [1280, 800],
+    "ui_scale_percent": 150,
+    "device_mode": "steam_deck_controller_1280x800",
+    "non_color": false,
+    "reduced_motion": false,
+    "no_audio": false
+  },
+  "reviewed_rows": [
+    {
+      "dossier_id": "D40",
+      "capture_review_pass": false,
+      "observed_failure": "The rendered 150% UI exceeds the 1280x800 viewport vertically: the top presentation is clipped and lower causal/status controls are cut off, so critical information is not reliably accessible in the captured state.",
+      "repair_required": true
+    },
+    {
+      "dossier_id": "D39",
+      "capture_review_pass": false,
+      "observed_failure": "The bottom status line is partially cut by the 800px viewport in the 150% capture, demonstrating the same dense-layout overflow class at a less severe level.",
+      "repair_required": true
+    },
+    {
+      "dossier_id": "D35",
+      "capture_review_pass": true,
+      "observed_failure": "",
+      "repair_required": false
+    },
+    {
+      "dossier_id": "D22",
+      "capture_review_pass": true,
+      "observed_failure": "",
+      "repair_required": false
+    }
+  ],
+  "gate_disposition": "PENDING",
+  "notes": "This file records only directly inspected rendered rows. It does not claim review of all 57 captures and does not change E7 to PASS or FAIL. The overflow class is repaired and must be recaptured/reviewed on an exact post-repair head."
+}
