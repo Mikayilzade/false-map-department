@@ -12,6 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PROTOCOLS = ROOT / "empirical" / "phase12g_session_protocols.json"
 READINESS_SCRIPT = ROOT / "scripts" / "phase12g_runtime_readiness.py"
+INTERACTION_SCRIPT = ROOT / "scripts" / "phase12g_e7_interaction.py"
 
 
 def load(path: Path) -> dict:
@@ -82,16 +83,50 @@ def resolve_capture_command(
     return native, "native"
 
 
+def build_interaction_command(
+    python_executable: str,
+    interaction_script: Path,
+    godot: str,
+    output_dir: Path,
+    dossier_ids: list[str],
+    scenario_ids: list[str],
+    *,
+    max_checks: int = 0,
+    timeout_seconds: int = 20,
+) -> list[str]:
+    command = [
+        python_executable,
+        str(interaction_script),
+        "--godot",
+        godot,
+        "--output-dir",
+        str(output_dir),
+        "--timeout-seconds",
+        str(timeout_seconds),
+    ]
+    for dossier_id in dossier_ids:
+        command.extend(["--dossier-id", dossier_id])
+    for scenario_id in scenario_ids:
+        command.extend(["--scenario-id", scenario_id])
+    if max_checks > 0:
+        command.extend(["--max-checks", str(max_checks)])
+    return command
+
+
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Create E7 capture artifacts. Artifacts remain unreviewed evidence inputs, never gate PASS outcomes.")
+    parser = argparse.ArgumentParser(
+        description="Create E7 graphical captures and, when executing, the matching presentation-level interaction artifacts. Neither component is a gate PASS by itself."
+    )
     parser.add_argument("--output-dir", default=str(ROOT / ".phase12g-e7-captures"))
     parser.add_argument("--godot", default=os.environ.get("GODOT_BIN", "godot"))
-    parser.add_argument("--execute", action="store_true", help="Actually launch Godot. Without this flag the command only writes a capture plan.")
+    parser.add_argument("--execute", action="store_true", help="Actually launch Godot. Without this flag the command only writes a capture plan and never runs interaction probes.")
     parser.add_argument("--capture-launch-mode", choices=["auto", "xvfb", "native", "headless"], default="auto")
     parser.add_argument("--dossier-id", action="append", default=[])
     parser.add_argument("--scenario-id", action="append", default=[])
     parser.add_argument("--max-captures", type=int, default=0)
     parser.add_argument("--timeout-seconds", type=int, default=30)
+    parser.add_argument("--interaction-timeout-seconds", type=int, default=20)
+    parser.add_argument("--skip-interaction", action="store_true", help="Execute graphical captures only. This is an explicit diagnostic/acquisition override and never implies interaction completeness.")
     args = parser.parse_args()
 
     out_dir = Path(args.output_dir).resolve()
@@ -209,13 +244,58 @@ def main() -> None:
             rows.append(row)
 
     failure_statuses = {"CAPTURE_FAILED", "CAPTURE_TIMEOUT", "CAPTURE_DISPLAY_UNAVAILABLE"}
+    interaction_summary: dict = {
+        "requested": False,
+        "status": "NOT_REQUESTED",
+        "returncode": None,
+        "manifest_path": None,
+        "counts": {},
+    }
+    interaction_rc = 0
+    if args.execute and not args.skip_interaction:
+        interaction_summary["requested"] = True
+        interaction_dir = out_dir / "interaction"
+        interaction_command = build_interaction_command(
+            sys.executable,
+            INTERACTION_SCRIPT,
+            args.godot,
+            interaction_dir,
+            list(selected_ids),
+            list(selected_scenarios),
+            max_checks=args.max_captures,
+            timeout_seconds=args.interaction_timeout_seconds,
+        )
+        completed_interaction = subprocess.run(
+            interaction_command,
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        interaction_rc = int(completed_interaction.returncode)
+        (out_dir / "interaction-command.stdout.log").write_text(completed_interaction.stdout, encoding="utf-8")
+        (out_dir / "interaction-command.stderr.log").write_text(completed_interaction.stderr, encoding="utf-8")
+        interaction_manifest_path = interaction_dir / "interaction-manifest.json"
+        interaction_summary.update({
+            "returncode": interaction_rc,
+            "status": "INTERACTION_ACQUISITION_PASS" if interaction_rc == 0 else "INTERACTION_ACQUISITION_FAIL",
+            "manifest_path": str(interaction_manifest_path) if interaction_manifest_path.is_file() else None,
+        })
+        if interaction_manifest_path.is_file():
+            interaction_summary["counts"] = load(interaction_manifest_path).get("counts", {})
+        elif interaction_rc == 0:
+            interaction_rc = 2
+            interaction_summary["returncode"] = interaction_rc
+            interaction_summary["status"] = "INTERACTION_MANIFEST_MISSING"
+
     manifest = {
-        "schema_version": 1,
+        "schema_version": 2,
         "gate_id": "E7",
-        "evidence_kind": "CAPTURE_ACQUISITION_MANIFEST_NOT_REVIEW_OUTCOME",
+        "evidence_kind": "CAPTURE_AND_INTERACTION_ACQUISITION_MANIFEST_NOT_REVIEW_OUTCOME",
         "execute_requested": args.execute,
         "requested_launch_mode": args.capture_launch_mode,
         "resolved_launch_mode": launch_mode,
+        "interaction_acquisition": interaction_summary,
         "counts": {
             "rows": len(rows),
             "captured_unreviewed": sum(row["status"] == "CAPTURED_UNREVIEWED" for row in rows),
@@ -229,8 +309,9 @@ def main() -> None:
     manifest_path = out_dir / "capture-manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(manifest_path)
-    print(json.dumps(manifest["counts"], sort_keys=True))
-    if args.execute and any(row["status"] in failure_statuses for row in rows):
+    print(json.dumps({"capture": manifest["counts"], "interaction": interaction_summary}, sort_keys=True))
+    capture_failed = args.execute and any(row["status"] in failure_statuses for row in rows)
+    if capture_failed or interaction_rc != 0:
         raise SystemExit(2)
 
 
