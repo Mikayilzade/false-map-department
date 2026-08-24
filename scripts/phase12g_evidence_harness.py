@@ -9,6 +9,7 @@ from statistics import mean
 
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "empirical/phase12g_gate_registry.json"
+PROTOCOLS = ROOT / "empirical/phase12g_session_protocols.json"
 DEFAULT_EVIDENCE_ROOT = ROOT / "empirical/evidence"
 REPRESENTATIVE_SAMPLE_GATES = {"E1", "E2"}
 
@@ -41,6 +42,127 @@ def evaluate_numeric_threshold(rows: list[dict], threshold: dict | None) -> tupl
         passed = value >= target if op == ">=" else value == target
         return ("PASS" if passed else "FAIL"), {"metric": metric, "value": value, "target": target, "eligible_rows": len(values)}
     return "PENDING", {"reason": "threshold requires specialized evaluator"}
+
+
+def _e7_campaign_ids() -> list[str]:
+    return [f"D{i:02d}" for i in range(1, 41)]
+
+
+def _e7_demo_ids() -> list[str]:
+    return [f"DEMO{i:02d}" for i in range(1, 6)]
+
+
+def _e7_remix_ids() -> list[str]:
+    return [f"REMIX{i:02d}" for i in range(1, 13)]
+
+
+def e7_signature(row: dict) -> tuple:
+    return (
+        str(row.get("dossier_id", "")),
+        str(row.get("device_mode", "")),
+        int(row.get("ui_scale", 0)),
+        bool(row.get("reduced_motion", False)),
+        bool(row.get("non_color", False)),
+        bool(row.get("no_audio", False)),
+    )
+
+
+def e7_expected_matrix() -> dict[tuple, dict]:
+    protocols = load_json(PROTOCOLS)["protocols"]["E7"]
+    shippable_ids = _e7_campaign_ids() + _e7_demo_ids() + _e7_remix_ids()
+    expected_count = int(protocols.get("expected_shippable_count", 0))
+    if expected_count != len(shippable_ids):
+        raise SystemExit(
+            f"{PROTOCOLS}: E7 expected_shippable_count {expected_count} != canonical shippable IDs {len(shippable_ids)}"
+        )
+    matrix: dict[tuple, dict] = {}
+    for dossier_id in shippable_ids:
+        for scenario in protocols["capture_scenarios"]:
+            row = {
+                "gate_id": "E7",
+                "dossier_id": dossier_id,
+                "device_mode": scenario["device_mode"],
+                "ui_scale": scenario["ui_scale"],
+                "reduced_motion": scenario["reduced_motion"],
+                "non_color": scenario["non_color"],
+                "no_audio": scenario["no_audio"],
+                "scenario_id": scenario["scenario_id"],
+            }
+            signature = e7_signature(row)
+            if signature in matrix:
+                raise SystemExit(f"{PROTOCOLS}: duplicate E7 scenario signature for {dossier_id}: {signature}")
+            matrix[signature] = row
+    return matrix
+
+
+def evaluate_e7_exhaustive(rows: list[dict], threshold: dict) -> tuple[str, dict]:
+    if not rows:
+        return "PENDING", {"reason": "no evidence rows"}
+    expected = e7_expected_matrix()
+    latest_by_signature: dict[tuple, dict] = {}
+    unknown_signatures: list[tuple] = []
+    for row in rows:
+        signature = e7_signature(row)
+        if signature not in expected:
+            unknown_signatures.append(signature)
+            continue
+        # Evidence is append-only. A later exact-signature rerun supersedes an older
+        # acquisition attempt for current gate evaluation without deleting history.
+        latest_by_signature[signature] = row
+
+    if unknown_signatures:
+        return "BLOCKED", {
+            "reason": "E7 evidence contains dossier/scenario signatures outside the frozen 57x5 matrix",
+            "unknown_signature_count": len(unknown_signatures),
+            "unknown_signatures_preview": [list(item) for item in unknown_signatures[:10]],
+        }
+
+    expected_signatures = set(expected)
+    observed_signatures = set(latest_by_signature)
+    missing = sorted(expected_signatures - observed_signatures, key=str)
+    expected_rows = len(expected_signatures)
+    observed_rows = len(observed_signatures)
+    if missing:
+        return "PENDING", {
+            "reason": "E7 requires exhaustive shippable dossier x accessibility/device scenario coverage before disposition",
+            "metric": "shippable_dossiers_pass_rate",
+            "target": float(threshold["value"]),
+            "expected_unique_rows": expected_rows,
+            "observed_unique_rows": observed_rows,
+            "missing_unique_rows": len(missing),
+            "raw_evidence_rows": len(rows),
+            "missing_preview": [list(item) for item in missing[:10]],
+        }
+
+    current_rows = [latest_by_signature[signature] for signature in expected_signatures]
+    pass_values = [
+        bool(row.get("interaction_complete", False)) and bool(row.get("capture_review_pass", False))
+        for row in current_rows
+    ]
+    passed_count = sum(pass_values)
+    rate = float(passed_count) / float(expected_rows)
+    failed_signatures = [
+        list(signature)
+        for signature in expected_signatures
+        if not (
+            bool(latest_by_signature[signature].get("interaction_complete", False))
+            and bool(latest_by_signature[signature].get("capture_review_pass", False))
+        )
+    ]
+    target = float(threshold["value"])
+    passed = rate == target if threshold.get("operator") == "==" else rate >= target
+    return ("PASS" if passed else "FAIL"), {
+        "metric": "shippable_dossiers_pass_rate",
+        "value": rate,
+        "target": target,
+        "expected_unique_rows": expected_rows,
+        "observed_unique_rows": observed_rows,
+        "passing_unique_rows": passed_count,
+        "failing_unique_rows": len(failed_signatures),
+        "raw_evidence_rows": len(rows),
+        "failed_preview": failed_signatures[:10],
+        "exhaustive_matrix_confirmed": True,
+    }
 
 
 def evaluate_t844(rows: list[dict], threshold: dict) -> tuple[str, dict]:
@@ -241,6 +363,8 @@ def main() -> None:
             detail = {"schema_failures": field_failures}
         elif gate_id == "T8-44":
             status, detail = evaluate_t844(rows, gate["canonical_threshold"])
+        elif gate_id == "E7":
+            status, detail = evaluate_e7_exhaustive(rows, gate["canonical_threshold"])
         elif gate.get("canonical_threshold") is None:
             status, detail = evaluate_qualitative(gate_id, rows, dispositions)
         elif gate_id in REPRESENTATIVE_SAMPLE_GATES:
