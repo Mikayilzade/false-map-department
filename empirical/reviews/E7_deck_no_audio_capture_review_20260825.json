@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "gate_id": "E7",
+  "scenario_id": "deck_no_audio",
+  "evidence_kind": "ASSISTANT_VISUAL_CAPTURE_REVIEW_PLUS_RUNTIME_INTERACTION_NOT_HARDWARE_OR_HUMAN_ACCESSIBILITY_DISPOSITION",
+  "reviewer_class": "assistant_visual_inspection",
+  "review_date": "2026-08-25",
+  "source": {
+    "workflow_run_id": 32801728333,
+    "source_head_sha": "69c2efbd88a24c269f86d50fa1a9477dfa758761",
+    "artifact_id": 9546780408,
+    "artifact_name": "phase12g-e7-live-batch",
+    "artifact_sha256": "4ebe61b759671399ac4a16824db7a893f3ea0a83e74ed3d67108b00a9c8cc21d",
+    "committed_run_metadata": "runtime-evidence/phase12g/e7-live-batch/run-metadata.txt",
+    "committed_capture_manifest": "runtime-evidence/phase12g/e7-live-batch/capture-manifest.json"
+  },
+  "scenario_signature": {
+    "viewport": [1280, 800],
+    "ui_scale_percent": 100,
+    "device_mode": "steam_deck_controller_1280x800",
+    "reduced_motion": false,
+    "non_color": false,
+    "no_audio": true
+  },
+  "review_method": "All 57 rendered 1280x800 PNGs were visually inspected in seven contact sheets. D40 was additionally inspected at full 1280x800 resolution. Capture sidecars for all 57 rows were machine-checked for no_audio=true, reduced_motion=false, non_color=false and ui_scale_percent=100. The exact artifact interaction manifest was machine-checked for 57/57 INTERACTION_PASS rows.",
+  "reviewed_dossier_ids": [
+    "D01", "D02", "D03", "D04", "D05", "D06", "D07", "D08", "D09", "D10",
+    "D11", "D12", "D13", "D14", "D15", "D16", "D17", "D18", "D19", "D20",
+    "D21", "D22", "D23", "D24", "D25", "D26", "D27", "D28", "D29", "D30",
+    "D31", "D32", "D33", "D34", "D35", "D36", "D37", "D38", "D39", "D40",
+    "DEMO01", "DEMO02", "DEMO03", "DEMO04", "DEMO05",
+    "REMIX01", "REMIX02", "REMIX03", "REMIX04", "REMIX05", "REMIX06", "REMIX07", "REMIX08", "REMIX09", "REMIX10", "REMIX11", "REMIX12"
+  ],
+  "capture_review_pass_count": 57,
+  "capture_review_fail_count": 0,
+  "capture_acquisition": {
+    "rows": 57,
+    "captured_unreviewed_before_operator_review": 57,
+    "failed_or_timeout": 0,
+    "blocked_runtime_binding": 0,
+    "resolved_launch_mode": "xvfb"
+  },
+  "interaction_acquisition": {
+    "source_manifest_status": "INTERACTION_ACQUISITION_PASS",
+    "rows": 57,
+    "interaction_pass": 57,
+    "failed_or_timeout": 0,
+    "blocked_runtime_binding": 0
+  },
+  "visual_review_summary": {
+    "viewport_clipping_observed": false,
+    "critical_fixed_region_loss_observed": false,
+    "obvious_component_overlap_observed": false,
+    "D40_full_frame_dense_layout": "PASS — title, controls, map/world panes, requirements region, causal panel, input hint and bottom status are inside the 1280x800 frame."
+  },
+  "limitations": [
+    "This is rendered Linux Xvfb capture review plus presentation-level automated controller interaction, not physical Steam Deck hardware evidence.",
+    "A silent-mode sidecar proves the no-audio presentation mode was requested and the UI remained operable; it is not a human auditory-accessibility assessment.",
+    "This does not establish E1-E6/E8-E12 human, market or timing outcomes.",
+    "T8-44 remains dependent on actual Deck-class reference hardware."
+  ],
+  "gate_disposition": "PENDING",
+  "notes": "This review supports only the deck_no_audio rows of E7. It does not by itself make E7 PASS."
+}
