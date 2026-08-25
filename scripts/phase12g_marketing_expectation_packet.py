@@ -28,16 +28,6 @@ CANONICAL_CLAIMS = [
     "The 1.0 content target is 40 authored campaign dossiers plus 12 bounded remix cases.",
     "Required play paths include mouse+keyboard, keyboard-only and controller-only, with a 1280x800 Steam Deck target layout.",
 ]
-FORBIDDEN_CLAIM_FRAGMENTS = (
-    "city builder",
-    "freeform map editor",
-    "procedural campaign",
-    "multiplayer",
-    "live service",
-    "endless",
-    "user generated",
-    "workshop",
-)
 
 
 def sha256(path: Path) -> str:
@@ -63,15 +53,14 @@ def load_claims(path: Path | None) -> list[str]:
     if path is None:
         return CANONICAL_CLAIMS.copy()
     data = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(data, list) or not all(isinstance(item, str) and item.strip() for item in data):
+    if not isinstance(data, list) or not data or not all(isinstance(item, str) and item.strip() for item in data):
         raise SystemExit("claims JSON must be a non-empty string array")
     claims = [item.strip() for item in data]
-    lowered = "\n".join(claims).lower()
-    for forbidden in FORBIDDEN_CLAIM_FRAGMENTS:
-        if forbidden in lowered and "not a freeform map builder" not in lowered:
-            raise SystemExit(f"claims contain forbidden/misleading capability fragment: {forbidden}")
-    if "not a freeform map builder" not in lowered:
-        raise SystemExit("claims must explicitly prevent the freeform-builder expectation")
+    unknown = [claim for claim in claims if claim not in CANONICAL_CLAIMS]
+    if unknown:
+        raise SystemExit(f"custom E8 claims must be selected verbatim from the canonical capability-safe claim set; unknown: {unknown}")
+    if CANONICAL_CLAIMS[2] not in claims:
+        raise SystemExit("claims must explicitly include the snapped-authored / not-freeform-builder statement")
     return claims
 
 
@@ -188,10 +177,15 @@ def finalize(args: argparse.Namespace) -> None:
     rows = packet.get("rows", [])
     if not rows:
         raise SystemExit("no respondents prepared")
+    respondent_ids: set[str] = set()
     for index, row in enumerate(rows):
         for field in ("respondent_id", "asset_version", "expected_play_category", "freeform_builder_expectation", "notes"):
             if row.get(field) is None or (isinstance(row.get(field), str) and not row[field].strip()):
                 raise SystemExit(f"respondent row {index} missing observed field {field}")
+        respondent_id = str(row.get("respondent_id"))
+        if respondent_id in respondent_ids:
+            raise SystemExit(f"duplicate respondent_id: {respondent_id}")
+        respondent_ids.add(respondent_id)
         if row.get("asset_version") != asset_set.get("asset_version"):
             raise SystemExit(f"respondent row {index} asset_version mismatch")
         if not isinstance(row.get("freeform_builder_expectation"), bool):
