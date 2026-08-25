@@ -218,6 +218,87 @@ jobs:
           echo "capture_rc=$capture_rc; capture artifacts remain UNREVIEWED and cannot create E7 PASS."
           exit 0
 
+      - name: Append reviewed E7 raw evidence
+        id: e7append
+        shell: bash
+        run: |
+          set +e
+          REQUEST="empirical/E7_REVIEW_APPEND_REQUEST.json"
+          if [ ! -f "$REQUEST" ]; then
+            echo "requested=false" >> "$GITHUB_OUTPUT"
+            echo "No reviewed-E7 append request marker; skipping."
+            exit 0
+          fi
+          echo "requested=true" >> "$GITHUB_OUTPUT"
+
+          OUT="${RUNNER_TEMP}/fmd-e7-reviewed-append"
+          DEST="runtime-evidence/phase12g/e7-reviewed-append"
+          BASELINE_DIR="${RUNNER_TEMP}/fmd-runtime-baseline"
+          mkdir -p "$OUT" "$DEST"
+          request_sha="$(sha256sum "$REQUEST" | awk '{print $1}')"
+          mapfile -t review_refs < <(python3 - "$REQUEST" <<'PY'
+          import json, sys
+          p=json.load(open(sys.argv[1], encoding='utf-8'))
+          for item in p.get('review_refs', []):
+              print(item)
+          PY
+          )
+
+          args=()
+          for review_ref in "${review_refs[@]}"; do
+            args+=(--review "$review_ref")
+          done
+          python3 scripts/phase12g_append_reviewed_e7.py "${args[@]}" \
+            > "$OUT/append.stdout.log" \
+            2> "$OUT/append.stderr.log"
+          append_rc=$?
+
+          post_validation_rc=98
+          GODOT_BIN=""
+          if [ "$append_rc" -eq 0 ] && [ -s "$BASELINE_DIR/fetch-godot.stdout.log" ]; then
+            GODOT_BIN="$(tail -n 1 "$BASELINE_DIR/fetch-godot.stdout.log")"
+            FMD_PHASE12G_OUT="$OUT/post-append-phase12g" \
+            GODOT_BIN="$GODOT_BIN" \
+              bash scripts/run_phase12g_instrumentation.sh \
+                > "$OUT/post-validation.stdout.log" \
+                2> "$OUT/post-validation.stderr.log"
+            post_validation_rc=$?
+          fi
+
+          result=FAIL
+          if [ "$append_rc" -eq 0 ] && [ "$post_validation_rc" -eq 0 ]; then
+            result=PASS
+          fi
+          cat > "$DEST/run-metadata.txt" <<EOF
+          run_id=$GITHUB_RUN_ID
+          run_attempt=$GITHUB_RUN_ATTEMPT
+          source_head_sha=$GITHUB_SHA
+          request_sha256=$request_sha
+          review_count=${#review_refs[@]}
+          append_rc=$append_rc
+          post_validation_rc=$post_validation_rc
+          result=$result
+          EOF
+          cp "$OUT/append.stdout.log" "$DEST/append.stdout.log" 2>/dev/null || true
+          cp "$OUT/append.stderr.log" "$DEST/append.stderr.log" 2>/dev/null || true
+          cp "$OUT/post-validation.stdout.log" "$DEST/post-validation.stdout.log" 2>/dev/null || true
+          cp "$OUT/post-validation.stderr.log" "$DEST/post-validation.stderr.log" 2>/dev/null || true
+
+          if [ "$result" != "PASS" ]; then
+            echo "Reviewed E7 append failed validation; leaving request and evidence uncommitted for repair."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -f "$REQUEST"
+          git add empirical/evidence/E7.jsonl "$DEST"
+          git commit -m "Append reviewed E7 raw evidence [skip ci]" || true
+          git pull --rebase origin main
+          git push origin HEAD:main
+          echo "Reviewed E7 evidence append committed after real Godot Phase-12G validation."
+          exit 0
+
       - name: Upload runtime evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -233,5 +314,14 @@ jobs:
         with:
           name: phase12g-e7-live-batch
           path: ${{ runner.temp }}/fmd-e7-live-batch
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload reviewed E7 append validation
+        if: always() && steps.e7append.outputs.requested == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase12g-e7-reviewed-append
+          path: ${{ runner.temp }}/fmd-e7-reviewed-append
           if-no-files-found: warn
           retention-days: 14
