@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 FIRST_BATCH = ROOT / "scripts/phase12g_first_session_batch.py"
 MATURE_BATCH = ROOT / "scripts/phase12g_mature_session_batch.py"
-KIT_VERSION = 1
+KIT_VERSION = 2
 HUMAN_GATES = ["E1", "E2", "E3", "E4", "E5", "E6", "E9", "E10", "E11"]
 
 
@@ -42,6 +42,37 @@ def canonical_sha256(payload: object) -> str:
 
 def run(command: list[str]) -> None:
     subprocess.run(command, cwd=ROOT, check=True, stdout=subprocess.DEVNULL)
+
+
+def validate_source_head(value: str) -> str:
+    source_head = value.strip().lower()
+    if len(source_head) != 40 or any(ch not in "0123456789abcdef" for ch in source_head):
+        fail("--source-head must be an exact 40-character Git commit SHA")
+    return source_head
+
+
+def resolve_relative(root: Path, value: object, label: str) -> Path:
+    raw = Path(str(value))
+    if raw.is_absolute():
+        fail(f"{label} must remain relative to the portable field kit")
+    candidate = (root / raw).resolve()
+    try:
+        candidate.relative_to(root.resolve())
+    except ValueError:
+        fail(f"{label} escapes field-kit root")
+    return candidate
+
+
+def resolve_batch_packet(manifest_path: Path, value: object, label: str) -> Path:
+    raw = Path(str(value))
+    if raw.is_absolute():
+        fail(f"{label} must remain relative to its batch manifest")
+    candidate = (manifest_path.parent / raw).resolve()
+    try:
+        candidate.relative_to(manifest_path.parent.resolve())
+    except ValueError:
+        fail(f"{label} escapes batch root")
+    return candidate
 
 
 def first_contract(session_dir: Path) -> dict:
@@ -105,8 +136,7 @@ def mature_contract(packet_dir: Path) -> dict:
 def cmd_prepare(args: argparse.Namespace) -> None:
     if args.first_count < 1 or args.mature_count < 1:
         fail("first and mature participant counts must both be >= 1")
-    if not args.source_head.strip() or any(ch.isspace() for ch in args.source_head):
-        fail("--source-head must be a non-empty immutable commit identifier without whitespace")
+    source_head = validate_source_head(args.source_head)
     if not args.demo_build_id.strip() or not args.production_build_id.strip():
         fail("build IDs must be non-empty")
 
@@ -132,14 +162,16 @@ def cmd_prepare(args: argparse.Namespace) -> None:
         "--output-dir", str(mature_root),
     ])
 
-    first_manifest = load_json(first_root / "batch-manifest.json")
-    mature_manifest = load_json(mature_root / "batch-manifest.json")
+    first_manifest_path = first_root / "batch-manifest.json"
+    mature_manifest_path = mature_root / "batch-manifest.json"
+    first_manifest = load_json(first_manifest_path)
+    mature_manifest = load_json(mature_manifest_path)
     first_packets = [
-        first_contract(Path(str(row["session_dir"])))
+        first_contract(resolve_batch_packet(first_manifest_path, row["session_dir"], "first-session packet path"))
         for row in first_manifest.get("packets", [])
     ]
     mature_packets = [
-        mature_contract(Path(str(row["packet_dir"])))
+        mature_contract(resolve_batch_packet(mature_manifest_path, row["packet_dir"], "mature-session packet path"))
         for row in mature_manifest.get("packets", [])
     ]
     if not all(row["observer_initially_blank"] for row in first_packets):
@@ -149,17 +181,20 @@ def cmd_prepare(args: argparse.Namespace) -> None:
 
     manifest = {
         "field_kit_version": KIT_VERSION,
-        "source_head": args.source_head,
+        "source_head": source_head,
         "demo_build_id": args.demo_build_id,
         "production_build_id": args.production_build_id,
+        "path_contract": "all nested manifests and packet paths are relative to their owning manifest",
         "human_gates": HUMAN_GATES,
         "first_session": {
-            "batch_manifest": str(first_root / "batch-manifest.json"),
+            "batch_manifest": "first-session/batch-manifest.json",
+            "batch_manifest_sha256": sha256_file(first_manifest_path),
             "packet_count": len(first_packets),
             "packets": first_packets,
         },
         "mature_session": {
-            "batch_manifest": str(mature_root / "batch-manifest.json"),
+            "batch_manifest": "mature-session/batch-manifest.json",
+            "batch_manifest_sha256": sha256_file(mature_manifest_path),
             "packet_count": len(mature_packets),
             "packets": mature_packets,
         },
@@ -173,6 +208,7 @@ def cmd_prepare(args: argparse.Namespace) -> None:
     (kit_root / "FIELD-KIT-INSTRUCTIONS.txt").write_text(
         "Phase 12G HUMAN FIELD KIT\n"
         "This directory contains blank acquisition packets, not empirical evidence.\n"
+        "The entire directory may be moved/copied intact; nested packet paths are manifest-relative.\n"
         "Use the repository first-session and mature-session protocols without coaching.\n"
         "After real observations, finalize locally, run this tool's verify command, then validate completed rows.\n"
         "Appending to empirical/evidence is always a separate deliberate step.\n",
@@ -180,7 +216,7 @@ def cmd_prepare(args: argparse.Namespace) -> None:
     )
     print(json.dumps({
         "status": "PREPARED",
-        "source_head": args.source_head,
+        "source_head": source_head,
         "first_packets": len(first_packets),
         "mature_packets": len(mature_packets),
         "human_outcomes_inferred": False,
@@ -198,14 +234,22 @@ def cmd_verify(args: argparse.Namespace) -> None:
     clean_manifest.pop("contract_hash", None)
     if saved_hash != canonical_sha256(clean_manifest):
         fail("field-kit manifest contract hash mismatch")
+    validate_source_head(str(manifest.get("source_head", "")))
     if manifest.get("repository_evidence_appended") is not False or manifest.get("prepared_packets_are_not_evidence") is not True:
         fail("field-kit evidence boundary flags were altered")
 
+    first_manifest_path = resolve_relative(kit_root, manifest["first_session"]["batch_manifest"], "first batch manifest")
+    mature_manifest_path = resolve_relative(kit_root, manifest["mature_session"]["batch_manifest"], "mature batch manifest")
+    if sha256_file(first_manifest_path) != str(manifest["first_session"].get("batch_manifest_sha256", "")):
+        fail("first-session batch manifest hash mismatch")
+    if sha256_file(mature_manifest_path) != str(manifest["mature_session"].get("batch_manifest_sha256", "")):
+        fail("mature-session batch manifest hash mismatch")
+
     first_results: list[dict] = []
-    first_manifest = load_json(Path(str(manifest["first_session"]["batch_manifest"])))
+    first_manifest = load_json(first_manifest_path)
     expected_first = {row["session_id"]: row for row in manifest["first_session"]["packets"]}
     for packet in first_manifest.get("packets", []):
-        session_dir = Path(str(packet["session_dir"]))
+        session_dir = resolve_batch_packet(first_manifest_path, packet["session_dir"], "first-session packet path")
         actual = first_contract(session_dir)
         expected = expected_first.get(actual["session_id"])
         if expected is None:
@@ -216,10 +260,10 @@ def cmd_verify(args: argparse.Namespace) -> None:
         first_results.append({"session_id": actual["session_id"], "contract_ok": True})
 
     mature_results: list[dict] = []
-    mature_manifest = load_json(Path(str(manifest["mature_session"]["batch_manifest"])))
+    mature_manifest = load_json(mature_manifest_path)
     expected_mature = {row["tester_id"]: row for row in manifest["mature_session"]["packets"]}
     for packet in mature_manifest.get("packets", []):
-        packet_dir = Path(str(packet["packet_dir"]))
+        packet_dir = resolve_batch_packet(mature_manifest_path, packet["packet_dir"], "mature-session packet path")
         actual = mature_contract(packet_dir)
         expected = expected_mature.get(actual["tester_id"])
         if expected is None:
@@ -234,6 +278,7 @@ def cmd_verify(args: argparse.Namespace) -> None:
         "source_head": manifest["source_head"],
         "first_packets": len(first_results),
         "mature_packets": len(mature_results),
+        "portable_paths_verified": True,
         "human_outcomes_inferred": False,
         "repository_evidence_appended": False,
     }, indent=2, sort_keys=True))
