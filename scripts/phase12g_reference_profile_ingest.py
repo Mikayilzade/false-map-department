@@ -9,8 +9,12 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+SCRIPT_DIR = Path(__file__).resolve().parent
 COLLECTOR = ROOT / "scripts/phase12g_collect_completed_rows.py"
 REFERENCE_ATTESTATION = "actual_deck_class_reference"
+
+sys.path.insert(0, str(SCRIPT_DIR))
+import phase12g_provenance as provenance  # noqa: E402
 
 
 def fail(message: str) -> None:
@@ -123,6 +127,15 @@ def main() -> None:
     expected = validate_sha(args.expected_source_head, "--expected-source-head")
     packet = load_json(args.packet)
     row = validate_packet(packet, expected)
+    try:
+        row = provenance.enrich_row(
+            row,
+            source_head=expected,
+            build_id=row.get("build_id", ""),
+            channel="t8_reference_profile",
+        )
+    except ValueError as exc:
+        fail(f"profile evidence provenance invalid: {exc}")
 
     temp_jsonl = args.packet.with_suffix(args.packet.suffix + ".validated.jsonl")
     try:
@@ -150,6 +163,7 @@ def main() -> None:
         "dossier_id": row["dossier_id"],
         "sample_count": row["sample_count"],
         "raw_summary_consistency_verified": True,
+        "provenance_persisted_in_rows": True,
         "collector": result,
         "gate_disposition_inferred": False,
     }, indent=2, sort_keys=True))
