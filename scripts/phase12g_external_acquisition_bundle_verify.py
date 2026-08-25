@@ -8,12 +8,18 @@ import tarfile
 import unicodedata
 from pathlib import Path, PurePosixPath
 
-SCHEMA = "fmd.phase12g.external-acquisition-bundle.v3"
+SCHEMA = "fmd.phase12g.external-acquisition-bundle.v4"
 WINDOWS_FORBIDDEN_CHARS = set('<>:"|?*')
 WINDOWS_RESERVED_NAMES = {
     "CON", "PRN", "AUX", "NUL",
     *(f"COM{i}" for i in range(1, 10)),
     *(f"LPT{i}" for i in range(1, 10)),
+}
+REQUIRED_SOURCE_BINDINGS = {
+    "BUNDLE-VERIFY.py": "scripts/phase12g_external_acquisition_bundle_verify.py",
+    "FIELD-KIT-VERIFY.py": "scripts/phase12g_field_kit_offline_verify.py",
+    "FIELD-KIT-FINALIZE.py": "scripts/phase12g_field_kit_offline_finalize.py",
+    "RETURN-INGEST.md": "empirical/PHASE12G_RETURN_INGEST.md",
 }
 
 
@@ -23,6 +29,10 @@ def sha256(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def sha256_bytes(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
 
 
 def fail(code: str, detail: str = "") -> None:
@@ -114,7 +124,72 @@ def verify_archive(path: Path, contract: dict) -> dict:
     missing = sorted(required_members - seen_files)
     if missing:
         fail("bundle_archive_required_member_missing", ",".join(missing))
-    return {"archive_root": archive_root, "archive_member_count": member_count, "required_archive_files": len(required_members)}
+    return {
+        "archive_root": archive_root,
+        "archive_member_count": member_count,
+        "required_archive_files": len(required_members),
+        "required_regular_files": [str(item) for item in required],
+    }
+
+
+def read_archive_member(archive_path: Path, archive_root: str, source_path: str) -> bytes:
+    member_name = archive_root + source_path
+    try:
+        with tarfile.open(archive_path, "r:gz") as archive:
+            try:
+                member = archive.getmember(member_name)
+            except KeyError:
+                fail("bundle_source_binding_archive_member_missing", source_path)
+            if not member.isfile():
+                fail("bundle_source_binding_archive_member_not_file", source_path)
+            handle = archive.extractfile(member)
+            if handle is None:
+                fail("bundle_source_binding_archive_member_unreadable", source_path)
+            return handle.read()
+    except tarfile.TarError as exc:
+        fail("bundle_archive_malformed", str(exc))
+    return b""
+
+
+def verify_source_bindings(root: Path, archive_path: Path, archive_result: dict, manifest: dict) -> int:
+    rows = manifest.get("source_bindings", [])
+    if not isinstance(rows, list):
+        fail("bundle_source_bindings_malformed")
+    by_bundle: dict[str, dict] = {}
+    for index, raw in enumerate(rows):
+        if not isinstance(raw, dict):
+            fail("bundle_source_binding_entry_malformed", str(index))
+        bundle_path = str(raw.get("bundle_path", ""))
+        if not bundle_path or bundle_path in by_bundle:
+            fail("bundle_source_binding_bundle_path_invalid", bundle_path)
+        by_bundle[bundle_path] = raw
+    if set(by_bundle) != set(REQUIRED_SOURCE_BINDINGS):
+        missing = sorted(set(REQUIRED_SOURCE_BINDINGS) - set(by_bundle))
+        extra = sorted(set(by_bundle) - set(REQUIRED_SOURCE_BINDINGS))
+        fail("bundle_source_binding_set_mismatch", f"missing={missing}, extra={extra}")
+
+    required_archive_paths = set(archive_result.get("required_regular_files", []))
+    for bundle_path, expected_source_path in sorted(REQUIRED_SOURCE_BINDINGS.items()):
+        row = by_bundle[bundle_path]
+        source_path = str(row.get("source_archive_path", ""))
+        if source_path != expected_source_path:
+            fail("bundle_source_binding_source_path_mismatch", f"{bundle_path}:{source_path}")
+        if source_path not in required_archive_paths:
+            fail("bundle_source_binding_not_required_archive_member", source_path)
+        target = root / bundle_path
+        if not target.is_file():
+            fail("bundle_source_binding_file_missing", bundle_path)
+        root_bytes = target.read_bytes()
+        archive_bytes = read_archive_member(archive_path, str(archive_result["archive_root"]), source_path)
+        expected_hash = str(row.get("sha256", ""))
+        expected_bytes = int(row.get("bytes", -1))
+        if expected_bytes != len(root_bytes) or expected_bytes != len(archive_bytes):
+            fail("bundle_source_binding_size_mismatch", bundle_path)
+        root_hash = sha256_bytes(root_bytes)
+        archive_hash = sha256_bytes(archive_bytes)
+        if not expected_hash or root_hash != expected_hash or archive_hash != expected_hash or root_bytes != archive_bytes:
+            fail("bundle_source_binding_hash_mismatch", bundle_path)
+    return len(REQUIRED_SOURCE_BINDINGS)
 
 
 def verify(root: Path) -> dict:
@@ -153,14 +228,16 @@ def verify(root: Path) -> dict:
             fail("bundle_file_size_changed", name)
         if sha256(path) != str(row.get("sha256", "")):
             fail("bundle_file_hash_changed", name)
-    required = {"SOURCE_HEAD.txt", "OPERATOR-GUIDE.md", "BUNDLE-VERIFY.py"}
+    required = {"SOURCE_HEAD.txt", "OPERATOR-GUIDE.md", *REQUIRED_SOURCE_BINDINGS.keys()}
     if not required.issubset(seen):
         fail("bundle_required_file_missing", ",".join(sorted(required - seen)))
     archives = [name for name in seen if name.endswith(".tar.gz")]
     if len(archives) != 1:
         fail("bundle_source_archive_count_invalid", str(len(archives)))
     archive_name = archives[0]
-    archive_result = verify_archive(root / archive_name, manifest.get("archive_contract", {}))
+    archive_path = root / archive_name
+    archive_result = verify_archive(archive_path, manifest.get("archive_contract", {}))
+    binding_count = verify_source_bindings(root, archive_path, archive_result, manifest)
     return {
         "ok": True,
         "source_head": source_head,
@@ -169,6 +246,7 @@ def verify(root: Path) -> dict:
         "archive_root": archive_result["archive_root"],
         "archive_member_count": archive_result["archive_member_count"],
         "required_archive_files": archive_result["required_archive_files"],
+        "source_binding_count": binding_count,
         "evidence_appended": False,
     }
 
