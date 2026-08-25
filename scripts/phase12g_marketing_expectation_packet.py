@@ -4,6 +4,8 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -28,6 +30,7 @@ CANONICAL_CLAIMS = [
     "The 1.0 content target is 40 authored campaign dossiers plus 12 bounded remix cases.",
     "Required play paths include mouse+keyboard, keyboard-only and controller-only, with a 1280x800 Steam Deck target layout.",
 ]
+SHA40 = re.compile(r"^[0-9a-f]{40}$")
 
 
 def sha256(path: Path) -> str:
@@ -64,7 +67,7 @@ def load_claims(path: Path | None) -> list[str]:
     return claims
 
 
-def validate_assets(raw_assets: list[str]) -> list[dict[str, Any]]:
+def validate_asset_sources(raw_assets: list[str]) -> dict[str, Path]:
     by_role: dict[str, Path] = {}
     for raw in raw_assets:
         role, path = parse_asset(raw)
@@ -80,15 +83,79 @@ def validate_assets(raw_assets: list[str]) -> list[dict[str, Any]]:
     missing = [role for role in REQUIRED_ASSET_ROLES if role not in by_role]
     if missing:
         raise SystemExit(f"representative E8 asset set incomplete; missing roles: {', '.join(missing)}")
-    return [
-        {
+    return by_role
+
+
+def freeze_assets(raw_assets: list[str], out_dir: Path) -> list[dict[str, Any]]:
+    sources = validate_asset_sources(raw_assets)
+    asset_dir = out_dir / "assets"
+    if asset_dir.exists() and any(asset_dir.iterdir()):
+        raise SystemExit("refusing to overwrite non-empty packet assets directory")
+    asset_dir.mkdir(parents=True, exist_ok=True)
+    frozen: list[dict[str, Any]] = []
+    for role in REQUIRED_ASSET_ROLES:
+        source = sources[role]
+        stored_name = f"{role}{source.suffix.lower()}"
+        target = asset_dir / stored_name
+        shutil.copyfile(source, target)
+        frozen.append({
             "role": role,
-            "filename": by_role[role].name,
-            "sha256": sha256(by_role[role]),
-            "bytes": by_role[role].stat().st_size,
-        }
-        for role in REQUIRED_ASSET_ROLES
-    ]
+            "source_filename": source.name,
+            "packet_path": f"assets/{stored_name}",
+            "sha256": sha256(target),
+            "bytes": target.stat().st_size,
+        })
+    return frozen
+
+
+def validate_frozen_assets(root: Path, asset_set: dict[str, Any]) -> dict[str, Any]:
+    assets = asset_set.get("assets", [])
+    if not isinstance(assets, list):
+        return {"ok": False, "code": "asset_manifest_malformed"}
+    roles: list[str] = []
+    for raw_item in assets:
+        if not isinstance(raw_item, dict):
+            return {"ok": False, "code": "asset_manifest_entry_malformed"}
+        role = str(raw_item.get("role", ""))
+        roles.append(role)
+        packet_path = str(raw_item.get("packet_path", ""))
+        if role not in REQUIRED_ASSET_ROLES or not packet_path.startswith("assets/"):
+            return {"ok": False, "code": "asset_manifest_path_invalid", "role": role}
+        path = (root / packet_path).resolve()
+        try:
+            path.relative_to(root.resolve())
+        except ValueError:
+            return {"ok": False, "code": "asset_path_escaped_packet", "role": role}
+        if not path.is_file():
+            return {"ok": False, "code": "frozen_asset_missing", "role": role}
+        if path.stat().st_size != int(raw_item.get("bytes", -1)):
+            return {"ok": False, "code": "frozen_asset_size_changed", "role": role}
+        if sha256(path) != str(raw_item.get("sha256", "")):
+            return {"ok": False, "code": "frozen_asset_hash_changed", "role": role}
+    if roles != list(REQUIRED_ASSET_ROLES):
+        return {"ok": False, "code": "frozen_asset_roles_changed", "roles": roles}
+    return {"ok": True, "asset_count": len(assets)}
+
+
+def load_and_verify_packet(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
+    asset_path = root / "asset-set.json"
+    respondent_path = root / "respondents.json"
+    if not asset_path.is_file() or not respondent_path.is_file():
+        raise SystemExit("E8 packet missing asset-set.json/respondents.json")
+    asset_set = json.loads(asset_path.read_text(encoding="utf-8"))
+    packet = json.loads(respondent_path.read_text(encoding="utf-8"))
+    if sha256(asset_path) != packet.get("asset_set_sha256"):
+        raise SystemExit("asset-set changed after respondent packet preparation")
+    integrity = validate_frozen_assets(root, asset_set)
+    if not integrity.get("ok", False):
+        raise SystemExit(f"frozen E8 asset integrity failure: {integrity}")
+    if packet.get("asset_version") != asset_set.get("asset_version"):
+        raise SystemExit("respondent packet asset_version mismatch")
+    if packet.get("build_id") != asset_set.get("build_id"):
+        raise SystemExit("respondent packet build_id mismatch")
+    if packet.get("source_head") != asset_set.get("source_head"):
+        raise SystemExit("respondent packet source_head mismatch")
+    return asset_set, packet
 
 
 def prepare(args: argparse.Namespace) -> None:
@@ -96,23 +163,30 @@ def prepare(args: argparse.Namespace) -> None:
         raise SystemExit("asset_version is required")
     if not args.build_id.strip():
         raise SystemExit("build_id is required")
+    source_head = args.source_head.strip().lower()
+    if not SHA40.fullmatch(source_head):
+        raise SystemExit("source_head must be an exact 40-character lowercase Git commit SHA")
     if not args.representative_attestation:
         raise SystemExit("refusing E8 packet: representative asset attestation is required")
-    assets = validate_assets(args.asset)
     claims = load_claims(Path(args.claims).resolve() if args.claims else None)
     out_dir = Path(args.output).resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
+    if (out_dir / "asset-set.json").exists() or (out_dir / "respondents.json").exists():
+        raise SystemExit("refusing to overwrite an existing E8 packet")
+    assets = freeze_assets(args.asset, out_dir)
     manifest = {
-        "schema": "fmd.phase12g.e8.asset-set.v1",
+        "schema": "fmd.phase12g.e8.asset-set.v2",
         "gate_id": "E8",
         "asset_version": args.asset_version,
         "build_id": args.build_id,
+        "source_head": source_head,
         "representative_asset_attestation": True,
         "claims": claims,
         "assets": assets,
-        "evidence_boundary": "This asset manifest is acquisition material, not market evidence and not an E8 disposition.",
+        "evidence_boundary": "This immutable asset manifest is acquisition material, not market evidence and not an E8 disposition.",
     }
-    (out_dir / "asset-set.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    asset_path = out_dir / "asset-set.json"
+    asset_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
     rows = []
     for index in range(args.respondents):
@@ -124,29 +198,29 @@ def prepare(args: argparse.Namespace) -> None:
             "notes": None,
         })
     packet = {
-        "schema": "fmd.phase12g.e8.respondent-packet.v1",
+        "schema": "fmd.phase12g.e8.respondent-packet.v2",
         "gate_id": "E8",
         "asset_version": args.asset_version,
         "build_id": args.build_id,
-        "asset_set_sha256": sha256(out_dir / "asset-set.json"),
+        "source_head": source_head,
+        "asset_set_sha256": sha256(asset_path),
         "rows": rows,
         "status": "PREPARED",
         "evidence_appended": False,
         "interpretation": None,
-        "evidence_boundary": "Prepared respondent rows are not observations. Human fields must remain null until a real respondent sees this exact asset version.",
+        "evidence_boundary": "Prepared respondent rows are not observations. Human fields must remain null until a real respondent sees the immutable packet assets for this exact version.",
     }
     (out_dir / "respondents.json").write_text(json.dumps(packet, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(f"Prepared E8 asset set {args.asset_version} with {len(assets)} representative roles and {len(rows)} blank respondent rows")
+    print(f"Prepared immutable E8 asset set {args.asset_version} at source {source_head} with {len(assets)} roles and {len(rows)} blank respondent rows")
 
 
 def status(args: argparse.Namespace) -> None:
     root = Path(args.packet).resolve()
-    asset_path = root / "asset-set.json"
-    respondent_path = root / "respondents.json"
-    if not asset_path.is_file() or not respondent_path.is_file():
-        print("MISSING_PACKET")
+    try:
+        asset_set, packet = load_and_verify_packet(root)
+    except SystemExit as exc:
+        print(json.dumps({"status": "INVALID_PACKET", "reason": str(exc), "evidence_appended": False}, sort_keys=True))
         return
-    packet = json.loads(respondent_path.read_text(encoding="utf-8"))
     rows = packet.get("rows", [])
     completed = sum(
         1
@@ -159,21 +233,22 @@ def status(args: argparse.Namespace) -> None:
         state = "PARTIALLY_OBSERVED"
     else:
         state = "READY_TO_FINALIZE"
-    print(json.dumps({"status": state, "completed_rows": completed, "total_rows": len(rows), "evidence_appended": False}, sort_keys=True))
+    print(json.dumps({
+        "status": state,
+        "completed_rows": completed,
+        "total_rows": len(rows),
+        "asset_version": asset_set.get("asset_version"),
+        "source_head": asset_set.get("source_head"),
+        "frozen_assets_verified": True,
+        "evidence_appended": False,
+    }, sort_keys=True))
 
 
 def finalize(args: argparse.Namespace) -> None:
     root = Path(args.packet).resolve()
-    asset_path = root / "asset-set.json"
-    respondent_path = root / "respondents.json"
-    if not asset_path.is_file() or not respondent_path.is_file():
-        raise SystemExit("E8 packet missing asset-set.json/respondents.json")
-    asset_set = json.loads(asset_path.read_text(encoding="utf-8"))
-    packet = json.loads(respondent_path.read_text(encoding="utf-8"))
+    asset_set, packet = load_and_verify_packet(root)
     if not asset_set.get("representative_asset_attestation", False):
         raise SystemExit("representative asset attestation missing")
-    if sha256(asset_path) != packet.get("asset_set_sha256"):
-        raise SystemExit("asset-set changed after respondent packet preparation")
     rows = packet.get("rows", [])
     if not rows:
         raise SystemExit("no respondents prepared")
@@ -194,7 +269,7 @@ def finalize(args: argparse.Namespace) -> None:
     with out.open("w", encoding="utf-8") as handle:
         for row in rows:
             handle.write(json.dumps(row, sort_keys=True) + "\n")
-    print(f"Finalized {len(rows)} local E8 observation rows; repository evidence was not appended")
+    print(f"Finalized {len(rows)} local E8 observation rows against verified immutable assets; repository evidence was not appended")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -203,6 +278,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("prepare")
     p.add_argument("--asset-version", required=True)
     p.add_argument("--build-id", required=True)
+    p.add_argument("--source-head", required=True, help="exact 40-character Git commit SHA represented by the asset packet")
     p.add_argument("--asset", action="append", default=[], help="ROLE=PATH; all five representative roles are required")
     p.add_argument("--claims")
     p.add_argument("--representative-attestation", action="store_true")
