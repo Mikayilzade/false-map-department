@@ -5,9 +5,16 @@ import hashlib
 import json
 import sys
 import tarfile
+import unicodedata
 from pathlib import Path, PurePosixPath
 
-SCHEMA = "fmd.phase12g.external-acquisition-bundle.v2"
+SCHEMA = "fmd.phase12g.external-acquisition-bundle.v3"
+WINDOWS_FORBIDDEN_CHARS = set('<>:"|?*')
+WINDOWS_RESERVED_NAMES = {
+    "CON", "PRN", "AUX", "NUL",
+    *(f"COM{i}" for i in range(1, 10)),
+    *(f"LPT{i}" for i in range(1, 10)),
+}
 
 
 def sha256(path: Path) -> str:
@@ -27,6 +34,32 @@ def member_is_within_root(name: str, archive_root: str) -> bool:
     return name == archive_root.rstrip("/") or name.startswith(archive_root)
 
 
+def portable_component_key(component: str) -> str:
+    normalized = unicodedata.normalize("NFC", component)
+    return normalized.casefold().rstrip(" .")
+
+
+def validate_portable_member_name(name: str, archive_root: str) -> str:
+    if not name or "\\" in name or any(ord(ch) < 32 or ord(ch) == 127 for ch in name):
+        fail("bundle_archive_unsafe_portable_member_path", repr(name))
+    pure = PurePosixPath(name)
+    if pure.is_absolute() or ".." in pure.parts:
+        fail("bundle_archive_unsafe_member_path", name)
+    if not member_is_within_root(name, archive_root):
+        fail("bundle_archive_member_outside_root", name)
+    portable_parts: list[str] = []
+    for component in pure.parts:
+        if component in {"", "."}:
+            continue
+        if component.endswith((" ", ".")) or any(ch in WINDOWS_FORBIDDEN_CHARS for ch in component):
+            fail("bundle_archive_windows_unsafe_component", repr(component))
+        stem = component.split(".", 1)[0].upper()
+        if stem in WINDOWS_RESERVED_NAMES:
+            fail("bundle_archive_windows_reserved_component", repr(component))
+        portable_parts.append(portable_component_key(component))
+    return "/".join(portable_parts)
+
+
 def verify_archive(path: Path, contract: dict) -> dict:
     archive_root = str(contract.get("archive_root", ""))
     if not archive_root or archive_root.startswith("/") or ".." in PurePosixPath(archive_root).parts or not archive_root.endswith("/"):
@@ -37,24 +70,40 @@ def verify_archive(path: Path, contract: dict) -> dict:
     expected_count = int(contract.get("member_count", -1))
     if expected_count < 1:
         fail("bundle_archive_member_count_invalid", str(expected_count))
-    if contract.get("forbid_links") is not True or contract.get("forbid_absolute_or_parent_paths") is not True:
+    required_flags = (
+        "forbid_links",
+        "forbid_special_file_types",
+        "forbid_absolute_or_parent_paths",
+        "forbid_backslash_or_control_paths",
+        "forbid_windows_unsafe_components",
+        "forbid_duplicate_member_paths",
+        "forbid_portable_path_collisions",
+    )
+    if any(contract.get(flag) is not True for flag in required_flags):
         fail("bundle_archive_safety_contract_invalid")
 
     required_members = {archive_root + str(rel) for rel in required}
     seen_files: set[str] = set()
+    seen_names: set[str] = set()
+    portable_keys: dict[str, str] = {}
     member_count = 0
     try:
         with tarfile.open(path, "r:gz") as archive:
             for member in archive.getmembers():
                 member_count += 1
                 name = member.name
-                pure = PurePosixPath(name)
-                if pure.is_absolute() or ".." in pure.parts:
-                    fail("bundle_archive_unsafe_member_path", name)
-                if not member_is_within_root(name, archive_root):
-                    fail("bundle_archive_member_outside_root", name)
+                portable_key = validate_portable_member_name(name, archive_root)
+                if name in seen_names:
+                    fail("bundle_archive_duplicate_member_path", name)
+                seen_names.add(name)
+                previous = portable_keys.get(portable_key)
+                if previous is not None and previous != name:
+                    fail("bundle_archive_portable_path_collision", f"{previous!r} vs {name!r}")
+                portable_keys[portable_key] = name
                 if member.issym() or member.islnk():
                     fail("bundle_archive_link_forbidden", name)
+                if not (member.isfile() or member.isdir()):
+                    fail("bundle_archive_special_file_forbidden", name)
                 if member.isfile():
                     seen_files.add(name)
     except tarfile.TarError as exc:
