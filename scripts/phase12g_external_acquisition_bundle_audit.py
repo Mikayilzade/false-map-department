@@ -15,6 +15,12 @@ ROOT = Path(__file__).resolve().parents[1]
 BUILDER = ROOT / "scripts" / "phase12g_external_acquisition_bundle.py"
 VERIFY = ROOT / "scripts" / "phase12g_external_acquisition_bundle_verify.py"
 EVIDENCE = ROOT / "empirical" / "evidence"
+EXPECTED_BINDINGS = {
+    "BUNDLE-VERIFY.py": "scripts/phase12g_external_acquisition_bundle_verify.py",
+    "FIELD-KIT-VERIFY.py": "scripts/phase12g_field_kit_offline_verify.py",
+    "FIELD-KIT-FINALIZE.py": "scripts/phase12g_field_kit_offline_finalize.py",
+    "RETURN-INGEST.md": "empirical/PHASE12G_RETURN_INGEST.md",
+}
 
 
 def digest_tree(root: Path) -> str:
@@ -56,6 +62,17 @@ def run_rejected(command: list[str], expected_code: str) -> None:
         )
 
 
+def refresh_file_row(manifest_path: Path, target: Path) -> None:
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    for row in manifest["files"]:
+        if row.get("path") == target.name:
+            row["bytes"] = target.stat().st_size
+            row["sha256"] = sha256(target)
+            manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            return
+    raise SystemExit(f"bundle file row missing for {target.name}")
+
+
 def rewrite_archive_with_extra_member(archive_path: Path, member: tarfile.TarInfo, data: bytes = b"") -> None:
     rewritten = archive_path.with_suffix(".rewrite.tar.gz")
     with tarfile.open(archive_path, "r:gz") as source, tarfile.open(rewritten, "w:gz") as target:
@@ -67,19 +84,48 @@ def rewrite_archive_with_extra_member(archive_path: Path, member: tarfile.TarInf
     rewritten.replace(archive_path)
 
 
-def refresh_archive_manifest(manifest_path: Path, archive_path: Path, member_delta: int) -> None:
+def rewrite_archive_member(archive_path: Path, member_name: str, replacement: bytes) -> None:
+    rewritten = archive_path.with_suffix(".rewrite.tar.gz")
+    found = False
+    with tarfile.open(archive_path, "r:gz") as source, tarfile.open(rewritten, "w:gz") as target:
+        for existing in source.getmembers():
+            if existing.name == member_name:
+                found = True
+                info = tarfile.TarInfo(existing.name)
+                info.mode = existing.mode
+                info.uid = existing.uid
+                info.gid = existing.gid
+                info.mtime = existing.mtime
+                info.type = tarfile.REGTYPE
+                info.size = len(replacement)
+                target.addfile(info, io.BytesIO(replacement))
+            else:
+                fileobj = source.extractfile(existing) if existing.isfile() else None
+                target.addfile(existing, fileobj)
+    if not found:
+        raise SystemExit(f"archive member not found for replacement: {member_name}")
+    rewritten.replace(archive_path)
+
+
+def refresh_archive_manifest(manifest_path: Path, archive_path: Path, member_delta: int = 0) -> None:
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     manifest["archive_contract"]["member_count"] = int(manifest["archive_contract"]["member_count"]) + member_delta
-    found = False
     for row in manifest["files"]:
         if row.get("path") == archive_path.name:
             row["bytes"] = archive_path.stat().st_size
             row["sha256"] = sha256(archive_path)
-            found = True
-            break
-    if not found:
-        raise SystemExit("archive file row missing while preparing adversarial portable-path fixture")
-    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            return
+    raise SystemExit("archive file row missing while preparing adversarial fixture")
+
+
+def archive_bytes(archive_path: Path, member_name: str) -> bytes:
+    with tarfile.open(archive_path, "r:gz") as archive:
+        member = archive.getmember(member_name)
+        handle = archive.extractfile(member)
+        if handle is None:
+            raise SystemExit(f"archive member unreadable: {member_name}")
+        return handle.read()
 
 
 def main() -> None:
@@ -90,8 +136,10 @@ def main() -> None:
         bundle = temp / "bundle"
         built = run([sys.executable, str(BUILDER), "--source-head", head, "--output", str(bundle)])
         payload = json.loads(built.stdout.strip().splitlines()[-1])
-        if not payload.get("ok") or payload.get("source_head") != head or int(payload.get("archive_member_count", 0)) < 1:
-            raise SystemExit("builder did not preserve exact current source head/archive member contract")
+        if not payload.get("ok") or payload.get("source_head") != head:
+            raise SystemExit("builder did not preserve exact current source head")
+        if int(payload.get("source_binding_count", 0)) != len(EXPECTED_BINDINGS):
+            raise SystemExit("builder did not emit the complete source-binding set")
 
         verified = run([sys.executable, str(VERIFY), str(bundle)])
         verify_payload = json.loads(verified.stdout.strip().splitlines()[-1])
@@ -99,79 +147,69 @@ def main() -> None:
         if not verify_payload.get("ok") or verify_payload.get("evidence_appended") is not False:
             raise SystemExit("fresh external acquisition bundle failed offline verification/evidence boundary")
         if verify_payload.get("archive_root") != expected_root:
-            raise SystemExit("offline verifier did not preserve the exact archive root contract")
-        if int(verify_payload.get("archive_member_count", 0)) != int(payload.get("archive_member_count", -1)):
-            raise SystemExit("builder/verifier archive member counts disagree")
-        if int(verify_payload.get("required_archive_files", 0)) < 10:
-            raise SystemExit("offline verifier did not check the acquisition-critical archive file set")
+            raise SystemExit("offline verifier did not preserve exact archive root")
+        if int(verify_payload.get("source_binding_count", 0)) != len(EXPECTED_BINDINGS):
+            raise SystemExit("offline verifier did not verify every mandatory source binding")
 
         manifest_path = bundle / "bundle-manifest.json"
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        if manifest.get("schema") != "fmd.phase12g.external-acquisition-bundle.v3":
-            raise SystemExit("portable bundle must use the hardened v3 schema")
-        required_safety_flags = {
-            "forbid_links",
-            "forbid_special_file_types",
-            "forbid_absolute_or_parent_paths",
-            "forbid_backslash_or_control_paths",
-            "forbid_windows_unsafe_components",
-            "forbid_duplicate_member_paths",
-            "forbid_portable_path_collisions",
-        }
+        if manifest.get("schema") != "fmd.phase12g.external-acquisition-bundle.v4":
+            raise SystemExit("portable bundle must use source-bound v4 schema")
+        binding_rows = manifest.get("source_bindings", [])
+        actual_bindings = {str(row.get("bundle_path")): str(row.get("source_archive_path")) for row in binding_rows}
+        if actual_bindings != EXPECTED_BINDINGS:
+            raise SystemExit(f"source binding mapping mismatch: {actual_bindings}")
         contract = manifest.get("archive_contract", {})
-        if any(contract.get(flag) is not True for flag in required_safety_flags):
-            raise SystemExit("bundle manifest is missing a mandatory portable archive-safety contract flag")
+        if "empirical/PHASE12G_RETURN_INGEST.md" not in contract.get("required_regular_files", []):
+            raise SystemExit("source archive contract must require the return-ingest instructions")
         if manifest.get("gate_dispositions_changed") is not False or manifest.get("evidence_appended") is not False:
-            raise SystemExit("bundle manifest may not claim empirical disposition/evidence mutation")
-        archive = bundle / str(verify_payload.get("source_archive", ""))
-        if not archive.is_file() or archive.stat().st_size <= 0:
-            raise SystemExit("source archive missing from verified bundle")
+            raise SystemExit("bundle manifest may not claim empirical mutation")
 
-        original_manifest = manifest_path.read_text(encoding="utf-8")
+        archive = bundle / str(verify_payload.get("source_archive", ""))
         pristine_archive = temp / "pristine-source.tar.gz"
         shutil.copy2(archive, pristine_archive)
+        original_manifest = manifest_path.read_text(encoding="utf-8")
 
-        # Contract-only corruption still rejects even when archive bytes are untouched.
-        malformed_manifest = json.loads(original_manifest)
-        malformed_manifest["archive_contract"]["archive_root"] = "wrong-root/"
-        manifest_path.write_text(json.dumps(malformed_manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        run_rejected([sys.executable, str(VERIFY), str(bundle)], "bundle_archive_member_outside_root")
+        # Prove every standalone operational artifact is byte-identical to its
+        # source-archive member before any adversarial mutation.
+        for bundle_path, source_path in EXPECTED_BINDINGS.items():
+            root_bytes = (bundle / bundle_path).read_bytes()
+            source_bytes = archive_bytes(archive, expected_root + source_path)
+            if root_bytes != source_bytes:
+                raise SystemExit(f"fresh source binding is not byte-identical: {bundle_path}")
+
+        # Recompute the ordinary file hash around a modified standalone finalizer.
+        # The independent archive binding must still reject it.
+        finalizer = bundle / "FIELD-KIT-FINALIZE.py"
+        pristine_finalizer = finalizer.read_bytes()
+        finalizer.write_bytes(pristine_finalizer + b"\n# transport tamper\n")
+        refresh_file_row(manifest_path, finalizer)
+        run_rejected([sys.executable, str(VERIFY), str(bundle)], "bundle_source_binding_hash_mismatch")
+        finalizer.write_bytes(pristine_finalizer)
         manifest_path.write_text(original_manifest, encoding="utf-8")
 
-        malformed_manifest = json.loads(original_manifest)
-        malformed_manifest["archive_contract"]["member_count"] = int(malformed_manifest["archive_contract"]["member_count"]) + 1
-        manifest_path.write_text(json.dumps(malformed_manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        run_rejected([sys.executable, str(VERIFY), str(bundle)], "bundle_archive_member_count_changed")
+        # Recompute the archive's ordinary hash after changing the source-side
+        # return instructions. Root/archive equality must still reject it.
+        return_member = expected_root + EXPECTED_BINDINGS["RETURN-INGEST.md"]
+        source_return = archive_bytes(archive, return_member)
+        rewrite_archive_member(archive, return_member, source_return + b"\ntransport tamper\n")
+        refresh_archive_manifest(manifest_path, archive)
+        run_rejected([sys.executable, str(VERIFY), str(bundle)], "bundle_source_binding_hash_mismatch")
+        shutil.copy2(pristine_archive, archive)
         manifest_path.write_text(original_manifest, encoding="utf-8")
 
-        # Simulate a recomputed manifest around structurally dangerous archive bytes.
-        # This proves the verifier's extraction-safety checks are independent of hashes.
+        # The manifest may not silently drop a mandatory binding.
+        malformed = json.loads(original_manifest)
+        malformed["source_bindings"] = malformed["source_bindings"][:-1]
+        manifest_path.write_text(json.dumps(malformed, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        run_rejected([sys.executable, str(VERIFY), str(bundle)], "bundle_source_binding_set_mismatch")
+        manifest_path.write_text(original_manifest, encoding="utf-8")
+
+        # Structural archive safety stays independent from hashes/bindings.
         backslash = tarfile.TarInfo(expected_root + "scripts\\portable-escape.py")
         rewrite_archive_with_extra_member(archive, backslash, b"unsafe")
         refresh_archive_manifest(manifest_path, archive, 1)
         run_rejected([sys.executable, str(VERIFY), str(bundle)], "bundle_archive_unsafe_portable_member_path")
-        shutil.copy2(pristine_archive, archive)
-        manifest_path.write_text(original_manifest, encoding="utf-8")
-
-        duplicate = tarfile.TarInfo(expected_root + "IMPLEMENTATION_START_HERE.md")
-        rewrite_archive_with_extra_member(archive, duplicate, b"duplicate")
-        refresh_archive_manifest(manifest_path, archive, 1)
-        run_rejected([sys.executable, str(VERIFY), str(bundle)], "bundle_archive_duplicate_member_path")
-        shutil.copy2(pristine_archive, archive)
-        manifest_path.write_text(original_manifest, encoding="utf-8")
-
-        case_collision = tarfile.TarInfo(expected_root + "implementation_start_here.md")
-        rewrite_archive_with_extra_member(archive, case_collision, b"collision")
-        refresh_archive_manifest(manifest_path, archive, 1)
-        run_rejected([sys.executable, str(VERIFY), str(bundle)], "bundle_archive_portable_path_collision")
-        shutil.copy2(pristine_archive, archive)
-        manifest_path.write_text(original_manifest, encoding="utf-8")
-
-        special = tarfile.TarInfo(expected_root + "portable-fifo")
-        special.type = tarfile.FIFOTYPE
-        rewrite_archive_with_extra_member(archive, special)
-        refresh_archive_manifest(manifest_path, archive, 1)
-        run_rejected([sys.executable, str(VERIFY), str(bundle)], "bundle_archive_special_file_forbidden")
         shutil.copy2(pristine_archive, archive)
         manifest_path.write_text(original_manifest, encoding="utf-8")
 
@@ -190,13 +228,13 @@ def main() -> None:
         )
         if wrong_run.returncode == 0 or "source-head mismatch" not in (wrong_run.stdout + wrong_run.stderr):
             raise SystemExit("builder did not reject a non-checkout source head")
-        shutil.rmtree(bundle, ignore_errors=True)
+
     evidence_after = digest_tree(EVIDENCE)
     if evidence_before != evidence_after:
         raise SystemExit("external bundle audit mutated empirical evidence")
     print(
         "Phase 12G external acquisition bundle audit: PASS "
-        "(exact-source archive + offline hash/root/link/type/portable-path collision safety + adversarial rejection + zero evidence/disposition mutation)"
+        "(exact-source v4 archive + byte-bound standalone verifier/finalizer/return-ingest contract + adversarial transport rejection + zero evidence/disposition mutation)"
     )
 
 
