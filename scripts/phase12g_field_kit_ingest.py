@@ -5,11 +5,16 @@ import argparse
 import json
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+SCRIPT_DIR = Path(__file__).resolve().parent
 COLLECTOR = ROOT / "scripts/phase12g_collect_completed_rows.py"
 HUMAN_GATES = ("E1", "E2", "E3", "E4", "E5", "E6", "E9", "E10", "E11")
+
+sys.path.insert(0, str(SCRIPT_DIR))
+import phase12g_provenance as provenance  # noqa: E402
 
 
 def fail(message: str) -> None:
@@ -24,6 +29,23 @@ def load_json(path: Path) -> dict:
     if not isinstance(value, dict):
         fail(f"{path}: expected JSON object")
     return value
+
+
+def load_jsonl(path: Path) -> list[dict]:
+    rows: list[dict] = []
+    for line_no, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        if not raw.strip():
+            continue
+        try:
+            value = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            fail(f"{path}:{line_no}: malformed JSON row: {exc}")
+        if not isinstance(value, dict):
+            fail(f"{path}:{line_no}: row must be an object")
+        rows.append(value)
+    if not rows:
+        fail(f"{path}: completed file contains no rows")
+    return rows
 
 
 def validate_sha(value: str, label: str) -> str:
@@ -106,6 +128,41 @@ def run_collector(path: Path, evidence_root: Path, append: bool) -> dict:
     return payload
 
 
+def build_id_for_gate(manifest: dict, gate_id: str) -> str:
+    key = "demo_build_id" if gate_id in {"E1", "E2", "E11"} else "production_build_id"
+    value = str(manifest.get(key, "")).strip()
+    if not value:
+        fail(f"field-kit manifest missing {key} for {gate_id}")
+    return value
+
+
+def staged_with_provenance(path: Path, gate_id: str, manifest: dict, source_head: str, kit_root: Path) -> Path:
+    try:
+        rows = provenance.enrich_rows(
+            load_jsonl(path),
+            source_head=source_head,
+            build_id=build_id_for_gate(manifest, gate_id),
+            channel="human_field_kit_v4",
+        )
+    except ValueError as exc:
+        fail(f"{path}: {exc}")
+    handle = tempfile.NamedTemporaryFile(
+        mode="w",
+        encoding="utf-8",
+        prefix=f".repository-ingest-{gate_id}-",
+        suffix=".jsonl",
+        dir=kit_root,
+        delete=False,
+    )
+    staged = Path(handle.name)
+    try:
+        for row in rows:
+            handle.write(json.dumps(row, sort_keys=True, ensure_ascii=False) + "\n")
+    finally:
+        handle.close()
+    return staged
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Verify a returned Phase 12G human field kit and deliberately dry-run or append only completed observed rows.")
     parser.add_argument("--kit-dir", type=Path, required=True)
@@ -134,7 +191,11 @@ def main() -> None:
     results: list[dict] = []
     for gate_id in HUMAN_GATES:
         for path in files_by_gate[gate_id]:
-            result = run_collector(path, args.evidence_root.resolve(), args.append)
+            staged = staged_with_provenance(path, gate_id, manifest, manifest_source, kit_root)
+            try:
+                result = run_collector(staged, args.evidence_root.resolve(), args.append)
+            finally:
+                staged.unlink(missing_ok=True)
             if str(result.get("gate_id", "")) != gate_id:
                 fail(f"collector gate mismatch for {path}")
             results.append({"source": str(path.relative_to(kit_root)), **result})
@@ -143,6 +204,7 @@ def main() -> None:
         "status": "APPENDED" if args.append else "VALIDATED_DRY_RUN",
         "source_head": manifest_source,
         "kit_verified_offline": True,
+        "provenance_persisted_in_rows": True,
         "append_requested": args.append,
         "completed_file_count": len(results),
         "completed_gate_ids": sorted(present),
