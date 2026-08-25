@@ -8,9 +8,15 @@ Phase 12G human field-kit audit: PASS (E1-E6/E9-E11 relocatable packets + self-c
 Phase 12G field-kit ingest audit: PASS (offline verification + finalization receipt binding + exact source pin + dry-run default + deliberate append + cross-run idempotency + post-finalization tamper rejection with byte-preserving failure)
 Phase 12G E8 marketing-acquisition audit: PASS (packet-owned immutable assets + exact source head + re-hash tamper rejection + blank-human anti-fabrication + local-only finalization)
 Phase 12G E8 ingest audit: PASS — exact source/assets + digest-bound finalized respondent return + coordinated post-finalize tamper rejection + dry-run/explicit append/idempotency; synthetic audit data never touched repository evidence
+Phase 12G qualitative disposition audit: PASS (explicit review + exact evidence digest/row binding + stale rejection + deliberate replacement + threshold-gate guard)
 Phase 12G T8-44 acquisition audit: PASS (source pin + reference attestation + exact raw-sample cardinality + recomputed median/p95/p99 integrity + non-reference/tamper rejection; audit data never touched repository evidence)
 Phase 12G external acquisition bundle audit: PASS (exact-source v4 archive + byte-bound standalone verifier/finalizer/return-ingest contract + adversarial transport rejection + zero evidence/disposition mutation)
 Phase 12G acquisition readiness audit: PASS (demo path preserved; mature empirical scene + explicit representative bindings + map-backed linked facts present; no human/capture PASS fabricated)
+{
+  "ok": true,
+  "reason": "no qualitative dispositions recorded",
+  "validated_dispositions": 0
+}
 {
   "counts": {
     "BLOCKED": 0,
