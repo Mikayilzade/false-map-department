@@ -1,1 +1,1 @@
-Phase 12G external acquisition bundle audit: PASS (exact-source archive + offline hash/structure/root/link safety verification + tamper rejection + zero evidence/disposition mutation)
+Phase 12G external acquisition bundle audit: PASS (exact-source archive + offline hash/root/link/type/portable-path collision safety + adversarial rejection + zero evidence/disposition mutation)

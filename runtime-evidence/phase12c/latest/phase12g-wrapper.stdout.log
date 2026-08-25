@@ -9,7 +9,7 @@ Phase 12G field-kit ingest audit: PASS (offline verification + exact source pin 
 Phase 12G E8 marketing-acquisition audit: PASS (packet-owned immutable assets + exact source head + re-hash tamper rejection + blank-human anti-fabrication + local-only finalization)
 Phase 12G E8 ingest audit: PASS — exact source pin + frozen assets + finalized respondent equality + dry-run + explicit append + idempotency; synthetic audit data never touched repository evidence
 Phase 12G T8-44 acquisition audit: PASS (production D39 late-game+Stability timing runner + source pin + reference-hardware attestation + diagnostic/non-reference rejection; synthetic audit data never touched repository evidence)
-Phase 12G external acquisition bundle audit: PASS (exact-source archive + offline hash/structure/root/link safety verification + tamper rejection + zero evidence/disposition mutation)
+Phase 12G external acquisition bundle audit: PASS (exact-source archive + offline hash/root/link/type/portable-path collision safety + adversarial rejection + zero evidence/disposition mutation)
 Phase 12G acquisition readiness audit: PASS (demo path preserved; mature empirical scene + explicit representative bindings + map-backed linked facts present; no human/capture PASS fabricated)
 {
   "counts": {
