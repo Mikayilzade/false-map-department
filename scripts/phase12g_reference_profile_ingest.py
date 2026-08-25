@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import subprocess
 import sys
 from pathlib import Path
@@ -28,6 +29,18 @@ def validate_sha(value: str, label: str) -> str:
     if len(value) != 40 or any(ch not in "0123456789abcdef" for ch in value):
         fail(f"{label} must be an exact 40-character commit SHA")
     return value
+
+
+def percentile_ms(samples_us: list[int], fraction: float) -> float:
+    values = sorted(samples_us)
+    index = max(0, min(len(values) - 1, math.ceil(fraction * len(values)) - 1))
+    return values[index] / 1000.0
+
+
+def require_metric_match(row: dict, field: str, expected: float) -> None:
+    actual = float(row[field])
+    if not math.isclose(actual, expected, rel_tol=0.0, abs_tol=1e-9):
+        fail(f"{field} does not match raw_samples_us: claimed {actual}, recomputed {expected}")
 
 
 def validate_packet(packet: dict, expected_source_head: str, allow_audit_fixture: bool = False) -> dict:
@@ -76,12 +89,24 @@ def validate_packet(packet: dict, expected_source_head: str, allow_audit_fixture
     raw = packet.get("raw_samples_us")
     if not isinstance(raw, dict):
         fail("raw_samples_us missing/malformed")
+    sample_count = int(row["sample_count"])
+    samples_by_family: dict[str, list[int]] = {}
     for family in ["typical_edit", "late_game_edit", "stability_cycle"]:
         values = raw.get(family)
-        if not isinstance(values, list) or len(values) < int(row["sample_count"]):
-            fail(f"raw sample family {family} is incomplete")
+        if not isinstance(values, list) or len(values) != sample_count:
+            fail(f"raw sample family {family} must contain exactly sample_count values")
         if any(isinstance(v, bool) or not isinstance(v, int) or v < 0 for v in values):
             fail(f"raw sample family {family} contains invalid values")
+        samples_by_family[family] = list(values)
+
+    typical = samples_by_family["typical_edit"]
+    late = samples_by_family["late_game_edit"]
+    stability = samples_by_family["stability_cycle"]
+    require_metric_match(row, "typical_edit_median_ms", percentile_ms(typical, 0.50))
+    require_metric_match(row, "typical_edit_p95_ms", percentile_ms(typical, 0.95))
+    require_metric_match(row, "late_game_edit_p99_ms", percentile_ms(late, 0.99))
+    require_metric_match(row, "stability_cycle_p95_ms", percentile_ms(stability, 0.95))
+
     if packet.get("evidence_appended") is not False:
         fail("profile packet must remain non-evidence until deliberate repository append")
     return row
@@ -124,6 +149,7 @@ def main() -> None:
         "build_id": row["build_id"],
         "dossier_id": row["dossier_id"],
         "sample_count": row["sample_count"],
+        "raw_summary_consistency_verified": True,
         "collector": result,
         "gate_disposition_inferred": False,
     }, indent=2, sort_keys=True))
