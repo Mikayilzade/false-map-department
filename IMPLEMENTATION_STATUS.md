@@ -21,51 +21,54 @@ Repository: `Mikayilzade/false-map-department`
 ## Latest autonomous run — 2026-08-25
 
 ### Phase / subphase
-**12G Empirical Design Gates / portable cross-platform archive-path hardening — EXACT-HEAD RUNTIME GREEN**
+**12G Empirical Design Gates / returned-evidence integrity hardening — duplicate observation rejection + T8 raw-summary binding — EXACT-HEAD RUNTIME GREEN**
 
 ### Progress saved this run
 - Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, this status file, `GAME2_PHASE11_FINAL_FREEZE.md`, `empirical/PHASE12G_PROTOCOL.md`, and `empirical/phase12g_gate_registry.json` before changing acquisition infrastructure.
-- Preserved the empirical boundary exactly: **E7 remains 285/285 PASS** and **E1, E2, E3, E4, E5, E6, E8, E9, E10, E11, E12 and T8-44 remain PENDING**. No human, market or reference-hardware evidence row was added, modified, inferred or fabricated.
-- Audited portable external-acquisition bundle v2 and found a concrete cross-platform extraction-safety gap. It rejected Unix absolute/parent traversal and links, but did not reject backslash/control-character member paths, Windows-invalid/reserved components, special tar member types, exact duplicate members, or case/Unicode-normalization collisions that can alias distinct archive names on portable case-insensitive filesystems.
-- Upgraded `scripts/phase12g_external_acquisition_bundle.py` and the bundled offline verifier to schema `fmd.phase12g.external-acquisition-bundle.v3`.
-- v3 validates each tar member before extraction: canonical archive root; no absolute/parent traversal; no backslashes/control characters; no Windows-forbidden or reserved path components; only regular files/directories; no symlink/hardlink/special members; no exact duplicate member names; and no NFC+case-fold portable path collisions.
-- The manifest now records each of those portable-safety obligations explicitly, and the offline verifier refuses a bundle if any required safety flag is missing or weakened.
-- Updated the generated operator guide to state that pre-extraction verification includes tar root/path/type/link safety, duplicate names and portable cross-platform collision checks.
-- Extended `scripts/phase12g_external_acquisition_bundle_audit.py` with adversarial tar reconstruction. The audit recomputes archive hash/size/member-count metadata around malicious bytes so structural rejection is tested independently of ordinary SHA mismatch. It requires typed rejection for a backslash member path, an exact duplicate required member, a case-fold collision with `IMPLEMENTATION_START_HERE.md`, and a FIFO/special member.
-- Retained prior wrong-root/member-count/top-level tamper/source-head rejection checks and proves the empirical evidence tree is byte-identical before/after the audit.
-- Used only the repository's existing notification-safe automatic aggregate baseline; no workflow was added, broadened or repeatedly rerun.
-- No gameplay, domain, content, progression, persistence, presentation or empirical evidence semantics changed.
+- Resumed exactly from the previous `NEXT ACTION` and audited the remaining field-kit, E8 and T8-44 acquisition/return paths for concrete integrity gaps rather than inventing new empirical tooling.
+- Preserved the empirical boundary exactly: **E7 remains 285/285 PASS** and **E1, E2, E3, E4, E5, E6, E8, E9, E10, E11, E12 and T8-44 remain PENDING**. No human, market or Deck-class evidence row was added, modified, inferred or fabricated.
+- Found a real same-return duplicate-observation gap in `phase12g_collect_completed_rows.py`: identical canonical rows repeated inside one returned JSONL were both considered novel before the append happened, so a single `--append` could duplicate one observation even though later re-ingest was idempotent.
+- Hardened the collector to reject duplicate canonical rows inside the input file **before any append** and report the duplicate row relationship explicitly. Cross-run idempotency remains unchanged.
+- Extended `phase12g_field_kit_ingest_audit.py` with an adversarial duplicate-return attack: it appends one valid E1 row, rewrites the completed return file with that observation twice, requires fail-closed rejection, and verifies the pre-existing evidence file remains byte-for-byte unchanged.
+- Audited E8 separately. Its staged packet/ingest path already enforces packet/source integrity and respondent uniqueness; no concrete new defect was found there, so no speculative E8 implementation change was made.
+- Found a second real integrity gap in T8-44: reference-profile ingest verified source SHA, reference-hardware attestation, raw sample presence and numeric summary fields, but did not recompute the claimed median/p95/p99 metrics from the raw timing arrays. A source-pinned, reference-attested packet could therefore contain a summary inconsistent with its own raw samples.
+- Hardened `phase12g_reference_profile_ingest.py` so all three raw timing families contain **exactly** `sample_count` non-negative integer samples and the claimed `typical_edit_median_ms`, `typical_edit_p95_ms`, `late_game_edit_p99_ms` and `stability_cycle_p95_ms` must exactly match profiler-consistent nearest-rank recomputation from those raw samples.
+- Extended `phase12g_reference_profile_audit.py` with tampered-summary and extra-raw-sample attacks, including a reference-attested `--append` attempt whose summary is deliberately inconsistent with raw samples. The audit requires explicit rejection and proves no T8-44 evidence is created by the failed attack.
+- Used only the repository's existing notification-safe automatic aggregate baseline; no workflow was added, broadened or manually spam-rerun.
+- No gameplay, domain, content, progression, persistence, presentation, empirical thresholds or existing evidence semantics changed.
 
 ### Current validated empirical state
 - **E7 accessibility/device sweep: PASS** — exhaustive **285/285** frozen matrix = 57 shippable IDs × 5 scenarios.
 - **E1, E2, E3, E4, E5, E6, E8, E9, E10, E11, E12, T8-44: PENDING**.
-- Human E1-E6/E9-E11 acquisition retains its controlled source-pinned field-kit lifecycle.
+- Human E1-E6/E9-E11 acquisition retains its controlled source-pinned field-kit lifecycle; returned duplicate observations now fail closed before append.
 - E8 retains its exact-source representative-asset/respondent lifecycle; genuine representative media and respondents are still missing.
-- T8-44 retains its D39 late-game + Stability timing runner and reference-only ingest path; actual Deck-class reference hardware has not been observed and there are zero T8-44 evidence rows.
-- Portable external acquisition bundle v3 is source-hash verified, archive-structure verified and hardened for cross-platform extraction aliases before use. This remains acquisition readiness only and creates no empirical observation.
+- T8-44 retains its D39 late-game + Stability timing runner and reference-only ingest path; actual Deck-class reference hardware has not been observed, there are zero T8-44 evidence rows, and any future claimed timing summary must now be derivable from the returned raw samples.
+- Portable external acquisition bundle v3 remains source-hash/archive-structure/portable-path verified before use. This remains acquisition readiness only and creates no empirical observation.
 - E12 remains intentionally near-release.
 - 12G remains **IN PROGRESS** and 12H remains prohibited.
 
 ### Files / systems changed
-- `scripts/phase12g_external_acquisition_bundle.py`
-- `scripts/phase12g_external_acquisition_bundle_verify.py`
-- `scripts/phase12g_external_acquisition_bundle_audit.py`
+- `scripts/phase12g_collect_completed_rows.py`
+- `scripts/phase12g_field_kit_ingest_audit.py`
+- `scripts/phase12g_reference_profile_ingest.py`
+- `scripts/phase12g_reference_profile_audit.py`
 - `IMPLEMENTATION_STATUS.md`
 
 ### Validation / evidence
-- Portable-path hardening implementation head: `443fb6d5c876e69a62f46685f766d5cc38318545`.
-- Automatic aggregate baseline run **32878552920**: **PASS** for exact head `443fb6d5c876e69a62f46685f766d5cc38318545`.
-- Evidence commit containing the recorded PASS evidence: `accfa42db88f810979bd529cd9c79f515b4939fa`.
-- `runtime-evidence/phase12c/latest/run-metadata.txt`: exact `head_sha=443fb6d5c876e69a62f46685f766d5cc38318545`, `run_id=32878552920`.
+- Return-integrity implementation head: `b703dfa48dfc153a045ec5cc97a4492fd9d56259`.
+- Automatic aggregate baseline run **32884666101**: **PASS** for exact head `b703dfa48dfc153a045ec5cc97a4492fd9d56259`.
+- Evidence commit containing the recorded PASS evidence: `d93d25c3e0a6362e4123d571bff7a8b2e6722825`.
+- `runtime-evidence/phase12c/latest/run-metadata.txt`: exact `head_sha=b703dfa48dfc153a045ec5cc97a4492fd9d56259`, `run_id=32884666101`.
 - `runtime-evidence/phase12c/latest/result.json`: `result=PASS`, `runtime_rc=0`, `phase12g_instrumentation_rc=0`, `ci_policy_rc=0`, `bootstrap_preflight_rc=0`, `phase12a_contract_rc=0`, `fetch_godot_rc=0`.
-- `runtime-evidence/phase12c/latest/phase12g/external-acquisition-bundle-audit.log`: **PASS** — exact-source archive + offline hash/root/link/type/portable-path collision safety + adversarial rejection + zero evidence/disposition mutation.
-- GitHub Actions run **32878552920**, job `godot-baseline`: **SUCCESS**; notification-safe baseline/evidence step succeeded and no E7 evidence append was requested.
+- `runtime-evidence/phase12c/latest/phase12g/field-kit-ingest-audit.log`: **PASS** — offline verification + exact source pin + dry-run default + deliberate append + cross-run idempotency + duplicate-input rejection with byte-preserving failure.
+- `runtime-evidence/phase12c/latest/phase12g/reference-profile-acquisition-audit.log`: **PASS** — source pin + actual-reference attestation contract + exact raw-sample cardinality + recomputed median/p95/p99 integrity + non-reference/tamper rejection; audit data never touched repository evidence.
+- `runtime-evidence/phase12c/latest/phase12g/evidence-summary.json`: `PASS=1`, `PENDING=12`, `FAIL=0`, `BLOCKED=0`; E7 alone is PASS and all other empirical/hardware/market gates remain PENDING.
 - Existing E7 and all prior 12A-12F baselines remain unchanged by this acquisition-only integrity increment.
 
 ### Failures / blockers
 - **No implementation blocker discovered in this increment.**
 - Remaining 12G blockers are genuine evidence-source blockers: real naive participants, real mature participants, actual representative E8 media + respondents, actual Deck-class hardware, and near-release E12 context.
-- Bundle generation/verification, field-kit preparation, packet preparation, diagnostic profiling and dry-run ingest are acquisition operations only; none are empirical outcomes.
+- Bundle generation/verification, field-kit preparation, packet preparation, diagnostic profiling, adversarial audit fixtures and dry-run ingest are acquisition/readiness operations only; none are empirical outcomes.
 
 ### Empirical-gate state
 - **E7: PASS** — 285/285 exhaustive mixed capture+interaction evidence.
@@ -79,8 +82,8 @@ Repository: `Mikayilzade/false-map-department`
 ## NEXT ACTION
 Continue **12G real evidence acquisition/enabling only**; never fabricate missing outcomes.
 
-1. Before any off-machine human/E8/T8 acquisition, build a portable package from the exact intended source checkout with `scripts/phase12g_external_acquisition_bundle.py --source-head <SOURCE_SHA> --output <DIR>`, then run the bundled `BUNDLE-VERIFY.py` **before extracting** the source archive. Treat successful v3 bundle preparation/hash/archive/portable-path verification as acquisition readiness only.
-2. On the next autonomous run, inspect the remaining field-kit, E8 packet and T8 reference-profile acquisition/return paths for one concrete reproducibility, integrity or operator-safety gap not already covered by exact-source pinning, offline verification and dry-run ingest. If a real gap exists, repair it with adversarial validation and preserve evidence bytes/dispositions. If none exists, do not invent speculative tooling; leave external gates PENDING.
+1. Treat returned-human duplicate rejection and T8 raw-summary consistency as closed integrity classes; do not keep elaborating them without a newly observed defect.
+2. On the next autonomous run, inspect the remaining source-pinned acquisition chain end-to-end for **one concrete unclosed failure mode** at the boundary between portable bundle verification, offline field-kit finalization, E8 packet return, T8 packet return and deliberate append. Prefer a defect that could actually corrupt attribution, source/build identity, observation independence or evidence immutability. If no such gap exists, do not invent speculative tooling; leave external gates PENDING.
 3. When actual demo/production builds and real participants are available, acquire genuine naive-human **E1 + E2 + E11** and mature-human **E3-E6 + E9-E10** observations through the source-pinned v4 field-kit lifecycle, finalize locally, dry-run ingest, then deliberately append and run the evidence harness/dashboard.
 4. Keep E7 frozen as the current **285/285 PASS** regression baseline. Reacquire only affected E7 signatures if presentation/device code later changes.
 5. For **E8**, wait for genuine representative `store_key_art`, `gameplay_map_world`, `gameplay_consequence`, `late_game_linked` and `trailer` media plus real respondents; prepare/finalize/ingest only against one exact source/build packet.
