@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -24,7 +25,8 @@ def run(args: list[str]) -> subprocess.CompletedProcess[str]:
 
 def main() -> None:
     with tempfile.TemporaryDirectory(prefix="fmd-phase12g-first-batch-") as tmp:
-        root = Path(tmp)
+        base = Path(tmp)
+        root = base / "original"
         run([
             sys.executable,
             str(BATCH),
@@ -46,6 +48,8 @@ def main() -> None:
         if not manifest_path.exists():
             fail("batch manifest was not created")
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        if manifest.get("batch_version") != 2 or manifest.get("path_contract") != "packet_paths_relative_to_batch_manifest":
+            fail("batch manifest must declare portable relative-path contract")
         if manifest.get("packet_count") != 3:
             fail("expected exactly three prepared packets")
         if manifest.get("human_outcomes_required") is not True or manifest.get("templates_are_not_evidence") is not True:
@@ -62,7 +66,10 @@ def main() -> None:
                 fail("batch IDs must be unique")
             seen_testers.add(tester_id)
             seen_sessions.add(session_id)
-            session_dir = Path(str(packet.get("session_dir", "")))
+            raw_session = Path(str(packet.get("session_dir", "")))
+            if raw_session.is_absolute():
+                fail("portable manifest must not store absolute session paths")
+            session_dir = manifest_path.parent / raw_session
             observer = json.loads((session_dir / "observer.json").read_text(encoding="utf-8"))
             for field in (
                 "naive",
@@ -85,19 +92,23 @@ def main() -> None:
             if "audit-demo-build" not in launch_env:
                 fail("prepared packet must preserve explicit build ID")
 
-        status_path = root / "status.json"
+        moved = base / "relocated"
+        shutil.copytree(root, moved)
+        shutil.rmtree(root)
+        moved_manifest = moved / "batch-manifest.json"
+        status_path = moved / "status.json"
         run([
             sys.executable,
             str(BATCH),
             "status",
             "--manifest",
-            str(manifest_path),
+            str(moved_manifest),
             "--output",
             str(status_path),
         ])
         status = json.loads(status_path.read_text(encoding="utf-8"))
         if status.get("counts") != {"PREPARED": 3}:
-            fail(f"new packets must report PREPARED only, got {status.get('counts')}")
+            fail(f"relocated packets must report PREPARED only, got {status.get('counts')}")
         if status.get("human_outcomes_inferred") is not False or status.get("repository_evidence_appended") is not False:
             fail("status command must never infer human results or append evidence")
         if any(row.get("ready_to_finalize") for row in status.get("packets", [])):
@@ -109,7 +120,7 @@ def main() -> None:
         if before != after:
             fail("batch helper must not mutate repository evidence")
 
-    print("Phase 12G first-session batch audit: PASS (3 blank human packets + unique IDs + DEMO01 launch + no completed/evidence rows + readiness-only status)")
+    print("Phase 12G first-session batch audit: PASS (3 blank human packets + relocatable manifest paths + DEMO01 launch + no completed/evidence rows + readiness-only status)")
 
 
 if __name__ == "__main__":
