@@ -1,1 +1,1 @@
-Phase 12G human field-kit audit: PASS (E1-E6/E9-E11 relocatable packet orchestration + exact 40-char source pinning + manifest hash provenance + mutable observer allowance + immutable tamper rejection + no evidence append)
+Phase 12G human field-kit audit: PASS (E1-E6/E9-E11 portable packets + self-contained relocated verifier + exact source pinning + nested/immutable tamper rejection + mutable observer allowance + no evidence append)
