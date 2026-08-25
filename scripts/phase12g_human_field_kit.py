@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -11,7 +12,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 FIRST_BATCH = ROOT / "scripts/phase12g_first_session_batch.py"
 MATURE_BATCH = ROOT / "scripts/phase12g_mature_session_batch.py"
-KIT_VERSION = 2
+OFFLINE_VERIFIER = ROOT / "scripts/phase12g_field_kit_offline_verify.py"
+KIT_VERSION = 3
 HUMAN_GATES = ["E1", "E2", "E3", "E4", "E5", "E6", "E9", "E10", "E11"]
 
 
@@ -49,18 +51,6 @@ def validate_source_head(value: str) -> str:
     if len(source_head) != 40 or any(ch not in "0123456789abcdef" for ch in source_head):
         fail("--source-head must be an exact 40-character Git commit SHA")
     return source_head
-
-
-def resolve_relative(root: Path, value: object, label: str) -> Path:
-    raw = Path(str(value))
-    if raw.is_absolute():
-        fail(f"{label} must remain relative to the portable field kit")
-    candidate = (root / raw).resolve()
-    try:
-        candidate.relative_to(root.resolve())
-    except ValueError:
-        fail(f"{label} escapes field-kit root")
-    return candidate
 
 
 def resolve_batch_packet(manifest_path: Path, value: object, label: str) -> Path:
@@ -139,6 +129,8 @@ def cmd_prepare(args: argparse.Namespace) -> None:
     source_head = validate_source_head(args.source_head)
     if not args.demo_build_id.strip() or not args.production_build_id.strip():
         fail("build IDs must be non-empty")
+    if not OFFLINE_VERIFIER.exists():
+        fail("offline field-kit verifier source is missing")
 
     kit_root = Path(args.output_dir).resolve()
     if (kit_root / "field-kit-manifest.json").exists():
@@ -179,6 +171,10 @@ def cmd_prepare(args: argparse.Namespace) -> None:
     if not all(row["rules_known_before_session_initially_blank"] for row in mature_packets):
         fail("mature-session preparation unexpectedly populated human eligibility")
 
+    kit_root.mkdir(parents=True, exist_ok=True)
+    bundled_verifier = kit_root / "FIELD-KIT-VERIFY.py"
+    shutil.copy2(OFFLINE_VERIFIER, bundled_verifier)
+
     manifest = {
         "field_kit_version": KIT_VERSION,
         "source_head": source_head,
@@ -186,6 +182,11 @@ def cmd_prepare(args: argparse.Namespace) -> None:
         "production_build_id": args.production_build_id,
         "path_contract": "all nested manifests and packet paths are relative to their owning manifest",
         "human_gates": HUMAN_GATES,
+        "offline_verifier": {
+            "path": "FIELD-KIT-VERIFY.py",
+            "sha256": sha256_file(bundled_verifier),
+            "requires_repository_checkout": False,
+        },
         "first_session": {
             "batch_manifest": "first-session/batch-manifest.json",
             "batch_manifest_sha256": sha256_file(first_manifest_path),
@@ -209,8 +210,9 @@ def cmd_prepare(args: argparse.Namespace) -> None:
         "Phase 12G HUMAN FIELD KIT\n"
         "This directory contains blank acquisition packets, not empirical evidence.\n"
         "The entire directory may be moved/copied intact; nested packet paths are manifest-relative.\n"
-        "Use the repository first-session and mature-session protocols without coaching.\n"
-        "After real observations, finalize locally, run this tool's verify command, then validate completed rows.\n"
+        "Integrity can be checked without a repository checkout: python3 FIELD-KIT-VERIFY.py --kit-dir .\n"
+        "Use the repository first-session and mature-session protocols without coaching when running/finalizing sessions.\n"
+        "After real observations, run the offline verifier, finalize locally with the matching source-head repository tools, then validate completed rows.\n"
         "Appending to empirical/evidence is always a separate deliberate step.\n",
         encoding="utf-8",
     )
@@ -219,6 +221,7 @@ def cmd_prepare(args: argparse.Namespace) -> None:
         "source_head": source_head,
         "first_packets": len(first_packets),
         "mature_packets": len(mature_packets),
+        "offline_verifier_bundled": True,
         "human_outcomes_inferred": False,
         "repository_evidence_appended": False,
         "manifest": str(kit_root / "field-kit-manifest.json"),
@@ -227,61 +230,40 @@ def cmd_prepare(args: argparse.Namespace) -> None:
 
 def cmd_verify(args: argparse.Namespace) -> None:
     kit_root = Path(args.kit_dir).resolve()
-    manifest_path = kit_root / "field-kit-manifest.json"
-    manifest = load_json(manifest_path)
-    saved_hash = str(manifest.get("contract_hash", ""))
-    clean_manifest = dict(manifest)
-    clean_manifest.pop("contract_hash", None)
-    if saved_hash != canonical_sha256(clean_manifest):
-        fail("field-kit manifest contract hash mismatch")
-    validate_source_head(str(manifest.get("source_head", "")))
-    if manifest.get("repository_evidence_appended") is not False or manifest.get("prepared_packets_are_not_evidence") is not True:
-        fail("field-kit evidence boundary flags were altered")
-
-    first_manifest_path = resolve_relative(kit_root, manifest["first_session"]["batch_manifest"], "first batch manifest")
-    mature_manifest_path = resolve_relative(kit_root, manifest["mature_session"]["batch_manifest"], "mature batch manifest")
-    if sha256_file(first_manifest_path) != str(manifest["first_session"].get("batch_manifest_sha256", "")):
-        fail("first-session batch manifest hash mismatch")
-    if sha256_file(mature_manifest_path) != str(manifest["mature_session"].get("batch_manifest_sha256", "")):
-        fail("mature-session batch manifest hash mismatch")
-
-    first_results: list[dict] = []
-    first_manifest = load_json(first_manifest_path)
-    expected_first = {row["session_id"]: row for row in manifest["first_session"]["packets"]}
-    for packet in first_manifest.get("packets", []):
-        session_dir = resolve_batch_packet(first_manifest_path, packet["session_dir"], "first-session packet path")
-        actual = first_contract(session_dir)
-        expected = expected_first.get(actual["session_id"])
-        if expected is None:
-            fail(f"unexpected first-session packet identity: {actual['session_id']}")
-        for key in ["tester_id", "session_id", "demo_build_id", "manifest_sha256", "observer_keys"]:
-            if actual[key] != expected[key]:
-                fail(f"first-session immutable contract changed for {actual['session_id']}: {key}")
-        first_results.append({"session_id": actual["session_id"], "contract_ok": True})
-
-    mature_results: list[dict] = []
-    mature_manifest = load_json(mature_manifest_path)
-    expected_mature = {row["tester_id"]: row for row in manifest["mature_session"]["packets"]}
-    for packet in mature_manifest.get("packets", []):
-        packet_dir = resolve_batch_packet(mature_manifest_path, packet["packet_dir"], "mature-session packet path")
-        actual = mature_contract(packet_dir)
-        expected = expected_mature.get(actual["tester_id"])
-        if expected is None:
-            fail(f"unexpected mature-session packet identity: {actual['tester_id']}")
-        for key in ["tester_id", "build_id", "identity_fingerprint", "row_counts"]:
-            if actual[key] != expected[key]:
-                fail(f"mature-session immutable contract changed for {actual['tester_id']}: {key}")
-        mature_results.append({"tester_id": actual["tester_id"], "contract_ok": True})
-
-    print(json.dumps({
-        "status": "VERIFIED",
-        "source_head": manifest["source_head"],
-        "first_packets": len(first_results),
-        "mature_packets": len(mature_results),
-        "portable_paths_verified": True,
-        "human_outcomes_inferred": False,
-        "repository_evidence_appended": False,
-    }, indent=2, sort_keys=True))
+    manifest = load_json(kit_root / "field-kit-manifest.json")
+    verifier = manifest.get("offline_verifier", {})
+    if not isinstance(verifier, dict):
+        fail("offline verifier contract missing")
+    raw_path = Path(str(verifier.get("path", "")))
+    if raw_path.is_absolute() or ".." in raw_path.parts:
+        fail("offline verifier path must remain inside field-kit root")
+    verifier_path = (kit_root / raw_path).resolve()
+    try:
+        verifier_path.relative_to(kit_root)
+    except ValueError:
+        fail("offline verifier path escapes field-kit root")
+    if not verifier_path.exists():
+        fail("bundled offline verifier is missing")
+    if sha256_file(verifier_path) != str(verifier.get("sha256", "")):
+        fail("bundled offline verifier hash mismatch")
+    completed = subprocess.run(
+        [sys.executable, str(verifier_path), "--kit-dir", str(kit_root)],
+        cwd=kit_root,
+        text=True,
+        capture_output=True,
+    )
+    if completed.returncode != 0:
+        detail = (completed.stdout + completed.stderr).strip()
+        fail(f"bundled offline verifier rejected kit: {detail}")
+    try:
+        result = json.loads(completed.stdout)
+    except json.JSONDecodeError as exc:
+        fail(f"bundled offline verifier returned malformed JSON: {exc}")
+    if not isinstance(result, dict) or result.get("status") != "VERIFIED_OFFLINE":
+        fail("bundled offline verifier returned unexpected disposition")
+    result["status"] = "VERIFIED"
+    result["offline_verifier_used"] = True
+    print(json.dumps(result, indent=2, sort_keys=True))
 
 
 def main() -> None:
