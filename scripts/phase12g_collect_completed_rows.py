@@ -36,6 +36,19 @@ def load_jsonl(path: Path) -> list[dict]:
     return rows
 
 
+def reject_duplicate_input_rows(rows: list[dict]) -> None:
+    first_index_by_row: dict[str, int] = {}
+    duplicates: list[str] = []
+    for index, row in enumerate(rows, start=1):
+        key = canonical(row)
+        if key in first_index_by_row:
+            duplicates.append(f"row {index} duplicates row {first_index_by_row[key]}")
+        else:
+            first_index_by_row[key] = index
+    if duplicates:
+        raise SystemExit("input contains duplicate canonical observation rows: " + "; ".join(duplicates))
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Validate completed Phase 12G rows and append only new, complete observations to the evidence root.")
     parser.add_argument("--input", type=Path, required=True)
@@ -48,6 +61,7 @@ def main() -> None:
     rows = load_jsonl(args.input)
     if not rows:
         raise SystemExit("input contains no rows")
+    reject_duplicate_input_rows(rows)
 
     gate_ids = {str(row.get("gate_id", "")) for row in rows}
     if len(gate_ids) != 1 or "" in gate_ids:
