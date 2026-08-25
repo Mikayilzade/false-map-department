@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "gate_id": "E7",
+  "review_refs": [
+    "empirical/reviews/E7_deck_controller_max_ui_capture_review_20260825.json",
+    "empirical/reviews/E7_deck_no_audio_capture_review_20260825.json"
+  ],
+  "purpose": "Append raw E7 rows only from complete reviewed capture plus exact interaction evidence. Existing rows must remain byte-for-byte unchanged."
+}
