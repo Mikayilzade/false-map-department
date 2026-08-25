@@ -4,6 +4,7 @@ Phase 12G session packet audit: PASS (E3-E7 + E9/E10 templates, E10 canonical A1
 Phase 12G operator workflow audit: PASS (blank-row rejection + append dedupe + qualitative disposition + dashboard)
 Phase 12G first-session batch audit: PASS (3 blank human packets + unique IDs + DEMO01 launch + no completed/evidence rows + readiness-only status)
 Phase 12G mature-session batch audit: PASS (frozen selections + counterbalance + null human outcomes + no-evidence finalize guard)
+Phase 12G E8 marketing-acquisition audit: PASS (representative store+trailer completeness, capability-safe claims, blank-human anti-fabrication, local-only finalization)
 Phase 12G acquisition readiness audit: PASS (demo path preserved; mature empirical scene + explicit representative bindings + map-backed linked facts present; no human/capture PASS fabricated)
 {
   "counts": {
