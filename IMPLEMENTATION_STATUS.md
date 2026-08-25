@@ -14,79 +14,84 @@ Repository: `Mikayilzade/false-map-department`
 - 12D Content Population: **COMPLETE**
 - 12E UX / Accessibility / Controller / Deck: **COMPLETE**
 - 12F Adversarial QA: **COMPLETE — real-Godot runtime-green**
-- 12G Empirical Gates: **IN PROGRESS — E7 acquisition advanced; raw matrix remains 114/285 until queued reviewed-evidence append validates**
+- 12G Empirical Gates: **IN PROGRESS — E7 exhaustive 285/285 mixed capture+interaction matrix PASS; 12 other empirical/hardware/market gates remain PENDING**
 - 12H Release Candidate: **NO**
 - IMPLEMENTATION COMPLETE: **NO**
 
-## Current autonomous run — 2026-08-25
+## Latest autonomous run — 2026-08-25
 
 ### Phase / subphase
-**12G Empirical Design Gates / E7 `deck_no_audio` full 57-case acquisition + review + evidence-normalization hardening — ACQUIRED/REVIEWED; RAW APPEND VALIDATION QUEUED / E7 PENDING**
+**12G Empirical Design Gates / finish E7 exact-source controller-base acquisition, repair live-evidence precondition, append and revalidate exhaustive 285-row matrix — E7 PASS / 12G STILL IN PROGRESS**
 
 ### Progress saved this run
-- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, this status file, `GAME2_PHASE11_FINAL_FREEZE.md`, `empirical/PHASE12G_PROTOCOL.md`, the E7 session protocols and gate registry before acting.
-- Queued one notification-safe full `deck_no_audio` request for all 57 shippable IDs at source head `69c2efbd88a24c269f86d50fa1a9477dfa758761`; did not issue duplicate runs.
-- Workflow run **32801728333** completed **SUCCESS** for exact source head `69c2efbd88a24c269f86d50fa1a9477dfa758761`.
-- Committed live-batch metadata records `scenario_id=deck_no_audio` and `capture_rc=0`.
-- Exact artifact **9546780408**, digest `sha256:4ebe61b759671399ac4a16824db7a893f3ea0a83e74ed3d67108b00a9c8cc21d`, contains:
-  - **57/57** rendered graphical captures;
-  - zero capture failures/timeouts and zero runtime-binding blockers;
-  - **57/57** presentation-level controller interaction PASS;
-  - all PNGs exactly **1280x800**;
-  - all sidecars `ui_scale_percent=100`, `reduced_motion=false`, `non_color=false`, `no_audio=true`.
-- Visually inspected all 57 no-audio frames in seven contact sheets and D40 at full 1280x800. No obvious viewport clipping, critical fixed-region loss or component overlap was observed.
-- Recorded bounded machine-rendered review in `empirical/reviews/E7_deck_no_audio_capture_review_20260825.json`; it explicitly does **not** claim physical Deck, human auditory-accessibility, comprehension or comfort evidence.
-- Audited prior `deck_controller_base` and `deck_controller_max_ui` source evidence before normalization:
-  - `deck_controller_max_ui` exact artifact **9541582153** / run **32786082067** contains complete 57/57 capture + 57/57 interaction evidence and is eligible for raw normalization.
-  - legacy `deck_controller_base` exact artifact **9540134926** / run **32781998141** contains reviewed 57-case captures but predates the interaction-acquisition artifact; it is **not eligible** for positive raw normalization without fresh exact interaction evidence. No positive base rows were fabricated.
-- Added `scripts/phase12g_append_reviewed_e7.py`, an append-only normalizer that preserves existing raw rows byte-for-byte, requires exact frozen scenario signature, exact ordered 57-case coverage, source run/artifact identity, 57/57 interaction PASS and 57/57 reviewed capture evidence, and rejects partial scenario appends.
-- Added `empirical/E7_REVIEW_APPEND_REQUEST.json` for only the evidence-qualified `deck_controller_max_ui` and `deck_no_audio` reviews.
-- Hardened the existing notification-safe workflow with one reviewed-E7 append step. It runs the normalizer and then reruns the full real-Godot Phase-12G instrumentation before committing any raw rows; failures leave evidence/request uncommitted for repair while the notification-safe workflow itself stays non-spamming.
-- Integration/tooling head: `0abbf58dbe9a5e0d01db9f566a4be0d28c95c038`.
-- Automatic validation/append run **32802222456** is queued for exact source head `0abbf58dbe9a5e0d01db9f566a4be0d28c95c038`. Do **not** count the intended 114 new raw rows until this run has completed and its committed append evidence is inspected.
+- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, this status file, `GAME2_PHASE11_FINAL_FREEZE.md`, `empirical/PHASE12G_PROTOCOL.md`, the E7 session protocols and current notification-safe workflow before acting.
+- Inspected previously queued reviewed-E7 append run **32802222456** at exact source head `0abbf58dbe9a5e0d01db9f566a4be0d28c95c038`.
+  - `append_rc=0`, `post_validation_rc=0`, `result=PASS`.
+  - Added **114** reviewed rows: `deck_controller_max_ui` 57 + `deck_no_audio` 57.
+  - E7 raw unique coverage therefore advanced from 114 to **228/285** before the fresh base acquisition.
+- Acquired the remaining `deck_controller_base` scenario through one notification-safe full 57-case run, **32805509915**, exact source head `433b1ee8f991a4edf1a03561233da3f748cc4e22`.
+  - Exact artifact **9548057564**, digest `sha256:e18806c181c14ee6ee87c292ce7f8c7bfae1a79748ee6c65f286f76837d8259b`.
+  - Capture manifest: **57/57** graphical Xvfb captures, **0** failures/timeouts, **0** runtime-binding blockers.
+  - Matching presentation interaction acquisition: **57/57 INTERACTION_PASS**, **0** failures/timeouts, **0** runtime-binding blockers.
+  - All captures were **1280x800** and all sidecars matched the frozen base signature: controller mode, UI scale 100, reduced motion false, non-color false, no-audio false.
+- Visually reviewed all 57 fresh base frames in contact sheets and inspected D40 at full 1280x800. No obvious viewport clipping, critical fixed-region loss or component overlap was observed. This remains rendered Linux/Xvfb evidence, not physical Deck or human ergonomics evidence.
+- Refreshed `empirical/reviews/E7_deck_controller_base_capture_review_20260825.json` to bind the review to the fresh exact run/artifact and to explicitly preserve its evidence limitations.
+- Queued the exact reviewed base append. The first append attempt, run **32805897957**, successfully normalized the missing **57** rows to a temporary **285/285** matrix, but post-validation correctly refused to commit because `run_phase12g_preconditions.sh` still assumed the live repository must permanently remain in its original empty-evidence state. Concrete diagnostic: actual valid dashboard was `PASS=1, PENDING=12`, while the script incorrectly required `PASS=0, PENDING=13`.
+- Repaired that precondition without weakening anti-fabrication:
+  - `run_phase12g_preconditions.sh` now validates the live append-only evidence as its actual observed state;
+  - the original zero-fabrication invariant is still tested separately against an isolated temporary empty evidence root, which must remain **13 PENDING**;
+  - the live dashboard must still disposition exactly all 13 registered gates and remains governed by each frozen evaluator.
+- Hardened `phase12g_precondition_audit.py` so future regressions must retain this separation between isolated empty-evidence self-test and legitimate live evidence progression.
+- Repair head: `734f68f3fcdb41cdd0ec13cfbaed968c1e58be2c`.
+- Notification-safe repair/append run **32806086209** completed successfully at that exact source head.
+  - reviewed append metadata: `append_rc=0`, `post_validation_rc=0`, `result=PASS`;
+  - appended **57** `deck_controller_base` rows;
+  - total unique E7 rows: **285**;
+  - raw append was committed by bot commit `bc917990cae6847235b399d0979ff9344d649cc6`.
+- Exact post-append real-Godot Phase-12G validation reports:
+  - E7 `observed_unique_rows=285`, `passing_unique_rows=285`, `failing_unique_rows=0`, `value=1.0`, `target=1.0`, `exhaustive_matrix_confirmed=true`;
+  - dashboard counts: **PASS=1, PENDING=12, FAIL=0, BLOCKED=0**;
+  - the isolated empty-evidence anti-fabrication test still returns **13 PENDING**;
+  - Phase-12G first-session, sample-adequacy, E7 capture-mode, E7 coverage, full runtime-readiness and real Godot instrumentation tests all remain green.
+- No human, market or physical Deck-class outcome was inferred from automated evidence.
 
 ### Current validated empirical state
-- E7 raw evidence remains, as of this status commit: **114/285 observed unique rows**, namely `deck_non_color` 57 + `deck_reduced_motion` 57.
-- `deck_no_audio`: **57/57 acquired + visually reviewed + interaction-acquired**, raw normalization pending run 32802222456.
-- `deck_controller_max_ui`: **57/57 reviewed + 57/57 exact interaction evidence**, raw normalization pending run 32802222456.
-- `deck_controller_base`: **57/57 legacy capture review exists, but exact source artifact lacks interaction acquisition; raw rows remain PENDING**.
-- Therefore E7 remains **PENDING** and no 285-row PASS is claimed.
-- Full empirical dashboard remains intentionally PENDING; no human, market or Deck-class hardware outcome was inferred from automation.
+- **E7 accessibility/device sweep: PASS** — exact exhaustive **285/285** frozen matrix = 57 shippable IDs × 5 scenarios, with every current row having `interaction_complete=true` and `capture_review_pass=true`.
+- **E1, E2, E3, E4, E5, E6, E8, E9, E10, E11, E12, T8-44: PENDING**.
+- E1/E2/E11 still require genuine representative first-session human observation.
+- E3-E6/E9-E10 still require genuine representative mature human playtests.
+- T8-44 still requires actual Deck-class reference hardware.
+- E8 still requires representative store/trailer assets.
+- E12 remains intentionally near-release.
+- 12G therefore remains **IN PROGRESS** and 12H remains prohibited.
 
 ### Files / systems changed
-- `empirical/reviews/E7_deck_no_audio_capture_review_20260825.json`
-- `scripts/phase12g_append_reviewed_e7.py`
-- `empirical/E7_REVIEW_APPEND_REQUEST.json`
-- `.github/workflows/automatic-godot-baseline.yml`
+- `empirical/E7_LIVE_BATCH_REQUEST.json` — consumed by the notification-safe acquisition run.
+- `empirical/reviews/E7_deck_controller_base_capture_review_20260825.json`
+- `empirical/E7_REVIEW_APPEND_REQUEST.json` — consumed after successful reviewed append.
+- `empirical/evidence/E7.jsonl` — now exhaustive 285-row append-only E7 evidence.
+- `scripts/run_phase12g_preconditions.sh`
+- `scripts/phase12g_precondition_audit.py`
+- `runtime-evidence/phase12g/e7-live-batch/`
+- `runtime-evidence/phase12g/e7-reviewed-append/`
 - `IMPLEMENTATION_STATUS.md`
-- Live acquisition evidence refreshed under `runtime-evidence/phase12g/e7-live-batch/` by the notification-safe workflow.
 
 ### Failures / blockers
-- **No implementation/runtime blocker discovered.**
-- Run **32802222456** is waiting for a GitHub-hosted runner; this is a transient acquisition/validation wait, not a reason to issue duplicate CI.
-- Legacy `deck_controller_base` lacks matching exact interaction evidence and therefore cannot be normalized positively from its old capture artifact alone. Fresh interaction/capture evidence is required.
+- **Repaired this run:** live-evidence precondition incorrectly required a permanently empty repository evidence state. The anti-fabrication check is now isolated from live empirical progression and both paths are validated.
+- **No current E7 implementation/runtime blocker.**
+- Remaining 12G blockers are evidence-source blockers, not implementation claims: real participants, representative marketing material, near-release pricing context and actual Deck-class hardware are required for their respective gates.
 
 ### Canonical/design impact
 - **No canonical contradiction discovered.**
 - No gameplay, deterministic-domain, authored-content, progression, economy or persistence semantics changed.
-- Accessibility scenario evidence remains presentation/runtime evidence only.
-
-## Other empirical gates / blockers
-- E1/E2/E11 require genuine representative first-session human observation on DEMO01-DEMO05.
-- E3-E6/E9-E10 require genuine representative mature human playtests.
-- T8-44 requires actual Deck-class reference hardware.
-- E8 requires representative store/trailer assets.
-- E12 remains intentionally near-release.
-- These remain **PENDING**, not failed and not passed.
-- 12H remains prohibited while 12G is incomplete.
+- The precondition repair changes only how empirical evidence validation distinguishes an empty anti-fabrication fixture from legitimate accumulated live evidence.
 
 ## NEXT ACTION
-Continue **actual 12G evidence acquisition** without fabricating missing outcomes.
+Continue **12G real evidence acquisition/enabling only**; never fabricate missing outcomes.
 
-1. **First inspect run `32802222456`**. If it completes, verify its source head, reviewed-E7 append metadata and post-append real-Godot validation before counting rows. Expected only if evidence validates: +57 `deck_controller_max_ui` +57 `deck_no_audio`, moving E7 raw coverage from 114 to **228/285**. If the append step fails, inspect its concrete diagnostics and repair without speculative rerun bursts.
-2. For the remaining `deck_controller_base` 57 rows, do **not** infer interaction success from its legacy capture review. Acquire a fresh current full 57-case `deck_controller_base` batch through the existing live mechanism so capture and interaction evidence share an exact source/artifact path; visually review those captures and append only observed rows.
-3. Revalidate the exhaustive **285-row E7 matrix** before any E7 PASS claim.
-4. When real participants are available, collect E1+E2+E11 first-session human evidence, then E3-E6+E9-E10 mature human evidence. Never substitute automation for human outcomes.
-5. Run T8-44 only on actual Deck-class reference hardware; E8 only with representative marketing assets; E12 only near release.
-
-Keep every unobserved gate **PENDING**. A failed empirical gate reopens only the minimum affected rule/content. **Do not start 12H until E1-E12 and T8-44 have genuine evidence-backed dispositions or an explicit release blocker.**
+1. Keep E7 frozen as the current **285/285 PASS** regression baseline. If future presentation/device changes touch E7-relevant behavior, reacquire only the affected scenario/signatures through the append-only rerun path rather than deleting prior evidence.
+2. Prioritize genuine first-session sessions for **E1 + E2 + E11** using DEMO01-DEMO05 and the existing observer/telemetry packet. Record only observed human comprehension, prediction and timing outcomes; then apply representative-sample adequacy/disposition rules exactly as implemented.
+3. After rules are known to participants, collect mature-human evidence for **E3-E6 + E9-E10** using the frozen representative dossier/remix/archetype selections. Missing participants remain PENDING, not PASS or FAIL.
+4. Run **T8-44 only on actual Deck-class reference hardware** with the existing profiler packet; do not substitute CI/Xvfb timings.
+5. Evaluate **E8 only when representative store/trailer assets exist** and **E12 only near release** with current comparables and near-final scope.
+6. Do not start **12H** until every remaining 12G gate has a genuine evidence-backed PASS/FAIL/targeted-amendment disposition or is explicitly recorded as a release blocker.
