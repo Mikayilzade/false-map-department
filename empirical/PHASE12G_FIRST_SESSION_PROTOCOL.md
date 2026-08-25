@@ -10,6 +10,8 @@ Purpose: collect representative **human** observations from the real production 
 
 ## Prepare and launch
 
+For one tester:
+
 ```bash
 python3 scripts/phase12g_first_session_operator.py prepare \
   --tester-id T001 --session-id S001
@@ -18,6 +20,19 @@ python3 scripts/phase12g_first_session_operator.py launch \
   --session-dir .phase12g-first-sessions/S001 \
   --godot /path/to/godot
 ```
+
+For a planned representative batch, create blank packets in one deliberate step instead of hand-copying session IDs:
+
+```bash
+python3 scripts/phase12g_first_session_batch.py prepare \
+  --count 8 --tester-prefix NAIVE-T --session-prefix FIRST-S \
+  --build-id <exact-demo-build-id>
+
+python3 scripts/phase12g_first_session_batch.py status \
+  --manifest .phase12g-first-sessions/batch-manifest.json
+```
+
+The batch helper only prepares blank per-tester packets and reports readiness states (`PREPARED`, `AWAITING_OBSERVER`, `READY_TO_FINALIZE`, `FINALIZED_LOCAL`). It never fills observer outcomes and never appends repository evidence. A planned packet is not a participant and does not count toward sample adequacy until a real session is observed and deliberately appended.
 
 The launcher always starts `DEMO01` and writes raw telemetry to the session directory. Raw telemetry records timing facts such as correspondence use, the first detected broken requirement and DEMO05 completion. It **never** decides comprehension, prediction success or human “aha”.
 
