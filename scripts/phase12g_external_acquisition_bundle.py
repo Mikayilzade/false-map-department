@@ -4,14 +4,20 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import shutil
 import subprocess
 import tarfile
+import unicodedata
 from pathlib import Path, PurePosixPath
 
 ROOT = Path(__file__).resolve().parents[1]
 SHA40 = 40
-BUNDLE_SCHEMA = "fmd.phase12g.external-acquisition-bundle.v2"
+BUNDLE_SCHEMA = "fmd.phase12g.external-acquisition-bundle.v3"
+WINDOWS_FORBIDDEN_CHARS = set('<>:"|?*')
+WINDOWS_RESERVED_NAMES = {
+    "CON", "PRN", "AUX", "NUL",
+    *(f"COM{i}" for i in range(1, 10)),
+    *(f"LPT{i}" for i in range(1, 10)),
+}
 
 REQUIRED_PATHS = (
     "IMPLEMENTATION_START_HERE.md",
@@ -75,7 +81,7 @@ def write_operator_guide(path: Path, source_head: str) -> None:
             "Keep every unobserved gate PENDING until a genuine observation is deliberately ingested and re-evaluated.",
             "",
             "## Verify first",
-            "Run `python3 BUNDLE-VERIFY.py .` from the bundle root before extracting the source archive. Stop if verification fails; the verifier checks file hashes plus the tar member/root/path/symlink contract.",
+            "Run `python3 BUNDLE-VERIFY.py .` from the bundle root before extracting the source archive. Stop if verification fails; the verifier checks file hashes plus tar root/path/type/link safety, duplicate names, and portable cross-platform path collisions.",
             "",
             "## Human field kit (E1-E6, E9-E11)",
             "Use the verified archived repository at this exact source commit. Prepare the v4 field kit with `scripts/phase12g_human_field_kit.py`, transport it intact, verify with the bundled field-kit verifier, collect genuine observations, and finalize locally before repository ingest.",
@@ -111,22 +117,55 @@ def member_is_within_root(name: str, archive_root: str) -> bool:
     return name == archive_root.rstrip("/") or name.startswith(archive_root)
 
 
+def portable_component_key(component: str) -> str:
+    normalized = unicodedata.normalize("NFC", component)
+    return normalized.casefold().rstrip(" .")
+
+
+def validate_portable_member_name(name: str, archive_root: str) -> str:
+    if not name or "\\" in name or any(ord(ch) < 32 or ord(ch) == 127 for ch in name):
+        raise SystemExit(f"unsafe portable archive member path: {name!r}")
+    pure = PurePosixPath(name)
+    if pure.is_absolute() or ".." in pure.parts or not member_is_within_root(name, archive_root):
+        raise SystemExit(f"unsafe archive member path: {name}")
+    portable_parts: list[str] = []
+    for component in pure.parts:
+        if component in {"", "."}:
+            continue
+        if component.endswith((" ", ".")) or any(ch in WINDOWS_FORBIDDEN_CHARS for ch in component):
+            raise SystemExit(f"unsafe portable archive member component: {component!r}")
+        stem = component.split(".", 1)[0].upper()
+        if stem in WINDOWS_RESERVED_NAMES:
+            raise SystemExit(f"reserved portable archive member component: {component!r}")
+        portable_parts.append(portable_component_key(component))
+    return "/".join(portable_parts)
+
+
 def inspect_source_archive(path: Path, archive_root: str) -> dict:
     required_members = {archive_root + rel for rel in REQUIRED_PATHS}
-    seen: set[str] = set()
+    seen_files: set[str] = set()
+    seen_names: set[str] = set()
+    portable_keys: dict[str, str] = {}
     member_count = 0
     with tarfile.open(path, "r:gz") as archive:
         for member in archive.getmembers():
             member_count += 1
             name = member.name
-            pure = PurePosixPath(name)
-            if pure.is_absolute() or ".." in pure.parts or not member_is_within_root(name, archive_root):
-                raise SystemExit(f"unsafe archive member path: {name}")
+            portable_key = validate_portable_member_name(name, archive_root)
+            if name in seen_names:
+                raise SystemExit(f"duplicate archive member path: {name}")
+            seen_names.add(name)
+            previous = portable_keys.get(portable_key)
+            if previous is not None and previous != name:
+                raise SystemExit(f"portable archive path collision: {previous!r} vs {name!r}")
+            portable_keys[portable_key] = name
             if member.issym() or member.islnk():
                 raise SystemExit(f"archive links are forbidden in acquisition bundle: {name}")
+            if not (member.isfile() or member.isdir()):
+                raise SystemExit(f"archive special file type is forbidden in acquisition bundle: {name}")
             if member.isfile():
-                seen.add(name)
-    missing = sorted(required_members - seen)
+                seen_files.add(name)
+    missing = sorted(required_members - seen_files)
     if missing:
         raise SystemExit(f"source archive missing required acquisition member(s): {missing}")
     return {
@@ -134,7 +173,12 @@ def inspect_source_archive(path: Path, archive_root: str) -> dict:
         "member_count": member_count,
         "required_regular_files": list(REQUIRED_PATHS),
         "forbid_links": True,
+        "forbid_special_file_types": True,
         "forbid_absolute_or_parent_paths": True,
+        "forbid_backslash_or_control_paths": True,
+        "forbid_windows_unsafe_components": True,
+        "forbid_duplicate_member_paths": True,
+        "forbid_portable_path_collisions": True,
     }
 
 
