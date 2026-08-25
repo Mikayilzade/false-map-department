@@ -6,6 +6,7 @@ E8 asks whether representative marketing material creates the correct expectatio
 
 - A generated asset manifest is **not evidence**.
 - A blank respondent packet is **not evidence**.
+- A completion receipt is **integrity metadata, not evidence**: it proves which finalized response bytes were transported, not whether those responses imply PASS/FAIL.
 - Asset hashes prove only which files were shown.
 - `representative_asset_attestation=true` is an operator assertion that the packet is intended to represent the current product presentation; it is not a respondent outcome and does not pass E8.
 - `source_head` pins the exact repository commit represented by the packet; it does not prove the assets are representative or that respondents understood them.
@@ -75,15 +76,33 @@ Show every respondent the same exact files from `packet/assets/` without explain
 
 Do not coach the answer toward “puzzle,” “systemic,” or “not a builder.” If a respondent expected a builder/editor, record that as observed rather than correcting the row.
 
-## Finalization and evidence append
+## Finalization, transport integrity and evidence append
 
 After all prepared rows contain genuinely observed answers:
 
 ```bash
 python3 scripts/phase12g_marketing_expectation_packet.py status --packet /path/e8-packet
 python3 scripts/phase12g_marketing_expectation_packet.py finalize --packet /path/e8-packet
+python3 scripts/phase12g_marketing_expectation_packet.py status --packet /path/e8-packet
 ```
 
-`finalize` verifies the pinned manifest **and every frozen asset file** before writing local `completed-E8.jsonl`. It still does **not** append repository evidence automatically. Deliberately review the rows, then append valid observations to `empirical/evidence/E8.jsonl` using the repository's controlled evidence workflow and rerun the evidence harness/dashboard.
+`finalize` verifies the pinned manifest **and every frozen asset file** before writing local `completed-E8.jsonl`. It also writes `completion-receipt.json`, whose SHA-256/size records bind the finalized `asset-set.json`, completed `respondents.json`, and `completed-E8.jsonl` to the exact `asset_version`, `build_id`, and `source_head`. A finalized packet is write-once: rerunning `finalize` is rejected rather than silently replacing an already finalized response set. After finalization, `status` must report `FINALIZED` with `completion_receipt_verified=true`; any mutation of either respondent source rows or completed rows becomes `INVALID_PACKET`.
+
+This closes a transport-integrity gap: comparing `respondents.json` with `completed-E8.jsonl` alone is insufficient because both files could otherwise be changed together after finalization. Repository ingest therefore requires and verifies the completion receipt before it accepts the rows. If a genuine correction is needed after finalization, prepare a new asset/response version rather than editing a finalized packet in place.
+
+Finalization still does **not** append repository evidence automatically. Deliberately review the rows, then use the source-pinned repository ingest path (dry-run first, explicit `--append` only after review):
+
+```bash
+python3 scripts/phase12g_marketing_expectation_ingest.py \
+  --packet /path/e8-packet \
+  --expected-source-head <the packet source_head>
+
+python3 scripts/phase12g_marketing_expectation_ingest.py \
+  --packet /path/e8-packet \
+  --expected-source-head <the packet source_head> \
+  --append
+```
+
+The ingest re-verifies immutable assets, exact source/build provenance, the finalization receipt, respondent/completed-row equality, duplicate/idempotency rules, and then delegates to the normal append-only evidence collector. It does not infer a market outcome or gate disposition.
 
 E8 has no frozen numeric threshold. Its PASS/FAIL/BLOCKED disposition therefore requires an explicit evidence-backed interpretation after real responses exist. Missing representative assets or respondents means **PENDING**, not FAIL and not PASS.
