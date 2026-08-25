@@ -5,7 +5,7 @@ Phase 12G operator workflow audit: PASS (blank-row rejection + append dedupe + q
 Phase 12G first-session batch audit: PASS (3 blank human packets + unique IDs + DEMO01 launch + no completed/evidence rows + readiness-only status)
 Phase 12G mature-session batch audit: PASS (frozen selections + counterbalance + null human outcomes + no-evidence finalize guard)
 Phase 12G human field-kit audit: PASS (E1-E6/E9-E11 portable packet orchestration + exact build/source pinning + mutable observer allowance + immutable contract tamper rejection + no evidence append)
-Phase 12G E8 marketing-acquisition audit: PASS (representative store+trailer completeness, capability-safe claims, blank-human anti-fabrication, local-only finalization)
+Phase 12G E8 marketing-acquisition audit: PASS (packet-owned immutable assets + exact source head + re-hash tamper rejection + blank-human anti-fabrication + local-only finalization)
 Phase 12G acquisition readiness audit: PASS (demo path preserved; mature empirical scene + explicit representative bindings + map-backed linked facts present; no human/capture PASS fabricated)
 {
   "counts": {
