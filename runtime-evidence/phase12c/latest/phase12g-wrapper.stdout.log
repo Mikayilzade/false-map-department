@@ -123,14 +123,6 @@ Phase 12G acquisition readiness audit: PASS (demo path preserved; mature empiric
           [
             "D01",
             "steam_deck_controller_1280x800",
-            100,
-            true,
-            false,
-            false
-          ],
-          [
-            "D01",
-            "steam_deck_controller_1280x800",
             150,
             false,
             false,
@@ -155,14 +147,6 @@ Phase 12G acquisition readiness audit: PASS (demo path preserved; mature empiric
           [
             "D02",
             "steam_deck_controller_1280x800",
-            100,
-            true,
-            false,
-            false
-          ],
-          [
-            "D02",
-            "steam_deck_controller_1280x800",
             150,
             false,
             false,
@@ -183,18 +167,34 @@ Phase 12G acquisition readiness audit: PASS (demo path preserved; mature empiric
             false,
             false,
             true
+          ],
+          [
+            "D03",
+            "steam_deck_controller_1280x800",
+            150,
+            false,
+            false,
+            false
+          ],
+          [
+            "D04",
+            "steam_deck_controller_1280x800",
+            100,
+            false,
+            false,
+            false
           ]
         ],
-        "missing_unique_rows": 228,
-        "observed_unique_rows": 57,
-        "raw_evidence_rows": 57,
+        "missing_unique_rows": 171,
+        "observed_unique_rows": 114,
+        "raw_evidence_rows": 114,
         "reason": "E7 requires exhaustive shippable dossier x accessibility/device scenario coverage before disposition",
         "target": 1.0
       },
       "evidence_class": "mixed_capture_interaction",
       "gate_id": "E7",
       "name": "accessibility/device sweep",
-      "rows": 57,
+      "rows": 114,
       "status": "PENDING"
     },
     {
