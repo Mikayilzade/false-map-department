@@ -12,6 +12,7 @@ python3 scripts/phase12g_session_packet_audit.py | tee "$OUT_DIR/session-packet-
 python3 scripts/phase12g_operator_workflow_audit.py | tee "$OUT_DIR/operator-workflow-audit.log"
 python3 scripts/phase12g_first_session_batch_audit.py | tee "$OUT_DIR/first-session-batch-audit.log"
 python3 scripts/phase12g_mature_session_batch_audit.py | tee "$OUT_DIR/mature-session-batch-audit.log"
+python3 scripts/phase12g_human_field_kit_audit.py | tee "$OUT_DIR/human-field-kit-audit.log"
 python3 scripts/phase12g_marketing_expectation_audit.py | tee "$OUT_DIR/marketing-expectation-audit.log"
 python3 scripts/phase12g_acquisition_readiness_audit.py | tee "$OUT_DIR/acquisition-readiness-audit.log"
 
