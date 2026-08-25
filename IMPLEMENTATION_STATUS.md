@@ -14,126 +14,78 @@ Repository: `Mikayilzade/false-map-department`
 - 12D Content Population: **COMPLETE**
 - 12E UX / Accessibility / Controller / Deck: **COMPLETE**
 - 12F Adversarial QA: **COMPLETE — real-Godot runtime-green**
-- 12G Empirical Gates: **IN PROGRESS — E7 reduced-motion full-matrix acquisition requested; evidence not yet observed**
+- 12G Empirical Gates: **IN PROGRESS — E7 now 114/285 observed raw matrix rows; all empirical gates remain PENDING**
 - 12H Release Candidate: **NO**
 - IMPLEMENTATION COMPLETE: **NO**
 
 ## Current autonomous run — 2026-08-25
 
 ### Phase / subphase
-**12G Empirical Design Gates / E7 `deck_reduced_motion` full 57-case live-batch acquisition — REQUESTED / PENDING OBSERVATION**
+**12G Empirical Design Gates / E7 `deck_reduced_motion` full 57-case acquisition + visual review + append-only evidence integration — RUNTIME GREEN / E7 PENDING**
 
 ### Progress saved this run
-- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, this status file, Phase-11 E7/input-accessibility freeze and `empirical/PHASE12G_PROTOCOL.md` before acting.
-- Confirmed from `.github/workflows/automatic-godot-baseline.yml` that the canonical notification-safe acquisition trigger is the transient file `empirical/E7_LIVE_BATCH_REQUEST.json`; the workflow removes it after processing and records the run under `runtime-evidence/phase12g/e7-live-batch/`.
-- Created one coherent request for `scenario_id=deck_reduced_motion` covering the exact **57 shippable IDs**: D01-D40, DEMO01-DEMO05 and REMIX01-REMIX12.
-- Request commit/source head: `b027a5632866a0e61113ed9c51f4c8f1264dcebc`.
-- Notification-safe workflow run **32795095953** was created for that exact head. At the last factual check in this run it remained **queued**, so no capture, interaction, visual-review or E7 raw-row outcome is claimed yet.
-- No duplicate workflow/rerun was created while the valid acquisition was queued; this preserves the CI anti-spam/concurrency contract.
+- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, this status file, the Phase-11 final freeze and `empirical/PHASE12G_PROTOCOL.md` before acting.
+- Resumed exactly from the prior queued acquisition instead of issuing a duplicate request.
+- Verified workflow run **32795095953** completed **SUCCESS** for exact source head `b027a5632866a0e61113ed9c51f4c8f1264dcebc` and `scenario_id=deck_reduced_motion`.
+- Verified committed live-batch metadata under `runtime-evidence/phase12g/e7-live-batch/` matches that run/head/scenario and reports `capture_rc=0`.
+- Downloaded exact artifact **9544663559**, digest `sha256:d90605d59d473d7e2a5e6ae14671bf92f74f02033b23888c8d4f869e88150b5e`.
+- Confirmed **57/57 rendered captures**, zero capture timeouts/failures, zero runtime-binding blockers, and **57/57 presentation-level controller interaction PASS**.
+- Confirmed all 57 PNGs are exactly **1280x800** and all 57 capture sidecars report `reduced_motion=true`, `non_color=false`, `no_audio=false`, `ui_scale_percent=100`.
+- Visually inspected all 57 captures in seven contact sheets, including D39/D40 and all demo/remix cases. No obvious viewport clipping, fixed-region loss or component overlap was observed in this reduced-motion presentation scenario.
+- Recorded the review in `empirical/reviews/E7_deck_reduced_motion_capture_review_20260825.json` with explicit limitations: this is machine-rendered capture review, not physical Steam Deck hardware or human accessibility/comfort evidence.
+- Appended exactly **57 observed `deck_reduced_motion` rows** to `empirical/evidence/E7.jsonl`; prior `deck_non_color` rows were preserved byte-for-byte before append.
+- Integration head: `d48cebafbf555499940af5fcab303661ef794b1a`.
+- Notification-safe exact-head validation run **32799757873** completed **SUCCESS** for exact head `d48cebafbf555499940af5fcab303661ef794b1a`.
+- Runtime evidence commit: `5d40892c5a9daade72721a54d9a97e18b8394e2f` (`Record automatic Godot baseline: PASS [skip ci]`), whose parent is the exact integration head.
 
-### Validation / evidence state
-- Existing repository state remains authoritative: E7 is **PENDING**, with 57/285 raw exhaustive-matrix rows currently integrated from `deck_non_color`.
-- `deck_reduced_motion` remains **unobserved** until run 32795095953 actually executes and its exact-head artifacts/committed metadata are inspected.
-- No human accessibility, comprehension, market, remix-perception, agent-distinction or physical Steam Deck result is inferred from the request itself.
-
-### Blockers / empirical-gate state
-- No implementation blocker discovered.
-- Current acquisition is temporarily waiting on GitHub Actions runner availability; this is an external/transient queue state, not a project defect and not a reason to mark E7 blocked.
-- All human/hardware-required gates remain PENDING.
-- 12H remains prohibited while 12G is incomplete.
-
-### Exact continuation from this run
-On the next execution, first inspect workflow run **32795095953** and the repository live-batch metadata. If completed successfully for exact source head `b027a5632866a0e61113ed9c51f4c8f1264dcebc` and `scenario_id=deck_reduced_motion`, download/review all 57 captures, verify 57/57 interaction acquisition, record the review, append exactly 57 observed reduced-motion rows to `empirical/evidence/E7.jsonl`, then run/inspect exact-head evidence validation. If the run is still queued/in-progress, do not issue a duplicate request; continue only acquisition-enabling work that does not invalidate the queued head.
-
-## Latest completed implementation milestone — 2026-08-25
-
-### Phase / subphase
-**12G Empirical Design Gates / E7 `deck_non_color` full 57-case acquisition + visual review + append-only evidence integration — RUNTIME GREEN / E7 PENDING**
-
-### What was performed
-- Resumed exactly from the repository `NEXT ACTION` and re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, Phase-11 E7/input-accessibility freeze, `PHASE12G_PROTOCOL.md`, the E7 session protocol and evidence harness contract.
-- Used the existing notification-safe `E7_LIVE_BATCH_REQUEST.json` mechanism; no new workflow or speculative rerun path was created.
-- Requested `scenario_id=deck_non_color` for all **57 shippable IDs** (D01-D40, DEMO01-DEMO05, REMIX01-REMIX12) at the frozen 1280x800 Steam-Deck-controller presentation target.
-- The live batch acquired **57/57 rendered captures** and **57/57 presentation-level controller interaction rows**, with zero capture/runtime timeouts, zero runtime-binding blockers and zero interaction failures.
-- Downloaded the exact workflow artifact and visually inspected all 57 captures in seven contact sheets, including the dense D39/D40 late-campaign frames.
-- No visible clipping, overlap, missing fixed region or color-dependent-only state was observed in the reviewed non-color frames.
-- Artifact integrity analysis additionally verified all 57 PNGs are exactly **1280x800** and every pixel has equal R/G/B channels under the non-color scenario; the runtime sidecars independently report `non_color=true`.
-- Recorded the review as `empirical/reviews/E7_deck_non_color_capture_review_20260825.json` with explicit limitations: this is machine-rendered capture review, not physical Deck hardware or human accessibility evidence.
-- Added **57 append-only raw E7 observation rows** to `empirical/evidence/E7.jsonl`, pairing the reviewed capture result with the exact live-batch interaction result for each dossier signature.
-- Did not infer any human, market, Deck-hardware, comprehension, timing, remix-perception or agent-distinction outcome.
-
-### Exact acquisition evidence
-- Live-batch request/source head: `1936e184f72fd3aec8863b7c254cde725232d51f`.
-- Notification-safe acquisition run: **32790280274 — SUCCESS**.
-- Committed run metadata matches exact source head `1936e184f72fd3aec8863b7c254cde725232d51f` and `scenario_id=deck_non_color`.
-- Live acquisition evidence commit: `a460ca095d36ef0ceffa1d7599ef472b7d666aae`.
-- Capture artifact: ID **9542939803**, digest `sha256:30ee487702693c9b1230f47b4555ff02a69f168703cf292725c83683ac9c6436`.
-- Capture manifest: `rows=57`, `captured_unreviewed=57`, `failed_or_timeout=0`, `blocked_runtime_binding=0`, `capture_rc=0`.
-- Matching interaction acquisition: `rows=57`, `interaction_pass=57`, `failed_or_timeout=0`, `blocked_runtime_binding=0`, return code 0.
-- Visual capture review: **57 PASS / 0 FAIL** for this scenario.
-
-### Exact post-evidence validation
-- Evidence-integration head: `cff0ff23636c62dd4cbcd4b211e9bf8ef2588222`.
-- Notification-safe exact-head validation run: **32790810078 — SUCCESS**.
-- Exact run metadata targets `cff0ff23636c62dd4cbcd4b211e9bf8ef2588222`.
-- Aggregate result: **PASS**; `runtime_rc=0`, `phase12g_instrumentation_rc=0`, `phase12a_contract_rc=0`, bootstrap/CI-policy/pinned-Godot checks all zero.
-- Repository evidence harness accepts the new raw rows without premature disposition:
-  - E7 status: **PENDING**;
-  - expected unique E7 matrix rows: **285** (57 dossiers x 5 frozen scenarios);
-  - observed unique rows: **57**;
-  - missing unique rows: **228**;
-  - raw evidence rows: **57**.
-- Full gate dashboard remains intentionally **13 PENDING / 0 PASS / 0 FAIL / 0 BLOCKED**.
+### Exact validation / empirical state
+- Aggregate result: **PASS**.
+- `runtime_rc=0`, `phase12g_instrumentation_rc=0`, `phase12a_contract_rc=0`, bootstrap/CI-policy/pinned-Godot checks all zero.
+- Phase-12G precondition, instrumentation, operator workflow, acquisition-readiness, exhaustive-E7 coverage and real Godot 4.7.1 suites remained green.
+- Evidence harness now reports E7:
+  - status: **PENDING**;
+  - expected unique matrix rows: **285** (57 shippable IDs x 5 frozen scenarios);
+  - observed unique rows: **114**;
+  - missing unique rows: **171**;
+  - raw evidence rows: **114**.
+- Full empirical dashboard remains intentionally **13 PENDING / 0 PASS / 0 FAIL / 0 BLOCKED**.
 
 ### Files / systems changed
-- `empirical/reviews/E7_deck_non_color_capture_review_20260825.json`
+- `empirical/reviews/E7_deck_reduced_motion_capture_review_20260825.json`
 - `empirical/evidence/E7.jsonl`
 - `IMPLEMENTATION_STATUS.md`
-- Existing runtime evidence under `runtime-evidence/phase12g/e7-live-batch/` and `runtime-evidence/phase12c/latest/` was produced by the notification-safe workflow.
+- Notification-safe workflow refreshed exact-head runtime evidence under `runtime-evidence/phase12c/latest/`.
 
 ### Canonical/design impact
 - **No canonical contradiction discovered.**
-- No gameplay, deterministic-domain, progression, authored-content, economy or persistence semantics changed.
-- This increment is empirical evidence acquisition/storage only and directly tests the frozen E7 non-color/1280x800/controller presentation contract.
+- No gameplay, deterministic-domain, authored-content, progression, economy or persistence semantics changed.
+- Accessibility settings remain presentation-only and do not alter deterministic gameplay.
 
-## Current empirical state
-The repository evidence harness is authoritative for gate disposition and currently reports:
-- **13 PENDING**
-- **0 PASS**
-- **0 FAIL**
-- **0 BLOCKED**
+## Current E7 evidence state
+- `deck_controller_base`: complete 57-case capture-review evidence already exists, but raw E7 rows are not yet normalized from its exact source evidence.
+- `deck_controller_max_ui`: complete post-repair 57-case capture review + 57/57 interaction evidence already exists, but raw E7 rows are not yet normalized from its exact source evidence.
+- `deck_non_color`: **57/57 review + 57/57 interaction + 57 raw E7 rows integrated**.
+- `deck_reduced_motion`: **57/57 review + 57/57 interaction + 57 raw E7 rows integrated**.
+- `deck_no_audio`: **not yet acquired/reviewed across the full 57-case matrix**.
+- Therefore E7 remains **PENDING**. Do not infer the missing 171 rows from scenario definitions or prior summaries.
 
-E7 evidence state:
-- `deck_controller_base`: complete 57-case capture review already exists as a review summary.
-- `deck_controller_max_ui`: complete post-repair 57-case capture review + 57/57 automated interaction acquisition already exists as a review summary.
-- `deck_non_color`: **complete 57-case capture review + 57/57 interaction acquisition + 57 raw append-only E7 rows now accepted by the harness**.
-- `deck_reduced_motion`: **full 57-case live-batch request is now committed and queued; no outcome claimed until exact artifacts are observed**.
-- `deck_no_audio`: **not yet acquired/reviewed for the full 57-case matrix**.
-- Raw E7 exhaustive-matrix storage currently contains only the newly integrated non-color signatures. Before E7 can ever become PASS, the already-reviewed base/max-UI evidence must also be normalized into append-only E7 rows from their exact source artifacts/interaction evidence, and reduced-motion/no-audio must be acquired and reviewed. Do not invent missing rows from scenario definitions alone.
-
-Human/hardware/market evidence remains unchanged and unobserved where applicable:
-- E1/E2/E11 require real representative first-session DEMO01-DEMO05 observation.
-- E3-E6/E9-E10 require real representative mature human playtests.
+## Other empirical gates / blockers
+- E1/E2/E11 require genuine representative first-session human observation on DEMO01-DEMO05.
+- E3-E6/E9-E10 require genuine representative mature human playtests.
 - T8-44 requires actual Deck-class reference hardware.
-- E8 waits for representative store/trailer assets.
+- E8 requires representative store/trailer assets.
 - E12 remains intentionally near-release.
-
-## Failures / blockers
-- **No implementation/runtime blocker observed in the completed `deck_non_color` 57-case sweep.**
-- `deck_reduced_motion` acquisition currently has no observed result because its valid workflow run is still queued.
-- Human-required gates cannot be completed synthetically.
-- T8-44 remains hardware-dependent.
-- E8/E12 remain intentionally timing/asset-dependent.
-- 12H is blocked by incomplete 12G evidence, by design.
+- These remain **PENDING**, not failed and not passed.
+- No implementation/runtime blocker was discovered in this increment.
+- 12H remains prohibited while 12G is incomplete.
 
 ## NEXT ACTION
-Continue **actual 12G evidence acquisition**, keeping unobserved outcomes PENDING.
+Continue **actual 12G evidence acquisition** without fabricating missing outcomes.
 
-1. **Do not create another reduced-motion request while run 32795095953 is valid.** Inspect that exact run first. Once complete, verify committed metadata/source head/scenario, download and inspect all 57 captures, verify matching 57/57 interaction acquisition, record the review, append exactly 57 observed `deck_reduced_motion` rows, and validate the evidence harness on the exact integration head.
-2. Then acquire/review **`deck_no_audio` across all 57 IDs** and append its observed rows the same way.
-3. Before any E7 PASS claim, normalize the already-reviewed `deck_controller_base` and `deck_controller_max_ui` scenarios into append-only raw E7 rows only from their exact recorded source artifacts/interaction evidence; revalidate the exhaustive **285-row** matrix. Do not reconstruct positive outcomes without evidence.
-4. In parallel when a real tester/operator is available, run the earliest practical **E1 + E2 + E11** representative DEMO01-DEMO05 human batch. Never infer these outcomes from automation.
-5. Run representative **E3-E6 + E9-E10** mature campaign/remix human playtests when participants are available.
-6. Run **T8-44** only on actual Deck-class reference hardware; E8 only with representative store/trailer assets; E12 only near release.
+1. Acquire and review **`deck_no_audio` across all 57 shippable IDs** through the existing notification-safe E7 live-batch mechanism. Verify exact source head/scenario, inspect all 57 captures, verify 57/57 controller interaction acquisition, record a bounded review, append exactly 57 observed raw rows, then inspect exact-head evidence validation.
+2. After `deck_no_audio`, normalize the already-reviewed **`deck_controller_base`** and **`deck_controller_max_ui`** scenarios into append-only raw E7 rows only from their exact recorded artifacts/interaction evidence. Do not reconstruct positive rows from scenario configuration alone.
+3. Revalidate the exhaustive **285-row E7 matrix** before any E7 PASS claim.
+4. When real participants are available, collect E1+E2+E11 first-session human evidence, then E3-E6+E9-E10 mature human evidence. Never substitute automation for human outcomes.
+5. Run T8-44 only on actual Deck-class reference hardware; E8 only with representative marketing assets; E12 only near release.
 
 Keep every unobserved gate **PENDING**. A failed empirical gate reopens only the minimum affected rule/content. **Do not start 12H until E1-E12 and T8-44 have genuine evidence-backed dispositions or an explicit release blocker.**
