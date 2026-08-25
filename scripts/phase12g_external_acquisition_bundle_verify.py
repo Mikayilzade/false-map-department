@@ -23,6 +23,10 @@ def fail(code: str, detail: str = "") -> None:
     raise SystemExit(2)
 
 
+def member_is_within_root(name: str, archive_root: str) -> bool:
+    return name == archive_root.rstrip("/") or name.startswith(archive_root)
+
+
 def verify_archive(path: Path, contract: dict) -> dict:
     archive_root = str(contract.get("archive_root", ""))
     if not archive_root or archive_root.startswith("/") or ".." in PurePosixPath(archive_root).parts or not archive_root.endswith("/"):
@@ -47,7 +51,7 @@ def verify_archive(path: Path, contract: dict) -> dict:
                 pure = PurePosixPath(name)
                 if pure.is_absolute() or ".." in pure.parts:
                     fail("bundle_archive_unsafe_member_path", name)
-                if not name.startswith(archive_root):
+                if not member_is_within_root(name, archive_root):
                     fail("bundle_archive_member_outside_root", name)
                 if member.issym() or member.islnk():
                     fail("bundle_archive_link_forbidden", name)
