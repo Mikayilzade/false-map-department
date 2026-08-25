@@ -38,7 +38,7 @@ def fixture_packet(disposition: str, attestation: str) -> dict:
             "gate_id": "T8-44",
             "hardware_id": "AUDIT-HW",
             "build_id": "AUDIT-BUILD",
-            "dossier_id": "D40",
+            "dossier_id": "D39",
             "sample_count": 3,
             "typical_edit_median_ms": 1.0,
             "typical_edit_p95_ms": 2.0,
@@ -61,7 +61,7 @@ def main() -> None:
     for marker in [
         "ProductionPlaytestController",
         "ReferenceHardwareProfiler",
-        'dossier_id = "D40"',
+        'dossier_id = "D39"',
         "Time.get_ticks_usec()",
         'disposition == "reference_run"',
         'attestation != "actual_deck_class_reference"',
@@ -106,7 +106,7 @@ def main() -> None:
         require(rejected_source.returncode != 0, "wrong-source reference packet must reject")
         require(not (evidence_root / "T8-44.jsonl").exists(), "wrong-source rejection must not mutate evidence")
 
-    print("Phase 12G T8-44 acquisition audit: PASS (production D40 timing runner + source pin + reference-hardware attestation + diagnostic/non-reference rejection; synthetic audit data never touched repository evidence)")
+    print("Phase 12G T8-44 acquisition audit: PASS (production D39 late-game+Stability timing runner + source pin + reference-hardware attestation + diagnostic/non-reference rejection; synthetic audit data never touched repository evidence)")
 
 
 if __name__ == "__main__":
