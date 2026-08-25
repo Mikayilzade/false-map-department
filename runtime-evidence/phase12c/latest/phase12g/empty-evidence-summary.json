@@ -1,21 +1,9 @@
-Phase 12G precondition audit: PASS (E1-E12 + T8-44 registry/harness/operator workflow ready; isolated empty-evidence anti-fabrication check preserved without rejecting legitimate live evidence)
-Phase 12G instrumentation audit: PASS (E1/E2/E11 telemetry + T8-44 profile format; observer outcomes remain explicit)
-Phase 12G session packet audit: PASS (E3-E7 + E9/E10 templates, E10 canonical A1-A10 families, 57x5 E7 matrix, zero fabricated outcomes)
-Phase 12G operator workflow audit: PASS (blank-row rejection + append dedupe + qualitative disposition + dashboard)
-Phase 12G first-session batch audit: PASS (3 blank human packets + relocatable manifest paths + DEMO01 launch + no completed/evidence rows + readiness-only status)
-Phase 12G mature-session batch audit: PASS (frozen selections + counterbalance + relocatable manifest paths + null human outcomes + no-evidence finalize guard)
-Phase 12G human field-kit audit: PASS (E1-E6/E9-E11 relocatable packets + self-contained verify/finalize + exact source/tool pinning + immutable tamper rejection + observer-local completed rows + no evidence append)
-Phase 12G field-kit ingest audit: PASS (offline verification + exact source pin + dry-run default + deliberate append + idempotent rows)
-Phase 12G E8 marketing-acquisition audit: PASS (packet-owned immutable assets + exact source head + re-hash tamper rejection + blank-human anti-fabrication + local-only finalization)
-Phase 12G E8 ingest audit: PASS — exact source pin + frozen assets + finalized respondent equality + dry-run + explicit append + idempotency; synthetic audit data never touched repository evidence
-Phase 12G T8-44 acquisition audit: PASS (production D39 late-game+Stability timing runner + source pin + reference-hardware attestation + diagnostic/non-reference rejection; synthetic audit data never touched repository evidence)
-Phase 12G acquisition readiness audit: PASS (demo path preserved; mature empirical scene + explicit representative bindings + map-backed linked facts present; no human/capture PASS fabricated)
 {
   "counts": {
     "BLOCKED": 0,
     "FAIL": 0,
-    "PASS": 1,
-    "PENDING": 12
+    "PASS": 0,
+    "PENDING": 13
   },
   "gates": [
     {
@@ -108,22 +96,13 @@ Phase 12G acquisition readiness audit: PASS (demo path preserved; mature empiric
         "1280x800_layout_green"
       ],
       "detail": {
-        "exhaustive_matrix_confirmed": true,
-        "expected_unique_rows": 285,
-        "failed_preview": [],
-        "failing_unique_rows": 0,
-        "metric": "shippable_dossiers_pass_rate",
-        "observed_unique_rows": 285,
-        "passing_unique_rows": 285,
-        "raw_evidence_rows": 285,
-        "target": 1.0,
-        "value": 1.0
+        "reason": "no evidence rows"
       },
       "evidence_class": "mixed_capture_interaction",
       "gate_id": "E7",
       "name": "accessibility/device sweep",
-      "rows": 285,
-      "status": "PASS"
+      "rows": 0,
+      "status": "PENDING"
     },
     {
       "automated_preconditions": [
@@ -211,31 +190,3 @@ Phase 12G acquisition readiness audit: PASS (demo path preserved; mature empiric
   "phase": "12G",
   "registry_version": 1
 }
-/home/runner/work/_temp/fmd-runtime-baseline/phase12g/gate-dashboard.md
-Phase 12G isolated empty-evidence anti-fabrication baseline: PASS (13 PENDING)
-Phase 12G live evidence summary accepted as current observed state: {'BLOCKED': 0, 'FAIL': 0, 'PASS': 1, 'PENDING': 12}
-Phase 12G first-session operator audit: PASS (observer outcomes explicit; raw collateral != human aha; no repository evidence mutation)
-Phase 12G sample adequacy audit: PASS (one-row PASS blocked; exact batch confirmation required; evidence changes invalidate confirmation; no invented minimum N)
-Phase 12G E7 capture mode audit: PASS (graphical Xvfb + bounded composite interaction acquisition; no synthetic capture-review outcome)
-Phase 12G E7 coverage audit: PASS (5/285 and 284/285 stay PENDING; exact 285 required; latest rerun wins without inflating coverage)
-Phase 12G full runtime readiness audit: PASS (57/57 shippable IDs ready; zero binding blockers)
-Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
-
-FMD Phase 12G instrumentation tests: PASS
-Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
-
-FMD Phase 12G production demo playtest tests: PASS
-Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
-
-FMD Phase 12G broad production acquisition tests: PASS
-Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
-
-FMD Phase 12G readiness-repair known solutions: PASS (7/7)
-Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
-
-FMD Phase 12G remix review-fix tests: PASS
-Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
-
-Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
-
-Phase 12G instrumentation + first-session operator + representative-sample guard + exhaustive E7 coverage guard + 57/57 runtime readiness + graphical-capture guard + representative controller interaction probes + demo + broad production acquisition-readiness packet: PASS
