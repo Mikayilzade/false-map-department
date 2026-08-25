@@ -1,8 +1,8 @@
-run_id=32795095953
+run_id=32801728333
 run_attempt=1
-source_head_sha=b027a5632866a0e61113ed9c51f4c8f1264dcebc
-request_sha256=2dcf10d2bdb547a782cff0f27373e91250e7c27fb56387f9644b6bb908950b92
-scenario_id=deck_reduced_motion
+source_head_sha=69c2efbd88a24c269f86d50fa1a9477dfa758761
+request_sha256=2e0d79b1ba596b582ebc181a9e70fba47a7fac3f23a24ef85a7bb4d1e36c1953
+scenario_id=deck_no_audio
 capture_rc=0
 artifact_name=phase12g-e7-live-batch
 review_outcome=UNREVIEWED
