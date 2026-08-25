@@ -17,6 +17,7 @@ python3 scripts/phase12g_field_kit_ingest_audit.py | tee "$OUT_DIR/field-kit-ing
 python3 scripts/phase12g_marketing_expectation_audit.py | tee "$OUT_DIR/marketing-expectation-audit.log"
 python3 scripts/phase12g_marketing_expectation_ingest_audit.py | tee "$OUT_DIR/marketing-expectation-ingest-audit.log"
 python3 scripts/phase12g_reference_profile_audit.py | tee "$OUT_DIR/reference-profile-acquisition-audit.log"
+python3 scripts/phase12g_external_acquisition_bundle_audit.py | tee "$OUT_DIR/external-acquisition-bundle-audit.log"
 python3 scripts/phase12g_acquisition_readiness_audit.py | tee "$OUT_DIR/acquisition-readiness-audit.log"
 
 # Validate the repository's real append-only evidence as-is. A legitimate PASS in
