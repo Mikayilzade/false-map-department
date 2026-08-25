@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import subprocess
 import sys
@@ -10,6 +11,7 @@ from pathlib import Path
 FIRST_GATES = ("E1", "E2", "E11")
 MATURE_GATES = ("E3", "E4", "E5", "E6", "E9", "E10")
 PREDICTION_PROMPT_ID = "DEMO02_PRE_EDIT_SECOND_ORDER_01"
+RECEIPT_SCHEMA = "fmd.phase12g.field-kit-finalization-receipt.v1"
 MATURE_REQUIRED_FIELDS = {
     "E3": ["tester_id", "dossier_id", "method", "completion_seconds", "completed", "rule_knowledge_confirmed"],
     "E4": ["tester_id", "window_id", "dossier_ids", "same_trick_assessment", "notes"],
@@ -34,8 +36,16 @@ def load_json(path: Path) -> dict:
     return payload
 
 
+def write_json(path: Path, payload: dict) -> None:
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
 def write_jsonl(path: Path, rows: list[dict]) -> None:
     path.write_text("".join(json.dumps(row, sort_keys=True) + "\n" for row in rows), encoding="utf-8")
+
+
+def sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def resolve_relative(root: Path, value: object, label: str) -> Path:
@@ -56,12 +66,7 @@ def verify_kit(kit_root: Path) -> dict:
     if not isinstance(verifier_contract, dict):
         fail("offline verifier contract missing")
     verifier = resolve_relative(kit_root, verifier_contract.get("path", ""), "offline verifier path")
-    completed = subprocess.run(
-        [sys.executable, str(verifier), "--kit-dir", str(kit_root)],
-        cwd=kit_root,
-        text=True,
-        capture_output=True,
-    )
+    completed = subprocess.run([sys.executable, str(verifier), "--kit-dir", str(kit_root)], cwd=kit_root, text=True, capture_output=True)
     if completed.returncode != 0:
         fail(f"kit integrity verification failed before finalization: {(completed.stdout + completed.stderr).strip()}")
     try:
@@ -133,7 +138,7 @@ def mature_packet_dir(kit_root: Path, manifest: dict, tester_id: str) -> Path:
     fail(f"mature-session packet not found: {tester_id}")
 
 
-def finalize_first(session_dir: Path) -> dict:
+def finalize_first(session_dir: Path) -> tuple[dict, list[Path]]:
     session_manifest = load_json(session_dir / "session-manifest.json")
     observer = load_json(session_dir / "observer.json")
     telemetry = load_json(session_dir / "telemetry.json")
@@ -175,9 +180,12 @@ def finalize_first(session_dir: Path) -> dict:
         "E2": {"schema_version": 1, "gate_id": "E2", "tester_id": tester_id, "session_id": session_id, "packet_completed": packet_completed, "prediction_prompt_id": prompt_id, "success": e2_success},
         "E11": {"schema_version": 1, "gate_id": "E11", "tester_id": tester_id, "demo_build_id": build_id, "start_timestamp": start_marker, "first_collateral_aha_seconds": aha_seconds, "completion_seconds": completion_seconds, "completed": completed},
     }
+    paths: list[Path] = []
     for gate_id, row in rows.items():
-        write_jsonl(session_dir / f"completed-{gate_id}.jsonl", [row])
-    return {"kind": "first_session", "session_id": session_id, "tester_id": tester_id, "completed_gates": list(FIRST_GATES)}
+        path = session_dir / f"completed-{gate_id}.jsonl"
+        write_jsonl(path, [row])
+        paths.append(path)
+    return {"kind": "first_session", "session_id": session_id, "tester_id": tester_id, "completed_gates": list(FIRST_GATES)}, paths
 
 
 def field_missing(row: dict, field: str) -> bool:
@@ -187,7 +195,7 @@ def field_missing(row: dict, field: str) -> bool:
     return value is None or (isinstance(value, str) and not value.strip()) or (isinstance(value, list) and not value)
 
 
-def finalize_mature(packet_dir: Path) -> dict:
+def finalize_mature(packet_dir: Path) -> tuple[dict, list[Path]]:
     packet = load_json(packet_dir / "observer-packet.json")
     tester_id = require_id(packet.get("tester_id", ""), "tester_id")
     if packet.get("rules_known_before_session") is not True:
@@ -195,6 +203,7 @@ def finalize_mature(packet_dir: Path) -> dict:
     rows_by_gate = packet.get("rows_by_gate", {})
     if not isinstance(rows_by_gate, dict):
         fail("mature rows_by_gate must be an object")
+    paths: list[Path] = []
     for gate_id in MATURE_GATES:
         rows = rows_by_gate.get(gate_id, [])
         if not isinstance(rows, list) or not rows:
@@ -211,8 +220,41 @@ def finalize_mature(packet_dir: Path) -> dict:
             if gate_id == "E6" and raw.get("used_raw_debug_log") is not False:
                 fail("E6 rows require used_raw_debug_log=false; raw debug logs are forbidden by the protocol")
             checked.append(dict(raw))
-        write_jsonl(packet_dir / f"completed-{gate_id}.jsonl", checked)
-    return {"kind": "mature_session", "tester_id": tester_id, "completed_gates": list(MATURE_GATES)}
+        path = packet_dir / f"completed-{gate_id}.jsonl"
+        write_jsonl(path, checked)
+        paths.append(path)
+    return {"kind": "mature_session", "tester_id": tester_id, "completed_gates": list(MATURE_GATES)}, paths
+
+
+def write_receipt(kit_root: Path, packet_dir: Path, manifest: dict, result: dict, completed_paths: list[Path]) -> Path:
+    finalizer_contract = manifest.get("offline_finalizer", {})
+    if not isinstance(finalizer_contract, dict):
+        fail("offline finalizer contract missing")
+    entries = []
+    for path in sorted(completed_paths):
+        entries.append({
+            "path": path.resolve().relative_to(kit_root.resolve()).as_posix(),
+            "sha256": sha256_file(path),
+            "bytes": path.stat().st_size,
+        })
+    receipt = {
+        "schema": RECEIPT_SCHEMA,
+        "source_head": str(manifest.get("source_head", "")),
+        "field_kit_contract_hash": str(manifest.get("contract_hash", "")),
+        "demo_build_id": str(manifest.get("demo_build_id", "")),
+        "production_build_id": str(manifest.get("production_build_id", "")),
+        "packet_kind": str(result.get("kind", "")),
+        "tester_id": str(result.get("tester_id", "")),
+        "session_id": str(result.get("session_id", "")),
+        "completed_gates": list(result.get("completed_gates", [])),
+        "completed_files": entries,
+        "finalizer_sha256": str(finalizer_contract.get("sha256", "")),
+        "human_outcomes_inferred": False,
+        "repository_evidence_appended": False,
+    }
+    receipt_path = packet_dir / "finalization-receipt.json"
+    write_json(receipt_path, receipt)
+    return receipt_path
 
 
 def main() -> None:
@@ -225,11 +267,16 @@ def main() -> None:
     kit_root = Path(args.kit_dir).resolve()
     manifest = verify_kit(kit_root)
     if args.first_session:
-        result = finalize_first(first_packet_dir(kit_root, manifest, args.first_session))
+        packet_dir = first_packet_dir(kit_root, manifest, args.first_session)
+        result, completed_paths = finalize_first(packet_dir)
     else:
-        result = finalize_mature(mature_packet_dir(kit_root, manifest, args.mature_tester))
+        packet_dir = mature_packet_dir(kit_root, manifest, args.mature_tester)
+        result, completed_paths = finalize_mature(packet_dir)
+    receipt_path = write_receipt(kit_root, packet_dir, manifest, result, completed_paths)
     result.update({
         "status": "FINALIZED_LOCAL_OFFLINE",
+        "finalization_receipt": receipt_path.relative_to(kit_root).as_posix(),
+        "completed_file_digests_bound": True,
         "human_outcomes_inferred": False,
         "repository_evidence_appended": False,
         "append_requires_matching_repository_review": True,
