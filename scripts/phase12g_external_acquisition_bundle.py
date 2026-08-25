@@ -107,6 +107,10 @@ def create_source_archive(target: Path, source_head: str) -> None:
     )
 
 
+def member_is_within_root(name: str, archive_root: str) -> bool:
+    return name == archive_root.rstrip("/") or name.startswith(archive_root)
+
+
 def inspect_source_archive(path: Path, archive_root: str) -> dict:
     required_members = {archive_root + rel for rel in REQUIRED_PATHS}
     seen: set[str] = set()
@@ -116,7 +120,7 @@ def inspect_source_archive(path: Path, archive_root: str) -> dict:
             member_count += 1
             name = member.name
             pure = PurePosixPath(name)
-            if pure.is_absolute() or ".." in pure.parts or not name.startswith(archive_root):
+            if pure.is_absolute() or ".." in pure.parts or not member_is_within_root(name, archive_root):
                 raise SystemExit(f"unsafe archive member path: {name}")
             if member.issym() or member.islnk():
                 raise SystemExit(f"archive links are forbidden in acquisition bundle: {name}")
