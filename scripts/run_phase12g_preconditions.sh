@@ -16,9 +16,15 @@ python3 scripts/phase12g_human_field_kit_audit.py | tee "$OUT_DIR/human-field-ki
 python3 scripts/phase12g_field_kit_ingest_audit.py | tee "$OUT_DIR/field-kit-ingest-audit.log"
 python3 scripts/phase12g_marketing_expectation_audit.py | tee "$OUT_DIR/marketing-expectation-audit.log"
 python3 scripts/phase12g_marketing_expectation_ingest_audit.py | tee "$OUT_DIR/marketing-expectation-ingest-audit.log"
+python3 scripts/phase12g_qualitative_disposition_audit.py | tee "$OUT_DIR/qualitative-disposition-audit.log"
 python3 scripts/phase12g_reference_profile_audit.py | tee "$OUT_DIR/reference-profile-acquisition-audit.log"
 python3 scripts/phase12g_external_acquisition_bundle_audit.py | tee "$OUT_DIR/external-acquisition-bundle-audit.log"
 python3 scripts/phase12g_acquisition_readiness_audit.py | tee "$OUT_DIR/acquisition-readiness-audit.log"
+
+# A qualitative PASS/FAIL/BLOCKED is valid only for the exact evidence bytes that
+# were explicitly reviewed. Reject stale/unbound dispositions before the evidence
+# harness or dashboard is allowed to consume them.
+python3 scripts/phase12g_qualitative_disposition_integrity.py | tee "$OUT_DIR/qualitative-disposition-integrity.log"
 
 # Validate the repository's real append-only evidence as-is. A legitimate PASS in
 # live evidence must not make preconditions fail merely because acquisition has
