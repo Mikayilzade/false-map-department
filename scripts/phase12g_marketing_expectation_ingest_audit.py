@@ -76,6 +76,16 @@ def main() -> None:
         respondents_path.write_text(json.dumps(respondents, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         run([sys.executable, str(PACKET), "finalize", "--packet", str(packet_root)])
 
+        receipt_path = packet_root / "completion-receipt.json"
+        if not receipt_path.is_file():
+            raise SystemExit("E8 finalize did not emit completion-receipt.json")
+        finalized_state = json.loads(run([sys.executable, str(PACKET), "status", "--packet", str(packet_root)]).stdout)
+        if finalized_state.get("status") != "FINALIZED" or finalized_state.get("completion_receipt_verified") is not True:
+            raise SystemExit(f"E8 status did not verify finalized receipt: {finalized_state}")
+        rewrite = run([sys.executable, str(PACKET), "finalize", "--packet", str(packet_root)], expect_ok=False)
+        if "already finalized" not in (rewrite.stderr + rewrite.stdout):
+            raise SystemExit("E8 finalizer did not reject rewriting an already finalized respondent return")
+
         evidence_root = temp / "evidence"
         target = evidence_root / "E8.jsonl"
         dry = run([
@@ -87,6 +97,8 @@ def main() -> None:
         dry_result = json.loads(dry.stdout)
         if dry_result.get("mode") != "dry_run" or dry_result.get("new_rows") != 2:
             raise SystemExit(f"unexpected E8 dry-run result: {dry_result}")
+        if dry_result.get("completion_receipt_verified") is not True:
+            raise SystemExit("E8 dry-run did not report completion receipt verification")
         if target.exists():
             raise SystemExit("E8 ingest dry-run mutated evidence")
 
@@ -122,20 +134,37 @@ def main() -> None:
             raise SystemExit("E8 ingest did not reject wrong expected source head")
 
         completed_path = packet_root / "completed-E8.jsonl"
-        original = completed_path.read_text(encoding="utf-8")
-        tampered = [json.loads(line) for line in original.splitlines() if line.strip()]
-        tampered[0]["expected_play_category"] = "tampered category"
-        completed_path.write_text("".join(json.dumps(row, sort_keys=True) + "\n" for row in tampered), encoding="utf-8")
+        tampered_completed = [json.loads(line) for line in completed_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+        tampered_completed[0]["expected_play_category"] = "tampered category"
+        completed_path.write_text("".join(json.dumps(row, sort_keys=True) + "\n" for row in tampered_completed), encoding="utf-8")
         mismatch = run([
             sys.executable, str(INGEST),
             "--packet", str(packet_root),
             "--expected-source-head", SOURCE_HEAD,
             "--evidence-root", str(evidence_root),
         ], expect_ok=False)
-        if "does not exactly match" not in (mismatch.stderr + mismatch.stdout):
-            raise SystemExit("E8 ingest did not reject completed-row tampering")
+        if "completion receipt" not in (mismatch.stderr + mismatch.stdout).lower():
+            raise SystemExit("E8 ingest did not reject completed-row tampering against finalization receipt")
 
-    print("Phase 12G E8 ingest audit: PASS — exact source pin + frozen assets + finalized respondent equality + dry-run + explicit append + idempotency; synthetic audit data never touched repository evidence")
+        # The original gap allowed respondents.json and completed-E8.jsonl to be edited together
+        # after finalize. Equality alone cannot detect this; the receipt must bind both files.
+        tampered_respondents = json.loads(respondents_path.read_text(encoding="utf-8"))
+        tampered_respondents["rows"][0]["expected_play_category"] = "tampered category"
+        respondents_path.write_text(json.dumps(tampered_respondents, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        coordinated = run([
+            sys.executable, str(INGEST),
+            "--packet", str(packet_root),
+            "--expected-source-head", SOURCE_HEAD,
+            "--evidence-root", str(evidence_root),
+        ], expect_ok=False)
+        if "completion receipt" not in (coordinated.stderr + coordinated.stdout).lower():
+            raise SystemExit("E8 ingest accepted coordinated post-finalize respondent/completed-row tampering")
+
+        tampered_state = json.loads(run([sys.executable, str(PACKET), "status", "--packet", str(packet_root)]).stdout)
+        if tampered_state.get("status") != "INVALID_PACKET" or "receipt" not in str(tampered_state.get("reason", "")).lower():
+            raise SystemExit(f"E8 status did not expose post-finalize receipt mismatch: {tampered_state}")
+
+    print("Phase 12G E8 ingest audit: PASS — exact source/assets + digest-bound finalized respondent return + coordinated post-finalize tamper rejection + dry-run/explicit append/idempotency; synthetic audit data never touched repository evidence")
 
 
 if __name__ == "__main__":
