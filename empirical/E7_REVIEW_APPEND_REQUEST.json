@@ -1,9 +1,0 @@
-{
-  "schema_version": 1,
-  "gate_id": "E7",
-  "evidence_kind": "REVIEWED_RAW_APPEND_REQUEST",
-  "review_refs": [
-    "empirical/reviews/E7_deck_controller_base_capture_review_20260825.json"
-  ],
-  "notes": "Append only the fresh exact-source controller-base review after the normalizer verifies the 57-case scenario signature, interaction acquisition and visual review evidence; then rerun real-Godot Phase-12G validation before commit."
-}
