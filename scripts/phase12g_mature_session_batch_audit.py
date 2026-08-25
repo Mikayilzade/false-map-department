@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -25,7 +26,8 @@ def load(path: Path) -> dict:
 
 def main() -> None:
     with tempfile.TemporaryDirectory(prefix="fmd-phase12g-mature-") as tmp:
-        root = Path(tmp)
+        base = Path(tmp)
+        root = base / "original"
         subprocess.run([
             sys.executable,
             str(HELPER),
@@ -36,7 +38,10 @@ def main() -> None:
             "--output-dir", str(root),
         ], cwd=ROOT, check=True, stdout=subprocess.DEVNULL)
 
-        manifest = load(root / "batch-manifest.json")
+        manifest_path = root / "batch-manifest.json"
+        manifest = load(manifest_path)
+        if manifest.get("batch_version") != 2 or manifest.get("path_contract") != "packet_paths_relative_to_batch_manifest":
+            fail("batch manifest must declare portable relative-path contract")
         if manifest.get("packet_count") != 2:
             fail("prepare must create exactly two audit packets")
         if manifest.get("human_outcomes_required") is not True or manifest.get("repository_evidence_appended") is not False:
@@ -45,9 +50,12 @@ def main() -> None:
         packets = manifest.get("packets", [])
         if len(packets) != 2:
             fail("batch manifest packet count mismatch")
+        for packet in packets:
+            if Path(str(packet.get("packet_dir", ""))).is_absolute() or Path(str(packet.get("observer_packet", ""))).is_absolute():
+                fail("portable mature manifest must not store absolute packet paths")
 
-        first = load(Path(packets[0]["observer_packet"]))
-        second = load(Path(packets[1]["observer_packet"]))
+        first = load(manifest_path.parent / str(packets[0]["observer_packet"]))
+        second = load(manifest_path.parent / str(packets[1]["observer_packet"]))
         for packet in (first, second):
             if packet.get("build_id") != "AUDIT-BUILD-EXACT":
                 fail("every packet must pin the explicit build ID")
@@ -85,31 +93,38 @@ def main() -> None:
         if first_e3[0]["method"] == second_e3[0]["method"]:
             fail("adjacent tester packets must counterbalance first E3 method order")
 
+        moved = base / "relocated"
+        shutil.copytree(root, moved)
+        shutil.rmtree(root)
+        moved_manifest = moved / "batch-manifest.json"
+        moved_payload = load(moved_manifest)
+
         status = subprocess.run([
             sys.executable,
             str(HELPER),
             "status",
-            "--manifest", str(root / "batch-manifest.json"),
+            "--manifest", str(moved_manifest),
         ], cwd=ROOT, check=True, capture_output=True, text=True)
         status_payload = json.loads(status.stdout)
         if status_payload.get("counts", {}).get("PREPARED") != 2:
-            fail("blank packets must remain PREPARED, not ready/finalized")
+            fail("relocated blank packets must remain PREPARED, not ready/finalized")
         if status_payload.get("human_outcomes_inferred") is not False or status_payload.get("repository_evidence_appended") is not False:
             fail("status must not infer or append outcomes")
 
+        first_packet_dir = moved_manifest.parent / str(moved_payload["packets"][0]["packet_dir"])
         finalize = subprocess.run([
             sys.executable,
             str(HELPER),
             "finalize",
-            "--packet-dir", str(Path(packets[0]["packet_dir"])),
+            "--packet-dir", str(first_packet_dir),
         ], cwd=ROOT, capture_output=True, text=True)
         if finalize.returncode == 0:
             fail("blank packet must not finalize")
         for gate_id in ("E3", "E4", "E5", "E6", "E9", "E10"):
-            if (Path(packets[0]["packet_dir"]) / f"completed-{gate_id}.jsonl").exists():
+            if (first_packet_dir / f"completed-{gate_id}.jsonl").exists():
                 fail("blank packet must not create completed evidence rows")
 
-    print("Phase 12G mature-session batch audit: PASS (frozen selections + counterbalance + null human outcomes + no-evidence finalize guard)")
+    print("Phase 12G mature-session batch audit: PASS (frozen selections + counterbalance + relocatable manifest paths + null human outcomes + no-evidence finalize guard)")
 
 
 if __name__ == "__main__":
