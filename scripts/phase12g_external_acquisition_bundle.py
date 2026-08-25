@@ -11,7 +11,7 @@ from pathlib import Path, PurePosixPath
 
 ROOT = Path(__file__).resolve().parents[1]
 SHA40 = 40
-BUNDLE_SCHEMA = "fmd.phase12g.external-acquisition-bundle.v3"
+BUNDLE_SCHEMA = "fmd.phase12g.external-acquisition-bundle.v4"
 WINDOWS_FORBIDDEN_CHARS = set('<>:"|?*')
 WINDOWS_RESERVED_NAMES = {
     "CON", "PRN", "AUX", "NUL",
@@ -24,6 +24,7 @@ REQUIRED_PATHS = (
     "CI_NOTIFICATION_POLICY.md",
     "GAME2_PHASE11_FINAL_FREEZE.md",
     "empirical/PHASE12G_PROTOCOL.md",
+    "empirical/PHASE12G_RETURN_INGEST.md",
     "empirical/phase12g_gate_registry.json",
     "empirical/phase12g_session_protocols.json",
     "scripts/fetch_pinned_godot.sh",
@@ -34,8 +35,16 @@ REQUIRED_PATHS = (
     "scripts/phase12g_marketing_expectation_packet.py",
     "scripts/phase12g_marketing_expectation_ingest.py",
     "scripts/phase12g_reference_profile_ingest.py",
+    "scripts/phase12g_external_acquisition_bundle_verify.py",
     "tests/phase12g_reference_profile_runner.gd",
 )
+
+SOURCE_BINDINGS = {
+    "BUNDLE-VERIFY.py": "scripts/phase12g_external_acquisition_bundle_verify.py",
+    "FIELD-KIT-VERIFY.py": "scripts/phase12g_field_kit_offline_verify.py",
+    "FIELD-KIT-FINALIZE.py": "scripts/phase12g_field_kit_offline_finalize.py",
+    "RETURN-INGEST.md": "empirical/PHASE12G_RETURN_INGEST.md",
+}
 
 
 def sha256(path: Path) -> str:
@@ -44,6 +53,10 @@ def sha256(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def sha256_bytes(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
 
 
 def git_output(*args: str) -> str:
@@ -81,10 +94,10 @@ def write_operator_guide(path: Path, source_head: str) -> None:
             "Keep every unobserved gate PENDING until a genuine observation is deliberately ingested and re-evaluated.",
             "",
             "## Verify first",
-            "Run `python3 BUNDLE-VERIFY.py .` from the bundle root before extracting the source archive. Stop if verification fails; the verifier checks file hashes plus tar root/path/type/link safety, duplicate names, and portable cross-platform path collisions.",
+            "Run `python3 BUNDLE-VERIFY.py .` from the bundle root before extracting the source archive. Stop if verification fails. The verifier checks bundle hashes, archive path/type safety, and exact byte-for-byte bindings between the standalone verifier/finalizer/return instructions and their source-archive counterparts.",
             "",
             "## Human field kit (E1-E6, E9-E11)",
-            "Use the verified archived repository at this exact source commit. Prepare the v4 field kit with `scripts/phase12g_human_field_kit.py`, transport it intact, verify with the bundled field-kit verifier, collect genuine observations, and finalize locally before repository ingest.",
+            "Use the verified archived repository at this exact source commit. Prepare the v4 field kit with `scripts/phase12g_human_field_kit.py`, transport it intact, verify with `FIELD-KIT-VERIFY.py`, collect genuine observations, and finalize with `FIELD-KIT-FINALIZE.py` before repository ingest.",
             "",
             "## Marketing expectation (E8)",
             "Do not prepare E8 until all five representative asset roles exist: store_key_art, gameplay_map_world, gameplay_consequence, late_game_linked, trailer. Use `scripts/phase12g_marketing_expectation_packet.py` with this exact source SHA; respondent fields remain blank until real respondents observe the immutable asset set.",
@@ -93,16 +106,11 @@ def write_operator_guide(path: Path, source_head: str) -> None:
             "Run Godot 4.7.1 on actual Deck-class reference hardware against this exact source commit. Use `tests/phase12g_reference_profile_runner.gd` with `FMD_T8_DISPOSITION=reference_run` and `FMD_T8_REFERENCE_ATTESTATION=actual_deck_class_reference`. Hosted CI and diagnostic timings are non-evidence.",
             "",
             "## Return / ingest boundary",
-            "All ingest tools default to dry-run. Verify exact source equality first, then use explicit append only for genuine completed observations. Run the evidence harness/dashboard after deliberate append. Nothing in this bundle marks a gate PASS or FAIL by itself.",
+            "Read `RETURN-INGEST.md`. It is copied byte-for-byte from the exact source archive and verified before use. All ingest tools default to dry-run. Verify exact source equality first, then use explicit append only for genuine completed observations. Run the evidence harness/dashboard after deliberate append. Nothing in this bundle marks a gate PASS or FAIL by itself.",
             "",
         ]) + "\n",
         encoding="utf-8",
     )
-
-
-def write_bundle_verifier(path: Path) -> None:
-    source = (ROOT / "scripts" / "phase12g_external_acquisition_bundle_verify.py").read_text(encoding="utf-8")
-    path.write_text(source, encoding="utf-8")
 
 
 def create_source_archive(target: Path, source_head: str) -> None:
@@ -182,6 +190,36 @@ def inspect_source_archive(path: Path, archive_root: str) -> dict:
     }
 
 
+def extract_source_binding(archive_path: Path, archive_root: str, source_path: str) -> bytes:
+    member_name = archive_root + source_path
+    with tarfile.open(archive_path, "r:gz") as archive:
+        try:
+            member = archive.getmember(member_name)
+        except KeyError as exc:
+            raise SystemExit(f"source binding archive member missing: {source_path}") from exc
+        if not member.isfile():
+            raise SystemExit(f"source binding archive member is not a regular file: {source_path}")
+        handle = archive.extractfile(member)
+        if handle is None:
+            raise SystemExit(f"source binding archive member unreadable: {source_path}")
+        return handle.read()
+
+
+def write_source_bindings(out: Path, archive_path: Path, archive_root: str) -> list[dict]:
+    bindings: list[dict] = []
+    for bundle_path, source_path in sorted(SOURCE_BINDINGS.items()):
+        data = extract_source_binding(archive_path, archive_root, source_path)
+        target = out / bundle_path
+        target.write_bytes(data)
+        bindings.append({
+            "bundle_path": bundle_path,
+            "source_archive_path": source_path,
+            "sha256": sha256_bytes(data),
+            "bytes": len(data),
+        })
+    return bindings
+
+
 def build(args: argparse.Namespace) -> None:
     source_head = validate_source_head(args.source_head)
     ensure_required_paths()
@@ -195,10 +233,9 @@ def build(args: argparse.Namespace) -> None:
     archive_path = out / archive_name
     create_source_archive(archive_path, source_head)
     archive_contract = inspect_source_archive(archive_path, archive_root)
+    source_bindings = write_source_bindings(out, archive_path, archive_root)
     guide_path = out / "OPERATOR-GUIDE.md"
     write_operator_guide(guide_path, source_head)
-    verifier_path = out / "BUNDLE-VERIFY.py"
-    write_bundle_verifier(verifier_path)
     (out / "SOURCE_HEAD.txt").write_text(source_head + "\n", encoding="utf-8")
 
     files = []
@@ -210,13 +247,21 @@ def build(args: argparse.Namespace) -> None:
         "phase": "12G",
         "source_head": source_head,
         "archive_contract": archive_contract,
+        "source_bindings": source_bindings,
         "files": files,
         "evidence_appended": False,
         "gate_dispositions_changed": False,
         "evidence_boundary": "Portable acquisition material only; no human, market, accessibility-review or Deck-class empirical outcome is inferred by bundle creation or verification.",
     }
     (out / "bundle-manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(json.dumps({"ok": True, "source_head": source_head, "output": str(out), "file_count": len(files), "archive_member_count": archive_contract["member_count"]}, sort_keys=True))
+    print(json.dumps({
+        "ok": True,
+        "source_head": source_head,
+        "output": str(out),
+        "file_count": len(files),
+        "archive_member_count": archive_contract["member_count"],
+        "source_binding_count": len(source_bindings),
+    }, sort_keys=True))
 
 
 def main() -> None:
