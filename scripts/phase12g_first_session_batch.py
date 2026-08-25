@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OPERATOR = ROOT / "scripts/phase12g_first_session_operator.py"
 DEFAULT_ROOT = ROOT / ".phase12g-first-sessions"
-BATCH_VERSION = 1
+BATCH_VERSION = 2
 
 
 def fail(message: str) -> None:
@@ -34,6 +34,12 @@ def identifier(prefix: str, index: int, width: int) -> str:
     if not prefix or any(ch.isspace() for ch in value):
         fail("ID prefixes must be non-empty and contain no whitespace")
     return value
+
+
+def resolve_manifest_path(manifest_path: Path, value: object) -> Path:
+    raw = Path(str(value))
+    candidate = raw if raw.is_absolute() else manifest_path.parent / raw
+    return candidate.resolve()
 
 
 def packet_status(session_dir: Path) -> dict:
@@ -109,15 +115,16 @@ def cmd_prepare(args: argparse.Namespace) -> None:
         packets.append({
             "tester_id": tester_id,
             "session_id": session_id,
-            "session_dir": str(session_dir),
-            "launch_command": f"python3 scripts/phase12g_first_session_operator.py launch --session-dir {session_dir} --godot <Godot-4.7.1>",
-            "finalize_command": f"python3 scripts/phase12g_first_session_operator.py finalize --session-dir {session_dir}",
+            "session_dir": session_id,
+            "launch_command": f"python3 scripts/phase12g_first_session_operator.py launch --session-dir <BATCH_DIR>/{session_id} --godot <Godot-4.7.1>",
+            "finalize_command": f"python3 scripts/phase12g_first_session_operator.py finalize --session-dir <BATCH_DIR>/{session_id}",
         })
 
     manifest = {
         "batch_version": BATCH_VERSION,
         "purpose": "E1_E2_E11_real_human_first_session_acquisition",
         "demo_build_id": args.build_id,
+        "path_contract": "packet_paths_relative_to_batch_manifest",
         "packet_count": len(packets),
         "packets": packets,
         "human_outcomes_required": True,
@@ -136,7 +143,7 @@ def cmd_status(args: argparse.Namespace) -> None:
     for packet in manifest.get("packets", []):
         if not isinstance(packet, dict):
             fail("batch manifest packet must be an object")
-        session_dir = Path(str(packet.get("session_dir", "")))
+        session_dir = resolve_manifest_path(manifest_path, packet.get("session_dir", ""))
         status = packet_status(session_dir)
         status["session_dir"] = str(session_dir)
         rows.append(status)
