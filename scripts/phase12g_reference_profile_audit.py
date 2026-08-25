@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import copy
 import importlib.util
 import json
 import subprocess
@@ -56,6 +57,15 @@ def fixture_packet(disposition: str, attestation: str) -> dict:
     }
 
 
+def expect_module_rejection(module, packet: dict, marker: str) -> None:
+    try:
+        module.validate_packet(packet, SOURCE, allow_audit_fixture=True)
+    except SystemExit as exc:
+        require(marker in str(exc), f"rejection must name integrity cause {marker}: {exc}")
+        return
+    require(False, f"tampered audit packet unexpectedly accepted: {marker}")
+
+
 def main() -> None:
     runner = RUNNER.read_text(encoding="utf-8")
     for marker in [
@@ -75,13 +85,25 @@ def main() -> None:
         'disposition != "reference_run"',
         "--expected-source-head",
         "--append",
+        "percentile_ms",
+        "require_metric_match",
+        "raw_summary_consistency_verified",
         "gate_disposition_inferred",
     ]:
         require(marker in ingest_text, f"ingest missing contract marker: {marker}")
 
     module = load_ingest_module()
-    audit_row = module.validate_packet(fixture_packet("audit_fixture", "synthetic_audit"), SOURCE, allow_audit_fixture=True)
+    audit_packet = fixture_packet("audit_fixture", "synthetic_audit")
+    audit_row = module.validate_packet(audit_packet, SOURCE, allow_audit_fixture=True)
     require(audit_row["gate_id"] == "T8-44", "audit helper must preserve T8-44 identity")
+
+    tampered_metric = copy.deepcopy(audit_packet)
+    tampered_metric["profile_row"]["typical_edit_p95_ms"] = 1.5
+    expect_module_rejection(module, tampered_metric, "does not match raw_samples_us")
+
+    extra_raw_sample = copy.deepcopy(audit_packet)
+    extra_raw_sample["raw_samples_us"]["late_game_edit"].append(999999)
+    expect_module_rejection(module, extra_raw_sample, "exactly sample_count values")
 
     with tempfile.TemporaryDirectory(prefix="fmd-t8-audit-") as temp_dir:
         temp = Path(temp_dir)
@@ -106,7 +128,18 @@ def main() -> None:
         require(rejected_source.returncode != 0, "wrong-source reference packet must reject")
         require(not (evidence_root / "T8-44.jsonl").exists(), "wrong-source rejection must not mutate evidence")
 
-    print("Phase 12G T8-44 acquisition audit: PASS (production D39 late-game+Stability timing runner + source pin + reference-hardware attestation + diagnostic/non-reference rejection; synthetic audit data never touched repository evidence)")
+        tampered_reference = fixture_packet("reference_run", "actual_deck_class_reference")
+        tampered_reference["profile_row"]["stability_cycle_p95_ms"] = 0.1
+        packet_path.write_text(json.dumps(tampered_reference, indent=2) + "\n", encoding="utf-8")
+        rejected_metric = subprocess.run(
+            [sys.executable, str(INGEST), "--packet", str(packet_path), "--expected-source-head", SOURCE, "--evidence-root", str(evidence_root), "--append"],
+            cwd=ROOT, capture_output=True, text=True, check=False,
+        )
+        require(rejected_metric.returncode != 0, "reference-attested packet with tampered summary must reject")
+        require("does not match raw_samples_us" in (rejected_metric.stdout + rejected_metric.stderr), "tampered summary rejection must be explicit")
+        require(not (evidence_root / "T8-44.jsonl").exists(), "tampered summary rejection must preserve evidence bytes")
+
+    print("Phase 12G T8-44 acquisition audit: PASS (source pin + reference attestation + exact raw-sample cardinality + recomputed median/p95/p99 integrity + non-reference/tamper rejection; audit data never touched repository evidence)")
 
 
 if __name__ == "__main__":
