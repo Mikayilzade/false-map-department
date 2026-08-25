@@ -7,11 +7,11 @@ import json
 import shutil
 import subprocess
 import tarfile
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 ROOT = Path(__file__).resolve().parents[1]
 SHA40 = 40
-BUNDLE_SCHEMA = "fmd.phase12g.external-acquisition-bundle.v1"
+BUNDLE_SCHEMA = "fmd.phase12g.external-acquisition-bundle.v2"
 
 REQUIRED_PATHS = (
     "IMPLEMENTATION_START_HERE.md",
@@ -75,10 +75,10 @@ def write_operator_guide(path: Path, source_head: str) -> None:
             "Keep every unobserved gate PENDING until a genuine observation is deliberately ingested and re-evaluated.",
             "",
             "## Verify first",
-            "Run `python3 BUNDLE-VERIFY.py .` from the extracted bundle root. Stop if verification fails.",
+            "Run `python3 BUNDLE-VERIFY.py .` from the bundle root before extracting the source archive. Stop if verification fails; the verifier checks file hashes plus the tar member/root/path/symlink contract.",
             "",
             "## Human field kit (E1-E6, E9-E11)",
-            "Use the archived repository at this exact source commit. Prepare the v4 field kit with `scripts/phase12g_human_field_kit.py`, transport it intact, verify with the bundled field-kit verifier, collect genuine observations, and finalize locally before repository ingest.",
+            "Use the verified archived repository at this exact source commit. Prepare the v4 field kit with `scripts/phase12g_human_field_kit.py`, transport it intact, verify with the bundled field-kit verifier, collect genuine observations, and finalize locally before repository ingest.",
             "",
             "## Marketing expectation (E8)",
             "Do not prepare E8 until all five representative asset roles exist: store_key_art, gameplay_map_world, gameplay_consequence, late_game_linked, trailer. Use `scripts/phase12g_marketing_expectation_packet.py` with this exact source SHA; respondent fields remain blank until real respondents observe the immutable asset set.",
@@ -107,6 +107,33 @@ def create_source_archive(target: Path, source_head: str) -> None:
     )
 
 
+def inspect_source_archive(path: Path, archive_root: str) -> dict:
+    required_members = {archive_root + rel for rel in REQUIRED_PATHS}
+    seen: set[str] = set()
+    member_count = 0
+    with tarfile.open(path, "r:gz") as archive:
+        for member in archive.getmembers():
+            member_count += 1
+            name = member.name
+            pure = PurePosixPath(name)
+            if pure.is_absolute() or ".." in pure.parts or not name.startswith(archive_root):
+                raise SystemExit(f"unsafe archive member path: {name}")
+            if member.issym() or member.islnk():
+                raise SystemExit(f"archive links are forbidden in acquisition bundle: {name}")
+            if member.isfile():
+                seen.add(name)
+    missing = sorted(required_members - seen)
+    if missing:
+        raise SystemExit(f"source archive missing required acquisition member(s): {missing}")
+    return {
+        "archive_root": archive_root,
+        "member_count": member_count,
+        "required_regular_files": list(REQUIRED_PATHS),
+        "forbid_links": True,
+        "forbid_absolute_or_parent_paths": True,
+    }
+
+
 def build(args: argparse.Namespace) -> None:
     source_head = validate_source_head(args.source_head)
     ensure_required_paths()
@@ -115,9 +142,11 @@ def build(args: argparse.Namespace) -> None:
         raise SystemExit("refusing to overwrite a non-empty external acquisition bundle directory")
     out.mkdir(parents=True, exist_ok=True)
 
+    archive_root = f"false-map-department-{source_head[:12]}/"
     archive_name = f"false-map-department-source-{source_head[:12]}.tar.gz"
     archive_path = out / archive_name
     create_source_archive(archive_path, source_head)
+    archive_contract = inspect_source_archive(archive_path, archive_root)
     guide_path = out / "OPERATOR-GUIDE.md"
     write_operator_guide(guide_path, source_head)
     verifier_path = out / "BUNDLE-VERIFY.py"
@@ -132,14 +161,14 @@ def build(args: argparse.Namespace) -> None:
         "schema": BUNDLE_SCHEMA,
         "phase": "12G",
         "source_head": source_head,
-        "archive_root": f"false-map-department-{source_head[:12]}/",
+        "archive_contract": archive_contract,
         "files": files,
         "evidence_appended": False,
         "gate_dispositions_changed": False,
         "evidence_boundary": "Portable acquisition material only; no human, market, accessibility-review or Deck-class empirical outcome is inferred by bundle creation or verification.",
     }
     (out / "bundle-manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(json.dumps({"ok": True, "source_head": source_head, "output": str(out), "file_count": len(files)}, sort_keys=True))
+    print(json.dumps({"ok": True, "source_head": source_head, "output": str(out), "file_count": len(files), "archive_member_count": archive_contract["member_count"]}, sort_keys=True))
 
 
 def main() -> None:
