@@ -179,22 +179,25 @@ def main() -> None:
                 raise SystemExit(f"fresh source binding is not byte-identical: {bundle_path}")
 
         # Recompute the ordinary file hash around a modified standalone finalizer.
-        # The independent archive binding must still reject it.
+        # The independent archive binding must still reject it. Because this fixture
+        # deliberately changes byte length, size mismatch is the earliest valid
+        # source-binding rejection and is intentionally accepted here.
         finalizer = bundle / "FIELD-KIT-FINALIZE.py"
         pristine_finalizer = finalizer.read_bytes()
         finalizer.write_bytes(pristine_finalizer + b"\n# transport tamper\n")
         refresh_file_row(manifest_path, finalizer)
-        run_rejected([sys.executable, str(VERIFY), str(bundle)], "bundle_source_binding_hash_mismatch")
+        run_rejected([sys.executable, str(VERIFY), str(bundle)], "bundle_source_binding_size_mismatch")
         finalizer.write_bytes(pristine_finalizer)
         manifest_path.write_text(original_manifest, encoding="utf-8")
 
         # Recompute the archive's ordinary hash after changing the source-side
-        # return instructions. Root/archive equality must still reject it.
+        # return instructions. Root/archive equality must still reject it. Again,
+        # the changed length makes the fail-closed size check the first rejection.
         return_member = expected_root + EXPECTED_BINDINGS["RETURN-INGEST.md"]
         source_return = archive_bytes(archive, return_member)
         rewrite_archive_member(archive, return_member, source_return + b"\ntransport tamper\n")
         refresh_archive_manifest(manifest_path, archive)
-        run_rejected([sys.executable, str(VERIFY), str(bundle)], "bundle_source_binding_hash_mismatch")
+        run_rejected([sys.executable, str(VERIFY), str(bundle)], "bundle_source_binding_size_mismatch")
         shutil.copy2(pristine_archive, archive)
         manifest_path.write_text(original_manifest, encoding="utf-8")
 
