@@ -17,8 +17,8 @@ def fail(message: str) -> None:
     raise SystemExit(f"PHASE12G FIELD KIT AUDIT FAIL: {message}")
 
 
-def run(args: list[str], expect_ok: bool = True) -> subprocess.CompletedProcess[str]:
-    result = subprocess.run(args, cwd=ROOT, text=True, capture_output=True)
+def run(args: list[str], expect_ok: bool = True, cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
+    result = subprocess.run(args, cwd=cwd or ROOT, text=True, capture_output=True)
     if expect_ok and result.returncode != 0:
         fail(f"command failed unexpectedly: {' '.join(args)}\n{result.stdout}\n{result.stderr}")
     if not expect_ok and result.returncode == 0:
@@ -56,10 +56,12 @@ def main() -> None:
         summary = json.loads(prepared.stdout)
         if summary.get("status") != "PREPARED" or summary.get("repository_evidence_appended") is not False:
             fail("prepare must report a non-evidence PREPARED kit")
+        if summary.get("offline_verifier_bundled") is not True:
+            fail("prepare must report the self-contained verifier bundle")
 
         manifest = load_json(original / "field-kit-manifest.json")
-        if manifest.get("field_kit_version") != 2 or manifest.get("source_head") != SOURCE_HEAD:
-            fail("field kit must pin exact v2 source-head provenance")
+        if manifest.get("field_kit_version") != 3 or manifest.get("source_head") != SOURCE_HEAD:
+            fail("field kit must pin exact v3 source-head provenance")
         if manifest.get("human_gates") != ["E1", "E2", "E3", "E4", "E5", "E6", "E9", "E10", "E11"]:
             fail("field kit must cover exact real-human acquisition gates")
         if manifest.get("prepared_packets_are_not_evidence") is not True:
@@ -77,38 +79,68 @@ def main() -> None:
                 fail("field-kit batch manifests must be relative")
             if len(str(manifest[section].get("batch_manifest_sha256", ""))) != 64:
                 fail("field-kit batch manifest must be hash-pinned")
+        verifier_contract = manifest.get("offline_verifier", {})
+        if not isinstance(verifier_contract, dict):
+            fail("offline verifier manifest contract must be present")
+        if verifier_contract.get("path") != "FIELD-KIT-VERIFY.py":
+            fail("offline verifier must use the portable root-relative path")
+        if len(str(verifier_contract.get("sha256", ""))) != 64:
+            fail("offline verifier bytes must be SHA-256 pinned")
+        if verifier_contract.get("requires_repository_checkout") is not False:
+            fail("offline verifier must explicitly require no repository checkout")
+        verifier_original = original / "FIELD-KIT-VERIFY.py"
+        if not verifier_original.exists():
+            fail("prepared kit must physically contain the offline verifier")
+        instructions = (original / "FIELD-KIT-INSTRUCTIONS.txt").read_text(encoding="utf-8")
+        if "python3 FIELD-KIT-VERIFY.py --kit-dir ." not in instructions:
+            fail("field-kit instructions must expose the offline integrity command")
 
         # The kit must genuinely survive relocation with the original path removed.
         relocated = root / "kit-relocated"
         shutil.copytree(original, relocated)
         shutil.rmtree(original)
+        verifier = relocated / "FIELD-KIT-VERIFY.py"
+        offline = run([sys.executable, str(verifier), "--kit-dir", "."], cwd=relocated)
+        offline_summary = json.loads(offline.stdout)
+        if offline_summary.get("status") != "VERIFIED_OFFLINE" or offline_summary.get("portable_paths_verified") is not True:
+            fail("relocated kit must verify using only its bundled verifier")
+        if offline_summary.get("repository_evidence_appended") is not False:
+            fail("offline verification must never append evidence")
+
+        # Repository-side verify deliberately delegates to the same hash-pinned bundled verifier.
         verified = run([sys.executable, str(TOOL), "verify", "--kit-dir", str(relocated)])
         verify_summary = json.loads(verified.stdout)
-        if verify_summary.get("status") != "VERIFIED" or verify_summary.get("portable_paths_verified") is not True:
-            fail("relocated untouched field kit must verify as portable")
-        if verify_summary.get("repository_evidence_appended") is not False:
-            fail("verification must never append evidence")
+        if verify_summary.get("status") != "VERIFIED" or verify_summary.get("offline_verifier_used") is not True:
+            fail("repository verify must consume the bundled offline verifier")
 
         manifest = load_json(relocated / "field-kit-manifest.json")
         first_manifest_path = resolve_relative(relocated, manifest["first_session"]["batch_manifest"])
         first_manifest = load_json(first_manifest_path)
         first_session_dir = resolve_relative(first_manifest_path.parent, first_manifest["packets"][0]["session_dir"])
 
-        # Human observation fields may legitimately change; verify must still accept them.
+        # Human observation fields may legitimately change; offline verifier must still accept them.
         observer_path = first_session_dir / "observer.json"
         observer = load_json(observer_path)
         observer["naive"] = True
         observer_path.write_text(json.dumps(observer, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        run([sys.executable, str(TOOL), "verify", "--kit-dir", str(relocated)])
+        run([sys.executable, str(verifier), "--kit-dir", "."], cwd=relocated)
 
-        # Immutable packet identity/build metadata must be pinned. Tampering is rejected.
+        # Immutable packet identity/build metadata must be pinned. Tampering is rejected offline.
         session_manifest_path = first_session_dir / "session-manifest.json"
         session_manifest = load_json(session_manifest_path)
+        original_session_manifest = dict(session_manifest)
         session_manifest["demo_build_id"] = "tampered-build"
         session_manifest_path.write_text(json.dumps(session_manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        rejected = run([sys.executable, str(TOOL), "verify", "--kit-dir", str(relocated)], expect_ok=False)
+        rejected = run([sys.executable, str(verifier), "--kit-dir", "."], expect_ok=False, cwd=relocated)
         if "immutable contract changed" not in (rejected.stdout + rejected.stderr):
-            fail("tampered immutable packet contract must fail with an integrity reason")
+            fail("tampered immutable packet contract must fail offline with an integrity reason")
+        session_manifest_path.write_text(json.dumps(original_session_manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+        # The repository-side entrypoint must reject altered verifier bytes before executing them.
+        verifier.write_text(verifier.read_text(encoding="utf-8") + "\n# tampered\n", encoding="utf-8")
+        rejected_verifier = run([sys.executable, str(TOOL), "verify", "--kit-dir", str(relocated)], expect_ok=False)
+        if "offline verifier hash mismatch" not in (rejected_verifier.stdout + rejected_verifier.stderr):
+            fail("tampered bundled verifier must be rejected by its manifest hash")
 
         invalid = root / "invalid-head-kit"
         rejected_head = run([
@@ -127,7 +159,7 @@ def main() -> None:
         if (evidence_root / "FIELD-KIT.jsonl").exists():
             fail("field kit audit must never invent repository evidence")
 
-    print("Phase 12G human field-kit audit: PASS (E1-E6/E9-E11 relocatable packet orchestration + exact 40-char source pinning + manifest hash provenance + mutable observer allowance + immutable tamper rejection + no evidence append)")
+    print("Phase 12G human field-kit audit: PASS (E1-E6/E9-E11 portable packets + self-contained relocated verifier + exact source pinning + nested/immutable tamper rejection + mutable observer allowance + no evidence append)")
 
 
 if __name__ == "__main__":
