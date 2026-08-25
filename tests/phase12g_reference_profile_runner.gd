@@ -14,7 +14,7 @@ func _initialize() -> void:
 	var attestation := OS.get_environment("FMD_T8_REFERENCE_ATTESTATION").strip_edges()
 	var sample_count := int(OS.get_environment("FMD_T8_SAMPLE_COUNT"))
 	if dossier_id.is_empty():
-		dossier_id = "D40"
+		dossier_id = "D39"
 	if disposition.is_empty():
 		disposition = "diagnostic_run"
 	if sample_count <= 0:
