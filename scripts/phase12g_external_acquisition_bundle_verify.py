@@ -4,9 +4,10 @@ from __future__ import annotations
 import hashlib
 import json
 import sys
-from pathlib import Path
+import tarfile
+from pathlib import Path, PurePosixPath
 
-SCHEMA = "fmd.phase12g.external-acquisition-bundle.v1"
+SCHEMA = "fmd.phase12g.external-acquisition-bundle.v2"
 
 
 def sha256(path: Path) -> str:
@@ -20,6 +21,47 @@ def sha256(path: Path) -> str:
 def fail(code: str, detail: str = "") -> None:
     print(json.dumps({"ok": False, "code": code, "detail": detail}, sort_keys=True))
     raise SystemExit(2)
+
+
+def verify_archive(path: Path, contract: dict) -> dict:
+    archive_root = str(contract.get("archive_root", ""))
+    if not archive_root or archive_root.startswith("/") or ".." in PurePosixPath(archive_root).parts or not archive_root.endswith("/"):
+        fail("bundle_archive_root_invalid", archive_root)
+    required = contract.get("required_regular_files", [])
+    if not isinstance(required, list) or not required:
+        fail("bundle_archive_required_files_missing")
+    expected_count = int(contract.get("member_count", -1))
+    if expected_count < 1:
+        fail("bundle_archive_member_count_invalid", str(expected_count))
+    if contract.get("forbid_links") is not True or contract.get("forbid_absolute_or_parent_paths") is not True:
+        fail("bundle_archive_safety_contract_invalid")
+
+    required_members = {archive_root + str(rel) for rel in required}
+    seen_files: set[str] = set()
+    member_count = 0
+    try:
+        with tarfile.open(path, "r:gz") as archive:
+            for member in archive.getmembers():
+                member_count += 1
+                name = member.name
+                pure = PurePosixPath(name)
+                if pure.is_absolute() or ".." in pure.parts:
+                    fail("bundle_archive_unsafe_member_path", name)
+                if not name.startswith(archive_root):
+                    fail("bundle_archive_member_outside_root", name)
+                if member.issym() or member.islnk():
+                    fail("bundle_archive_link_forbidden", name)
+                if member.isfile():
+                    seen_files.add(name)
+    except tarfile.TarError as exc:
+        fail("bundle_archive_malformed", str(exc))
+
+    if member_count != expected_count:
+        fail("bundle_archive_member_count_changed", f"expected={expected_count}, actual={member_count}")
+    missing = sorted(required_members - seen_files)
+    if missing:
+        fail("bundle_archive_required_member_missing", ",".join(missing))
+    return {"archive_root": archive_root, "archive_member_count": member_count, "required_archive_files": len(required_members)}
 
 
 def verify(root: Path) -> dict:
@@ -64,7 +106,18 @@ def verify(root: Path) -> dict:
     archives = [name for name in seen if name.endswith(".tar.gz")]
     if len(archives) != 1:
         fail("bundle_source_archive_count_invalid", str(len(archives)))
-    return {"ok": True, "source_head": source_head, "verified_files": len(rows), "source_archive": archives[0], "evidence_appended": False}
+    archive_name = archives[0]
+    archive_result = verify_archive(root / archive_name, manifest.get("archive_contract", {}))
+    return {
+        "ok": True,
+        "source_head": source_head,
+        "verified_files": len(rows),
+        "source_archive": archive_name,
+        "archive_root": archive_result["archive_root"],
+        "archive_member_count": archive_result["archive_member_count"],
+        "required_archive_files": archive_result["required_archive_files"],
+        "evidence_appended": False,
+    }
 
 
 def main() -> None:
