@@ -12,7 +12,7 @@ REGISTRY = ROOT / "empirical/phase12g_gate_registry.json"
 CAMPAIGN = ROOT / "content/campaign"
 REMIX = ROOT / "content/remix"
 DEFAULT_ROOT = ROOT / ".phase12g-mature-sessions"
-BATCH_VERSION = 1
+BATCH_VERSION = 2
 MATURE_GATES = ("E3", "E4", "E5", "E6", "E9", "E10")
 
 
@@ -34,6 +34,12 @@ def write_json(path: Path, payload: dict) -> None:
 
 def write_jsonl(path: Path, rows: list[dict]) -> None:
     path.write_text("".join(json.dumps(row, sort_keys=True) + "\n" for row in rows), encoding="utf-8")
+
+
+def resolve_manifest_path(manifest_path: Path, value: object) -> Path:
+    raw = Path(str(value))
+    candidate = raw if raw.is_absolute() else manifest_path.parent / raw
+    return candidate.resolve()
 
 
 def campaign_definition(dossier_id: str) -> dict:
@@ -74,8 +80,6 @@ def remix_pairs() -> list[tuple[str, str]]:
 def e10_pairs(archetypes: list[str]) -> list[tuple[str, str]]:
     if len(archetypes) < 2:
         fail("E10 requires at least two taught archetypes")
-    # Deterministic ring coverage: every taught archetype appears in two comparisons
-    # without turning a human acquisition packet into a 45-pair exhaustive burden.
     return [(archetypes[index], archetypes[(index + 1) % len(archetypes)]) for index in range(len(archetypes))]
 
 
@@ -247,13 +251,14 @@ def cmd_prepare(args: argparse.Namespace) -> None:
         write_json(packet_dir / "observer-packet.json", packet)
         packets.append({
             "tester_id": tester_id,
-            "packet_dir": str(packet_dir),
-            "observer_packet": str(packet_dir / "observer-packet.json"),
-            "finalize_command": f"python3 scripts/phase12g_mature_session_batch.py finalize --packet-dir {packet_dir}",
+            "packet_dir": tester_id,
+            "observer_packet": f"{tester_id}/observer-packet.json",
+            "finalize_command": f"python3 scripts/phase12g_mature_session_batch.py finalize --packet-dir <BATCH_DIR>/{tester_id}",
         })
     manifest = {
         "batch_version": BATCH_VERSION,
         "build_id": args.build_id,
+        "path_contract": "packet_paths_relative_to_batch_manifest",
         "packet_count": len(packets),
         "packets": packets,
         "human_outcomes_required": True,
@@ -266,10 +271,11 @@ def cmd_prepare(args: argparse.Namespace) -> None:
 
 
 def cmd_status(args: argparse.Namespace) -> None:
-    manifest = load_json(Path(args.manifest).resolve())
+    manifest_path = Path(args.manifest).resolve()
+    manifest = load_json(manifest_path)
     rows: list[dict] = []
     for packet in manifest.get("packets", []):
-        packet_dir = Path(str(packet["packet_dir"]))
+        packet_dir = resolve_manifest_path(manifest_path, packet["packet_dir"])
         status = packet_status(packet_dir)
         status["tester_id"] = str(packet.get("tester_id", ""))
         status["packet_dir"] = str(packet_dir)
