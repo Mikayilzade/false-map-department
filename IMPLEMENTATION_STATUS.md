@@ -21,7 +21,7 @@ Repository: `Mikayilzade/false-map-department`
 ## Latest autonomous run — 2026-08-25
 
 ### Phase / subphase
-**12G Empirical Design Gates / E8 marketing-expectation acquisition enablement — IMPLEMENTED / EXACT-HEAD BASELINE IN PROGRESS**
+**12G Empirical Design Gates / E8 marketing-expectation acquisition enablement — EXACT-HEAD RUNTIME GREEN**
 
 ### Progress saved this run
 - Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, this status file, `GAME2_PHASE11_FINAL_FREEZE.md`, `GAME2_ECONOMY_COMMERCIAL.md`, `empirical/PHASE12G_PROTOCOL.md`, `empirical/phase12g_gate_registry.json` and the current Phase-12G precondition runner before changing acquisition tooling.
@@ -44,15 +44,17 @@ Repository: `Mikayilzade/false-map-department`
 - Added `empirical/PHASE12G_MARKETING_EXPECTATION_PROTOCOL.md` defining the representative asset roles, respondent procedure, anti-coaching rule, evidence boundary and deliberate append requirement.
 - Wired the E8 audit into `scripts/run_phase12g_preconditions.sh`; no new workflow, polling loop or speculative CI rerun mechanism was created.
 - E8 acquisition implementation head: `1776832505b57e42b302674bfa3a9b9c6743617d`.
-- Existing notification-safe baseline run **32817628341** targets that exact head. At this status write it is **IN PROGRESS**; therefore this run does not yet claim the new E8 acquisition path is runtime-green.
+- Notification-safe baseline run **32817628341** for that exact head finished **SUCCESS**.
+- Committed run metadata records `head_sha=1776832505b57e42b302674bfa3a9b9c6743617d`; committed `result.json` records `result=PASS`, `runtime_rc=0`, `phase12g_instrumentation_rc=0`, `ci_policy_rc=0`, `bootstrap_preflight_rc=0` and `phase12a_contract_rc=0`.
+- Committed `marketing-expectation-audit.log` records **PASS** for representative store+trailer completeness, capability-safe claims, blank-human anti-fabrication and local-only finalization.
 - No human, market, accessibility-review, pricing or physical Deck outcome was fabricated or inferred.
 
 ### Current validated empirical state
 - **E7 accessibility/device sweep: PASS** — exhaustive **285/285** frozen matrix = 57 shippable IDs × 5 scenarios.
 - **E1, E2, E3, E4, E5, E6, E8, E9, E10, E11, E12, T8-44: PENDING**.
 - First-session acquisition tooling for E1/E2/E11 is exact-head runtime-green; genuine naive-human observations are missing.
-- Mature-human acquisition tooling for E3-E6/E9-E10 is now exact-head runtime-green from run **32813276620**; genuine mature-human observations are missing.
-- E8 now has hardened acquisition tooling, but the gate still requires actual representative store/trailer assets plus real respondent observations before any disposition.
+- Mature-human acquisition tooling for E3-E6/E9-E10 is exact-head runtime-green from run **32813276620**; genuine mature-human observations are missing.
+- E8 acquisition tooling is exact-head runtime-green from run **32817628341**, but the empirical gate still requires actual representative store/trailer assets plus real respondent observations before any disposition.
 - T8-44 still requires actual Deck-class reference hardware.
 - E12 remains intentionally near-release.
 - 12G remains **IN PROGRESS** and 12H remains prohibited.
@@ -66,14 +68,14 @@ Repository: `Mikayilzade/false-map-department`
 
 ### Validation / evidence
 - Previous handoff exact-head evidence: run **32813276620**, head `85193fbbf60e35c593d06396512c688df0b1ec88`, **PASS/SUCCESS** with committed exact-head metadata and `result=PASS`.
+- Current exact-head evidence: run **32817628341**, head `1776832505b57e42b302674bfa3a9b9c6743617d`, **PASS/SUCCESS**.
+- `runtime-evidence/phase12c/latest/run-metadata.txt` identifies that exact run/head.
+- `runtime-evidence/phase12c/latest/result.json`: `result=PASS`, `runtime_rc=0`, `phase12g_instrumentation_rc=0`, `ci_policy_rc=0`, `bootstrap_preflight_rc=0`, `phase12a_contract_rc=0`.
+- `runtime-evidence/phase12c/latest/phase12g/marketing-expectation-audit.log`: **PASS**.
 - E8 implementation diff is restricted to Phase-12G acquisition tooling/protocol/precondition wiring; no domain, gameplay, content, progression, persistence or presentation behavior changed.
-- Current automatic baseline: run **32817628341**, exact target head `1776832505b57e42b302674bfa3a9b9c6743617d`.
-- Current observed state: **IN PROGRESS / conclusion not yet available**.
-- Therefore E8 acquisition tooling is saved and under the repository's normal exact-head validation, but is not yet recorded as runtime-green.
 
 ### Failures / blockers
-- **No implementation blocker discovered before/current CI execution.**
-- No duplicate run was started; the existing notification-safe runner is being used once for this coherent increment.
+- **No implementation blocker in this increment.**
 - Remaining 12G blockers are evidence-source blockers: real naive participants, real mature participants, real representative E8 store/trailer assets + respondents, near-release E12 context, and actual Deck-class hardware.
 
 ### Canonical/design impact
@@ -85,9 +87,8 @@ Repository: `Mikayilzade/false-map-department`
 ## NEXT ACTION
 Continue **12G real evidence acquisition/enabling only**; never fabricate missing outcomes.
 
-1. First inspect run **32817628341** and committed exact-head evidence for `1776832505b57e42b302674bfa3a9b9c6743617d`. If it failed, repair the concrete E8/precondition failure with one coherent change and rerun once through the normal notification-safe path. If it passed, record the exact evidence commit/result.
-2. Keep E7 frozen as the current **285/285 PASS** regression baseline. Reacquire only affected E7 signatures if later presentation/device code changes.
-3. Acquire genuine naive-human sessions for **E1 + E2 + E11** and mature-human sessions for **E3-E6 + E9-E10** using the hardened packet flows; planned/blank packets remain non-evidence.
-4. For **E8**, create the first packet only when actual representative store key art, real map/world gameplay, real consequence gameplay, real late linked gameplay and a representative trailer exist. Then collect real respondent outcomes on the exact hashed asset version; until then E8 remains PENDING.
-5. Run **T8-44 only on actual Deck-class reference hardware**. Evaluate **E12** only near release with current market comparables and near-final build scope.
-6. Do not start **12H** until every remaining 12G gate has genuine evidence-backed disposition or an explicit release blocker.
+1. Keep E7 frozen as the current **285/285 PASS** regression baseline. Reacquire only affected E7 signatures if later presentation/device code changes.
+2. Acquire genuine naive-human sessions for **E1 + E2 + E11** and mature-human sessions for **E3-E6 + E9-E10** using the hardened packet flows; planned/blank packets remain non-evidence.
+3. For **E8**, create the first packet only when actual representative store key art, real map/world gameplay, real consequence gameplay, real late linked gameplay and a representative trailer exist. Then collect real respondent outcomes on the exact hashed asset version; until then E8 remains PENDING.
+4. Run **T8-44 only on actual Deck-class reference hardware**. Evaluate **E12** only near release with current market comparables and near-final build scope.
+5. Do not start **12H** until every remaining 12G gate has genuine evidence-backed disposition or an explicit release blocker.
