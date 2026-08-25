@@ -14,6 +14,7 @@ COLLECTOR = SCRIPT_DIR / "phase12g_collect_completed_rows.py"
 SHA40 = re.compile(r"^[0-9a-f]{40}$")
 
 sys.path.insert(0, str(SCRIPT_DIR))
+import phase12g_marketing_completion_receipt as completion_receipt  # noqa: E402
 import phase12g_marketing_expectation_packet as packet_tools  # noqa: E402
 import phase12g_provenance as provenance  # noqa: E402
 
@@ -34,7 +35,7 @@ def load_jsonl(path: Path) -> list[dict]:
     return rows
 
 
-def validate_packet(root: Path, expected_source_head: str) -> tuple[dict, dict, Path, list[dict]]:
+def validate_packet(root: Path, expected_source_head: str) -> tuple[dict, dict, Path, list[dict], dict]:
     expected = expected_source_head.strip().lower()
     if not SHA40.fullmatch(expected):
         raise SystemExit("expected-source-head must be an exact 40-character lowercase Git commit SHA")
@@ -51,6 +52,10 @@ def validate_packet(root: Path, expected_source_head: str) -> tuple[dict, dict, 
     completed_path = root / "completed-E8.jsonl"
     if not completed_path.is_file():
         raise SystemExit("E8 packet has not been finalized: completed-E8.jsonl is missing")
+    receipt_result = completion_receipt.verify_receipt(root, asset_set, respondents, completed_path)
+    if not receipt_result.get("ok", False):
+        raise SystemExit(f"E8 completion receipt rejected finalized return: {receipt_result}")
+
     completed = load_jsonl(completed_path)
     prepared = respondents.get("rows", [])
     if not isinstance(prepared, list) or not prepared:
@@ -96,7 +101,7 @@ def validate_packet(root: Path, expected_source_head: str) -> tuple[dict, dict, 
         )
     except ValueError as exc:
         raise SystemExit(f"E8 evidence provenance invalid: {exc}") from exc
-    return asset_set, respondents, completed_path, collector_rows
+    return asset_set, respondents, completed_path, collector_rows, receipt_result
 
 
 def main() -> None:
@@ -110,7 +115,7 @@ def main() -> None:
     args = parser.parse_args()
 
     root = args.packet.resolve()
-    asset_set, respondents, _, rows = validate_packet(root, args.expected_source_head)
+    asset_set, respondents, _, rows, receipt_result = validate_packet(root, args.expected_source_head)
 
     staged = root / ".repository-ingest-E8.jsonl"
     staged.write_text("".join(json.dumps(row, sort_keys=True, ensure_ascii=False) + "\n" for row in rows), encoding="utf-8")
@@ -140,6 +145,8 @@ def main() -> None:
         "respondent_count": len(respondents.get("rows", [])),
         "frozen_assets_verified": True,
         "respondent_packet_match_verified": True,
+        "completion_receipt_verified": True,
+        "completion_receipt_sha256": receipt_result.get("receipt_sha256"),
         "provenance_persisted_in_rows": True,
         "evidence_boundary": "Validated respondent observations only; no market outcome or E8 disposition was inferred.",
     })
