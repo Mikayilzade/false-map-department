@@ -56,7 +56,7 @@ def main() -> None:
         session_dir = (kit_root / "first-session" / str(batch["packets"][0]["session_dir"])).resolve()
         session_manifest = load(session_dir / "session-manifest.json")
         completed = session_dir / "completed-E1.jsonl"
-        write_jsonl(completed, [{
+        observed_row = {
             "schema_version": 1,
             "gate_id": "E1",
             "tester_id": session_manifest["tester_id"],
@@ -64,7 +64,8 @@ def main() -> None:
             "session_id": session_manifest["session_id"],
             "understood_within_seconds": 42.0,
             "success": True,
-        }])
+        }
+        write_jsonl(completed, [observed_row])
 
         dry = run([
             sys.executable, str(INGEST),
@@ -116,7 +117,22 @@ def main() -> None:
         if len(target.read_text(encoding="utf-8").splitlines()) != 1:
             fail("repeat append must not duplicate evidence")
 
-    print("Phase 12G field-kit ingest audit: PASS (offline verification + exact source pin + dry-run default + deliberate append + idempotent rows)")
+        evidence_before_duplicate_attack = target.read_bytes()
+        write_jsonl(completed, [observed_row, observed_row])
+        duplicate = run([
+            sys.executable, str(INGEST),
+            "--kit-dir", str(kit_root),
+            "--expected-source-head", SOURCE_HEAD,
+            "--evidence-root", str(evidence_root),
+            "--append",
+        ], ok=False)
+        duplicate_output = duplicate.stdout + duplicate.stderr
+        if "duplicate canonical observation rows" not in duplicate_output:
+            fail("duplicate observations within one returned JSONL must reject explicitly")
+        if target.read_bytes() != evidence_before_duplicate_attack:
+            fail("duplicate-input rejection must preserve existing evidence bytes exactly")
+
+    print("Phase 12G field-kit ingest audit: PASS (offline verification + exact source pin + dry-run default + deliberate append + cross-run idempotency + duplicate-input rejection with byte-preserving failure)")
 
 
 if __name__ == "__main__":
