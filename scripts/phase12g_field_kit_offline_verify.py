@@ -108,8 +108,8 @@ def verify(kit_root: Path) -> dict:
     kit_root = kit_root.resolve()
     manifest_path = kit_root / "field-kit-manifest.json"
     manifest = load_json(manifest_path)
-    if int(manifest.get("field_kit_version", 0)) < 3:
-        fail("field kit version does not contain the offline-verifier contract")
+    if int(manifest.get("field_kit_version", 0)) < 4:
+        fail("field kit version does not contain the offline finalization contract")
     saved_hash = str(manifest.get("contract_hash", ""))
     clean_manifest = dict(manifest)
     clean_manifest.pop("contract_hash", None)
@@ -129,6 +129,19 @@ def verify(kit_root: Path) -> dict:
         fail("running verifier does not match manifest-pinned offline verifier path")
     if sha256_file(verifier_path) != str(verifier.get("sha256", "")):
         fail("offline verifier hash mismatch")
+
+    finalizer = manifest.get("offline_finalizer", {})
+    if not isinstance(finalizer, dict):
+        fail("offline_finalizer contract missing")
+    finalizer_path = resolve_relative(kit_root, finalizer.get("path", ""), "offline finalizer path")
+    if not finalizer_path.exists():
+        fail("bundled offline finalizer is missing")
+    if sha256_file(finalizer_path) != str(finalizer.get("sha256", "")):
+        fail("offline finalizer hash mismatch")
+    if finalizer.get("requires_repository_checkout") is not False:
+        fail("offline finalizer repository-dependency boundary changed")
+    if finalizer.get("appends_repository_evidence") is not False:
+        fail("offline finalizer evidence-append boundary changed")
 
     expected_gates = ["E1", "E2", "E3", "E4", "E5", "E6", "E9", "E10", "E11"]
     if string_array(manifest.get("human_gates", []), "human_gates") != expected_gates:
@@ -193,6 +206,7 @@ def verify(kit_root: Path) -> dict:
         "first_packets": first_count,
         "mature_packets": mature_count,
         "portable_paths_verified": True,
+        "offline_finalizer_verified": True,
         "human_outcomes_inferred": False,
         "repository_evidence_appended": False,
     }
