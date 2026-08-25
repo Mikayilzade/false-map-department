@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "gate_id": "E7",
+  "scenario_id": "deck_reduced_motion",
+  "evidence_kind": "ASSISTANT_VISUAL_CAPTURE_REVIEW_NOT_HARDWARE_OR_HUMAN_GATE_DISPOSITION",
+  "reviewer_class": "assistant_visual_inspection",
+  "review_date": "2026-08-25",
+  "source": {
+    "workflow_run_id": 32795095953,
+    "source_head_sha": "b027a5632866a0e61113ed9c51f4c8f1264dcebc",
+    "evidence_commit": "e39d7adad6922e6ba9be056c8f43ba9e9411ca68",
+    "artifact_id": 9544663559,
+    "artifact_name": "phase12g-e7-live-batch",
+    "artifact_digest": "sha256:d90605d59d473d7e2a5e6ae14671bf92f74f02033b23888c8d4f869e88150b5e",
+    "capture_manifest": "runtime-evidence/phase12g/e7-live-batch/capture-manifest.json"
+  },
+  "scenario_signature": {
+    "viewport": [1280, 800],
+    "ui_scale_percent": 100,
+    "device_mode": "steam_deck_controller_1280x800",
+    "non_color": false,
+    "reduced_motion": true,
+    "no_audio": false
+  },
+  "review_method": "All 57 rendered PNGs were visually inspected in seven contact sheets, including dense late-campaign D39/D40 frames. Artifact integrity checks confirmed all 57 PNGs are exactly 1280x800; all 57 capture sidecars report reduced_motion=true, non_color=false, no_audio=false and ui_scale_percent=100.",
+  "reviewed_dossier_ids": [
+    "D01", "D02", "D03", "D04", "D05", "D06", "D07", "D08", "D09", "D10",
+    "D11", "D12", "D13", "D14", "D15", "D16", "D17", "D18", "D19", "D20",
+    "D21", "D22", "D23", "D24", "D25", "D26", "D27", "D28", "D29", "D30",
+    "D31", "D32", "D33", "D34", "D35", "D36", "D37", "D38", "D39", "D40",
+    "DEMO01", "DEMO02", "DEMO03", "DEMO04", "DEMO05",
+    "REMIX01", "REMIX02", "REMIX03", "REMIX04", "REMIX05", "REMIX06", "REMIX07", "REMIX08", "REMIX09", "REMIX10", "REMIX11", "REMIX12"
+  ],
+  "shared_checks_applied_to_every_row": [
+    "viewport_is_1280x800",
+    "title_and_scenario_header_visible",
+    "authoritative_map_panel_visible",
+    "derived_world_panel_visible",
+    "requirements_visible",
+    "candidate_controls_visible",
+    "causal_panel_visible",
+    "input_hint_and_status_visible",
+    "no_obvious_viewport_clipping",
+    "no_obvious_component_overlap",
+    "reduced_motion_scenario_label_visible"
+  ],
+  "capture_review_pass_count": 57,
+  "capture_review_fail_count": 0,
+  "interaction_acquisition": {
+    "source_manifest_status": "INTERACTION_ACQUISITION_PASS",
+    "rows": 57,
+    "interaction_pass": 57,
+    "failed_or_timeout": 0,
+    "blocked_runtime_binding": 0
+  },
+  "limitations": [
+    "Rendered Linux Xvfb capture review is not physical Steam Deck hardware evidence.",
+    "Static captures verify reduced-motion mode presentation state, not subjective comfort for human users.",
+    "This is not human accessibility, comprehension, timing, market, remix-perception, or agent-distinction evidence.",
+    "T8-44 and every human-required 12G gate remain pending until actually observed."
+  ],
+  "gate_disposition": "PENDING",
+  "remaining_e7_matrix_scenarios": ["deck_no_audio"],
+  "notes": "This review records only the observed deck_reduced_motion batch. E7 remains exhaustive-matrix PENDING until all 57x5 signatures are represented by append-only evidence and the already-reviewed base/max-UI scenarios are normalized from their exact source evidence."
+}
