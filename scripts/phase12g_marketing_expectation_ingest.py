@@ -15,6 +15,7 @@ SHA40 = re.compile(r"^[0-9a-f]{40}$")
 
 sys.path.insert(0, str(SCRIPT_DIR))
 import phase12g_marketing_expectation_packet as packet_tools  # noqa: E402
+import phase12g_provenance as provenance  # noqa: E402
 
 
 def canonical(row: dict) -> str:
@@ -86,6 +87,15 @@ def validate_packet(root: Path, expected_source_head: str) -> tuple[dict, dict, 
         out = dict(row)
         out["gate_id"] = "E8"
         collector_rows.append(out)
+    try:
+        collector_rows = provenance.enrich_rows(
+            collector_rows,
+            source_head=actual,
+            build_id=asset_set.get("build_id", ""),
+            channel="e8_marketing_packet",
+        )
+    except ValueError as exc:
+        raise SystemExit(f"E8 evidence provenance invalid: {exc}") from exc
     return asset_set, respondents, completed_path, collector_rows
 
 
@@ -130,6 +140,7 @@ def main() -> None:
         "respondent_count": len(respondents.get("rows", [])),
         "frozen_assets_verified": True,
         "respondent_packet_match_verified": True,
+        "provenance_persisted_in_rows": True,
         "evidence_boundary": "Validated respondent observations only; no market outcome or E8 disposition was inferred.",
     })
     print(json.dumps(result, indent=2, sort_keys=True))
