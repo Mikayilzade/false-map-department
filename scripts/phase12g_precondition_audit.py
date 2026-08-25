@@ -92,6 +92,12 @@ def main() -> None:
         "12G exit candidate",
         "This dashboard never upgrades missing evidence",
     ])
+    require_markers("scripts/run_phase12g_preconditions.sh", [
+        "EMPTY_EVIDENCE_ROOT",
+        "--evidence-root \"$EMPTY_EVIDENCE_ROOT\"",
+        "Expected isolated empty-evidence state (13 PENDING)",
+        "Live evidence summary must disposition exactly 13 registered gates",
+    ])
     require_markers("scripts/run_phase12a_runtime.sh", [
         "phase12e-exit-sweep-contract",
         "phase12f-exit-gate-contract",
@@ -111,7 +117,7 @@ def main() -> None:
         "T8-44",
     ])
 
-    print("Phase 12G precondition audit: PASS (E1-E12 + T8-44 registry/harness/operator workflow ready; no empirical PASS fabricated)")
+    print("Phase 12G precondition audit: PASS (E1-E12 + T8-44 registry/harness/operator workflow ready; isolated empty-evidence anti-fabrication check preserved without rejecting legitimate live evidence)")
 
 
 if __name__ == "__main__":
