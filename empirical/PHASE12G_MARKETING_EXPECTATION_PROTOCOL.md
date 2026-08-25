@@ -105,4 +105,20 @@ python3 scripts/phase12g_marketing_expectation_ingest.py \
 
 The ingest re-verifies immutable assets, exact source/build provenance, the finalization receipt, respondent/completed-row equality, duplicate/idempotency rules, and then delegates to the normal append-only evidence collector. It does not infer a market outcome or gate disposition.
 
-E8 has no frozen numeric threshold. Its PASS/FAIL/BLOCKED disposition therefore requires an explicit evidence-backed interpretation after real responses exist. Missing representative assets or respondents means **PENDING**, not FAIL and not PASS.
+## Explicit interpretation and disposition after ingest
+
+E8 has no frozen numeric threshold, so response rows alone never become PASS/FAIL automatically. After real E8 rows have been appended and deliberately reviewed, record the interpretation explicitly with the qualitative-disposition recorder:
+
+```bash
+python3 scripts/phase12g_qualitative_disposition.py E8 \
+  --status PASS \
+  --rationale "<evidence-backed interpretation of what respondents expected>" \
+  --evidence-ref "<reviewable packet/evidence reference>" \
+  --reviewer-id "<pseudonymous reviewer/operator id>"
+```
+
+The recorder refuses empty evidence and threshold-evaluated gates. It writes `empirical/evidence/dispositions.json` using schema `fmd.phase12g.qualitative-dispositions.v2` and binds the interpretation to the exact current `E8.jsonl` SHA-256 and row count. It is write-once by default; if later evidence is appended, the existing disposition becomes stale and the Phase 12G precondition path rejects it before the evidence harness/dashboard can consume it. Re-review the complete new evidence set and use `--replace` only for a deliberate replacement.
+
+Run the full Phase 12G preconditions after recording or replacing a qualitative disposition. `phase12g_qualitative_disposition_integrity.py` rejects unbound, malformed, threshold-gate, or stale qualitative dispositions. This integrity check does **not** decide the outcome and never derives a market interpretation from response values; the status/rationale/reviewer are explicit inputs from the actual review.
+
+E8 remains **PENDING** until genuine representative media exist, real respondents have supplied evidence rows, and an explicit evidence-backed interpretation has been recorded for those exact evidence bytes. Missing representative assets or respondents means PENDING, not FAIL and not PASS.
