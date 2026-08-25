@@ -108,47 +108,7 @@
             false
           ],
           [
-            "D01",
-            "steam_deck_controller_1280x800",
-            100,
-            false,
-            false,
-            true
-          ],
-          [
-            "D01",
-            "steam_deck_controller_1280x800",
-            150,
-            false,
-            false,
-            false
-          ],
-          [
             "D02",
-            "steam_deck_controller_1280x800",
-            100,
-            false,
-            false,
-            false
-          ],
-          [
-            "D02",
-            "steam_deck_controller_1280x800",
-            100,
-            false,
-            false,
-            true
-          ],
-          [
-            "D02",
-            "steam_deck_controller_1280x800",
-            150,
-            false,
-            false,
-            false
-          ],
-          [
-            "D03",
             "steam_deck_controller_1280x800",
             100,
             false,
@@ -159,14 +119,6 @@
             "D03",
             "steam_deck_controller_1280x800",
             100,
-            false,
-            false,
-            true
-          ],
-          [
-            "D03",
-            "steam_deck_controller_1280x800",
-            150,
             false,
             false,
             false
@@ -178,18 +130,66 @@
             false,
             false,
             false
+          ],
+          [
+            "D05",
+            "steam_deck_controller_1280x800",
+            100,
+            false,
+            false,
+            false
+          ],
+          [
+            "D06",
+            "steam_deck_controller_1280x800",
+            100,
+            false,
+            false,
+            false
+          ],
+          [
+            "D07",
+            "steam_deck_controller_1280x800",
+            100,
+            false,
+            false,
+            false
+          ],
+          [
+            "D08",
+            "steam_deck_controller_1280x800",
+            100,
+            false,
+            false,
+            false
+          ],
+          [
+            "D09",
+            "steam_deck_controller_1280x800",
+            100,
+            false,
+            false,
+            false
+          ],
+          [
+            "D10",
+            "steam_deck_controller_1280x800",
+            100,
+            false,
+            false,
+            false
           ]
         ],
-        "missing_unique_rows": 171,
-        "observed_unique_rows": 114,
-        "raw_evidence_rows": 114,
+        "missing_unique_rows": 57,
+        "observed_unique_rows": 228,
+        "raw_evidence_rows": 228,
         "reason": "E7 requires exhaustive shippable dossier x accessibility/device scenario coverage before disposition",
         "target": 1.0
       },
       "evidence_class": "mixed_capture_interaction",
       "gate_id": "E7",
       "name": "accessibility/device sweep",
-      "rows": 114,
+      "rows": 228,
       "status": "PENDING"
     },
     {
