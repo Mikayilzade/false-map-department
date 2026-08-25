@@ -13,7 +13,8 @@ ROOT = Path(__file__).resolve().parents[1]
 FIRST_BATCH = ROOT / "scripts/phase12g_first_session_batch.py"
 MATURE_BATCH = ROOT / "scripts/phase12g_mature_session_batch.py"
 OFFLINE_VERIFIER = ROOT / "scripts/phase12g_field_kit_offline_verify.py"
-KIT_VERSION = 3
+OFFLINE_FINALIZER = ROOT / "scripts/phase12g_field_kit_offline_finalize.py"
+KIT_VERSION = 4
 HUMAN_GATES = ["E1", "E2", "E3", "E4", "E5", "E6", "E9", "E10", "E11"]
 
 
@@ -131,6 +132,8 @@ def cmd_prepare(args: argparse.Namespace) -> None:
         fail("build IDs must be non-empty")
     if not OFFLINE_VERIFIER.exists():
         fail("offline field-kit verifier source is missing")
+    if not OFFLINE_FINALIZER.exists():
+        fail("offline field-kit finalizer source is missing")
 
     kit_root = Path(args.output_dir).resolve()
     if (kit_root / "field-kit-manifest.json").exists():
@@ -173,7 +176,9 @@ def cmd_prepare(args: argparse.Namespace) -> None:
 
     kit_root.mkdir(parents=True, exist_ok=True)
     bundled_verifier = kit_root / "FIELD-KIT-VERIFY.py"
+    bundled_finalizer = kit_root / "FIELD-KIT-FINALIZE.py"
     shutil.copy2(OFFLINE_VERIFIER, bundled_verifier)
+    shutil.copy2(OFFLINE_FINALIZER, bundled_finalizer)
 
     manifest = {
         "field_kit_version": KIT_VERSION,
@@ -186,6 +191,12 @@ def cmd_prepare(args: argparse.Namespace) -> None:
             "path": "FIELD-KIT-VERIFY.py",
             "sha256": sha256_file(bundled_verifier),
             "requires_repository_checkout": False,
+        },
+        "offline_finalizer": {
+            "path": "FIELD-KIT-FINALIZE.py",
+            "sha256": sha256_file(bundled_finalizer),
+            "requires_repository_checkout": False,
+            "appends_repository_evidence": False,
         },
         "first_session": {
             "batch_manifest": "first-session/batch-manifest.json",
@@ -211,9 +222,13 @@ def cmd_prepare(args: argparse.Namespace) -> None:
         "This directory contains blank acquisition packets, not empirical evidence.\n"
         "The entire directory may be moved/copied intact; nested packet paths are manifest-relative.\n"
         "Integrity can be checked without a repository checkout: python3 FIELD-KIT-VERIFY.py --kit-dir .\n"
-        "Use the repository first-session and mature-session protocols without coaching when running/finalizing sessions.\n"
-        "After real observations, run the offline verifier, finalize locally with the matching source-head repository tools, then validate completed rows.\n"
-        "Appending to empirical/evidence is always a separate deliberate step.\n",
+        "Run genuine sessions and record observer fields without coaching. Prepared templates remain non-evidence.\n"
+        "After real observations, finalize locally without a repository checkout:\n"
+        "  python3 FIELD-KIT-FINALIZE.py --kit-dir . --first-session <SESSION_ID>\n"
+        "  python3 FIELD-KIT-FINALIZE.py --kit-dir . --mature-tester <TESTER_ID>\n"
+        "The bundled finalizer verifies kit integrity first and only writes completed-*.jsonl inside the kit.\n"
+        "It never appends repository evidence and never infers human outcomes.\n"
+        "After local finalization, return the intact kit to the matching source-head repository, validate completed rows, and append only through a deliberate repository command.\n",
         encoding="utf-8",
     )
     print(json.dumps({
@@ -222,6 +237,7 @@ def cmd_prepare(args: argparse.Namespace) -> None:
         "first_packets": len(first_packets),
         "mature_packets": len(mature_packets),
         "offline_verifier_bundled": True,
+        "offline_finalizer_bundled": True,
         "human_outcomes_inferred": False,
         "repository_evidence_appended": False,
         "manifest": str(kit_root / "field-kit-manifest.json"),
