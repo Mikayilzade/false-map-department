@@ -9,6 +9,8 @@ import shutil
 from pathlib import Path
 from typing import Any
 
+import phase12g_marketing_completion_receipt as completion_receipt
+
 REQUIRED_ASSET_ROLES = (
     "store_key_art",
     "gameplay_map_world",
@@ -227,7 +229,21 @@ def status(args: argparse.Namespace) -> None:
         for row in rows
         if all(row.get(key) is not None for key in ("expected_play_category", "freeform_builder_expectation", "notes"))
     )
-    if completed == 0:
+    completed_path = root / "completed-E8.jsonl"
+    receipt_path = root / completion_receipt.RECEIPT_FILENAME
+    receipt_verified = False
+    if completed_path.exists() or receipt_path.exists():
+        receipt_result = completion_receipt.verify_receipt(root, asset_set, packet, completed_path)
+        if not receipt_result.get("ok", False):
+            print(json.dumps({
+                "status": "INVALID_PACKET",
+                "reason": f"finalized E8 return integrity failure: {receipt_result}",
+                "evidence_appended": False,
+            }, sort_keys=True))
+            return
+        state = "FINALIZED"
+        receipt_verified = True
+    elif completed == 0:
         state = "PREPARED"
     elif completed < len(rows):
         state = "PARTIALLY_OBSERVED"
@@ -240,6 +256,7 @@ def status(args: argparse.Namespace) -> None:
         "asset_version": asset_set.get("asset_version"),
         "source_head": asset_set.get("source_head"),
         "frozen_assets_verified": True,
+        "completion_receipt_verified": receipt_verified,
         "evidence_appended": False,
     }, sort_keys=True))
 
@@ -249,6 +266,10 @@ def finalize(args: argparse.Namespace) -> None:
     asset_set, packet = load_and_verify_packet(root)
     if not asset_set.get("representative_asset_attestation", False):
         raise SystemExit("representative asset attestation missing")
+    out = root / "completed-E8.jsonl"
+    receipt_path = root / completion_receipt.RECEIPT_FILENAME
+    if out.exists() or receipt_path.exists():
+        raise SystemExit("E8 packet is already finalized; prepare a new asset version instead of rewriting finalized observations")
     rows = packet.get("rows", [])
     if not rows:
         raise SystemExit("no respondents prepared")
@@ -265,11 +286,15 @@ def finalize(args: argparse.Namespace) -> None:
             raise SystemExit(f"respondent row {index} asset_version mismatch")
         if not isinstance(row.get("freeform_builder_expectation"), bool):
             raise SystemExit(f"respondent row {index} freeform_builder_expectation must be boolean")
-    out = root / "completed-E8.jsonl"
-    with out.open("w", encoding="utf-8") as handle:
+    with out.open("x", encoding="utf-8") as handle:
         for row in rows:
             handle.write(json.dumps(row, sort_keys=True) + "\n")
-    print(f"Finalized {len(rows)} local E8 observation rows against verified immutable assets; repository evidence was not appended")
+    try:
+        receipt_path = completion_receipt.write_receipt(root, asset_set, packet, out)
+    except (OSError, ValueError) as exc:
+        out.unlink(missing_ok=True)
+        raise SystemExit(f"failed to create E8 completion receipt: {exc}") from exc
+    print(f"Finalized {len(rows)} local E8 observation rows against verified immutable assets with digest receipt {receipt_path.name}; repository evidence was not appended")
 
 
 def build_parser() -> argparse.ArgumentParser:
