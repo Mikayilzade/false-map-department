@@ -2,10 +2,12 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
 from pathlib import Path
 
@@ -27,6 +29,14 @@ def digest_tree(root: Path) -> str:
     return digest.hexdigest()
 
 
+def sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def run(command: list[str], *, expect: int = 0) -> subprocess.CompletedProcess[str]:
     completed = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, check=False)
     if completed.returncode != expect:
@@ -44,6 +54,32 @@ def run_rejected(command: list[str], expected_code: str) -> None:
             f"expected verifier rejection {expected_code}\ncmd={command}\n"
             f"stdout={completed.stdout}\nstderr={completed.stderr}"
         )
+
+
+def rewrite_archive_with_extra_member(archive_path: Path, member: tarfile.TarInfo, data: bytes = b"") -> None:
+    rewritten = archive_path.with_suffix(".rewrite.tar.gz")
+    with tarfile.open(archive_path, "r:gz") as source, tarfile.open(rewritten, "w:gz") as target:
+        for existing in source.getmembers():
+            fileobj = source.extractfile(existing) if existing.isfile() else None
+            target.addfile(existing, fileobj)
+        member.size = len(data)
+        target.addfile(member, io.BytesIO(data) if data else None)
+    rewritten.replace(archive_path)
+
+
+def refresh_archive_manifest(manifest_path: Path, archive_path: Path, member_delta: int) -> None:
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["archive_contract"]["member_count"] = int(manifest["archive_contract"]["member_count"]) + member_delta
+    found = False
+    for row in manifest["files"]:
+        if row.get("path") == archive_path.name:
+            row["bytes"] = archive_path.stat().st_size
+            row["sha256"] = sha256(archive_path)
+            found = True
+            break
+    if not found:
+        raise SystemExit("archive file row missing while preparing adversarial portable-path fixture")
+    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
 def main() -> None:
@@ -71,16 +107,31 @@ def main() -> None:
 
         manifest_path = bundle / "bundle-manifest.json"
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        if manifest.get("schema") != "fmd.phase12g.external-acquisition-bundle.v3":
+            raise SystemExit("portable bundle must use the hardened v3 schema")
+        required_safety_flags = {
+            "forbid_links",
+            "forbid_special_file_types",
+            "forbid_absolute_or_parent_paths",
+            "forbid_backslash_or_control_paths",
+            "forbid_windows_unsafe_components",
+            "forbid_duplicate_member_paths",
+            "forbid_portable_path_collisions",
+        }
+        contract = manifest.get("archive_contract", {})
+        if any(contract.get(flag) is not True for flag in required_safety_flags):
+            raise SystemExit("bundle manifest is missing a mandatory portable archive-safety contract flag")
         if manifest.get("gate_dispositions_changed") is not False or manifest.get("evidence_appended") is not False:
             raise SystemExit("bundle manifest may not claim empirical disposition/evidence mutation")
         archive = bundle / str(verify_payload.get("source_archive", ""))
         if not archive.is_file() or archive.stat().st_size <= 0:
             raise SystemExit("source archive missing from verified bundle")
 
-        # Manifest is intentionally human-readable rather than signed; structural
-        # checks must still reject a wrong extraction root/member contract even
-        # when the archive bytes themselves were not changed.
         original_manifest = manifest_path.read_text(encoding="utf-8")
+        pristine_archive = temp / "pristine-source.tar.gz"
+        shutil.copy2(archive, pristine_archive)
+
+        # Contract-only corruption still rejects even when archive bytes are untouched.
         malformed_manifest = json.loads(original_manifest)
         malformed_manifest["archive_contract"]["archive_root"] = "wrong-root/"
         manifest_path.write_text(json.dumps(malformed_manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -91,6 +142,37 @@ def main() -> None:
         malformed_manifest["archive_contract"]["member_count"] = int(malformed_manifest["archive_contract"]["member_count"]) + 1
         manifest_path.write_text(json.dumps(malformed_manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         run_rejected([sys.executable, str(VERIFY), str(bundle)], "bundle_archive_member_count_changed")
+        manifest_path.write_text(original_manifest, encoding="utf-8")
+
+        # Simulate a recomputed manifest around structurally dangerous archive bytes.
+        # This proves the verifier's extraction-safety checks are independent of hashes.
+        backslash = tarfile.TarInfo(expected_root + "scripts\\portable-escape.py")
+        rewrite_archive_with_extra_member(archive, backslash, b"unsafe")
+        refresh_archive_manifest(manifest_path, archive, 1)
+        run_rejected([sys.executable, str(VERIFY), str(bundle)], "bundle_archive_unsafe_portable_member_path")
+        shutil.copy2(pristine_archive, archive)
+        manifest_path.write_text(original_manifest, encoding="utf-8")
+
+        duplicate = tarfile.TarInfo(expected_root + "IMPLEMENTATION_START_HERE.md")
+        rewrite_archive_with_extra_member(archive, duplicate, b"duplicate")
+        refresh_archive_manifest(manifest_path, archive, 1)
+        run_rejected([sys.executable, str(VERIFY), str(bundle)], "bundle_archive_duplicate_member_path")
+        shutil.copy2(pristine_archive, archive)
+        manifest_path.write_text(original_manifest, encoding="utf-8")
+
+        case_collision = tarfile.TarInfo(expected_root + "implementation_start_here.md")
+        rewrite_archive_with_extra_member(archive, case_collision, b"collision")
+        refresh_archive_manifest(manifest_path, archive, 1)
+        run_rejected([sys.executable, str(VERIFY), str(bundle)], "bundle_archive_portable_path_collision")
+        shutil.copy2(pristine_archive, archive)
+        manifest_path.write_text(original_manifest, encoding="utf-8")
+
+        special = tarfile.TarInfo(expected_root + "portable-fifo")
+        special.type = tarfile.FIFOTYPE
+        rewrite_archive_with_extra_member(archive, special)
+        refresh_archive_manifest(manifest_path, archive, 1)
+        run_rejected([sys.executable, str(VERIFY), str(bundle)], "bundle_archive_special_file_forbidden")
+        shutil.copy2(pristine_archive, archive)
         manifest_path.write_text(original_manifest, encoding="utf-8")
 
         guide = bundle / "OPERATOR-GUIDE.md"
@@ -114,7 +196,7 @@ def main() -> None:
         raise SystemExit("external bundle audit mutated empirical evidence")
     print(
         "Phase 12G external acquisition bundle audit: PASS "
-        "(exact-source archive + offline hash/structure/root/link safety verification + tamper rejection + zero evidence/disposition mutation)"
+        "(exact-source archive + offline hash/root/link/type/portable-path collision safety + adversarial rejection + zero evidence/disposition mutation)"
     )
 
 
