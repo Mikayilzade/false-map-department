@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import hashlib
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -10,6 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PACKET = ROOT / "scripts/phase12g_marketing_expectation_packet.py"
 INGEST = ROOT / "scripts/phase12g_marketing_expectation_ingest.py"
+PROVENANCE_INTEGRITY = ROOT / "scripts/phase12g_e8_evidence_provenance_integrity.py"
 SOURCE_HEAD = "1" * 40
 WRONG_HEAD = "2" * 40
 ROLES = (
@@ -34,6 +37,12 @@ def evidence_rows(path: Path) -> list[dict]:
     if not path.exists():
         return []
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+
+def sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    digest.update(path.read_bytes())
+    return digest.hexdigest()
 
 
 def main() -> None:
@@ -77,8 +86,15 @@ def main() -> None:
         run([sys.executable, str(PACKET), "finalize", "--packet", str(packet_root)])
 
         receipt_path = packet_root / "completion-receipt.json"
+        asset_set_path = packet_root / "asset-set.json"
         if not receipt_path.is_file():
             raise SystemExit("E8 finalize did not emit completion-receipt.json")
+        expected_receipt_sha = sha256(receipt_path)
+        expected_asset_set_sha = sha256(asset_set_path)
+        asset_set = json.loads(asset_set_path.read_text(encoding="utf-8"))
+        expected_role_hashes = {item["role"]: item["sha256"] for item in asset_set["assets"]}
+        expected_role_sizes = {item["role"]: item["bytes"] for item in asset_set["assets"]}
+
         finalized_state = json.loads(run([sys.executable, str(PACKET), "status", "--packet", str(packet_root)]).stdout)
         if finalized_state.get("status") != "FINALIZED" or finalized_state.get("completion_receipt_verified") is not True:
             raise SystemExit(f"E8 status did not verify finalized receipt: {finalized_state}")
@@ -99,6 +115,8 @@ def main() -> None:
             raise SystemExit(f"unexpected E8 dry-run result: {dry_result}")
         if dry_result.get("completion_receipt_verified") is not True:
             raise SystemExit("E8 dry-run did not report completion receipt verification")
+        if dry_result.get("durable_packet_provenance_schema") != "fmd.phase12g.e8.evidence-packet-provenance.v1":
+            raise SystemExit("E8 dry-run did not expose durable packet provenance schema")
         if target.exists():
             raise SystemExit("E8 ingest dry-run mutated evidence")
 
@@ -112,6 +130,24 @@ def main() -> None:
         rows = evidence_rows(target)
         if len(rows) != 2 or any(row.get("gate_id") != "E8" for row in rows):
             raise SystemExit("E8 append did not produce exactly two validated rows")
+        for index, row in enumerate(rows, start=1):
+            durable = row.get("e8_packet_provenance")
+            if not isinstance(durable, dict):
+                raise SystemExit(f"E8 row {index} did not persist durable packet provenance")
+            if durable.get("source_head") != SOURCE_HEAD or durable.get("build_id") != "AUDIT-BUILD" or durable.get("asset_version") != "AUDIT-ASSET-V1":
+                raise SystemExit(f"E8 row {index} durable packet identity mismatch")
+            if durable.get("asset_set_sha256") != expected_asset_set_sha:
+                raise SystemExit(f"E8 row {index} did not preserve exact asset-set digest")
+            if durable.get("completion_receipt_sha256") != expected_receipt_sha:
+                raise SystemExit(f"E8 row {index} did not preserve exact completion-receipt digest")
+            if durable.get("frozen_assets_sha256_by_role") != expected_role_hashes:
+                raise SystemExit(f"E8 row {index} did not preserve exact shown asset hashes by role")
+            if durable.get("frozen_assets_bytes_by_role") != expected_role_sizes:
+                raise SystemExit(f"E8 row {index} did not preserve exact shown asset sizes by role")
+
+        integrity = run([sys.executable, str(PROVENANCE_INTEGRITY), "--evidence", str(target)])
+        if "validated_rows=2" not in integrity.stdout:
+            raise SystemExit("E8 live-style provenance integrity did not validate appended audit rows")
 
         repeat = run([
             sys.executable, str(INGEST),
@@ -133,6 +169,39 @@ def main() -> None:
         if "source_head mismatch" not in (wrong.stderr + wrong.stdout):
             raise SystemExit("E8 ingest did not reject wrong expected source head")
 
+        # Prove the repository evidence remains self-describing even if the external
+        # packet is later unavailable. Exact asset hashes/source/build/receipt identity
+        # must still be reviewable from E8.jsonl alone.
+        preserved_rows = evidence_rows(target)
+        shutil.rmtree(packet_root)
+        post_removal = run([sys.executable, str(PROVENANCE_INTEGRITY), "--evidence", str(target)])
+        if "validated_rows=2" not in post_removal.stdout or evidence_rows(target) != preserved_rows:
+            raise SystemExit("E8 durable evidence provenance depended on the external packet remaining present")
+
+        # Build a second packet for tamper tests because the first was deliberately removed.
+        packet_root = temp / "tamper-packet"
+        run([
+            sys.executable,
+            str(PACKET),
+            "prepare",
+            "--asset-version", "AUDIT-ASSET-TAMPER",
+            "--build-id", "AUDIT-BUILD",
+            "--source-head", SOURCE_HEAD,
+            *asset_args,
+            "--representative-attestation",
+            "--respondents", "1",
+            "--output", str(packet_root),
+        ])
+        respondents_path = packet_root / "respondents.json"
+        tamper_respondents = json.loads(respondents_path.read_text(encoding="utf-8"))
+        tamper_respondents["rows"][0].update({
+            "expected_play_category": "systemic puzzle",
+            "freeform_builder_expectation": False,
+            "notes": "synthetic tamper audit; not evidence",
+        })
+        respondents_path.write_text(json.dumps(tamper_respondents, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        run([sys.executable, str(PACKET), "finalize", "--packet", str(packet_root)])
+
         completed_path = packet_root / "completed-E8.jsonl"
         tampered_completed = [json.loads(line) for line in completed_path.read_text(encoding="utf-8").splitlines() if line.strip()]
         tampered_completed[0]["expected_play_category"] = "tampered category"
@@ -146,8 +215,6 @@ def main() -> None:
         if "completion receipt" not in (mismatch.stderr + mismatch.stdout).lower():
             raise SystemExit("E8 ingest did not reject completed-row tampering against finalization receipt")
 
-        # The original gap allowed respondents.json and completed-E8.jsonl to be edited together
-        # after finalize. Equality alone cannot detect this; the receipt must bind both files.
         tampered_respondents = json.loads(respondents_path.read_text(encoding="utf-8"))
         tampered_respondents["rows"][0]["expected_play_category"] = "tampered category"
         respondents_path.write_text(json.dumps(tampered_respondents, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -164,7 +231,7 @@ def main() -> None:
         if tampered_state.get("status") != "INVALID_PACKET" or "receipt" not in str(tampered_state.get("reason", "")).lower():
             raise SystemExit(f"E8 status did not expose post-finalize receipt mismatch: {tampered_state}")
 
-    print("Phase 12G E8 ingest audit: PASS — exact source/assets + digest-bound finalized respondent return + coordinated post-finalize tamper rejection + dry-run/explicit append/idempotency; synthetic audit data never touched repository evidence")
+    print("Phase 12G E8 ingest audit: PASS — source/assets + digest-bound finalization + durable self-contained packet provenance survives external packet removal + dry-run/append/idempotency/tamper rejection; synthetic audit data never touched repository evidence")
 
 
 if __name__ == "__main__":
