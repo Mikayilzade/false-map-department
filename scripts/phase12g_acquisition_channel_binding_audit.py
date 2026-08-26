@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+# Synthetic integrity audit only. It must never append empirical evidence or alter gate dispositions.
+
 import json
 import os
 import subprocess
