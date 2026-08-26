@@ -11,7 +11,6 @@ ROOT = Path(__file__).resolve().parents[1]
 KIT = ROOT / "scripts/phase12g_human_field_kit.py"
 FINALIZER_SOURCE = ROOT / "scripts/phase12g_field_kit_offline_finalize.py"
 INGEST = ROOT / "scripts/phase12g_field_kit_ingest.py"
-SOURCE_HEAD = "0123456789abcdef0123456789abcdef01234567"
 
 
 def fail(message: str) -> None:
@@ -27,6 +26,14 @@ def run(args: list[str], *, cwd: Path = ROOT, ok: bool = True) -> subprocess.Com
     return result
 
 
+def repository_head() -> str:
+    result = run(["git", "rev-parse", "--verify", "HEAD"])
+    head = result.stdout.strip().lower()
+    if len(head) != 40 or any(ch not in "0123456789abcdef" for ch in head):
+        fail(f"invalid repository HEAD from git: {head!r}")
+    return head
+
+
 def load(path: Path) -> dict:
     value = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict):
@@ -39,13 +46,14 @@ def write(path: Path, payload: dict) -> None:
 
 
 def main() -> None:
+    source_head = repository_head()
     with tempfile.TemporaryDirectory(prefix="fmd-phase12g-finalization-receipt-") as temp:
         root = Path(temp)
         kit_root = root / "kit"
         evidence_root = root / "evidence"
         run([
             sys.executable, str(KIT), "prepare",
-            "--source-head", SOURCE_HEAD,
+            "--source-head", source_head,
             "--demo-build-id", "receipt-audit-demo",
             "--production-build-id", "receipt-audit-production",
             "--first-count", "1",
@@ -90,7 +98,7 @@ def main() -> None:
         receipt = load(receipt_path)
         if receipt.get("schema") != "fmd.phase12g.field-kit-finalization-receipt.v1":
             fail("receipt schema missing")
-        if receipt.get("source_head") != SOURCE_HEAD or receipt.get("field_kit_contract_hash") != manifest.get("contract_hash"):
+        if receipt.get("source_head") != source_head or receipt.get("field_kit_contract_hash") != manifest.get("contract_hash"):
             fail("receipt must bind exact source and field-kit contract")
         if receipt.get("demo_build_id") != "receipt-audit-demo" or receipt.get("production_build_id") != "receipt-audit-production":
             fail("receipt must bind both build identities")
@@ -103,12 +111,14 @@ def main() -> None:
         dry = run([
             sys.executable, str(INGEST),
             "--kit-dir", str(kit_root),
-            "--expected-source-head", SOURCE_HEAD,
+            "--expected-source-head", source_head,
             "--evidence-root", str(evidence_root),
         ])
         dry_summary = json.loads(dry.stdout)
         if dry_summary.get("status") != "VALIDATED_DRY_RUN" or dry_summary.get("finalization_receipts_verified") is not True:
             fail("repository dry-run ingest must verify finalization receipt")
+        if dry_summary.get("repository_checkout_head") != source_head:
+            fail("repository dry-run ingest must bind the actual checkout HEAD")
         if int(dry_summary.get("completed_file_digests_verified", 0)) != 3:
             fail("repository dry-run ingest must verify all three completed-file digests")
         if evidence_root.exists() and any(evidence_root.glob("*.jsonl")):
@@ -120,7 +130,7 @@ def main() -> None:
         tampered = run([
             sys.executable, str(INGEST),
             "--kit-dir", str(kit_root),
-            "--expected-source-head", SOURCE_HEAD,
+            "--expected-source-head", source_head,
             "--evidence-root", str(evidence_root),
         ], ok=False)
         if "changed after offline finalization" not in (tampered.stdout + tampered.stderr):
@@ -132,7 +142,7 @@ def main() -> None:
         tampered_receipt = run([
             sys.executable, str(INGEST),
             "--kit-dir", str(kit_root),
-            "--expected-source-head", SOURCE_HEAD,
+            "--expected-source-head", source_head,
             "--evidence-root", str(evidence_root),
         ], ok=False)
         if "finalization receipt source_head mismatch" not in (tampered_receipt.stdout + tampered_receipt.stderr):
@@ -141,7 +151,7 @@ def main() -> None:
         if not FINALIZER_SOURCE.exists():
             fail("repository finalizer source unexpectedly missing")
 
-    print("Phase 12G finalization-receipt audit: PASS (offline finalized rows source/build/tool/digest bound + repository dry-run verifies full coverage + post-finalization transport mutation rejected + zero evidence append)")
+    print("Phase 12G finalization-receipt audit: PASS (actual checkout/source pin + offline finalized rows source/build/tool/digest bound + repository dry-run verifies full coverage + post-finalization transport mutation rejected + zero evidence append)")
 
 
 if __name__ == "__main__":
