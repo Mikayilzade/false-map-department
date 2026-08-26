@@ -10,6 +10,7 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 HARNESS = ROOT / "scripts/phase12g_evidence_harness.py"
+QUALITATIVE_INTEGRITY = ROOT / "scripts/phase12g_qualitative_disposition_integrity.py"
 DEFAULT_EVIDENCE_ROOT = ROOT / "empirical/evidence"
 
 
@@ -34,6 +35,21 @@ def main() -> None:
     parser.add_argument("--evidence-root", type=Path, default=DEFAULT_EVIDENCE_ROOT)
     parser.add_argument("--output", type=Path, default=ROOT / ".phase12g-dashboard.md")
     args = parser.parse_args()
+
+    # A qualitative disposition is an explicit review of exact evidence bytes.
+    # Fail closed before rendering so a standalone dashboard can never present a
+    # stale PASS/FAIL/BLOCKED after append-only evidence changes.
+    subprocess.run(
+        [
+            sys.executable,
+            str(QUALITATIVE_INTEGRITY),
+            "--evidence-root",
+            str(args.evidence_root),
+        ],
+        cwd=ROOT,
+        check=True,
+        stdout=subprocess.DEVNULL,
+    )
 
     with tempfile.TemporaryDirectory(prefix="fmd-phase12g-dashboard-") as tmp:
         summary_path = Path(tmp) / "summary.json"
@@ -63,7 +79,7 @@ def main() -> None:
         "",
         f"12G exit candidate: **{'YES' if complete else 'NO'}**",
         "",
-        "A gate remains PENDING when evidence is absent or a qualitative evidence-backed disposition has not been recorded. This dashboard never upgrades missing evidence.",
+        "A gate remains PENDING when evidence is absent or a qualitative evidence-backed disposition has not been recorded. This dashboard never upgrades missing or stale evidence.",
         "",
     ])
     args.output.parent.mkdir(parents=True, exist_ok=True)
