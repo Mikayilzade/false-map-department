@@ -41,6 +41,16 @@ def rows(path: Path) -> list[dict]:
     return result
 
 
+def packet_identity(packet: dict) -> str:
+    """Canonical identity of one finalized E8 packet.
+
+    The completion/respondent digests intentionally participate in identity: an
+    asset_version names one frozen shown-media + finalized-response packet, not
+    merely a reusable marketing asset label.
+    """
+    return json.dumps(packet, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+
+
 def validate_row(row: dict, index: int) -> None:
     if row.get("gate_id") != "E8":
         fail(f"row {index}: gate_id must be E8")
@@ -90,18 +100,58 @@ def validate_row(row: dict, index: int) -> None:
             fail(f"row {index}: invalid asset byte size for {role}")
 
 
+def packet_identities_by_asset_version(observed: list[dict]) -> dict[str, dict]:
+    identities: dict[str, dict] = {}
+    canonical_by_version: dict[str, str] = {}
+    for index, row in enumerate(observed, start=1):
+        validate_row(row, index)
+        asset_version = str(row["asset_version"])
+        packet = row["e8_packet_provenance"]
+        identity = packet_identity(packet)
+        if asset_version in canonical_by_version and canonical_by_version[asset_version] != identity:
+            fail(
+                f"row {index}: asset_version collision for {asset_version!r}; "
+                "one E8 asset_version cannot refer to conflicting source/build/asset-set/finalization packet identity"
+            )
+        canonical_by_version[asset_version] = identity
+        identities[asset_version] = packet
+    return identities
+
+
+def validate_packet_identity_compatibility(evidence_path: Path, proposed_packet: dict) -> dict:
+    if not isinstance(proposed_packet, dict):
+        fail("proposed E8 packet provenance must be an object")
+    asset_version = str(proposed_packet.get("asset_version", ""))
+    if not asset_version:
+        fail("proposed E8 packet provenance has empty asset_version")
+    observed = rows(evidence_path)
+    identities = packet_identities_by_asset_version(observed)
+    existing = identities.get(asset_version)
+    if existing is not None and packet_identity(existing) != packet_identity(proposed_packet):
+        fail(
+            f"asset_version collision for {asset_version!r}; existing repository evidence is bound to a different "
+            "source/build/asset-set/finalization packet. Prepare a new asset_version instead of reusing this one."
+        )
+    return {
+        "ok": True,
+        "existing_rows": len(observed),
+        "asset_version": asset_version,
+        "existing_same_packet": existing is not None,
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Validate durable self-contained provenance on repository E8 evidence rows.")
     parser.add_argument("--evidence", type=Path, default=DEFAULT_EVIDENCE)
     args = parser.parse_args()
 
     observed = rows(args.evidence)
-    for index, row in enumerate(observed, start=1):
-        validate_row(row, index)
+    identities = packet_identities_by_asset_version(observed)
 
     print(
         "Phase 12G E8 evidence provenance integrity: PASS "
-        f"(validated_rows={len(observed)}, durable_packet_identity={'present' if observed else 'not-yet-observed'})"
+        f"(validated_rows={len(observed)}, unique_asset_versions={len(identities)}, "
+        f"durable_packet_identity={'present' if observed else 'not-yet-observed'})"
     )
 
 
