@@ -1,3 +1,8 @@
-redirected canonical sample adequacy control must fail with an explicit routing error; got:
-canonical evidence root requires canonical sample_adequacy control file /home/runner/work/false-map-department/false-map-department/empirical/evidence/sample_adequacy.json; got /tmp/fmd-phase12g-disposition-audit-c16hpo5x/redirected-sample-adequacy.json
-
+ERROR: Parent node is busy adding/removing children, `remove_child()` can't be called at this time. Consider using `remove_child.call_deferred(child)` instead.
+   at: remove_child (scene/main/node.cpp:1750)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://src/presentation/entrypoint.gd:13)
+ERROR: Parent node is busy adding/removing children, `remove_child()` can't be called at this time. Consider using `remove_child.call_deferred(child)` instead.
+   at: remove_child (scene/main/node.cpp:1750)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://src/presentation/entrypoint.gd:13)

@@ -13,7 +13,7 @@
     {
       "bytes": 359,
       "name": "environment.log",
-      "sha256": "6dfc84cf7ba64a319f0d80efe23f5116884ca55464a2714878f85ff3dd1e5505"
+      "sha256": "914c42967129f821a72a18699207a2afc8ca0c2123003a853cb40644b10c2108"
     },
     {
       "bytes": 121,
@@ -351,9 +351,9 @@
       "sha256": "14b471bce76f2f17d6e27ac6cbfb43de48b5c646ffe7e3a75af1dab9dacde96b"
     },
     {
-      "bytes": 353,
+      "bytes": 351,
       "name": "phase12f-reasoning-navigation-performance-adversarial-suite.log",
-      "sha256": "376bd61907e7e257dc499e253f0239df233b4b4bbeee55242c50cc080b3f95ef"
+      "sha256": "d9e8e98572a305e7ad9aee12bc66053bac53816724139fef0fc2ae83fa4e39ef"
     },
     {
       "bytes": 163,
