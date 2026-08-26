@@ -35,6 +35,19 @@ def validate_sha(value: str, label: str) -> str:
     return value
 
 
+def repository_checkout_head() -> str:
+    completed = subprocess.run(
+        ["git", "rev-parse", "--verify", "HEAD"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if completed.returncode != 0:
+        fail("unable to resolve repository checkout HEAD")
+    return validate_sha(completed.stdout.strip(), "repository checkout HEAD")
+
+
 def percentile_ms(samples_us: list[int], fraction: float) -> float:
     values = sorted(samples_us)
     index = max(0, min(len(values) - 1, math.ceil(fraction * len(values)) - 1))
@@ -50,9 +63,13 @@ def require_metric_match(row: dict, field: str, expected: float) -> None:
 def validate_packet(packet: dict, expected_source_head: str, allow_audit_fixture: bool = False) -> dict:
     if int(packet.get("packet_version", 0)) != 1:
         fail("unsupported packet_version")
+    expected = validate_sha(expected_source_head, "expected source_head")
+    checkout_head = repository_checkout_head()
+    if checkout_head != expected:
+        fail(f"repository checkout HEAD mismatch: expected packet source checkout {expected}, got {checkout_head}")
     packet_source = validate_sha(str(packet.get("source_head", "")), "packet source_head")
-    if packet_source != expected_source_head:
-        fail(f"packet source_head mismatch: expected {expected_source_head}, got {packet_source}")
+    if packet_source != expected:
+        fail(f"packet source_head mismatch: expected {expected}, got {packet_source}")
 
     disposition = str(packet.get("profiling_disposition", ""))
     attestation = str(packet.get("hardware_attestation", ""))
@@ -158,6 +175,7 @@ def main() -> None:
     print(json.dumps({
         "status": "APPENDED" if args.append else "VALIDATED_DRY_RUN",
         "source_head": expected,
+        "repository_checkout_head": repository_checkout_head(),
         "hardware_id": row["hardware_id"],
         "build_id": row["build_id"],
         "dossier_id": row["dossier_id"],
