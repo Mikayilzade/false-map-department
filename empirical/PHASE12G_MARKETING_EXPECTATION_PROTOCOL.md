@@ -105,6 +105,17 @@ python3 scripts/phase12g_marketing_expectation_ingest.py \
 
 The ingest re-verifies immutable assets, exact source/build provenance, the finalization receipt, respondent/completed-row equality, duplicate/idempotency rules, and then delegates to the normal append-only evidence collector. It does not infer a market outcome or gate disposition.
 
+### Durable repository-side packet identity
+
+After successful ingest, each appended E8 observation additionally carries repository-owned `e8_packet_provenance` integrity metadata. This does **not** change the frozen required respondent fields and does not add or infer a human outcome. The metadata preserves, directly in `empirical/evidence/E8.jsonl`:
+
+- exact `asset_version`, `source_head`, and build ID;
+- SHA-256 of the frozen `asset-set.json`;
+- SHA-256 of finalized `respondents.json`, `completed-E8.jsonl`, and `completion-receipt.json`;
+- SHA-256 and byte size for each of the five frozen shown-media roles.
+
+This makes an ingested row independently auditable after the external field packet is no longer available. `scripts/phase12g_e8_evidence_provenance_integrity.py` validates this self-contained binding on live repository E8 evidence before the evidence harness/dashboard runs. Missing real E8 evidence still validates as zero rows/PENDING; the integrity check never creates a market result.
+
 ## Explicit interpretation and disposition after ingest
 
 E8 has no frozen numeric threshold, so response rows alone never become PASS/FAIL automatically. After real E8 rows have been appended and deliberately reviewed, record the interpretation explicitly with the qualitative-disposition recorder:
