@@ -117,6 +117,68 @@ def verify_build_binding(root: Path, snapshot: object, source_head: str, role: s
     return snapshot
 
 
+def verify_finalized_semantic_eligibility(
+    packet_dir: Path,
+    receipt_path: Path,
+    receipt: dict,
+    expected_gates: tuple[str, ...],
+    packet_kind: str,
+) -> None:
+    """Keep receipt-declared cohort eligibility attached to every finalized gate row.
+
+    The finalization receipt is the packet-local statement of participant qualification. A
+    caller may transport the returned kit, but may not flip a row-level semantic eligibility
+    field and merely recompute that completed file's mutable size/SHA binding. The bundled
+    verifier checks these semantics before repository ingest/collector eligibility logic.
+
+    This does not prove human naivety or rule knowledge; it only prevents contradictory
+    packet-local declarations from being silently rebound into an eligible row.
+    """
+    qualification = receipt.get("participant_qualification")
+    if not isinstance(qualification, dict):
+        fail(f"{receipt_path}: participant_qualification missing/malformed")
+    if qualification.get("declaration_only") is not True or qualification.get("proves_human_truth_or_timing") is not False:
+        fail(f"{receipt_path}: participant qualification empirical-boundary markers invalid")
+
+    if packet_kind == "first_session":
+        declared_naive = qualification.get("naive")
+        if not isinstance(declared_naive, bool):
+            fail(f"{receipt_path}: first-session participant qualification must declare naive=true/false")
+        for gate_id in expected_gates:
+            path = packet_dir / f"completed-{gate_id}.jsonl"
+            for row_index, row in enumerate(load_jsonl(path), start=1):
+                row_naive = row.get("naive")
+                if not isinstance(row_naive, bool):
+                    fail(f"{path}:{row_index}: finalized first-session row must retain naive=true/false")
+                if row_naive is not declared_naive:
+                    fail(
+                        f"{path}:{row_index}: finalized semantic eligibility mismatch; "
+                        f"receipt declares naive={declared_naive}, row claims naive={row_naive}"
+                    )
+                if gate_id == "E2" and not isinstance(row.get("packet_completed"), bool):
+                    fail(f"{path}:{row_index}: E2 packet_completed must remain true/false")
+        return
+
+    if packet_kind == "mature_session":
+        if qualification.get("rules_known_before_session") is not True:
+            fail(f"{receipt_path}: mature-session participant qualification must declare rules_known_before_session=true")
+        for gate_id in expected_gates:
+            path = packet_dir / f"completed-{gate_id}.jsonl"
+            for row_index, row in enumerate(load_jsonl(path), start=1):
+                if row.get("rules_known_before_session") is not True:
+                    fail(
+                        f"{path}:{row_index}: finalized semantic eligibility mismatch; "
+                        "mature receipt declares rules_known_before_session=true"
+                    )
+                if gate_id == "E3" and row.get("rule_knowledge_confirmed") is not True:
+                    fail(f"{path}:{row_index}: E3 rule_knowledge_confirmed must remain true")
+                if gate_id == "E6" and row.get("used_raw_debug_log") is not False:
+                    fail(f"{path}:{row_index}: E6 used_raw_debug_log must remain false")
+        return
+
+    fail(f"{receipt_path}: unsupported packet_kind for semantic eligibility verification: {packet_kind}")
+
+
 def verify_optional_finalized_routing(packet_dir: Path, expected_gates: tuple[str, ...], packet_kind: str) -> None:
     """Bind any returned finalized files to the immutable packet's canonical gate routes.
 
@@ -166,6 +228,8 @@ def verify_optional_finalized_routing(packet_dir: Path, expected_gates: tuple[st
             if embedded_gate != gate_id:
                 shown = embedded_gate if embedded_gate else "<missing>"
                 fail(f"{path}:{row_index}: finalized row gate_id mismatch; receipt-bound route is {gate_id}, row claims {shown}")
+
+    verify_finalized_semantic_eligibility(packet_dir, receipt_path, receipt, expected_gates, packet_kind)
 
 
 def first_contract(session_dir: Path) -> dict:
@@ -231,7 +295,7 @@ def verify(kit_root: Path) -> dict:
         verify_optional_finalized_routing(packet_dir, MATURE_FINALIZED_GATES, "mature_session")
         mature_count += 1
     if mature_count != int(mature_section.get("packet_count", -1)): fail("mature-session packet count mismatch")
-    return {"status":"VERIFIED_OFFLINE","source_head":source_head,"first_packets":first_count,"mature_packets":mature_count,"acquisition_build_bytes_verified":True,"demo_binding_id":demo["binding_id"],"production_binding_id":production["binding_id"],"finalized_gate_routes_verified":True,"human_outcomes_inferred":False,"repository_evidence_appended":False}
+    return {"status":"VERIFIED_OFFLINE","source_head":source_head,"first_packets":first_count,"mature_packets":mature_count,"acquisition_build_bytes_verified":True,"demo_binding_id":demo["binding_id"],"production_binding_id":production["binding_id"],"finalized_gate_routes_verified":True,"finalized_semantic_eligibility_verified":True,"human_outcomes_inferred":False,"repository_evidence_appended":False}
 
 
 def main() -> None:
