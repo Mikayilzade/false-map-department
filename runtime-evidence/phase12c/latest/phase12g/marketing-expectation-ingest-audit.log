@@ -1,1 +1,1 @@
-Phase 12G E8 ingest audit: PASS — actual checkout/source pin + source/assets + digest-bound finalization + durable self-contained packet provenance + dry-run/append/idempotency/tamper rejection; synthetic audit data never touched repository evidence
+Phase 12G E8 ingest audit: PASS — exact checkout/source + immutable media + acquisition-time packaged bytes + digest-bound receipt + durable provenance + dry-run/append/idempotency/substitution rejection; synthetic audit data never touched repository evidence
