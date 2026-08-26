@@ -79,7 +79,7 @@ def main() -> None:
         "",
         f"12G exit candidate: **{'YES' if complete else 'NO'}**",
         "",
-        "A gate remains PENDING when evidence is absent or a qualitative evidence-backed disposition has not been recorded. This dashboard never upgrades missing or stale evidence.",
+        "A gate remains PENDING when evidence is absent or a qualitative evidence-backed disposition has not been recorded. This dashboard never upgrades missing evidence. Stale qualitative reviews are rejected before rendering.",
         "",
     ])
     args.output.parent.mkdir(parents=True, exist_ok=True)
