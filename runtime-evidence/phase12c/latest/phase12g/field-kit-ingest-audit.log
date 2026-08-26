@@ -1,0 +1,1 @@
+Phase 12G field-kit ingest audit: PASS — receipt/source/build validation stays dry-run-isolated; production append rejects noncanonical evidence destinations before mutation; transport tamper still fails closed

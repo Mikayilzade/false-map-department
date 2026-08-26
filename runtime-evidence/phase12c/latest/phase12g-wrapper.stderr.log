@@ -1,4 +1,4 @@
-PHASE12G OPERATOR WORKFLOW FAIL: command failed (1): /usr/bin/python3 /home/runner/work/false-map-department/false-map-department/scripts/phase12g_collect_completed_rows.py --input /tmp/fmd-phase12g-operator-lo2blfwk/complete-e3.jsonl --evidence-root /tmp/fmd-phase12g-operator-lo2blfwk/evidence --append
+PHASE12G FIELD KIT RETURN COLLISION AUDIT FAIL: command failed: /usr/bin/python3 /home/runner/work/false-map-department/false-map-department/scripts/phase12g_field_kit_ingest.py --kit-dir /tmp/fmd-phase12g-return-collision-dpok0owx/kit-a --expected-source-head 4c27203e402fcf8f3bafa26086075e22c964f03c --evidence-root /tmp/fmd-phase12g-return-collision-dpok0owx/evidence --append
 
-evidence destination rejected: append evidence destination must be the canonical repository root /home/runner/work/false-map-department/false-map-department/empirical/evidence; got /tmp/fmd-phase12g-operator-lo2blfwk/evidence
+PHASE12G FIELD KIT INGEST FAIL: collector rejected /tmp/fmd-phase12g-return-collision-dpok0owx/kit-a/.repository-ingest-E1-1yt257p6.jsonl: evidence destination rejected: append evidence destination must be the canonical repository root /home/runner/work/false-map-department/false-map-department/empirical/evidence; got /tmp/fmd-phase12g-return-collision-dpok0owx/evidence
 
