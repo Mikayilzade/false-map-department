@@ -17,6 +17,7 @@ VERIFY = ROOT / "scripts" / "phase12g_external_acquisition_bundle_verify.py"
 EVIDENCE = ROOT / "empirical" / "evidence"
 EXPECTED_BINDINGS = {
     "BUNDLE-VERIFY.py": "scripts/phase12g_external_acquisition_bundle_verify.py",
+    "EXTRACTED-SOURCE-VERIFY.py": "scripts/phase12g_extracted_source_verify.py",
     "FIELD-KIT-VERIFY.py": "scripts/phase12g_field_kit_offline_verify.py",
     "FIELD-KIT-FINALIZE.py": "scripts/phase12g_field_kit_offline_finalize.py",
     "RETURN-INGEST.md": "empirical/PHASE12G_RETURN_INGEST.md",
@@ -43,8 +44,8 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def run(command: list[str], *, expect: int = 0) -> subprocess.CompletedProcess[str]:
-    completed = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, check=False)
+def run(command: list[str], *, expect: int = 0, cwd: Path = ROOT) -> subprocess.CompletedProcess[str]:
+    completed = subprocess.run(command, cwd=cwd, capture_output=True, text=True, check=False)
     if completed.returncode != expect:
         raise SystemExit(
             f"command returncode mismatch: expected {expect}, got {completed.returncode}\n"
@@ -53,8 +54,8 @@ def run(command: list[str], *, expect: int = 0) -> subprocess.CompletedProcess[s
     return completed
 
 
-def run_rejected(command: list[str], expected_code: str) -> None:
-    completed = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, check=False)
+def run_rejected(command: list[str], expected_code: str, *, cwd: Path = ROOT) -> None:
+    completed = subprocess.run(command, cwd=cwd, capture_output=True, text=True, check=False)
     if completed.returncode == 0 or expected_code not in completed.stdout:
         raise SystemExit(
             f"expected verifier rejection {expected_code}\ncmd={command}\n"
@@ -64,6 +65,17 @@ def run_rejected(command: list[str], expected_code: str) -> None:
 
 def verifier_command(bundle: Path, expected_head: str) -> list[str]:
     return [sys.executable, str(VERIFY), str(bundle), "--expected-source-head", expected_head]
+
+
+def extracted_verifier_command(bundle: Path, extracted: Path, expected_head: str) -> list[str]:
+    return [
+        sys.executable,
+        str(bundle / "EXTRACTED-SOURCE-VERIFY.py"),
+        str(bundle),
+        str(extracted),
+        "--expected-source-head",
+        expected_head,
+    ]
 
 
 def refresh_file_row(manifest_path: Path, target: Path) -> None:
@@ -132,6 +144,30 @@ def archive_bytes(archive_path: Path, member_name: str) -> bytes:
         return handle.read()
 
 
+def extract_verified_archive(archive_path: Path, destination: Path, expected_root: str) -> Path:
+    destination.mkdir(parents=True, exist_ok=True)
+    with tarfile.open(archive_path, "r:gz") as archive:
+        for member in archive.getmembers():
+            if not member.name.startswith(expected_root):
+                raise SystemExit(f"verified archive member escaped expected root during test extraction: {member.name}")
+            rel = member.name[len(expected_root):].rstrip("/")
+            if not rel:
+                continue
+            target = destination / expected_root.rstrip("/") / rel
+            if member.isdir():
+                target.mkdir(parents=True, exist_ok=True)
+                continue
+            if not member.isfile():
+                raise SystemExit(f"unexpected non-file member after bundle verification: {member.name}")
+            target.parent.mkdir(parents=True, exist_ok=True)
+            handle = archive.extractfile(member)
+            if handle is None:
+                raise SystemExit(f"archive member unreadable during extraction: {member.name}")
+            target.write_bytes(handle.read())
+            target.chmod(0o755 if (member.mode & 0o111) else 0o644)
+    return destination / expected_root.rstrip("/")
+
+
 def main() -> None:
     head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
     evidence_before = digest_tree(EVIDENCE)
@@ -169,13 +205,16 @@ def main() -> None:
         if actual_bindings != EXPECTED_BINDINGS:
             raise SystemExit(f"source binding mapping mismatch: {actual_bindings}")
         contract = manifest.get("archive_contract", {})
-        if "empirical/PHASE12G_RETURN_INGEST.md" not in contract.get("required_regular_files", []):
-            raise SystemExit("source archive contract must require the return-ingest instructions")
+        for required_path in ["empirical/PHASE12G_RETURN_INGEST.md", "scripts/phase12g_extracted_source_verify.py"]:
+            if required_path not in contract.get("required_regular_files", []):
+                raise SystemExit(f"source archive contract must require {required_path}")
         if manifest.get("gate_dispositions_changed") is not False or manifest.get("evidence_appended") is not False:
             raise SystemExit("bundle manifest may not claim empirical mutation")
         guide_text = (bundle / "OPERATOR-GUIDE.md").read_text(encoding="utf-8")
         if f"--expected-source-head {head}" not in guide_text or "trusted handoff" not in guide_text:
             raise SystemExit("operator guide must carry the independent expected-source verification step")
+        if "EXTRACTED-SOURCE-VERIFY.py" not in guide_text or "directory name" not in guide_text:
+            raise SystemExit("operator guide must require extracted-tree verification without trusting directory naming")
 
         archive = bundle / str(verify_payload.get("source_archive", ""))
         pristine_archive = temp / "pristine-source.tar.gz"
@@ -187,6 +226,32 @@ def main() -> None:
             source_bytes = archive_bytes(archive, expected_root + source_path)
             if root_bytes != source_bytes:
                 raise SystemExit(f"fresh source binding is not byte-identical: {bundle_path}")
+
+        extracted_root = extract_verified_archive(archive, temp / "extract", expected_root)
+        extracted_verified = run(extracted_verifier_command(bundle, extracted_root, head), cwd=bundle)
+        extracted_payload = json.loads(extracted_verified.stdout.strip().splitlines()[-1])
+        if extracted_payload.get("status") != "EXTRACTED_SOURCE_VERIFIED":
+            raise SystemExit("fresh extracted source did not verify")
+        if extracted_payload.get("expected_source_head") != head:
+            raise SystemExit("extracted verifier did not preserve independent source head")
+        if extracted_payload.get("extracted_root_name_trusted") is not False or extracted_payload.get("source_head_text_trusted") is not False:
+            raise SystemExit("extracted verifier must explicitly reject name/copied-source-text as identity authorities")
+
+        renamed_root = extracted_root.parent / "arbitrary-working-tree-name"
+        extracted_root.rename(renamed_root)
+        run(extracted_verifier_command(bundle, renamed_root, head), cwd=bundle)
+
+        tampered = renamed_root / "IMPLEMENTATION_START_HERE.md"
+        pristine_tampered = tampered.read_bytes()
+        tampered.write_bytes(pristine_tampered + b"\ntransport tamper\n")
+        run_rejected(extracted_verifier_command(bundle, renamed_root, head), "extracted_source_file_hash_mismatch", cwd=bundle)
+        tampered.write_bytes(pristine_tampered)
+
+        extra = renamed_root / "UNTRACKED-ACQUISITION-MUTATION.txt"
+        extra.write_text("extra", encoding="utf-8")
+        run_rejected(extracted_verifier_command(bundle, renamed_root, head), "extracted_source_file_set_mismatch", cwd=bundle)
+        extra.unlink()
+        run_rejected(extracted_verifier_command(bundle, renamed_root, wrong_expected), "extracted_bundle_verification_failed", cwd=bundle)
 
         finalizer = bundle / "FIELD-KIT-FINALIZE.py"
         pristine_finalizer = finalizer.read_bytes()
@@ -237,7 +302,7 @@ def main() -> None:
         raise SystemExit("external bundle audit mutated empirical evidence")
     print(
         "Phase 12G external acquisition bundle audit: PASS "
-        "(exact-source v4 archive + independent expected-source handoff + byte-bound standalone verifier/finalizer/return-ingest contract + adversarial transport rejection + zero evidence/disposition mutation)"
+        "(exact-source v4 archive + independent expected-source handoff + byte-bound extracted-tree verifier + directory-name/SOURCE_HEAD distrust + adversarial extraction/transport rejection + zero evidence/disposition mutation)"
     )
 
 
