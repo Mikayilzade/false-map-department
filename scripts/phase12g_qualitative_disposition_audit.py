@@ -25,7 +25,7 @@ def run(args: list[str], *, expect_ok: bool = True) -> subprocess.CompletedProce
 
 
 def require_control_rejection(completed: subprocess.CompletedProcess[str], control_kind: str) -> None:
-    rendered = (completed.stdout + completed.stderr).lower()
+    rendered = (completed.stdout + completed.stderr).lower().replace("_", " ")
     if "canonical" not in rendered or control_kind.replace("_", " ") not in rendered:
         raise SystemExit(
             f"redirected canonical {control_kind} control must fail with an explicit routing error; got:\n{rendered}"
