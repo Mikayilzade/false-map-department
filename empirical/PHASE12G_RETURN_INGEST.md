@@ -6,6 +6,8 @@ This document is acquisition infrastructure only. It does not create, infer, or 
 
 A returned packet is acceptable only when all applicable packet/kit verification succeeds and its exact `source_head` matches the repository checkout used for ingest. Build identity and acquisition channel must survive into the append-only evidence row. Missing evidence remains PENDING.
 
+Before extracting an external acquisition bundle, retain the intended 40-character source SHA through a trusted handoff outside the bundle itself and run the bundled verifier with `--expected-source-head <40_SHA>`. The verifier must reject a self-consistent bundle whose internal `source_head` differs from that independently supplied SHA. Bundle-internal `SOURCE_HEAD.txt` is a transport copy, not an independent source-of-truth for this check.
+
 For human field-kit ingest, the repository tool resolves the current checkout with `git rev-parse --verify HEAD` and requires that SHA to equal both `--expected-source-head` and the returned kit manifest `source_head`. The command-line value is therefore a confirmation, not a substitute for checking out the exact source commit. Ingest from a newer/older checkout must fail closed before any evidence append.
 
 Never copy observations manually into `empirical/evidence/*.jsonl`. Use the gate-specific ingest path so duplicate-return checks, provenance checks, packet integrity checks, dry-run defaults and finalization-receipt checks remain active.
