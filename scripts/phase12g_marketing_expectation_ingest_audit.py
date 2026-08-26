@@ -4,7 +4,6 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -15,8 +14,13 @@ SCRIPT_DIR = ROOT / "scripts"
 PREPARE = SCRIPT_DIR / "phase12g_marketing_acquisition_prepare.py"
 PACKET = SCRIPT_DIR / "phase12g_marketing_expectation_packet.py"
 INGEST = SCRIPT_DIR / "phase12g_marketing_expectation_ingest.py"
-PROVENANCE_INTEGRITY = SCRIPT_DIR / "phase12g_e8_evidence_provenance_integrity.py"
-SOURCE_HEAD = subprocess.run(["git", "rev-parse", "--verify", "HEAD"], cwd=ROOT, capture_output=True, text=True, check=True).stdout.strip().lower()
+SOURCE_HEAD = subprocess.run(
+    ["git", "rev-parse", "--verify", "HEAD"],
+    cwd=ROOT,
+    capture_output=True,
+    text=True,
+    check=True,
+).stdout.strip().lower()
 WRONG_HEAD = "0" * 40 if SOURCE_HEAD != "0" * 40 else "1" * 40
 ROLES = (
     ("store_key_art", ".png"),
@@ -38,12 +42,6 @@ def run(args: list[str], expect_ok: bool = True, env: dict[str, str] | None = No
     return result
 
 
-def evidence_rows(path: Path) -> list[dict]:
-    if not path.exists():
-        return []
-    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
-
-
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
     digest.update(path.read_bytes())
@@ -63,15 +61,23 @@ def asset_args(root: Path) -> list[str]:
 def prepare_bound(temp: Path, name: str, version: str, artifact: Path, record: Path, respondents: int = 2) -> Path:
     root = temp / name
     run([
-        sys.executable, str(PREPARE),
-        "--asset-version", version,
-        "--build-id", "AUDIT-BUILD",
-        "--source-head", SOURCE_HEAD,
+        sys.executable,
+        str(PREPARE),
+        "--asset-version",
+        version,
+        "--build-id",
+        "AUDIT-BUILD",
+        "--source-head",
+        SOURCE_HEAD,
         *asset_args(temp / f"{name}-media"),
-        "--respondents", str(respondents),
-        "--production-build-artifact", str(artifact),
-        "--production-build-artifact-record", str(record),
-        "--output", str(root),
+        "--respondents",
+        str(respondents),
+        "--production-build-artifact",
+        str(artifact),
+        "--production-build-artifact-record",
+        str(record),
+        "--output",
+        str(root),
     ])
     return root
 
@@ -89,96 +95,115 @@ def complete(root: Path) -> None:
     run([sys.executable, str(PACKET), "finalize", "--packet", str(root)])
 
 
+def assert_no_evidence(root: Path) -> None:
+    if root.exists() and any(root.glob("*.jsonl")):
+        raise SystemExit("isolated E8 audit evidence root must remain unmodified")
+
+
 def main() -> None:
     if len(SOURCE_HEAD) != 40:
         raise SystemExit("E8 audit checkout source must resolve to exact Git SHA")
     with tempfile.TemporaryDirectory(prefix="fmd-e8-ingest-audit-") as raw:
         temp = Path(raw)
-        artifact, record = build_fixture.create_bound_artifact(temp / "build", source_head=SOURCE_HEAD, role="production", build_id="AUDIT-BUILD")
-        packet_root = prepare_bound(temp, "packet", "AUDIT-ASSET-V3", artifact, record)
+        artifact, record = build_fixture.create_bound_artifact(
+            temp / "build",
+            source_head=SOURCE_HEAD,
+            role="production",
+            build_id="AUDIT-BUILD",
+        )
+        packet_root = prepare_bound(temp, "packet", "AUDIT-ASSET-V4", artifact, record)
         complete(packet_root)
 
         receipt_path = packet_root / "completion-receipt.json"
         asset_set_path = packet_root / "asset-set.json"
         expected_receipt_sha = sha256(receipt_path)
         expected_asset_set_sha = sha256(asset_set_path)
-        asset_set = json.loads(asset_set_path.read_text(encoding="utf-8"))
-        expected_role_hashes = {item["role"]: item["sha256"] for item in asset_set["assets"]}
-        expected_role_sizes = {item["role"]: item["bytes"] for item in asset_set["assets"]}
-        expected_binding = asset_set["acquisition_build_binding"]
+        if not expected_receipt_sha or not expected_asset_set_sha:
+            raise SystemExit("finalized E8 packet must expose stable receipt/asset-set digests")
 
-        finalized_state = json.loads(run([sys.executable, str(PACKET), "status", "--packet", str(packet_root)]).stdout)
+        finalized_state = json.loads(
+            run([sys.executable, str(PACKET), "status", "--packet", str(packet_root)]).stdout
+        )
         if finalized_state.get("status") != "FINALIZED" or finalized_state.get("completion_receipt_verified") is not True:
             raise SystemExit(f"E8 status did not verify byte-bound finalized receipt: {finalized_state}")
 
         evidence_root = temp / "evidence"
-        target = evidence_root / "E8.jsonl"
         dry = run([
-            sys.executable, str(INGEST), "--packet", str(packet_root), "--expected-source-head", SOURCE_HEAD,
-            "--evidence-root", str(evidence_root),
+            sys.executable,
+            str(INGEST),
+            "--packet",
+            str(packet_root),
+            "--expected-source-head",
+            SOURCE_HEAD,
+            "--evidence-root",
+            str(evidence_root),
         ])
         dry_result = json.loads(dry.stdout)
         if dry_result.get("mode") != "dry_run" or dry_result.get("new_rows") != 2 or dry_result.get("completion_receipt_verified") is not True:
             raise SystemExit(f"unexpected E8 dry-run result: {dry_result}")
-        if target.exists():
-            raise SystemExit("E8 ingest dry-run mutated evidence")
+        if dry_result.get("source_head") != SOURCE_HEAD or dry_result.get("repository_checkout_head") != SOURCE_HEAD:
+            raise SystemExit("E8 dry-run must bind packet source to actual repository checkout")
+        if dry_result.get("durable_packet_provenance_schema") != "fmd.phase12g.e8.evidence-packet-provenance.v1":
+            raise SystemExit("E8 dry-run must still compile durable finalized-packet provenance")
+        assert_no_evidence(evidence_root)
 
         env = os.environ.copy()
         env["FMD_PHASE12G_BUILD_ARTIFACT_PATH"] = str(artifact)
         env["FMD_PHASE12G_BUILD_ARTIFACT_RECORD"] = str(record)
-        run([
-            sys.executable, str(INGEST), "--packet", str(packet_root), "--expected-source-head", SOURCE_HEAD,
-            "--evidence-root", str(evidence_root), "--append",
-        ], env=env)
-        rows = evidence_rows(target)
-        if len(rows) != 2:
-            raise SystemExit("E8 append did not produce exactly two validated rows")
-        for index, row in enumerate(rows, start=1):
-            durable = row.get("e8_packet_provenance")
-            if not isinstance(durable, dict):
-                raise SystemExit(f"E8 row {index} did not persist durable packet provenance")
-            if durable.get("asset_set_sha256") != expected_asset_set_sha or durable.get("completion_receipt_sha256") != expected_receipt_sha:
-                raise SystemExit(f"E8 row {index} did not preserve exact finalized packet digests")
-            if durable.get("frozen_assets_sha256_by_role") != expected_role_hashes or durable.get("frozen_assets_bytes_by_role") != expected_role_sizes:
-                raise SystemExit(f"E8 row {index} did not preserve exact shown media bytes")
-            if row.get("build_artifact_binding_id") != expected_binding["binding_id"] or row.get("build_artifact_sha256") != expected_binding["artifact_sha256"]:
-                raise SystemExit(f"E8 row {index} packaged build provenance differs from acquisition-time binding")
-
-        integrity = run([sys.executable, str(PROVENANCE_INTEGRITY), "--evidence", str(target)])
-        if "validated_rows=2" not in integrity.stdout:
-            raise SystemExit("E8 durable provenance integrity did not validate appended audit rows")
-        repeat = json.loads(run([
-            sys.executable, str(INGEST), "--packet", str(packet_root), "--expected-source-head", SOURCE_HEAD,
-            "--evidence-root", str(evidence_root), "--append",
-        ], env=env).stdout)
-        if repeat.get("new_rows") != 0:
-            raise SystemExit("repeat E8 ingest was not idempotent")
+        redirected_append = run([
+            sys.executable,
+            str(INGEST),
+            "--packet",
+            str(packet_root),
+            "--expected-source-head",
+            SOURCE_HEAD,
+            "--evidence-root",
+            str(evidence_root),
+            "--append",
+        ], expect_ok=False, env=env)
+        redirected_text = redirected_append.stdout + redirected_append.stderr
+        if "append evidence destination must be the canonical repository root" not in redirected_text:
+            raise SystemExit("E8 real append must reject a caller-controlled noncanonical evidence root")
+        assert_no_evidence(evidence_root)
 
         wrong = run([
-            sys.executable, str(INGEST), "--packet", str(packet_root), "--expected-source-head", WRONG_HEAD,
-            "--evidence-root", str(evidence_root),
+            sys.executable,
+            str(INGEST),
+            "--packet",
+            str(packet_root),
+            "--expected-source-head",
+            WRONG_HEAD,
+            "--evidence-root",
+            str(evidence_root),
         ], expect_ok=False)
         if "repository checkout HEAD mismatch" not in (wrong.stderr + wrong.stdout):
             raise SystemExit("E8 ingest did not reject caller-supplied old source against actual checkout")
+        assert_no_evidence(evidence_root)
 
-        preserved = evidence_rows(target)
-        shutil.rmtree(packet_root)
-        post = run([sys.executable, str(PROVENANCE_INTEGRITY), "--evidence", str(target)])
-        if "validated_rows=2" not in post.stdout or evidence_rows(target) != preserved:
-            raise SystemExit("E8 durable evidence provenance depended on external packet remaining present")
-
-        tamper_root = prepare_bound(temp, "tamper", "AUDIT-ASSET-TAMPER-V3", artifact, record, respondents=1)
+        tamper_root = prepare_bound(temp, "tamper", "AUDIT-ASSET-TAMPER-V4", artifact, record, respondents=1)
         complete(tamper_root)
-        frozen_package = tamper_root / json.loads((tamper_root / "asset-set.json").read_text(encoding="utf-8"))["acquisition_build_binding"]["packet_artifact_path"]
+        tamper_asset_set = json.loads((tamper_root / "asset-set.json").read_text(encoding="utf-8"))
+        frozen_package = tamper_root / tamper_asset_set["acquisition_build_binding"]["packet_artifact_path"]
         frozen_package.write_bytes(frozen_package.read_bytes() + b"POST-FINALIZE-SUBSTITUTION")
         mismatch = run([
-            sys.executable, str(INGEST), "--packet", str(tamper_root), "--expected-source-head", SOURCE_HEAD,
-            "--evidence-root", str(evidence_root),
+            sys.executable,
+            str(INGEST),
+            "--packet",
+            str(tamper_root),
+            "--expected-source-head",
+            SOURCE_HEAD,
+            "--evidence-root",
+            str(evidence_root),
         ], expect_ok=False)
-        if "build" not in (mismatch.stderr + mismatch.stdout).lower() and "artifact" not in (mismatch.stderr + mismatch.stdout).lower():
+        mismatch_text = (mismatch.stderr + mismatch.stdout).lower()
+        if "build" not in mismatch_text and "artifact" not in mismatch_text:
             raise SystemExit("E8 ingest did not reject post-finalize packaged-build substitution")
+        assert_no_evidence(evidence_root)
 
-    print("Phase 12G E8 ingest audit: PASS — exact checkout/source + immutable media + acquisition-time packaged bytes + digest-bound receipt + durable provenance + dry-run/append/idempotency/substitution rejection; synthetic audit data never touched repository evidence")
+    print(
+        "Phase 12G E8 ingest audit: PASS — finalized media/source/build validation remains dry-run-isolated; "
+        "production append rejects noncanonical evidence destinations before mutation; source and packaged-build tamper still fail closed"
+    )
 
 
 if __name__ == "__main__":
