@@ -3,11 +3,22 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "empirical/phase12g_gate_registry.json"
 DEFAULT_EVIDENCE_ROOT = ROOT / "empirical/evidence"
+EXTERNAL_CHANNELS = {"human_field_kit_v4", "e8_marketing_packet", "t8_reference_profile"}
+ARTIFACT_FIELDS = (
+    "source_build_role",
+    "build_artifact_sha256",
+    "build_artifact_bytes",
+    "build_artifact_binding_id",
+    "build_artifact_filename",
+    "build_artifact_bytes_verified",
+)
 
 
 def missing(value) -> bool:
@@ -49,6 +60,66 @@ def reject_duplicate_input_rows(rows: list[dict]) -> None:
         raise SystemExit("input contains duplicate canonical observation rows: " + "; ".join(duplicates))
 
 
+def expected_role(gate_id: str, channel: str) -> str:
+    if channel == "human_field_kit_v4" and gate_id in {"E1", "E2", "E11"}:
+        return "demo"
+    return "production"
+
+
+def external_artifact_environment_available() -> bool:
+    return bool(os.environ.get("FMD_PHASE12G_BUILD_ARTIFACT_RECORD", "").strip()) and bool(
+        os.environ.get("FMD_PHASE12G_BUILD_ARTIFACT_PATH", "").strip()
+    )
+
+
+def verify_external_artifact_rows(rows: list[dict], gate_id: str) -> None:
+    record_path = os.environ.get("FMD_PHASE12G_BUILD_ARTIFACT_RECORD", "").strip()
+    artifact_path = os.environ.get("FMD_PHASE12G_BUILD_ARTIFACT_PATH", "").strip()
+    if not record_path or not artifact_path:
+        raise SystemExit(
+            "external Phase 12G evidence append requires independently verified packaged build bytes; "
+            "set FMD_PHASE12G_BUILD_ARTIFACT_RECORD and FMD_PHASE12G_BUILD_ARTIFACT_PATH. "
+            "Without immutable build bytes the gate remains PENDING."
+        )
+    import phase12g_build_artifact_contract as artifact_contract
+
+    try:
+        record = artifact_contract.load_record(Path(record_path).expanduser().resolve())
+    except ValueError as exc:
+        raise SystemExit(f"build artifact record invalid: {exc}") from exc
+
+    for index, row in enumerate(rows, start=1):
+        channel = str(row.get("acquisition_channel", ""))
+        if channel not in EXTERNAL_CHANNELS:
+            continue
+        try:
+            verified = artifact_contract.verify_record(
+                record,
+                artifact_path=Path(artifact_path).expanduser().resolve(),
+                source_head=row.get("source_head", ""),
+                build_id=row.get("source_build_id", ""),
+                role=expected_role(gate_id, channel),
+            )
+        except ValueError as exc:
+            raise SystemExit(f"row {index} build artifact verification failed: {exc}") from exc
+        expected = {
+            "source_build_role": verified["role"],
+            "build_artifact_sha256": verified["artifact_sha256"],
+            "build_artifact_bytes": verified["artifact_bytes"],
+            "build_artifact_binding_id": verified["binding_id"],
+            "build_artifact_filename": verified["artifact_filename"],
+            "build_artifact_bytes_verified": True,
+        }
+        missing_fields = [field for field in ARTIFACT_FIELDS if field not in row]
+        if missing_fields:
+            raise SystemExit(
+                f"row {index} external provenance lacks packaged build byte fields: {', '.join(missing_fields)}"
+            )
+        for field, value in expected.items():
+            if row.get(field) != value:
+                raise SystemExit(f"row {index} packaged build provenance conflict for {field}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Validate completed Phase 12G rows and append only new, complete observations to the evidence root.")
     parser.add_argument("--input", type=Path, required=True)
@@ -80,6 +151,12 @@ def main() -> None:
     if failures:
         raise SystemExit("\n".join(failures))
 
+    external_rows = [row for row in rows if str(row.get("acquisition_channel", "")) in EXTERNAL_CHANNELS]
+    append_ready = not external_rows or external_artifact_environment_available()
+    if args.append and external_rows:
+        verify_external_artifact_rows(rows, gate_id)
+        append_ready = True
+
     target = args.evidence_root / f"{gate_id}.jsonl"
     existing_rows = load_jsonl(target) if target.exists() else []
     existing = {canonical(row) for row in existing_rows}
@@ -92,6 +169,9 @@ def main() -> None:
         "new_rows": len(novel),
         "mode": "append" if args.append else "dry_run",
         "target": str(target),
+        "external_build_artifact_required": bool(external_rows),
+        "build_artifact_bytes_verified": bool(args.append and external_rows) or not external_rows,
+        "append_ready": append_ready,
     }
     print(json.dumps(result, indent=2, sort_keys=True))
 
