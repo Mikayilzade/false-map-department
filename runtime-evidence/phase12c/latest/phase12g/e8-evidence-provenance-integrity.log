@@ -1,1 +1,1 @@
-Phase 12G E8 evidence provenance integrity: PASS (validated_rows=0, durable_packet_identity=not-yet-observed)
+Phase 12G E8 evidence provenance integrity: PASS (validated_rows=0, unique_asset_versions=0, durable_packet_identity=not-yet-observed)
