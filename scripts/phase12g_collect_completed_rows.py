@@ -223,10 +223,19 @@ def main() -> None:
     enforce_external_artifact = bool(external_rows) and (
         evidence_root == DEFAULT_EVIDENCE_ROOT.resolve() or os.environ.get(FORCE_ARTIFACT_ENV, "") == "1"
     )
-    append_ready = not enforce_external_artifact or external_artifact_environment_available()
-    if args.append and enforce_external_artifact:
-        verify_external_artifact_rows(rows, gate_id)
-        append_ready = True
+    append_ready = not enforce_external_artifact
+    build_artifact_bytes_verified = not enforce_external_artifact
+    if enforce_external_artifact:
+        if external_artifact_environment_available():
+            # A dry run is a readiness check, so environment strings alone are not enough.
+            # Recompute the packaged artifact bytes and bind them to every staged row now;
+            # otherwise `append_ready=true` would overstate what has actually been verified.
+            verify_external_artifact_rows(rows, gate_id)
+            append_ready = True
+            build_artifact_bytes_verified = True
+        elif args.append:
+            # Reuse the canonical verifier for the actionable missing-input diagnostic.
+            verify_external_artifact_rows(rows, gate_id)
 
     target = evidence_root / f"{gate_id}.jsonl"
     existing_rows = load_jsonl(target) if target.exists() else []
@@ -241,7 +250,7 @@ def main() -> None:
         "mode": "append" if args.append else "dry_run",
         "target": str(target),
         "external_build_artifact_required": enforce_external_artifact,
-        "build_artifact_bytes_verified": bool(args.append and enforce_external_artifact) or not enforce_external_artifact,
+        "build_artifact_bytes_verified": build_artifact_bytes_verified,
         "participant_qualification_checked": any(str(row.get("acquisition_channel", "")) == HUMAN_FIELD_KIT_CHANNEL for row in rows),
         "canonical_acquisition_channel_checked": gate_id in EXPECTED_EXTERNAL_CHANNEL_BY_GATE and (
             evidence_root == DEFAULT_EVIDENCE_ROOT.resolve() or os.environ.get(FORCE_CHANNEL_ENV, "") == "1"
