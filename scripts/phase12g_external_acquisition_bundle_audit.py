@@ -146,14 +146,19 @@ def archive_bytes(archive_path: Path, member_name: str) -> bytes:
 
 def extract_verified_archive(archive_path: Path, destination: Path, expected_root: str) -> Path:
     destination.mkdir(parents=True, exist_ok=True)
+    root_member = expected_root.rstrip("/")
     with tarfile.open(archive_path, "r:gz") as archive:
         for member in archive.getmembers():
+            if member.name == root_member:
+                if not member.isdir():
+                    raise SystemExit("verified archive root member must be a directory")
+                continue
             if not member.name.startswith(expected_root):
                 raise SystemExit(f"verified archive member escaped expected root during test extraction: {member.name}")
             rel = member.name[len(expected_root):].rstrip("/")
             if not rel:
                 continue
-            target = destination / expected_root.rstrip("/") / rel
+            target = destination / root_member / rel
             if member.isdir():
                 target.mkdir(parents=True, exist_ok=True)
                 continue
@@ -165,7 +170,7 @@ def extract_verified_archive(archive_path: Path, destination: Path, expected_roo
                 raise SystemExit(f"archive member unreadable during extraction: {member.name}")
             target.write_bytes(handle.read())
             target.chmod(0o755 if (member.mode & 0o111) else 0o644)
-    return destination / expected_root.rstrip("/")
+    return destination / root_member
 
 
 def main() -> None:
