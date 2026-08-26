@@ -26,6 +26,7 @@ python3 scripts/phase12g_e8_asset_version_collision_audit.py | tee "$OUT_DIR/e8-
 python3 scripts/phase12g_e8_respondent_identity_binding_audit.py | tee "$OUT_DIR/e8-respondent-identity-binding-audit.log"
 python3 scripts/phase12g_qualitative_disposition_audit.py | tee "$OUT_DIR/qualitative-disposition-audit.log"
 python3 scripts/phase12g_reference_profile_audit.py | tee "$OUT_DIR/reference-profile-acquisition-audit.log"
+python3 scripts/phase12g_reference_target_binding_audit.py | tee "$OUT_DIR/reference-profile-target-audit.log"
 python3 scripts/phase12g_external_packet_build_binding_audit.py | tee "$OUT_DIR/external-packet-build-binding-audit.log"
 python3 scripts/phase12g_external_acquisition_bundle_audit.py | tee "$OUT_DIR/external-acquisition-bundle-audit.log"
 python3 scripts/phase12g_acquisition_readiness_audit.py | tee "$OUT_DIR/acquisition-readiness-audit.log"
