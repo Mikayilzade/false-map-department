@@ -13,6 +13,7 @@ python3 scripts/phase12g_operator_workflow_audit.py | tee "$OUT_DIR/operator-wor
 python3 scripts/phase12g_first_session_batch_audit.py | tee "$OUT_DIR/first-session-batch-audit.log"
 python3 scripts/phase12g_mature_session_batch_audit.py | tee "$OUT_DIR/mature-session-batch-audit.log"
 python3 scripts/phase12g_human_field_kit_audit.py | tee "$OUT_DIR/human-field-kit-audit.log"
+python3 scripts/phase12g_participant_qualification_binding_audit.py | tee "$OUT_DIR/participant-qualification-binding-audit.log"
 python3 scripts/phase12g_field_kit_ingest_audit.py | tee "$OUT_DIR/field-kit-ingest-audit.log"
 python3 scripts/phase12g_human_return_identity_audit.py | tee "$OUT_DIR/human-return-identity-audit.log"
 python3 scripts/phase12g_packet_identity_binding_audit.py | tee "$OUT_DIR/packet-identity-binding-audit.log"
