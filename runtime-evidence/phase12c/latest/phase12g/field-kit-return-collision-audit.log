@@ -1,1 +1,0 @@
-Phase 12G field-kit return collision audit: PASS (actual checkout/source pin + durable namespace persisted; distinct finalized return cannot reuse namespace; exact finalized-return retry remains idempotent and byte-preserving)
