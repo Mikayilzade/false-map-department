@@ -1,1 +1,1 @@
-PHASE12G EVIDENCE DESTINATION FAIL: central collector missing destination-boundary markers: ['resolve_evidence_root(args.evidence_root, append=args.append)']
+PHASE12G PROVENANCE AUDIT FAIL: byte-bound external append rejected: evidence destination rejected: append evidence destination must be the canonical repository root /home/runner/work/false-map-department/false-map-department/empirical/evidence; got /tmp/fmd-phase12g-build-bytes-_n0jvhl2/evidence
