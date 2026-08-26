@@ -10,6 +10,9 @@ ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "empirical/phase12g_gate_registry.json"
 DEFAULT_EVIDENCE_ROOT = ROOT / "empirical/evidence"
 EXTERNAL_CHANNELS = {"human_field_kit_v4", "e8_marketing_packet", "t8_reference_profile"}
+HUMAN_FIELD_KIT_CHANNEL = "human_field_kit_v4"
+FIRST_SESSION_GATES = {"E1", "E2", "E11"}
+MATURE_SESSION_GATES = {"E3", "E4", "E5", "E6", "E9", "E10"}
 ARTIFACT_FIELDS = (
     "source_build_role",
     "build_artifact_sha256",
@@ -60,8 +63,31 @@ def reject_duplicate_input_rows(rows: list[dict]) -> None:
         raise SystemExit("input contains duplicate canonical observation rows: " + "; ".join(duplicates))
 
 
+def verify_human_participant_qualification(rows: list[dict], gate_id: str) -> None:
+    """Fail closed on declared cohort eligibility carried by receipt-bound field-kit rows.
+
+    These fields preserve the operator's declaration through finalization/ingest. They do not
+    prove that the human was actually naive or that rule knowledge was acquired at a particular
+    time; those remain empirical/operator facts.
+    """
+    for index, row in enumerate(rows, start=1):
+        if str(row.get("acquisition_channel", "")) != HUMAN_FIELD_KIT_CHANNEL:
+            continue
+        if gate_id in FIRST_SESSION_GATES:
+            naive = row.get("naive")
+            if not isinstance(naive, bool):
+                raise SystemExit(f"row {index} field-kit first-session evidence must carry receipt-bound naive=true/false qualification")
+            if gate_id == "E2" and naive is not True:
+                raise SystemExit("row %d E2 evidence is ineligible: canonical second-order prediction gate requires a naive tester" % index)
+        if gate_id in MATURE_SESSION_GATES:
+            if row.get("rules_known_before_session") is not True:
+                raise SystemExit(f"row {index} mature field-kit evidence must carry rules_known_before_session=true")
+            if gate_id == "E3" and row.get("rule_knowledge_confirmed") is not True:
+                raise SystemExit(f"row {index} E3 evidence is ineligible: comparison must occur after rules are known")
+
+
 def expected_role(gate_id: str, channel: str) -> str:
-    if channel == "human_field_kit_v4" and gate_id in {"E1", "E2", "E11"}:
+    if channel == HUMAN_FIELD_KIT_CHANNEL and gate_id in FIRST_SESSION_GATES:
         return "demo"
     return "production"
 
@@ -151,6 +177,8 @@ def main() -> None:
     if failures:
         raise SystemExit("\n".join(failures))
 
+    verify_human_participant_qualification(rows, gate_id)
+
     external_rows = [row for row in rows if str(row.get("acquisition_channel", "")) in EXTERNAL_CHANNELS]
     evidence_root = args.evidence_root.resolve()
     enforce_external_artifact = bool(external_rows) and (
@@ -175,6 +203,7 @@ def main() -> None:
         "target": str(target),
         "external_build_artifact_required": enforce_external_artifact,
         "build_artifact_bytes_verified": bool(args.append and enforce_external_artifact) or not enforce_external_artifact,
+        "participant_qualification_checked": any(str(row.get("acquisition_channel", "")) == HUMAN_FIELD_KIT_CHANNEL for row in rows),
         "append_ready": append_ready,
     }
     print(json.dumps(result, indent=2, sort_keys=True))
