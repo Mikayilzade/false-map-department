@@ -68,6 +68,19 @@ def validate_sha(value: str, label: str) -> str:
     return sha
 
 
+def repository_checkout_head() -> str:
+    completed = subprocess.run(
+        ["git", "rev-parse", "--verify", "HEAD"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if completed.returncode != 0:
+        fail(f"repository checkout HEAD unavailable: {(completed.stdout + completed.stderr).strip()}")
+    return validate_sha(completed.stdout.strip(), "repository checkout HEAD")
+
+
 def resolve_inside(root: Path, raw_value: object, label: str) -> Path:
     raw = Path(str(raw_value))
     if raw.is_absolute() or ".." in raw.parts:
@@ -313,6 +326,9 @@ def main() -> None:
     evidence_root = args.evidence_root.resolve()
     manifest = load_json(kit_root / "field-kit-manifest.json")
     expected_source = validate_sha(args.expected_source_head, "--expected-source-head")
+    checkout_source = repository_checkout_head()
+    if checkout_source != expected_source:
+        fail(f"repository checkout source-head mismatch: checkout {checkout_source}, expected {expected_source}; checkout the exact field-kit source commit before ingest")
     manifest_source = validate_sha(str(manifest.get("source_head", "")), "field-kit manifest source_head")
     if manifest_source != expected_source:
         fail(f"source-head mismatch: expected {expected_source}, kit has {manifest_source}")
@@ -351,6 +367,7 @@ def main() -> None:
     print(json.dumps({
         "status": "APPENDED" if args.append else "VALIDATED_DRY_RUN",
         "source_head": manifest_source,
+        "repository_checkout_head": checkout_source,
         "kit_verified_offline": True,
         "finalization_receipts_verified": True,
         "completed_file_digests_verified": len(receipt_bindings),
