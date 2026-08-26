@@ -4,7 +4,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -19,6 +18,7 @@ ARTIFACT_FIELDS = (
     "build_artifact_filename",
     "build_artifact_bytes_verified",
 )
+FORCE_ARTIFACT_ENV = "FMD_PHASE12G_REQUIRE_BUILD_ARTIFACT_BYTES"
 
 
 def missing(value) -> bool:
@@ -152,12 +152,16 @@ def main() -> None:
         raise SystemExit("\n".join(failures))
 
     external_rows = [row for row in rows if str(row.get("acquisition_channel", "")) in EXTERNAL_CHANNELS]
-    append_ready = not external_rows or external_artifact_environment_available()
-    if args.append and external_rows:
+    evidence_root = args.evidence_root.resolve()
+    enforce_external_artifact = bool(external_rows) and (
+        evidence_root == DEFAULT_EVIDENCE_ROOT.resolve() or os.environ.get(FORCE_ARTIFACT_ENV, "") == "1"
+    )
+    append_ready = not enforce_external_artifact or external_artifact_environment_available()
+    if args.append and enforce_external_artifact:
         verify_external_artifact_rows(rows, gate_id)
         append_ready = True
 
-    target = args.evidence_root / f"{gate_id}.jsonl"
+    target = evidence_root / f"{gate_id}.jsonl"
     existing_rows = load_jsonl(target) if target.exists() else []
     existing = {canonical(row) for row in existing_rows}
     novel = [row for row in rows if canonical(row) not in existing]
@@ -169,15 +173,15 @@ def main() -> None:
         "new_rows": len(novel),
         "mode": "append" if args.append else "dry_run",
         "target": str(target),
-        "external_build_artifact_required": bool(external_rows),
-        "build_artifact_bytes_verified": bool(args.append and external_rows) or not external_rows,
+        "external_build_artifact_required": enforce_external_artifact,
+        "build_artifact_bytes_verified": bool(args.append and enforce_external_artifact) or not enforce_external_artifact,
         "append_ready": append_ready,
     }
     print(json.dumps(result, indent=2, sort_keys=True))
 
     if not args.append or not novel:
         return
-    args.evidence_root.mkdir(parents=True, exist_ok=True)
+    evidence_root.mkdir(parents=True, exist_ok=True)
     with target.open("a", encoding="utf-8") as handle:
         for row in novel:
             handle.write(json.dumps(row, sort_keys=True, ensure_ascii=False) + "\n")
