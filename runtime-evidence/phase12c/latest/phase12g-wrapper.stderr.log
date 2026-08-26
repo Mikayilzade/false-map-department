@@ -1,4 +1,8 @@
-command failed: /usr/bin/python3 /home/runner/work/false-map-department/false-map-department/scripts/phase12g_e8_evidence_provenance_integrity.py --evidence /tmp/fmd-e8-ingest-audit-6fq_cpf2/evidence/E8.jsonl
-stdout=
-stderr=PHASE12G E8 PROVENANCE INTEGRITY FAIL: row 1: frozen asset hash roles must exactly match required E8 roles/order
-
+ERROR: Parent node is busy adding/removing children, `remove_child()` can't be called at this time. Consider using `remove_child.call_deferred(child)` instead.
+   at: remove_child (scene/main/node.cpp:1750)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://src/presentation/entrypoint.gd:13)
+ERROR: Parent node is busy adding/removing children, `remove_child()` can't be called at this time. Consider using `remove_child.call_deferred(child)` instead.
+   at: remove_child (scene/main/node.cpp:1750)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://src/presentation/entrypoint.gd:13)
