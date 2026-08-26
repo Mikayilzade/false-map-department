@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 
 import phase12g_acquisition_build_binding as acquisition_binding
+import phase12g_reference_profile_target as profile_target
 
 BINDING_FILENAME = "acquisition-build-binding.json"
 CAPTURE_SCHEMA = "fmd.phase12g.t8-reference-capture-binding.v1"
@@ -104,12 +105,20 @@ def verify_capture_binding(packet: dict) -> dict:
     return expected
 
 
+def validate_packet_target(packet: dict) -> dict:
+    row = packet.get("profile_row", {})
+    if not isinstance(row, dict):
+        raise ValueError("T8-44 profile_row missing/malformed")
+    return profile_target.validate_reference_target(str(row.get("dossier_id", "")))
+
+
 def seal(packet_path: Path) -> dict:
     packet_path = packet_path.resolve()
     root = packet_path.parent
     packet = load_packet(packet_path)
     if packet.get("evidence_appended") is not False:
         raise ValueError("T8-44 profile packet must remain non-evidence before sealing")
+    target = validate_packet_target(packet)
     source_head = str(packet.get("source_head", ""))
     row = packet.get("profile_row", {})
     if not isinstance(row, dict):
@@ -121,6 +130,7 @@ def seal(packet_path: Path) -> dict:
     packet["packet_version"] = 2
     packet["acquisition_build_binding"] = snapshot
     packet["acquisition_build_bytes_required"] = True
+    packet["reference_target_contract"] = target
     packet["reference_capture_binding"] = make_capture_binding(packet)
     packet_path.write_text(json.dumps(packet, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return snapshot
@@ -135,6 +145,9 @@ def verify_sealed(packet_path: Path, packet: dict | None = None) -> dict:
         raise ValueError("T8-44 profile packet is NOT APPEND READY: acquisition packet_version 2 required")
     if packet.get("acquisition_build_bytes_required") is not True:
         raise ValueError("T8-44 profile packet is NOT APPEND READY: packaged build bytes not required")
+    target = validate_packet_target(packet)
+    if canonical_json(packet.get("reference_target_contract")) != canonical_json(target):
+        raise ValueError("T8-44 sealed packet representative target contract mismatch")
     row = packet.get("profile_row", {})
     if not isinstance(row, dict):
         raise ValueError("T8-44 profile_row missing/malformed")
@@ -148,7 +161,7 @@ def verify_sealed(packet_path: Path, packet: dict | None = None) -> dict:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Freeze production package bytes before T8-44 reference acquisition and seal the resulting profile packet to that exact package and hardware-attested capture payload.")
+    parser = argparse.ArgumentParser(description="Freeze production package bytes before T8-44 reference acquisition and seal the resulting profile packet to that exact package, representative late-game Stability target, and hardware-attested capture payload.")
     sub = parser.add_subparsers(dest="command", required=True)
     prep = sub.add_parser("prepare")
     prep.add_argument("--root", type=Path, required=True)
@@ -170,7 +183,7 @@ def main() -> None:
     else:
         snapshot = verify_sealed(args.packet)
         status = "VERIFIED"
-    print(json.dumps({"status": status, "binding_id": snapshot["binding_id"], "artifact_sha256": snapshot["artifact_sha256"], "artifact_bytes": snapshot["artifact_bytes"], "reference_capture_binding_verified": status in {"SEALED", "VERIFIED"}, "evidence_appended": False}, indent=2, sort_keys=True))
+    print(json.dumps({"status": status, "binding_id": snapshot["binding_id"], "artifact_sha256": snapshot["artifact_sha256"], "artifact_bytes": snapshot["artifact_bytes"], "reference_capture_binding_verified": status in {"SEALED", "VERIFIED"}, "reference_target_contract_verified": status in {"SEALED", "VERIFIED"}, "evidence_appended": False}, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":
