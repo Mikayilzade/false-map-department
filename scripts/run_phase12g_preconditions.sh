@@ -14,6 +14,8 @@ python3 scripts/phase12g_first_session_batch_audit.py | tee "$OUT_DIR/first-sess
 python3 scripts/phase12g_mature_session_batch_audit.py | tee "$OUT_DIR/mature-session-batch-audit.log"
 python3 scripts/phase12g_human_field_kit_audit.py | tee "$OUT_DIR/human-field-kit-audit.log"
 python3 scripts/phase12g_field_kit_ingest_audit.py | tee "$OUT_DIR/field-kit-ingest-audit.log"
+python3 scripts/phase12g_human_return_identity_audit.py | tee "$OUT_DIR/human-return-identity-audit.log"
+python3 scripts/phase12g_field_kit_return_collision_audit.py | tee "$OUT_DIR/field-kit-return-collision-audit.log"
 python3 scripts/phase12g_marketing_expectation_audit.py | tee "$OUT_DIR/marketing-expectation-audit.log"
 python3 scripts/phase12g_marketing_expectation_ingest_audit.py | tee "$OUT_DIR/marketing-expectation-ingest-audit.log"
 python3 scripts/phase12g_e8_asset_version_collision_audit.py | tee "$OUT_DIR/e8-asset-version-collision-audit.log"
@@ -27,6 +29,12 @@ python3 scripts/phase12g_acquisition_readiness_audit.py | tee "$OUT_DIR/acquisit
 # frozen media hashes are durable integrity metadata on each row. A reused
 # asset_version must also resolve to one exact finalized packet identity.
 python3 scripts/phase12g_e8_evidence_provenance_integrity.py | tee "$OUT_DIR/e8-evidence-provenance-integrity.log"
+
+# Human field-kit evidence has the same durable-identity requirement. One exact
+# finalized first/mature return may contribute multiple rows and gates, but a
+# distinct finalized return may not reuse that session/tester namespace with a
+# different source/build/contract/receipt identity.
+python3 scripts/phase12g_human_return_identity_integrity.py | tee "$OUT_DIR/human-return-identity-integrity.log"
 
 # A qualitative PASS/FAIL/BLOCKED is valid only for the exact evidence bytes that
 # were explicitly reviewed. Reject stale/unbound dispositions before the evidence
