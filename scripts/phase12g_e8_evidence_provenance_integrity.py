@@ -77,10 +77,11 @@ def validate_row(row: dict, index: int) -> None:
 
     hashes = packet.get("frozen_assets_sha256_by_role")
     sizes = packet.get("frozen_assets_bytes_by_role")
-    if not isinstance(hashes, dict) or tuple(hashes.keys()) != REQUIRED_ROLES:
-        fail(f"row {index}: frozen asset hash roles must exactly match required E8 roles/order")
-    if not isinstance(sizes, dict) or tuple(sizes.keys()) != REQUIRED_ROLES:
-        fail(f"row {index}: frozen asset byte roles must exactly match required E8 roles/order")
+    required_role_set = set(REQUIRED_ROLES)
+    if not isinstance(hashes, dict) or set(hashes.keys()) != required_role_set:
+        fail(f"row {index}: frozen asset hash roles must exactly match required E8 roles")
+    if not isinstance(sizes, dict) or set(sizes.keys()) != required_role_set:
+        fail(f"row {index}: frozen asset byte roles must exactly match required E8 roles")
     for role in REQUIRED_ROLES:
         if not SHA64.fullmatch(str(hashes.get(role, ""))):
             fail(f"row {index}: invalid asset digest for {role}")
