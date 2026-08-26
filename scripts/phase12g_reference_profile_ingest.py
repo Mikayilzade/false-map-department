@@ -16,6 +16,7 @@ REFERENCE_ATTESTATION = "actual_deck_class_reference"
 sys.path.insert(0, str(SCRIPT_DIR))
 import phase12g_provenance as provenance  # noqa: E402
 import phase12g_reference_profile_build_bind as profile_build_binding  # noqa: E402
+import phase12g_reference_profile_target as profile_target  # noqa: E402
 
 
 def fail(message: str) -> None:
@@ -109,6 +110,11 @@ def validate_packet(packet: dict, expected_source_head: str, allow_audit_fixture
         if isinstance(value, bool) or not isinstance(value, (int, float)) or float(value) < 0:
             fail(f"{metric} must be a non-negative number")
 
+    try:
+        target_contract = profile_target.validate_reference_target(str(row.get("dossier_id", "")))
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        fail(f"reference target invalid: {exc}")
+
     raw = packet.get("raw_samples_us")
     if not isinstance(raw, dict):
         fail("raw_samples_us missing/malformed")
@@ -145,11 +151,12 @@ def validate_packet(packet: dict, expected_source_head: str, allow_audit_fixture
             "artifact_filename": binding["artifact_filename"],
             "role": binding["role"],
         }
+        row["t8_reference_target"] = target_contract
     return row
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Validate and deliberately ingest a source-pinned, packaged-build-bound real Deck-class T8-44 profile packet.")
+    parser = argparse.ArgumentParser(description="Validate and deliberately ingest a source-pinned, packaged-build-bound real Deck-class T8-44 profile packet from representative late-game Stability content.")
     parser.add_argument("--packet", type=Path, required=True)
     parser.add_argument("--expected-source-head", required=True)
     parser.add_argument("--evidence-root", type=Path, default=ROOT / "empirical/evidence")
@@ -189,6 +196,7 @@ def main() -> None:
         temp_jsonl.unlink(missing_ok=True)
 
     binding = row["t8_build_binding"]
+    target = row["t8_reference_target"]
     print(json.dumps({
         "status": "APPENDED" if args.append else "VALIDATED_DRY_RUN",
         "source_head": expected,
@@ -200,8 +208,10 @@ def main() -> None:
         "build_binding_id": binding["binding_id"],
         "artifact_sha256": binding["artifact_sha256"],
         "artifact_bytes": binding["artifact_bytes"],
+        "reference_target_contract": target,
         "raw_summary_consistency_verified": True,
         "acquisition_build_bytes_verified": True,
+        "representative_late_game_stability_target_verified": True,
         "provenance_persisted_in_rows": True,
         "collector": result,
         "gate_disposition_inferred": False,
