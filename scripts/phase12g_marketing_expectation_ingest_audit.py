@@ -13,8 +13,8 @@ ROOT = Path(__file__).resolve().parents[1]
 PACKET = ROOT / "scripts/phase12g_marketing_expectation_packet.py"
 INGEST = ROOT / "scripts/phase12g_marketing_expectation_ingest.py"
 PROVENANCE_INTEGRITY = ROOT / "scripts/phase12g_e8_evidence_provenance_integrity.py"
-SOURCE_HEAD = "1" * 40
-WRONG_HEAD = "2" * 40
+SOURCE_HEAD = subprocess.run(["git", "rev-parse", "--verify", "HEAD"], cwd=ROOT, capture_output=True, text=True, check=True).stdout.strip().lower()
+WRONG_HEAD = "0" * 40 if SOURCE_HEAD != "0" * 40 else "1" * 40
 ROLES = (
     ("store_key_art", ".png"),
     ("gameplay_map_world", ".png"),
@@ -46,6 +46,8 @@ def sha256(path: Path) -> str:
 
 
 def main() -> None:
+    if len(SOURCE_HEAD) != 40 or any(ch not in "0123456789abcdef" for ch in SOURCE_HEAD):
+        raise SystemExit("E8 audit checkout source must resolve to exact Git SHA")
     with tempfile.TemporaryDirectory(prefix="fmd-e8-ingest-audit-") as raw:
         temp = Path(raw)
         media = temp / "media"
@@ -113,6 +115,8 @@ def main() -> None:
         dry_result = json.loads(dry.stdout)
         if dry_result.get("mode") != "dry_run" or dry_result.get("new_rows") != 2:
             raise SystemExit(f"unexpected E8 dry-run result: {dry_result}")
+        if dry_result.get("repository_checkout_head") != SOURCE_HEAD:
+            raise SystemExit("E8 dry-run did not expose the actual source-matching repository checkout HEAD")
         if dry_result.get("completion_receipt_verified") is not True:
             raise SystemExit("E8 dry-run did not report completion receipt verification")
         if dry_result.get("durable_packet_provenance_schema") != "fmd.phase12g.e8.evidence-packet-provenance.v1":
@@ -166,19 +170,15 @@ def main() -> None:
             "--expected-source-head", WRONG_HEAD,
             "--evidence-root", str(evidence_root),
         ], expect_ok=False)
-        if "source_head mismatch" not in (wrong.stderr + wrong.stdout):
-            raise SystemExit("E8 ingest did not reject wrong expected source head")
+        if "repository checkout HEAD mismatch" not in (wrong.stderr + wrong.stdout):
+            raise SystemExit("E8 ingest did not reject caller-supplied old source against actual checkout")
 
-        # Prove the repository evidence remains self-describing even if the external
-        # packet is later unavailable. Exact asset hashes/source/build/receipt identity
-        # must still be reviewable from E8.jsonl alone.
         preserved_rows = evidence_rows(target)
         shutil.rmtree(packet_root)
         post_removal = run([sys.executable, str(PROVENANCE_INTEGRITY), "--evidence", str(target)])
         if "validated_rows=2" not in post_removal.stdout or evidence_rows(target) != preserved_rows:
             raise SystemExit("E8 durable evidence provenance depended on the external packet remaining present")
 
-        # Build a second packet for tamper tests because the first was deliberately removed.
         packet_root = temp / "tamper-packet"
         run([
             sys.executable,
@@ -231,7 +231,7 @@ def main() -> None:
         if tampered_state.get("status") != "INVALID_PACKET" or "receipt" not in str(tampered_state.get("reason", "")).lower():
             raise SystemExit(f"E8 status did not expose post-finalize receipt mismatch: {tampered_state}")
 
-    print("Phase 12G E8 ingest audit: PASS — source/assets + digest-bound finalization + durable self-contained packet provenance survives external packet removal + dry-run/append/idempotency/tamper rejection; synthetic audit data never touched repository evidence")
+    print("Phase 12G E8 ingest audit: PASS — actual checkout/source pin + source/assets + digest-bound finalization + durable self-contained packet provenance + dry-run/append/idempotency/tamper rejection; synthetic audit data never touched repository evidence")
 
 
 if __name__ == "__main__":
