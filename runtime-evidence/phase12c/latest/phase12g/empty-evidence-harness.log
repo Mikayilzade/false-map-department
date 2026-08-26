@@ -188,5 +188,9 @@
     }
   ],
   "phase": "12G",
+  "qualitative_disposition_integrity": {
+    "ok": true,
+    "reason": "exact-byte qualitative disposition integrity current"
+  },
   "registry_version": 1
 }
