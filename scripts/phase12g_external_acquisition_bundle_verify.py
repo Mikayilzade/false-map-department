@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
-import sys
 import tarfile
 import unicodedata
 from pathlib import Path, PurePosixPath
@@ -38,6 +38,13 @@ def sha256_bytes(data: bytes) -> str:
 def fail(code: str, detail: str = "") -> None:
     print(json.dumps({"ok": False, "code": code, "detail": detail}, sort_keys=True))
     raise SystemExit(2)
+
+
+def validate_expected_source_head(value: str) -> str:
+    source_head = value.strip().lower()
+    if len(source_head) != 40 or any(ch not in "0123456789abcdef" for ch in source_head):
+        fail("bundle_expected_source_head_invalid", source_head)
+    return source_head
 
 
 def member_is_within_root(name: str, archive_root: str) -> bool:
@@ -192,7 +199,7 @@ def verify_source_bindings(root: Path, archive_path: Path, archive_result: dict,
     return len(REQUIRED_SOURCE_BINDINGS)
 
 
-def verify(root: Path) -> dict:
+def verify(root: Path, expected_source_head: str) -> dict:
     manifest_path = root / "bundle-manifest.json"
     if not manifest_path.is_file():
         fail("bundle_manifest_missing")
@@ -205,6 +212,8 @@ def verify(root: Path) -> dict:
     source_head = str(manifest.get("source_head", ""))
     if len(source_head) != 40 or any(ch not in "0123456789abcdef" for ch in source_head):
         fail("bundle_source_head_invalid", source_head)
+    if source_head != expected_source_head:
+        fail("bundle_expected_source_head_mismatch", f"expected={expected_source_head}, bundle={source_head}")
     source_file = root / "SOURCE_HEAD.txt"
     if not source_file.is_file() or source_file.read_text(encoding="utf-8").strip() != source_head:
         fail("bundle_source_head_file_mismatch")
@@ -241,6 +250,7 @@ def verify(root: Path) -> dict:
     return {
         "ok": True,
         "source_head": source_head,
+        "expected_source_head": expected_source_head,
         "verified_files": len(rows),
         "source_archive": archive_name,
         "archive_root": archive_result["archive_root"],
@@ -252,8 +262,12 @@ def verify(root: Path) -> dict:
 
 
 def main() -> None:
-    root = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
-    print(json.dumps(verify(root), sort_keys=True))
+    parser = argparse.ArgumentParser(description="Verify a Phase 12G external acquisition bundle against an independently known exact source commit.")
+    parser.add_argument("root", nargs="?", default=".")
+    parser.add_argument("--expected-source-head", required=True)
+    args = parser.parse_args()
+    expected_source_head = validate_expected_source_head(args.expected_source_head)
+    print(json.dumps(verify(Path(args.root).resolve(), expected_source_head), sort_keys=True))
 
 
 if __name__ == "__main__":
