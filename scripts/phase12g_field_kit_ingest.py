@@ -13,6 +13,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_DIR = Path(__file__).resolve().parent
 COLLECTOR = ROOT / "scripts/phase12g_collect_completed_rows.py"
 HUMAN_GATES = ("E1", "E2", "E3", "E4", "E5", "E6", "E9", "E10", "E11")
+FIRST_SESSION_GATES = {"E1", "E2", "E11"}
+MATURE_SESSION_GATES = {"E3", "E4", "E5", "E6", "E9", "E10"}
 RECEIPT_SCHEMA = "fmd.phase12g.field-kit-finalization-receipt.v1"
 FIELD_KIT_CHANNEL = "human_field_kit_v4"
 RETURN_IDENTITY_FIELDS = (
@@ -140,6 +142,49 @@ def return_namespace(receipt: dict, receipt_path: Path) -> str:
     fail(f"{receipt_path}: unsupported packet_kind for return identity: {packet_kind!r}")
 
 
+def verify_receipt_packet_identity(receipt_path: Path, receipt: dict) -> dict:
+    packet_kind = str(receipt.get("packet_kind", ""))
+    receipt_tester = str(receipt.get("tester_id", "")).strip()
+    receipt_session = str(receipt.get("session_id", "")).strip()
+    if not receipt_tester:
+        fail(f"{receipt_path}: finalization receipt missing tester_id")
+    if packet_kind == "first_session":
+        manifest_path = receipt_path.parent / "session-manifest.json"
+        packet = load_json(manifest_path)
+        packet_tester = str(packet.get("tester_id", "")).strip()
+        packet_session = str(packet.get("session_id", "")).strip()
+        if not packet_tester or not packet_session:
+            fail(f"{manifest_path}: immutable first-session packet identity missing")
+        if receipt_tester != packet_tester or receipt_session != packet_session:
+            fail(f"{receipt_path}: receipt identity does not match immutable first-session packet identity")
+        return {"tester_id": packet_tester, "session_id": packet_session}
+    if packet_kind == "mature_session":
+        packet_path = receipt_path.parent / "observer-packet.json"
+        packet = load_json(packet_path)
+        packet_tester = str(packet.get("tester_id", "")).strip()
+        if not packet_tester:
+            fail(f"{packet_path}: immutable mature-session packet tester identity missing")
+        if receipt_tester != packet_tester or receipt_session:
+            fail(f"{receipt_path}: receipt identity does not match immutable mature-session packet identity")
+        return {"tester_id": packet_tester, "session_id": ""}
+    fail(f"{receipt_path}: unsupported packet_kind for immutable packet identity")
+
+
+def verify_completed_row_identity(path: Path, gate_id: str, binding: dict, rows: list[dict]) -> None:
+    packet_kind = str(binding.get("packet_kind", ""))
+    tester_id = str(binding.get("packet_tester_id", ""))
+    session_id = str(binding.get("packet_session_id", ""))
+    expected_gates = FIRST_SESSION_GATES if packet_kind == "first_session" else MATURE_SESSION_GATES
+    if gate_id not in expected_gates:
+        fail(f"{path}: {packet_kind} receipt cannot bind completed {gate_id} rows")
+    for index, row in enumerate(rows, start=1):
+        if str(row.get("tester_id", "")).strip() != tester_id:
+            fail(f"{path}:{index}: completed-row tester_id does not match immutable packet identity")
+        if packet_kind == "first_session" and gate_id in {"E1", "E2"}:
+            if str(row.get("session_id", "")).strip() != session_id:
+                fail(f"{path}:{index}: completed-row session_id does not match immutable first-session packet identity")
+
+
 def verify_finalization_receipts(kit_root: Path, manifest: dict, files_by_gate: dict[str, list[Path]]) -> dict[str, dict]:
     completed_paths = sorted(path.resolve() for paths in files_by_gate.values() for path in paths)
     receipts = sorted(kit_root.rglob("finalization-receipt.json"))
@@ -162,6 +207,7 @@ def verify_finalization_receipts(kit_root: Path, manifest: dict, files_by_gate: 
             fail(f"{receipt_path}: finalization receipt finalizer binding mismatch")
         if receipt.get("human_outcomes_inferred") is not False or receipt.get("repository_evidence_appended") is not False:
             fail(f"{receipt_path}: finalization receipt empirical boundary markers invalid")
+        packet_identity = verify_receipt_packet_identity(receipt_path, receipt)
         namespace = return_namespace(receipt, receipt_path)
         receipt_digest = sha256_file(receipt_path)
         identity = (
@@ -182,6 +228,8 @@ def verify_finalization_receipts(kit_root: Path, manifest: dict, files_by_gate: 
             if not isinstance(entry, dict):
                 fail(f"{receipt_path}: malformed completed-file binding")
             path = resolve_inside(kit_root, entry.get("path", ""), "receipt completed-file path")
+            if path.parent.resolve() != receipt_path.parent.resolve():
+                fail(f"{receipt_path}: receipt may bind completed files only inside its own immutable packet directory")
             if not path.exists() or not path.is_file():
                 fail(f"{receipt_path}: receipt-bound completed file missing: {path}")
             if path in bound:
@@ -197,13 +245,19 @@ def verify_finalization_receipts(kit_root: Path, manifest: dict, files_by_gate: 
             actual_hash = sha256_file(path)
             if actual_hash != expected_hash:
                 fail(f"{path}: completed file changed after offline finalization (digest mismatch)")
-            bound[path] = {
+            gate_id = path.name.removeprefix("completed-").removesuffix(".jsonl")
+            rows = load_jsonl(path)
+            binding = {
                 "completed_file_sha256": actual_hash,
                 "return_namespace": namespace,
                 "packet_kind": str(receipt.get("packet_kind", "")),
                 "field_kit_contract_hash": str(receipt.get("field_kit_contract_hash", "")),
                 "finalization_receipt_sha256": receipt_digest,
+                "packet_tester_id": packet_identity["tester_id"],
+                "packet_session_id": packet_identity["session_id"],
             }
+            verify_completed_row_identity(path, gate_id, binding, rows)
+            bound[path] = binding
     missing = [path for path in completed_paths if path not in bound]
     extra = [path for path in bound if path not in completed_paths]
     if missing:
@@ -372,6 +426,7 @@ def main() -> None:
         "finalization_receipts_verified": True,
         "completed_file_digests_verified": len(receipt_bindings),
         "return_identity_verified": True,
+        "packet_identity_verified": True,
         "provenance_persisted_in_rows": True,
         "append_requested": args.append,
         "completed_file_count": len(results),
