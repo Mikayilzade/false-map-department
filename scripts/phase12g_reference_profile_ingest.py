@@ -15,6 +15,7 @@ REFERENCE_ATTESTATION = "actual_deck_class_reference"
 
 sys.path.insert(0, str(SCRIPT_DIR))
 import phase12g_provenance as provenance  # noqa: E402
+import phase12g_reference_profile_build_bind as profile_build_binding  # noqa: E402
 
 
 def fail(message: str) -> None:
@@ -60,9 +61,10 @@ def require_metric_match(row: dict, field: str, expected: float) -> None:
         fail(f"{field} does not match raw_samples_us: claimed {actual}, recomputed {expected}")
 
 
-def validate_packet(packet: dict, expected_source_head: str, allow_audit_fixture: bool = False) -> dict:
-    if int(packet.get("packet_version", 0)) != 1:
-        fail("unsupported packet_version")
+def validate_packet(packet: dict, expected_source_head: str, allow_audit_fixture: bool = False, packet_path: Path | None = None) -> dict:
+    expected_version = 1 if allow_audit_fixture and packet_path is None else 2
+    if int(packet.get("packet_version", 0)) != expected_version:
+        fail(f"unsupported packet_version; expected {expected_version}")
     expected = validate_sha(expected_source_head, "expected source_head")
     checkout_head = repository_checkout_head()
     if checkout_head != expected:
@@ -130,11 +132,24 @@ def validate_packet(packet: dict, expected_source_head: str, allow_audit_fixture
 
     if packet.get("evidence_appended") is not False:
         fail("profile packet must remain non-evidence until deliberate repository append")
+    if packet_path is not None:
+        try:
+            binding = profile_build_binding.verify_sealed(packet_path, packet)
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            fail(f"packaged build acquisition binding invalid: {exc}")
+        row = dict(row)
+        row["t8_build_binding"] = {
+            "binding_id": binding["binding_id"],
+            "artifact_sha256": binding["artifact_sha256"],
+            "artifact_bytes": binding["artifact_bytes"],
+            "artifact_filename": binding["artifact_filename"],
+            "role": binding["role"],
+        }
     return row
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Validate and deliberately ingest a source-pinned real Deck-class T8-44 profile packet.")
+    parser = argparse.ArgumentParser(description="Validate and deliberately ingest a source-pinned, packaged-build-bound real Deck-class T8-44 profile packet.")
     parser.add_argument("--packet", type=Path, required=True)
     parser.add_argument("--expected-source-head", required=True)
     parser.add_argument("--evidence-root", type=Path, default=ROOT / "empirical/evidence")
@@ -142,8 +157,9 @@ def main() -> None:
     args = parser.parse_args()
 
     expected = validate_sha(args.expected_source_head, "--expected-source-head")
-    packet = load_json(args.packet)
-    row = validate_packet(packet, expected)
+    packet_path = args.packet.resolve()
+    packet = load_json(packet_path)
+    row = validate_packet(packet, expected, packet_path=packet_path)
     try:
         row = provenance.enrich_row(
             row,
@@ -154,7 +170,7 @@ def main() -> None:
     except ValueError as exc:
         fail(f"profile evidence provenance invalid: {exc}")
 
-    temp_jsonl = args.packet.with_suffix(args.packet.suffix + ".validated.jsonl")
+    temp_jsonl = packet_path.with_suffix(packet_path.suffix + ".validated.jsonl")
     try:
         temp_jsonl.write_text(json.dumps(row, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8")
         command = [
@@ -172,6 +188,7 @@ def main() -> None:
     finally:
         temp_jsonl.unlink(missing_ok=True)
 
+    binding = row["t8_build_binding"]
     print(json.dumps({
         "status": "APPENDED" if args.append else "VALIDATED_DRY_RUN",
         "source_head": expected,
@@ -180,7 +197,11 @@ def main() -> None:
         "build_id": row["build_id"],
         "dossier_id": row["dossier_id"],
         "sample_count": row["sample_count"],
+        "build_binding_id": binding["binding_id"],
+        "artifact_sha256": binding["artifact_sha256"],
+        "artifact_bytes": binding["artifact_bytes"],
         "raw_summary_consistency_verified": True,
+        "acquisition_build_bytes_verified": True,
         "provenance_persisted_in_rows": True,
         "collector": result,
         "gate_disposition_inferred": False,
