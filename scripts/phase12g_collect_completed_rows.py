@@ -6,6 +6,8 @@ import json
 import os
 from pathlib import Path
 
+from phase12g_evidence_destination import resolve_evidence_root
+
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "empirical/phase12g_gate_registry.json"
 DEFAULT_EVIDENCE_ROOT = ROOT / "empirical/evidence"
@@ -215,7 +217,10 @@ def main() -> None:
     if failures:
         raise SystemExit("\n".join(failures))
 
-    evidence_root = args.evidence_root.resolve()
+    try:
+        evidence_root = resolve_evidence_root(args.evidence_root, append=args.append)
+    except ValueError as exc:
+        raise SystemExit(f"evidence destination rejected: {exc}") from exc
     verify_required_acquisition_channel(rows, gate_id, evidence_root)
     verify_human_participant_qualification(rows, gate_id)
 
