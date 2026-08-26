@@ -14,6 +14,7 @@ COLLECTOR = ROOT / "scripts/phase12g_collect_completed_rows.py"
 REFERENCE_ATTESTATION = "actual_deck_class_reference"
 
 sys.path.insert(0, str(SCRIPT_DIR))
+import phase12g_evidence_destination as evidence_destination  # noqa: E402
 import phase12g_provenance as provenance  # noqa: E402
 import phase12g_reference_profile_build_bind as profile_build_binding  # noqa: E402
 import phase12g_reference_profile_target as profile_target  # noqa: E402
@@ -177,6 +178,11 @@ def main() -> None:
     except ValueError as exc:
         fail(f"profile evidence provenance invalid: {exc}")
 
+    try:
+        evidence_root = evidence_destination.resolve_evidence_root(args.evidence_root, append=args.append)
+    except ValueError as exc:
+        fail(str(exc))
+
     temp_jsonl = packet_path.with_suffix(packet_path.suffix + ".validated.jsonl")
     try:
         temp_jsonl.write_text(json.dumps(row, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -184,7 +190,7 @@ def main() -> None:
             sys.executable,
             str(COLLECTOR),
             "--input", str(temp_jsonl),
-            "--evidence-root", str(args.evidence_root),
+            "--evidence-root", str(evidence_root),
         ]
         if args.append:
             command.append("--append")
