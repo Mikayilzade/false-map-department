@@ -1,1 +1,1 @@
-Phase 12G external acquisition bundle audit: PASS (exact-source v4 archive + byte-bound standalone verifier/finalizer/return-ingest contract + adversarial transport rejection + zero evidence/disposition mutation)
+Phase 12G external acquisition bundle audit: PASS (exact-source v4 archive + independent expected-source handoff + byte-bound standalone verifier/finalizer/return-ingest contract + adversarial transport rejection + zero evidence/disposition mutation)

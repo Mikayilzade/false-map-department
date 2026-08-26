@@ -13,7 +13,7 @@ Phase 12G E8 ingest audit: PASS — actual checkout/source pin + source/assets +
 Phase 12G E8 asset-version collision audit: PASS — one asset_version is bound to one exact finalized packet; multiple respondents from that packet remain valid and conflicting later packet reuse is rejected before append
 Phase 12G qualitative disposition audit: PASS (explicit review + exact evidence digest/row binding + raw-harness/dashboard stale rejection + deliberate replacement + threshold-gate guard)
 Phase 12G T8-44 acquisition audit: PASS (actual checkout/source pin + reference attestation + exact raw-sample cardinality + recomputed median/p95/p99 integrity + non-reference/tamper rejection; audit data never touched repository evidence)
-Phase 12G external acquisition bundle audit: PASS (exact-source v4 archive + byte-bound standalone verifier/finalizer/return-ingest contract + adversarial transport rejection + zero evidence/disposition mutation)
+Phase 12G external acquisition bundle audit: PASS (exact-source v4 archive + independent expected-source handoff + byte-bound standalone verifier/finalizer/return-ingest contract + adversarial transport rejection + zero evidence/disposition mutation)
 Phase 12G acquisition readiness audit: PASS (demo path preserved; mature empirical scene + explicit representative bindings + map-backed linked facts present; no human/capture PASS fabricated)
 Phase 12G E8 evidence provenance integrity: PASS (validated_rows=0, unique_asset_versions=0, durable_packet_identity=not-yet-observed)
 Phase 12G human return identity integrity: PASS (0 field-kit evidence rows, 0 finalized return namespaces; exact-return multi-row reuse allowed, conflicting reuse rejected)
