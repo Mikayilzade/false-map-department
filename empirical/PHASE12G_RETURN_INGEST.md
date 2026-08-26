@@ -6,6 +6,8 @@ This document is acquisition infrastructure only. It does not create, infer, or 
 
 A returned packet is acceptable only when all applicable packet/kit verification succeeds and its exact `source_head` matches the repository checkout used for ingest. Build identity and acquisition channel must survive into the append-only evidence row. Missing evidence remains PENDING.
 
+For human field-kit ingest, the repository tool resolves the current checkout with `git rev-parse --verify HEAD` and requires that SHA to equal both `--expected-source-head` and the returned kit manifest `source_head`. The command-line value is therefore a confirmation, not a substitute for checking out the exact source commit. Ingest from a newer/older checkout must fail closed before any evidence append.
+
 Never copy observations manually into `empirical/evidence/*.jsonl`. Use the gate-specific ingest path so duplicate-return checks, provenance checks, packet integrity checks, dry-run defaults and finalization-receipt checks remain active.
 
 ## Human field-kit return — E1-E6, E9-E11
@@ -14,8 +16,8 @@ Never copy observations manually into `empirical/evidence/*.jsonl`. Use the gate
 2. Run the offline verifier on the returned kit before ingest.
 3. Finalize every genuinely completed first/mature packet locally with the bundled `FIELD-KIT-FINALIZE.py`. Finalization writes `completed-*.jsonl` plus a packet-local `finalization-receipt.json` that binds the completed-file SHA-256/size to the exact field-kit contract, source SHA, demo/production build IDs and manifest-pinned finalizer hash.
 4. Transport the completed rows and their receipt together. Do not edit a finalized `completed-*.jsonl`; if an observation correction is genuinely required, correct the observer packet and rerun the bundled finalizer so a new matching receipt is produced before ingest.
-5. Run `python3 scripts/phase12g_field_kit_ingest.py --kit-dir <RETURNED_KIT> --expected-source-head <40_SHA>` without append first. Repository ingest rejects any completed file that is missing a receipt binding, changed after finalization, bound by multiple receipts, or tied to different source/build/tool identity.
-6. Inspect the dry-run result and confirm source/build attribution, receipt verification and completed-row counts.
+5. Run `python3 scripts/phase12g_field_kit_ingest.py --kit-dir <RETURNED_KIT> --expected-source-head <40_SHA>` without append first. Repository ingest resolves the actual checkout HEAD and rejects a mismatch before verification/collection; it also rejects any completed file that is missing a receipt binding, changed after finalization, bound by multiple receipts, or tied to different source/build/tool identity.
+6. Inspect the dry-run result and confirm `repository_checkout_head`, source/build attribution, receipt verification and completed-row counts.
 7. Only for genuine reviewed observations, repeat with the ingest tool's explicit `--append` option.
 8. Run `python3 scripts/phase12g_evidence_harness.py` and `python3 scripts/phase12g_gate_dashboard.py` after deliberate append.
 
