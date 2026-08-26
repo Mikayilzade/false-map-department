@@ -7,6 +7,8 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+from phase12g_evidence_destination import resolve_control_path
+
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "empirical/phase12g_gate_registry.json"
 DEFAULT_EVIDENCE_ROOT = ROOT / "empirical/evidence"
@@ -70,6 +72,17 @@ def main() -> None:
     parser.add_argument("--replace", action="store_true", help="Deliberately replace an existing disposition after re-reviewing current evidence.")
     args = parser.parse_args()
 
+    evidence_root = args.evidence_root.resolve()
+    requested_output = args.output or (evidence_root / "dispositions.json")
+    try:
+        output = resolve_control_path(
+            evidence_root,
+            requested_output,
+            control_kind="dispositions",
+        )
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
+
     registry = load_json(REGISTRY)
     qualitative_gate(registry, args.gate_id)
 
@@ -83,14 +96,13 @@ def main() -> None:
     if not refs:
         raise SystemExit("at least one non-empty evidence-ref is required")
 
-    evidence_path = args.evidence_root / f"{args.gate_id}.jsonl"
+    evidence_path = evidence_root / f"{args.gate_id}.jsonl"
     if not evidence_path.exists():
         raise SystemExit(f"{args.gate_id}: no evidence file exists at {evidence_path}")
     row_count = count_rows(evidence_path)
     if row_count <= 0:
         raise SystemExit(f"{args.gate_id}: cannot disposition empty evidence")
 
-    output = args.output or (args.evidence_root / "dispositions.json")
     document = load_disposition_document(output)
     dispositions = document["dispositions"]
     if args.gate_id in dispositions and not args.replace:
