@@ -14,78 +14,77 @@ Repository: `Mikayilzade/false-map-department`
 - 12D Content Population: **COMPLETE**
 - 12E UX / Accessibility / Controller / Deck: **COMPLETE**
 - 12F Adversarial QA: **COMPLETE — real-Godot runtime-green**
-- 12G Empirical Gates: **IN PROGRESS — E7 exhaustive 285/285 PASS; human/E8/T8 acquisition infrastructure runtime-green; missing real human/market/reference-hardware evidence remains PENDING**
+- 12G Empirical Gates: **IN PROGRESS — E7 exhaustive 285/285 PASS; remaining genuine human/market/reference-hardware evidence PENDING**
 - 12H Release Candidate: **NO**
 - IMPLEMENTATION COMPLETE: **NO**
 
 ## Latest autonomous run — 2026-08-26
 
 ### Phase / subphase
-**12G Empirical Design Gates / human field-kit finalized-return namespace immutability — EXACT-HEAD RUNTIME GREEN**
+**12G Empirical Design Gates / sample-adequacy inspection + qualitative-disposition exact-byte binding hardening — EXACT-HEAD RUNTIME GREEN**
 
 ### Progress saved this run
-- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, this status file, `GAME2_PHASE11_FINAL_FREEZE.md`, `empirical/PHASE12G_PROTOCOL.md`, and `empirical/phase12g_gate_registry.json` before changing empirical acquisition infrastructure.
-- Resumed exactly from the prior `NEXT ACTION` and inspected the E1-E6/E9-E11 human field-kit prepare/finalize/receipt/ingest path plus the generic append-only collector.
-- Confirmed a real ambiguity: a later distinct field-kit return could reuse the same first-session `session_id` or mature `tester_id` namespace with different source/build/field-kit-contract/finalization-receipt identity. Because generic dedupe only compared complete canonical rows, changed outcomes/provenance could otherwise be accepted as novel rows under the reused namespace.
-- Extended `phase12g_field_kit_ingest.py` so each finalized return now persists a durable repository row identity: `field_kit_return_namespace`, `field_kit_packet_kind`, `field_kit_contract_hash`, and `field_kit_finalization_receipt_sha256`, in addition to existing source/build/channel provenance.
-- First-session returns bind to `first_session:<session_id>`; mature returns bind to `mature_session:<tester_id>`. Multiple gate rows and multiple observations from the **same exact finalized return** remain valid. A distinct finalized return with conflicting packet/source/build/contract/receipt identity under an existing namespace is rejected before collector append and must use a fresh session/tester namespace.
-- Added live `phase12g_human_return_identity_integrity.py`, which rejects incomplete field-kit provenance or cross-file namespace conflicts before evidence harness/dashboard consumption.
-- Added isolated `phase12g_human_return_identity_audit.py` proving exact-return multi-row/cross-gate reuse remains accepted while conflicting receipt reuse and missing durable identity fail.
-- Added end-to-end `phase12g_field_kit_return_collision_audit.py`: it prepares/finalizes one synthetic non-evidence kit, deliberately appends it to an isolated evidence root, prepares a second distinct finalized kit reusing the same default `FIRST-S0001` namespace with different build/receipt identity and novel outcomes, proves rejection before append with byte-preserving failure, then proves an exact retry of the original finalized return remains idempotent.
-- Wired both new audits and live human-return integrity into `run_phase12g_preconditions.sh` ahead of evidence harness/dashboard consumption.
-- No gameplay, content, progression, presentation, persistence, empirical threshold, real evidence row, human observation, market disposition, or Deck-class hardware outcome changed.
-
-### Current validated empirical state
-- **E7 accessibility/device sweep: PASS — 285/285** frozen matrix.
-- **E1, E2, E3, E4, E5, E6, E8, E9, E10, E11, E12, T8-44: PENDING**.
-- Repository currently has **0 human field-kit evidence rows**; the live identity gate therefore validates the empty human-return state without inferring outcomes.
-- Repository still has no E8 evidence rows and no E8 qualitative disposition; E8 remains PENDING.
-- T8-44 still requires actual Deck-class reference hardware; hosted CI and synthetic timings remain non-evidence.
-- E12 remains intentionally near-release.
-- 12G remains **IN PROGRESS** and 12H remains prohibited.
+- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, this status file, `GAME2_PHASE11_FINAL_FREEZE.md`, `empirical/PHASE12G_PROTOCOL.md`, and `empirical/phase12g_gate_registry.json` before changing Phase 12G acquisition infrastructure.
+- Resumed exactly from the previous `NEXT ACTION` and inspected `phase12g_set_sample_adequacy.py`, `phase12g_sample_adequacy_audit.py`, and the evidence harness.
+- Confirmed **E1/E2 representative-sample adequacy is already exact-byte bound**: the persisted adequacy record stores the current gate JSONL SHA-256 plus row count, and any append/change makes the harness return PENDING until adequacy is explicitly re-reviewed. No duplicate sample-adequacy mechanism was added.
+- Moved to the next genuine acquisition-enabling defect and found a legacy qualitative-disposition path: `phase12g_set_disposition.py` still wrote schema-v1 decisions containing only evidence row count. That path could not satisfy the newer exact-evidence review identity required by `phase12g_qualitative_disposition_integrity.py` and could allow stale/replaced evidence to retain an apparently reusable decision outside the guarded aggregate path.
+- Hardened the standalone Phase 12G dashboard so it runs qualitative-disposition integrity before rendering. A stale qualitative PASS/FAIL/BLOCKED now fails closed instead of appearing on an operator dashboard.
+- Updated the Phase 12G protocol to require qualitative exact-byte integrity before direct low-level harness consumption, while documenting that the dashboard enforces this guard itself.
+- Upgraded the compatibility `phase12g_set_disposition.py` path to the v2 exact-byte schema: every new decision now records explicit reviewer/operator ID, evidence file, SHA-256, row count, timestamp, interpretation mode, rationale and refs; existing decisions are write-once unless `--replace` is deliberately supplied; a non-empty legacy unbound disposition document is rejected rather than silently migrated.
+- Preserved the compatibility append-only `disposition_history.jsonl`, now with the same exact evidence identity on every new history row.
+- Extended the operator-workflow audit to prove compatibility-setter output passes exact-byte integrity, becomes stale after append-only evidence changes, makes the dashboard fail closed, and becomes current again only after deliberate re-review with `--replace`.
+- Extended the qualitative-disposition audit to prove the standalone dashboard rejects stale reviewed evidence and recovers only after deliberate replacement.
+- No real evidence rows, human observations, market outcomes, hardware outcomes, gameplay, content, presentation, progression, persistence or frozen empirical thresholds changed.
 
 ### Files / systems changed
-- `scripts/phase12g_field_kit_ingest.py`
-- `scripts/phase12g_human_return_identity_integrity.py`
-- `scripts/phase12g_human_return_identity_audit.py`
-- `scripts/phase12g_field_kit_return_collision_audit.py`
-- `scripts/run_phase12g_preconditions.sh`
+- `scripts/phase12g_gate_dashboard.py`
+- `scripts/phase12g_qualitative_disposition_audit.py`
+- `empirical/PHASE12G_PROTOCOL.md`
+- `scripts/phase12g_set_disposition.py`
+- `scripts/phase12g_operator_workflow_audit.py`
 - `IMPLEMENTATION_STATUS.md`
 
 ### Validation / factual exact-head evidence
-- Implementation head: `4bcb56c4b0dd76f3adbb97aecfcd12ec0a4c95b3`.
-- Automatic notification-safe aggregate run **32923217888**: **PASS** for exact head `4bcb56c4b0dd76f3adbb97aecfcd12ec0a4c95b3`.
-- Evidence commit: `badff9a198f8b1c7d413789756b2c5b8f3eeaa25`.
-- `runtime-evidence/phase12c/latest/run-metadata.txt`: `head_sha=4bcb56c4b0dd76f3adbb97aecfcd12ec0a4c95b3`, `run_id=32923217888`.
+- First implementation head `0a547ae2aba8cbf39d58af899e3307a011ad268e` produced run **32926949608** and correctly exposed a precondition contract-marker regression; result was **FAIL** and was not counted.
+- Marker repair head `6b25708c942dcf03d0dae3c87114de5ee8b593f5` produced run **32927042698** and exposed the deeper legacy schema-v1 operator path; result was **FAIL** and was not counted.
+- Final implementation head: `d947f42acba3c00f66515c00e4dc81e35b5396d9`.
+- Automatic notification-safe aggregate run **32927193737**: **PASS** for exact head `d947f42acba3c00f66515c00e4dc81e35b5396d9`.
+- Evidence commit: `3ff47c53063f35c1b98ce77cb220fbb0a1bc5744`.
+- `runtime-evidence/phase12c/latest/run-metadata.txt`: `head_sha=d947f42acba3c00f66515c00e4dc81e35b5396d9`, `run_id=32927193737`.
 - `runtime-evidence/phase12c/latest/result.json`: `result=PASS`, `runtime_rc=0`, `phase12g_instrumentation_rc=0`, `ci_policy_rc=0`, `bootstrap_preflight_rc=0`, `phase12a_contract_rc=0`, `fetch_godot_rc=0`.
-- `runtime-evidence/phase12c/latest/phase12g/human-return-identity-audit.log`: **PASS** — exact finalized-return multi-row/cross-gate reuse accepted; conflicting receipt reuse and incomplete durable identity rejected.
-- `runtime-evidence/phase12c/latest/phase12g/field-kit-return-collision-audit.log`: **PASS** — durable namespace persisted; distinct finalized return cannot reuse namespace; exact finalized-return retry remains idempotent and byte-preserving.
-- `runtime-evidence/phase12c/latest/phase12g/human-return-identity-integrity.log`: **PASS** — current live repository has 0 human field-kit rows / 0 finalized return namespaces and the durable collision rule is active.
-- Existing 12A-12F runtime suites, E7 285/285 evidence, E8 durable provenance/collision checks, qualitative-disposition integrity, human field-kit lifecycle audits, and other Phase12G instrumentation/readiness gates remained green in the same aggregate run.
+- `runtime-evidence/phase12c/latest/phase12g/operator-workflow-audit.log`: **PASS** — blank-row rejection, append dedupe, exact-byte qualitative disposition, stale-review rejection and dashboard recovery all verified.
+- `runtime-evidence/phase12c/latest/phase12g/qualitative-disposition-audit.log`: **PASS** — explicit review, exact digest/row binding, stale integrity/dashboard rejection, deliberate replacement and threshold-gate guard verified.
+- Current live evidence summary remains **PASS 1 / PENDING 12 / FAIL 0 / BLOCKED 0** with E7 at 285/285 and no fabricated human/market/hardware outcomes.
+
+### Current empirical-gate state
+- **E7: PASS — 285/285 exhaustive frozen matrix.**
+- **E1, E2, E3, E4, E5, E6, E8, E9, E10, E11, E12, T8-44: PENDING.**
+- E1/E2 have no real rows yet; representative-sample adequacy therefore remains unclaimed.
+- E3-E6/E9-E10 have no real mature-human rows.
+- E8 has no genuine representative media/respondent evidence.
+- E11 has no genuine demo timing rows.
+- T8-44 has no actual Deck-class reference-hardware evidence.
+- E12 remains intentionally near-release.
+- No empirical gate changed disposition in this run.
 
 ### Failures / blockers
 - **No current autonomous implementation blocker.**
-- The inspected human finalized-return namespace ambiguity was confirmed and closed in this run.
-- Remaining 12G blockers are genuine evidence-source blockers: real naive participants, real mature participants, genuine representative E8 media + respondents, actual Deck-class reference hardware, and near-release E12 context.
-- Synthetic audit rows/kits are validation infrastructure only and do not count as empirical outcomes.
-
-### Empirical-gate state
-- **E7: PASS — 285/285.**
-- **E1, E2, E3, E4, E5, E6, E8, E9, E10, E11, E12, T8-44: PENDING.**
-- No empirical gate changed disposition during this run.
+- The sample-adequacy stale-reuse concern was already closed by exact SHA/row binding.
+- The discovered legacy qualitative-disposition review-identity gap is now closed for the compatibility setter, aggregate precondition flow, and standalone dashboard.
+- Remaining 12G blockers are genuine evidence-source blockers, not implementation claims: real naive/mature participants, genuine representative E8 media/respondents, actual Deck-class reference hardware, and near-release E12 context.
 
 ### Canonical/design impact
 - **No canonical contradiction discovered.**
-- No frozen gameplay, content, commercial scope, empirical threshold, human-observation contract, or evidence disposition changed.
+- No frozen gameplay, content, commercial scope, empirical threshold or evidence outcome changed.
 
 ## NEXT ACTION
 Continue **12G real evidence acquisition/enabling only**; never fabricate missing outcomes.
 
-1. Treat E8 source/build/finalization transport, durable row provenance, qualitative-disposition binding, asset-version packet identity immutability, and **human field-kit finalized-return namespace identity** as closed classes unless a newly observed defect reopens one.
-2. On the next autonomous run, inspect **human-gate sample-adequacy decision binding** for E1-E6/E9-E11: determine whether any persisted sample-adequacy/threshold-readiness declaration can remain valid after append-only evidence bytes change, or can be reused across a different source/build/return namespace without an exact evidence digest binding. If stale decision reuse is possible, add the minimum evidence-digest/identity guard and isolated audit; if already exact-byte bound, do not duplicate tooling and move to another genuine acquisition-enabling gap.
-3. When actual demo/production builds and real participants are available, acquire genuine naive-human **E1 + E2 + E11** and mature-human **E3-E6 + E9-E10** observations through the source-pinned field-kit lifecycle, finalize locally, transport with receipt, dry-run ingest, deliberately append, then run evidence harness/dashboard.
-4. Keep E7 frozen as the current **285/285 PASS** regression baseline; reacquire only affected signatures after relevant presentation/device changes.
-5. For **E8**, wait for genuine representative five-role media plus real respondents; no synthetic asset/response may count as evidence.
-6. For **T8-44**, use actual Deck-class reference hardware with Godot 4.7.1 and the frozen reference attestation; hosted CI remains non-evidence.
+1. Treat E1/E2 sample-adequacy exact-byte binding, E8 finalized-media provenance, human field-kit finalized-return namespace identity, v2 qualitative-disposition recording, compatibility-setter exact evidence identity, and dashboard stale-review rejection as closed classes unless a new defect reopens one.
+2. Inspect the **low-level `phase12g_evidence_harness.py` qualitative-disposition consumption path itself**. The documented operator path now requires the integrity guard and the dashboard fails closed, but verify whether the raw harness can independently surface a stale qualitative disposition when invoked without the guard. If so, make the minimum self-validating change so raw harness summaries also return PENDING/BLOCKED rather than stale PASS/FAIL/BLOCKED; add an isolated regression without duplicating the existing integrity authority. If it is already self-safe, move to the next real acquisition-enabling integrity/readiness gap.
+3. When actual builds and real participants are available, acquire genuine naive-human **E1 + E2 + E11** and mature-human **E3-E6 + E9-E10** observations through the source-pinned field-kit lifecycle; finalize locally, transport with receipt, dry-run ingest, deliberately append, then run integrity + harness/dashboard.
+4. Keep E7 frozen as **285/285 PASS**; reacquire only affected signatures after relevant presentation/device changes.
+5. For **E8**, wait for genuine representative five-role media plus real respondents; synthetic assets/responses are never evidence.
+6. For **T8-44**, use actual Deck-class reference hardware with Godot 4.7.1 and the frozen attestation; hosted CI remains non-evidence.
 7. Evaluate **E12** only near release with current comparables and near-final build scope.
 8. Do not start **12H** until every remaining 12G gate has genuine evidence-backed disposition or an explicit release blocker.
