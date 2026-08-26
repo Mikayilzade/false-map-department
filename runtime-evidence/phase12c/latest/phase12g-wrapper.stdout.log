@@ -7,6 +7,7 @@ Phase 12G mature-session batch audit: PASS (frozen selections + counterbalance +
 Phase 12G human field-kit audit: PASS (source/build/role bound to exact packaged bytes + portable offline rehash + drift/substitution rejection; no human outcome inferred)
 Phase 12G participant qualification binding audit: PASS (receipt-bound first-session naive declaration + E2 naive eligibility + mature rules-known declaration + E3 rule-knowledge guard; declarations do not prove human truth/timing)
 Phase 12G acquisition channel binding audit: PASS (external human/E8/T8 rows cannot remove or relabel acquisition_channel to bypass qualification/build provenance; E7 unaffected; synthetic-only)
+Phase 12G artifact readiness verification audit: PASS (dry-run append_ready requires actual record/packaged-byte verification; missing inputs stay not-ready; tamper/source/provenance conflicts reject; synthetic-only)
 Phase 12G field-kit ingest audit: PASS (acquisition package byte binding + offline/finalization receipt verification + actual checkout/source pin + dry-run default + deliberate append + idempotency + tamper rejection)
 Phase 12G human return identity audit: PASS (exact finalized-return multi-row/cross-gate reuse accepted; conflicting receipt reuse and incomplete durable identity rejected)
 Phase 12G human packet identity binding audit: PASS (receipt identity rechecked against immutable packet identity; completed-row tester/session and packet-kind/gate cross-binding enforced; no human outcome inferred)
