@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import hashlib
+import json
 import re
 
 SHA40 = re.compile(r"^[0-9a-f]{40}$")
@@ -15,33 +17,51 @@ def normalize_source_head(value: str) -> str:
     return source_head
 
 
-def expected_build_id(source_head: str, role: str) -> str:
-    source_head = normalize_source_head(source_head)
-    role = str(role).strip().lower()
+def normalize_build_id(value: object) -> str:
+    build_id = str(value).strip()
+    if not build_id:
+        raise ValueError("build_id must be non-empty")
+    return build_id
+
+
+def normalize_role(value: str) -> str:
+    role = str(value).strip().lower()
     if role not in ROLES:
         raise ValueError(f"unsupported build role: {role}")
-    return f"fmd-{role}-src-{source_head}"
+    return role
 
 
-def validate_build_id(build_id: str, source_head: str, role: str) -> str:
-    expected = expected_build_id(source_head, role)
-    actual = str(build_id).strip()
-    if actual != expected:
-        raise ValueError(
-            f"{role} build_id/source_head mismatch: expected {expected}, got {actual or '<blank>'}"
-        )
-    return actual
+def binding_id(source_head: str, role: str, build_id: object) -> str:
+    payload = {
+        "schema": SCHEMA,
+        "role": normalize_role(role),
+        "source_head": normalize_source_head(source_head),
+        "build_id": normalize_build_id(build_id),
+    }
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
 
 
-def identity_record(source_head: str, role: str, build_id: str | None = None) -> dict[str, str]:
+def identity_record(source_head: str, role: str, build_id: object) -> dict[str, str]:
     source_head = normalize_source_head(source_head)
-    role = str(role).strip().lower()
-    expected = expected_build_id(source_head, role)
-    if build_id is not None:
-        validate_build_id(build_id, source_head, role)
+    role = normalize_role(role)
+    build_id = normalize_build_id(build_id)
     return {
         "schema": SCHEMA,
         "role": role,
         "source_head": source_head,
-        "build_id": expected,
+        "build_id": build_id,
+        "binding_id": binding_id(source_head, role, build_id),
     }
+
+
+def validate_identity(record: object, *, source_head: str, role: str, build_id: object) -> dict[str, str]:
+    if not isinstance(record, dict):
+        raise ValueError("build identity record must be an object")
+    expected = identity_record(source_head, role, build_id)
+    if record != expected:
+        raise ValueError(
+            "build identity mismatch: expected exact source/build/role binding "
+            f"{expected['binding_id']}, got {record.get('binding_id', '<missing>')}"
+        )
+    return expected
