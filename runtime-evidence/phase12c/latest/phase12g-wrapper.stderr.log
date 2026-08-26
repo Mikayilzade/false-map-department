@@ -1,4 +1,8 @@
-PHASE12G FIELD KIT AUDIT FAIL: command failed: /usr/bin/python3 /home/runner/work/false-map-department/false-map-department/scripts/phase12g_human_field_kit.py prepare --source-head 0123456789abcdef0123456789abcdef01234567 --demo-build-id audit-demo-build --production-build-id audit-production-build --demo-build-artifact /tmp/fmd-phase12g-field-kit-lol72aff/demo.pck --demo-build-artifact-record /tmp/fmd-phase12g-field-kit-lol72aff/demo.binding.json --production-build-artifact /tmp/fmd-phase12g-field-kit-lol72aff/production.pck --production-build-artifact-record /tmp/fmd-phase12g-field-kit-lol72aff/production.binding.json --first-count 1 --mature-count 1 --output-dir /tmp/fmd-phase12g-field-kit-lol72aff/kit
-
-PHASE12G FIELD KIT FAIL: packaged build binding invalid: build artifact filename mismatch
-
+ERROR: Parent node is busy adding/removing children, `remove_child()` can't be called at this time. Consider using `remove_child.call_deferred(child)` instead.
+   at: remove_child (scene/main/node.cpp:1750)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://src/presentation/entrypoint.gd:13)
+ERROR: Parent node is busy adding/removing children, `remove_child()` can't be called at this time. Consider using `remove_child.call_deferred(child)` instead.
+   at: remove_child (scene/main/node.cpp:1750)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://src/presentation/entrypoint.gd:13)
