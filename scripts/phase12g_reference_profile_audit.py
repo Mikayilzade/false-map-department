@@ -61,9 +61,9 @@ def fixture_packet(disposition: str, attestation: str, build_id: str = "AUDIT-BU
     }
 
 
-def expect_module_rejection(module, packet: dict, marker: str) -> None:
+def expect_module_rejection(module, packet: dict, marker: str, packet_path: Path | None = None) -> None:
     try:
-        module.validate_packet(packet, SOURCE, allow_audit_fixture=True)
+        module.validate_packet(packet, SOURCE, allow_audit_fixture=True, packet_path=packet_path)
     except SystemExit as exc:
         require(marker in str(exc), f"rejection must name integrity cause {marker}: {exc}")
         return
@@ -87,6 +87,17 @@ def main() -> None:
         "raw_summary_consistency_verified", "acquisition_build_bytes_verified", "gate_disposition_inferred",
     ]:
         require(marker in ingest_text, f"ingest missing byte-bound contract marker: {marker}")
+
+    binding_text = (SCRIPT_DIR / "phase12g_reference_profile_build_bind.py").read_text(encoding="utf-8")
+    for marker in [
+        "reference_capture_binding",
+        "hardware_attestation",
+        "hardware_id",
+        "raw_samples_us",
+        "acquisition_build_binding",
+        "verify_capture_binding",
+    ]:
+        require(marker in binding_text, f"T8 seal missing capture identity/attestation binding marker: {marker}")
 
     module = load_ingest_module()
     require(module.repository_checkout_head() == SOURCE, "ingest must resolve actual test checkout HEAD")
@@ -119,8 +130,21 @@ def main() -> None:
         sealed = build_binding.seal(packet_path)
         require(sealed["binding_id"] == snapshot["binding_id"], "T8 seal must retain binding frozen before acquisition")
         sealed_packet = json.loads(packet_path.read_text(encoding="utf-8"))
+        require(isinstance(sealed_packet.get("reference_capture_binding"), dict), "T8 seal must persist reference capture binding")
         sealed_row = module.validate_packet(sealed_packet, SOURCE, allow_audit_fixture=True, packet_path=packet_path)
         require(sealed_row["t8_build_binding"]["artifact_sha256"] == snapshot["artifact_sha256"], "T8 validated row must carry acquisition-time package digest")
+
+        tampered_attestation = copy.deepcopy(sealed_packet)
+        tampered_attestation["hardware_attestation"] = "swapped_after_capture"
+        expect_module_rejection(module, tampered_attestation, "reference capture identity/attestation binding mismatch", packet_path)
+
+        tampered_hardware = copy.deepcopy(sealed_packet)
+        tampered_hardware["profile_row"]["hardware_id"] = "SWAPPED-HW"
+        expect_module_rejection(module, tampered_hardware, "reference capture identity/attestation binding mismatch", packet_path)
+
+        tampered_dossier = copy.deepcopy(sealed_packet)
+        tampered_dossier["profile_row"]["dossier_id"] = "D38"
+        expect_module_rejection(module, tampered_dossier, "reference capture identity/attestation binding mismatch", packet_path)
 
         frozen = packet_root / snapshot["packet_artifact_path"]
         frozen.write_bytes(frozen.read_bytes() + b"SUBSTITUTED-AFTER-SAMPLES")
@@ -149,7 +173,7 @@ def main() -> None:
         else:
             require(False, "T8 accepted demo package as production reference package")
 
-    print("Phase 12G T8-44 acquisition audit: PASS (actual checkout/source + raw-sample integrity + package bytes frozen before sample packet + sealed binding + post-session substitution/wrong-role/unsealed rejection; audit data never touched repository evidence)")
+    print("Phase 12G T8-44 acquisition audit: PASS (actual checkout/source + raw-sample integrity + package bytes frozen before sample packet + sealed hardware identity/attestation capture binding + post-capture identity/attestation/dossier substitution rejection + post-session package substitution/wrong-role/unsealed rejection; audit data never touched repository evidence)")
 
 
 if __name__ == "__main__":
