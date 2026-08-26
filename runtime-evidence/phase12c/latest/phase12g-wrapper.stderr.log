@@ -1,4 +1,8 @@
-PHASE12G FINALIZATION RECEIPT AUDIT FAIL: command failed: /usr/bin/python3 /home/runner/work/false-map-department/false-map-department/scripts/phase12g_field_kit_ingest.py --kit-dir /tmp/fmd-phase12g-finalization-receipt-1v0zy39d/kit --expected-source-head 0123456789abcdef0123456789abcdef01234567 --evidence-root /tmp/fmd-phase12g-finalization-receipt-1v0zy39d/evidence
-
-PHASE12G FIELD KIT INGEST FAIL: repository checkout source-head mismatch: checkout 239f5e4b5085af2da80aac18efd323d1c0682747, expected 0123456789abcdef0123456789abcdef01234567; checkout the exact field-kit source commit before ingest
-
+ERROR: Parent node is busy adding/removing children, `remove_child()` can't be called at this time. Consider using `remove_child.call_deferred(child)` instead.
+   at: remove_child (scene/main/node.cpp:1750)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://src/presentation/entrypoint.gd:13)
+ERROR: Parent node is busy adding/removing children, `remove_child()` can't be called at this time. Consider using `remove_child.call_deferred(child)` instead.
+   at: remove_child (scene/main/node.cpp:1750)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://src/presentation/entrypoint.gd:13)

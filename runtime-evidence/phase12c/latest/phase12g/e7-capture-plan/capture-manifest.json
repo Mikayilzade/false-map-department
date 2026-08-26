@@ -1,0 +1,40 @@
+{
+  "counts": {
+    "blocked_runtime_binding": 0,
+    "captured_nonvisual_unreviewable": 0,
+    "captured_unreviewed": 0,
+    "failed_or_timeout": 0,
+    "reviewed_pass": 0,
+    "rows": 1
+  },
+  "evidence_kind": "CAPTURE_AND_INTERACTION_ACQUISITION_MANIFEST_NOT_REVIEW_OUTCOME",
+  "execute_requested": false,
+  "gate_id": "E7",
+  "interaction_acquisition": {
+    "counts": {},
+    "manifest_path": null,
+    "requested": false,
+    "returncode": null,
+    "status": "NOT_REQUESTED"
+  },
+  "requested_launch_mode": "auto",
+  "resolved_launch_mode": "not_executed",
+  "rows": [
+    {
+      "capture_path": null,
+      "device_mode": "steam_deck_controller_1280x800",
+      "dossier_id": "D29",
+      "launch_mode": "not_executed",
+      "no_audio": false,
+      "non_color": false,
+      "process_returncode": null,
+      "reduced_motion": false,
+      "review_outcome": null,
+      "scenario_id": "deck_controller_base",
+      "sidecar_path": null,
+      "status": "PLANNED_UNREVIEWED",
+      "ui_scale": 100
+    }
+  ],
+  "schema_version": 2
+}
