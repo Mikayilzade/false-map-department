@@ -21,34 +21,37 @@ Repository: `Mikayilzade/false-map-department`
 ## Latest autonomous run — 2026-08-26
 
 ### Phase / subphase
-**12G Empirical Design Gates / cross-tree source↔build identity contract — EXACT-HEAD RUNTIME GREEN**
+**12G Empirical Design Gates / packaged-build byte binding at repository evidence append — EXACT-HEAD RUNTIME GREEN**
 
 ### Progress saved this run
-- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, this status file, `GAME2_PHASE11_FINAL_FREEZE.md`, `empirical/PHASE12G_PROTOCOL.md`, `empirical/phase12g_gate_registry.json`, `empirical/PHASE12G_RETURN_INGEST.md`, and the current human/E8/T8-44 acquisition/ingest paths before changing Phase 12G infrastructure.
-- Resumed from `NEXT ACTION` and confirmed a concrete remaining identity gap: exact repository/extracted-tree source identity was already enforced, but `demo_build_id` / `production_build_id` remained caller labels without one reusable cross-path contract proving which exact source tree and build role they were paired with.
-- Added `scripts/phase12g_build_identity.py`, which creates deterministic SHA-256 binding IDs over schema + exact 40-character source head + role (`demo`/`production`) + non-empty build label.
-- Added `scripts/phase12g_build_identity_contract.py`, which creates one manifest only when `source_head == git rev-parse HEAD`, self-hashes the contract, and validates the same source/build binding across human field kits, immutable E8 asset/respondent packets and T8-44 profile packets.
-- Verification rejects a source-head mismatch, role/build drift, record tampering and contract-hash tampering. Human kits verify both demo and production bindings; E8 and T8-44 verify production bindings.
-- Added `scripts/phase12g_build_identity_audit.py` with positive and adversarial temporary-artifact cases, including cross-tree T8 rejection, E8 build-ID drift rejection and tampered identity-record rejection.
-- Wired the audit into the existing notification-safe `run_phase12g_preconditions.sh`; no extra workflow or speculative rerun path was created.
-- This increment binds build **labels** to exact source/role identity. It deliberately does **not** claim that a label proves immutable packaged-binary bytes; that narrower artifact-digest question remains for the next acquisition-boundary review.
+- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, this status file, `GAME2_PHASE11_FINAL_FREEZE.md`, `empirical/PHASE12G_PROTOCOL.md`, `empirical/PHASE12G_RETURN_INGEST.md`, and the human/E8/T8-44 append paths before changing Phase 12G acquisition infrastructure.
+- Resumed exactly from `NEXT ACTION` and confirmed the concrete gap: human field-kit, E8 and T8-44 ingest all persisted `source_build_id`, but a caller-controlled build label could still reach append without independently recomputing immutable packaged build bytes.
+- Added `scripts/phase12g_build_artifact_contract.py`. It creates/verifies a non-evidence binding over exact 40-character source SHA + build role (`demo`/`production`) + build label + packaged artifact filename + SHA-256 + byte size, with a self-hashed binding ID.
+- Upgraded `phase12g_provenance.py` to provenance version 2. When `FMD_PHASE12G_BUILD_ARTIFACT_RECORD` and `FMD_PHASE12G_BUILD_ARTIFACT_PATH` are supplied together, provenance recomputes the packaged artifact digest/size and persists exact build role, digest, bytes, binding ID and filename. For external human/E8/T8 paths with no artifact bytes, provenance records `build_artifact_bytes_verified=false` rather than fabricating a digest.
+- Hardened the central `phase12g_collect_completed_rows.py` boundary. Any real append to repository `empirical/evidence` from `human_field_kit_v4`, `e8_marketing_packet`, or `t8_reference_profile` now independently re-verifies the exact packaged bytes and binding record before mutation. Human E1/E2/E11 require `demo`; human E3-E6/E9-E10, E8 and T8-44 require `production`.
+- Real repository append fails closed when immutable build bytes are absent, mismatched, role-drifted, source/build-drifted or changed after binding. Temporary audit evidence roots remain usable without real packaged builds; the audit can force the production boundary explicitly.
+- Expanded `phase12g_provenance_audit.py` with positive byte-bound append plus adversarial missing-artifact and digest-changing tamper cases. Wired it into `run_phase12g_preconditions.sh` without adding any workflow or speculative rerun path.
+- Updated `PHASE12G_RETURN_INGEST.md` so missing immutable build bytes are explicitly non-append-ready and PENDING rather than represented by a fake digest.
+- Important remaining limitation recorded rather than hidden: repository ingest now proves that the evidence row is bound to exact packaged bytes supplied at ingest, but the returned human/E8/T8 acquisition packet itself does not yet universally prove that **those same digest-bound bytes** were the bytes actually used during the external session. That acquisition-time linkage is the next trust boundary.
 - No human, market, accessibility-review or Deck-class observations were created or inferred. No empirical disposition changed.
 
 ### Files / systems changed
-- `scripts/phase12g_build_identity.py`
-- `scripts/phase12g_build_identity_contract.py`
-- `scripts/phase12g_build_identity_audit.py`
+- `scripts/phase12g_build_artifact_contract.py`
+- `scripts/phase12g_provenance.py`
+- `scripts/phase12g_collect_completed_rows.py`
+- `scripts/phase12g_provenance_audit.py`
 - `scripts/run_phase12g_preconditions.sh`
+- `empirical/PHASE12G_RETURN_INGEST.md`
 - `IMPLEMENTATION_STATUS.md`
 
 ### Validation / factual exact-head evidence
-- Final implementation head validated: `0dff77f1d583a2d2abcdddeaeeaaa2a133711ca2`.
-- Automatic notification-safe aggregate run **32953742063**: **PASS** for exact head `0dff77f1d583a2d2abcdddeaeeaaa2a133711ca2`.
-- Evidence commit: `fc821ff6decb52540193e9b631929479a106a49c`.
-- `runtime-evidence/phase12c/latest/run-metadata.txt`: `head_sha=0dff77f1d583a2d2abcdddeaeeaaa2a133711ca2`, `run_id=32953742063`.
+- Final implementation head validated: `83c530b248c69059e0ea34fcc0727e1bc11df862`.
+- Automatic notification-safe aggregate run **32959289275**: **PASS** for exact head `83c530b248c69059e0ea34fcc0727e1bc11df862`.
+- Evidence commit: `b3ca52d091815f3d6f8efde4531e07c3e45c249e`.
+- `runtime-evidence/phase12c/latest/run-metadata.txt`: `head_sha=83c530b248c69059e0ea34fcc0727e1bc11df862`, `run_id=32959289275`.
 - `runtime-evidence/phase12c/latest/result.json`: `result=PASS`, `runtime_rc=0`, `phase12g_instrumentation_rc=0`, `ci_policy_rc=0`, `bootstrap_preflight_rc=0`, `phase12a_contract_rc=0`, `fetch_godot_rc=0`.
-- `phase12g/build-source-identity-audit.log`: **PASS** — exact checkout binding + human/E8/T8 cross-tree drift rejection + zero empirical outcome inference.
-- The same aggregate preserved all earlier 12A-12F and Phase 12G instrumentation/precondition gates green.
+- `phase12g/build-artifact-provenance-audit.log`: **PASS** — external append requires exact packaged build bytes; source/build/channel/digest persist; missing bytes and post-binding artifact tamper reject before evidence mutation.
+- The same aggregate preserved all earlier 12A-12F and existing Phase 12G instrumentation/precondition gates green.
 
 ### Current empirical-gate state
 - **E7: PASS — 285/285 exhaustive frozen matrix.**
@@ -59,12 +62,12 @@ Repository: `Mikayilzade/false-map-department`
 - E11 has no genuine demo timing rows.
 - T8-44 has no actual Deck-class reference-hardware evidence.
 - E12 remains intentionally near-release.
-- Build/source identity manifests and adversarial audits are acquisition metadata/tests, not empirical evidence.
+- Source/build identity manifests, packaged-build binding records, artifact digests and adversarial audits are acquisition/integrity metadata, not empirical evidence.
 
 ### Failures / blockers
 - **No current autonomous implementation blocker.**
-- Exact repository/extracted-tree source identity and cross-path source↔build-label binding are now closed, runtime-green acquisition classes unless a new defect reopens them.
-- Remaining 12G blockers are genuine evidence-source blockers, not implementation claims: real naive/mature participants, genuine representative E8 media/respondents, actual Deck-class reference hardware, and near-release E12 context.
+- Real external evidence append is now fail-closed on missing packaged-build bytes, but genuine packaged demo/production artifacts do not yet exist in repository evidence and must never be fabricated merely to exercise the path.
+- Remaining 12G evidence-source blockers are unchanged: real naive/mature participants, genuine representative E8 media/respondents, actual Deck-class reference hardware, and near-release E12 context.
 
 ### Canonical/design impact
 - **No canonical contradiction discovered.**
@@ -73,12 +76,13 @@ Repository: `Mikayilzade/false-map-department`
 ## NEXT ACTION
 Continue **12G real evidence acquisition/enabling only**; never fabricate missing outcomes.
 
-1. Inspect whether a caller-controlled `demo_build_id` / `production_build_id` can still survive into appendable human/E8/T8-44 evidence without an independently verified immutable **build artifact digest** (binary/export/package bytes), despite the now-closed exact source↔role↔build-label contract. Harden only if a concrete append path can accept such an unbound label; do not pretend a source-bound label is proof of packaged build bytes.
-2. If immutable build artifacts are not yet available by design, make that absence explicit in acquisition readiness and ensure generated identity manifests remain non-evidence rather than inventing a fake digest. Then move to the next real acquisition-to-ingest trust boundary.
-3. Continue auditing only caller-controlled identity fields that can reach evidence append or qualitative disposition without independent byte binding; avoid symmetric duplicate guards for already-closed classes.
-4. When actual builds and real participants are available, acquire genuine naive-human **E1 + E2 + E11** and mature-human **E3-E6 + E9-E10** observations through the source-pinned field-kit lifecycle.
-5. Keep E7 frozen as **285/285 PASS**; reacquire only affected signatures after relevant presentation/device changes.
-6. For **E8**, require genuine representative five-role media plus real respondents; synthetic assets/responses are never evidence.
-7. For **T8-44**, require actual Deck-class reference hardware with Godot 4.7.1 and the frozen attestation; hosted CI remains non-evidence.
-8. Evaluate **E12** only near release with current comparables and near-final build scope.
-9. Do not start **12H** until every remaining 12G gate has genuine evidence-backed disposition or an explicit release blocker.
+1. Close the next concrete trust boundary: bind the packaged-build artifact binding ID/SHA-256 into the **acquisition-time** human field-kit manifest/finalization receipt, E8 immutable asset/respondent packet/completion receipt, and T8-44 profile packet so a returned observation cannot later be paired with a different packaged file that merely shares the same source/build label. Reuse the one central artifact contract rather than inventing three incompatible digest schemes.
+2. Make acquisition preparation fail closed or explicitly `NOT APPEND READY` when the required demo/production packaged artifact is unavailable; generated blank kits/packets remain non-evidence and no fake digest is permitted.
+3. Add adversarial tests for acquisition packet digest drift, post-session artifact substitution, role mismatch and receipt/packet digest tamper; preserve existing temporary audit-fixture usability and the notification-safe single-run policy.
+4. After acquisition-time byte binding is closed, continue auditing only caller-controlled identity fields that can actually cross the external return-to-append boundary; avoid duplicate guards for source/build classes already closed.
+5. When actual builds and real participants are available, acquire genuine naive-human **E1 + E2 + E11** and mature-human **E3-E6 + E9-E10** observations through the source-pinned, byte-bound field-kit lifecycle.
+6. Keep E7 frozen as **285/285 PASS**; reacquire only affected signatures after relevant presentation/device changes.
+7. For **E8**, require genuine representative five-role media plus real respondents; synthetic assets/responses are never evidence.
+8. For **T8-44**, require actual Deck-class reference hardware with Godot 4.7.1 and frozen attestation; hosted CI remains non-evidence.
+9. Evaluate **E12** only near release with current comparables and near-final build scope.
+10. Do not start **12H** until every remaining 12G gate has genuine evidence-backed disposition or an explicit release blocker.
