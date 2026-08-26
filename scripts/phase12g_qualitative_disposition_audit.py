@@ -12,6 +12,7 @@ RECORDER = ROOT / "scripts/phase12g_qualitative_disposition.py"
 INTEGRITY = ROOT / "scripts/phase12g_qualitative_disposition_integrity.py"
 HARNESS = ROOT / "scripts/phase12g_evidence_harness.py"
 DASHBOARD = ROOT / "scripts/phase12g_gate_dashboard.py"
+CANONICAL_EVIDENCE_ROOT = ROOT / "empirical/evidence"
 
 
 def run(args: list[str], *, expect_ok: bool = True) -> subprocess.CompletedProcess[str]:
@@ -21,6 +22,14 @@ def run(args: list[str], *, expect_ok: bool = True) -> subprocess.CompletedProce
     if not expect_ok and completed.returncode == 0:
         raise SystemExit(f"command unexpectedly passed: {' '.join(args)}")
     return completed
+
+
+def require_control_rejection(completed: subprocess.CompletedProcess[str], control_kind: str) -> None:
+    rendered = (completed.stdout + completed.stderr).lower()
+    if "canonical" not in rendered or control_kind.replace("_", " ") not in rendered:
+        raise SystemExit(
+            f"redirected canonical {control_kind} control must fail with an explicit routing error; got:\n{rendered}"
+        )
 
 
 def harness_payload(root: Path) -> dict:
@@ -53,14 +62,84 @@ def write_e8(path: Path, respondent_id: str, builder: bool) -> None:
         handle.write(json.dumps(row, sort_keys=True) + "\n")
 
 
+def test_canonical_control_routing(temp_root: Path) -> None:
+    redirected_dispositions = temp_root / "redirected-dispositions.json"
+    redirected_adequacy = temp_root / "redirected-sample-adequacy.json"
+
+    # The raw harness is a disposition consumer. Canonical evidence may never be
+    # paired with an alternate decision file, even if that alternate file could be
+    # made byte-consistent with the repository evidence.
+    disposition_harness = run(
+        [
+            sys.executable,
+            str(HARNESS),
+            "--evidence-root", str(CANONICAL_EVIDENCE_ROOT),
+            "--dispositions", str(redirected_dispositions),
+        ],
+        expect_ok=False,
+    )
+    require_control_rejection(disposition_harness, "dispositions")
+
+    # E1/E2 representative-sample eligibility is also gate-controlling state. A
+    # caller-selected adequacy file must not be able to qualify canonical rows.
+    adequacy_harness = run(
+        [
+            sys.executable,
+            str(HARNESS),
+            "--evidence-root", str(CANONICAL_EVIDENCE_ROOT),
+            "--sample-adequacy", str(redirected_adequacy),
+        ],
+        expect_ok=False,
+    )
+    require_control_rejection(adequacy_harness, "sample adequacy")
+
+    # Standalone integrity must reject the same redirect instead of blessing an
+    # alternate review document against canonical evidence bytes.
+    integrity_redirect = run(
+        [
+            sys.executable,
+            str(INTEGRITY),
+            "--evidence-root", str(CANONICAL_EVIDENCE_ROOT),
+            "--dispositions", str(redirected_dispositions),
+        ],
+        expect_ok=False,
+    )
+    require_control_rejection(integrity_redirect, "dispositions")
+
+    # The recorder must reject the alternate production destination before it can
+    # read or mutate empirical state. E8 may currently be empty; routing ownership
+    # is deliberately checked before evidence presence.
+    recorder_redirect = run(
+        [
+            sys.executable,
+            str(RECORDER),
+            "E8",
+            "--status", "PASS",
+            "--rationale", "Synthetic routing probe only; must never be recorded.",
+            "--evidence-ref", "synthetic:routing-probe",
+            "--reviewer-id", "SYNTHETIC_ROUTING_PROBE",
+            "--evidence-root", str(CANONICAL_EVIDENCE_ROOT),
+            "--output", str(redirected_dispositions),
+        ],
+        expect_ok=False,
+    )
+    require_control_rejection(recorder_redirect, "dispositions")
+    if redirected_dispositions.exists() or redirected_adequacy.exists():
+        raise SystemExit("canonical control-routing rejection must not create redirected control files")
+
+
 def main() -> None:
     with tempfile.TemporaryDirectory(prefix="fmd-phase12g-disposition-audit-") as temp:
         root = Path(temp)
+        test_canonical_control_routing(root)
+
         evidence = root / "E8.jsonl"
         dispositions = root / "dispositions.json"
         dashboard = root / "dashboard.md"
         write_e8(evidence, "SYNTHETIC_R1", False)
 
+        # Noncanonical roots remain intentionally usable for isolated synthetic
+        # audits; the production-path guard must not destroy this test surface.
         if harness_status(root, "E8") != "PENDING":
             raise SystemExit("E8 with rows but no explicit disposition must remain PENDING")
 
@@ -157,7 +236,7 @@ def main() -> None:
             "--output", str(dispositions),
         ], expect_ok=False)
 
-    print("Phase 12G qualitative disposition audit: PASS (explicit review + exact evidence digest/row binding + raw-harness/dashboard stale rejection + deliberate replacement + threshold-gate guard)")
+    print("Phase 12G qualitative disposition audit: PASS (canonical control-path binding + explicit review + exact evidence digest/row binding + raw-harness/dashboard stale rejection + deliberate replacement + threshold-gate guard)")
 
 
 if __name__ == "__main__":
