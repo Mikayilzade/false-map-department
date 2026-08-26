@@ -21,32 +21,37 @@ Repository: `Mikayilzade/false-map-department`
 ## Latest autonomous run — 2026-08-26
 
 ### Phase / subphase
-**12G Empirical Design Gates / external-return trust audit / E8 acquisition-time respondent identity binding — EXACT-HEAD RUNTIME GREEN**
+**12G Empirical Design Gates / external-return trust audit / human packet identity + T8-44 capture attestation binding — EXACT-HEAD RUNTIME GREEN**
 
 ### Progress saved this run
 - Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, this status file, `GAME2_PHASE11_FINAL_FREEZE.md`, `empirical/PHASE12G_PROTOCOL.md`, and `empirical/PHASE12G_RETURN_INGEST.md`; resumed exactly from the prior `NEXT ACTION`.
-- Audited caller-controlled identity crossing the E8 external respondent return into repository append. Found one concrete remaining gap: E8 respondent IDs were generated during acquisition preparation, but the editable `respondents.json` could change those IDs before local finalization and then create a self-consistent finalization receipt around the changed identities.
-- Extended the existing acquisition binder instead of creating a parallel trust mechanism. `phase12g_e8_acquisition_build_bind.py` now freezes the ordered respondent slot identities before any observation into `respondent_identity_binding` on both acquisition manifests, with a schema, count and SHA-256 over the canonical ordered ID plan.
-- `verify_packet_binding(...)` now re-derives the respondent identity plan from the returned packet and rejects missing binding, manifest disagreement, post-preparation respondent-ID substitution, slot reorder, duplicate identity or missing identity. Observation fields remain intentionally editable because they are the genuine human responses being collected.
-- Existing receipt/ingest enforcement picks up the new guard transitively: E8 completion receipt creation/verification already calls `verify_packet_binding`, and repository ingest requires that verified receipt before staging rows.
-- Added a focused adversarial regression `phase12g_e8_respondent_identity_binding_audit.py`. It proves valid observation-field edits preserve identity while ID substitution, self-rewritten respondent-side digest, row reorder, duplicate and missing IDs fail closed; it also asserts the real acquisition prepare -> binder -> receipt -> ingest chain remains connected.
-- Wired that regression into the existing notification-safe Phase 12G precondition wrapper. No new workflow or notification-producing CI path was created.
-- No human, market, accessibility-review or Deck-class observation was created or inferred. No empirical gate disposition changed.
+- Audited the remaining caller-controlled human field-kit session/tester boundary beyond receipt-byte transport. The existing finalizer generated correct identities and digest-bound rows, but repository ingest did not independently cross-check a returned receipt identity against the packet identity before accepting the receipt-bound row set.
+- Hardened `phase12g_field_kit_ingest.py`: first-session receipts are now rechecked against the packet `session-manifest.json`; mature-session receipts are rechecked against their prepared observer packet tester identity; a receipt can bind completed files only from its own packet directory; packet kind is restricted to the correct gate family; and completed rows must match the packet tester identity, with E1/E2 also matching the packet session identity.
+- Added `phase12g_packet_identity_binding_audit.py`, covering valid first/mature identity chains plus forged receipt tester, swapped session, swapped tester and wrong packet-kind/gate attacks. It does not create or append human evidence.
+- Audited T8-44 hardware/profile identity and attestation transport. The existing path already required the exact source checkout, exact pre-frozen production package bytes, raw-sample/summary consistency and explicit `actual_deck_class_reference` attestation for real reference ingest, but the hardware ID/attestation/profile/raw-sample payload was not itself sealed as one capture identity after acquisition.
+- Extended `phase12g_reference_profile_build_bind.py` with `reference_capture_binding`: sealing now hashes the exact source head, hardware attestation, hardware ID, build ID, dossier ID, profile row, raw samples and acquisition build binding into one canonical capture digest. `verify_sealed(...)` recomputes it and rejects post-capture identity/attestation/profile substitution.
+- Extended the existing T8-44 acquisition audit to prove post-seal hardware-attestation, hardware-ID and dossier substitution fail closed while preserving the existing package-byte, wrong-role and unsealed-packet rejection tests.
+- Wired the new human packet-identity regression into the existing notification-safe Phase 12G precondition wrapper. No new workflow or noisy CI path was created.
+- No human, market, accessibility-review or Deck-class outcome was created or inferred. No empirical gate disposition changed.
 
 ### Files / systems changed
-- `scripts/phase12g_e8_acquisition_build_bind.py`
-- `scripts/phase12g_e8_respondent_identity_binding_audit.py`
+- `scripts/phase12g_field_kit_ingest.py`
+- `scripts/phase12g_packet_identity_binding_audit.py`
+- `scripts/phase12g_reference_profile_build_bind.py`
+- `scripts/phase12g_reference_profile_audit.py`
 - `scripts/run_phase12g_preconditions.sh`
 - `IMPLEMENTATION_STATUS.md`
 
 ### Validation / factual exact-head evidence
-- Validated implementation head: `0929f170603084c68a985c56847955fe75a608f0`.
-- Automatic notification-safe aggregate run **32975396672**: **PASS** for exact head `0929f170603084c68a985c56847955fe75a608f0`.
-- Evidence commit: `f843f5a08a371a834dfc2a108b7bcd519ca00945`.
-- `runtime-evidence/phase12c/latest/run-metadata.txt`: `head_sha=0929f170603084c68a985c56847955fe75a608f0`, `run_id=32975396672`.
+- Validated implementation head: `cef4228b4dac11ece539b5ec19312818a7154911`.
+- Automatic notification-safe aggregate run **32981637831**: **PASS** for exact head `cef4228b4dac11ece539b5ec19312818a7154911`.
+- Evidence commit: `d44edd098e702f3854ab3b0194a340e0b03d4089`.
+- `runtime-evidence/phase12c/latest/run-metadata.txt`: `head_sha=cef4228b4dac11ece539b5ec19312818a7154911`, `run_id=32981637831`.
 - `runtime-evidence/phase12c/latest/result.json`: `result=PASS`, `runtime_rc=0`, `phase12g_instrumentation_rc=0`, `ci_policy_rc=0`, `bootstrap_preflight_rc=0`, `phase12a_contract_rc=0`, `fetch_godot_rc=0`.
-- `phase12g/e8-respondent-identity-binding-audit.log`: **PASS** — respondent slots frozen before observation; outcome fields remain editable; ID substitution/rewrite/reorder/duplicate/missing attacks rejected; receipt+ingest enforcement chained; fixtures explicitly synthetic/non-evidence.
-- The same aggregate preserved 12A-12F, E7, and all prior Phase 12G integrity/precondition gates green.
+- `phase12g/packet-identity-binding-audit.log`: **PASS** — receipt identity rechecked against packet identity; completed-row tester/session and packet-kind/gate cross-binding enforced; no human outcome inferred.
+- `phase12g/reference-profile-acquisition-audit.log`: **PASS** — exact checkout/source + raw-sample integrity + pre-frozen package bytes + sealed hardware identity/attestation capture binding + post-capture identity/attestation/dossier substitution rejection + package substitution/wrong-role/unsealed rejection.
+- Evidence harness remained **PASS 1 / PENDING 12 / FAIL 0 / BLOCKED 0**. E7 remained exactly **285/285 PASS**; all other registered gates remained PENDING.
+- The same aggregate preserved 12A-12F and all prior Phase 12G integrity/precondition gates green.
 
 ### Current empirical-gate state
 - **E7: PASS — 285/285 exhaustive frozen matrix.**
@@ -56,11 +61,12 @@ Repository: `Mikayilzade/false-map-department`
 - E8 still has no genuine representative five-role media/respondent evidence.
 - T8-44 still has no actual Deck-class reference-hardware evidence.
 - E12 remains intentionally near-release.
-- Synthetic assets/responses/timing samples, hashes, bindings and receipts are integrity/acquisition metadata, not empirical outcomes.
+- Synthetic fixtures, hashes, bindings, receipts and hosted-run timing are integrity/acquisition metadata, not empirical outcomes.
 
 ### Failures / blockers
 - **No current autonomous implementation blocker.**
-- The concrete E8 respondent-identity return gap found in this run is closed and regression-covered.
+- Human return mix-up/substitution is now checked independently at ingest against packet identity and completed-row identity. This is an integrity guard, not proof that a human observation is truthful.
+- T8-44 hardware/profile/attestation fields are now sealed together with the exact capture and package binding. This prevents post-capture substitution, but the truth of `actual_deck_class_reference` is inherently a real hardware/operator attestation and cannot be converted into cryptographic proof by autonomous hosted CI; real reference hardware is still required.
 - Genuine evidence-source blockers remain unchanged: real naive/mature participants, genuine representative E8 media/respondents, actual Deck-class reference hardware, and near-release E12 context.
 
 ### Canonical / empirical-gate impact
@@ -71,12 +77,12 @@ Repository: `Mikayilzade/false-map-department`
 ## NEXT ACTION
 Continue **12G real evidence acquisition/enabling only**; never fabricate missing outcomes.
 
-1. Continue the remaining caller-controlled external-return audit, now excluding the closed source/build/package-byte and E8 respondent-slot identity boundaries. Inspect human field-kit session/tester identity and T8-44 hardware/profile identity/attestation fields for any value that can still be substituted after acquisition preparation while remaining self-consistent at finalization/ingest.
-2. Where a real trust gap exists, bind only that identity field to repository/acquisition-generated immutable material and add one focused adversarial regression. Where identity is inherently a human/hardware attestation that cannot truthfully be made stronger autonomously, record that limitation rather than manufacturing cryptographic certainty.
+1. Treat source/build/package-byte, E8 respondent-slot, human returned-packet identity, and T8 post-capture identity/attestation substitution boundaries as closed and regression-covered unless new evidence exposes a concrete flaw.
+2. Audit only remaining acquisition paths for genuinely distinct caller-controlled values that could still cross preparation/finalization/ingest without independent binding. Do not add redundant hashes or pretend software can prove human identity or physical hardware truth.
 3. Keep all automated/synthetic acquisition readiness work explicitly non-evidence. Do not convert CI, generated assets, synthetic respondents, accessibility simulations or desktop timing into human/market/Deck outcomes.
-4. When actual builds and real participants are available, acquire genuine naive-human **E1 + E2 + E11** and mature-human **E3-E6 + E9-E10** observations through the source-pinned, byte-bound field-kit lifecycle.
-5. For **E8**, use `phase12g_marketing_acquisition_prepare.py` with genuine representative five-role media and the exact production package/artifact record before exposing the packet to real respondents; respondent slot IDs are now frozen at that acquisition boundary.
-6. For **T8-44**, freeze the exact production package with `phase12g_reference_profile_build_bind.py prepare` before running `phase12g_reference_profile_runner.gd` on actual Deck-class reference hardware, then seal and ingest that exact packet. Hosted CI remains non-evidence.
+4. When actual builds and real participants are available, acquire genuine naive-human **E1 + E2 + E11** and mature-human **E3-E6 + E9-E10** observations through the source-pinned, byte-bound, packet-identity-checked field-kit lifecycle.
+5. For **E8**, use `phase12g_marketing_acquisition_prepare.py` with genuine representative five-role media and the exact production package/artifact record before exposing the packet to real respondents; respondent slot IDs are frozen at acquisition.
+6. For **T8-44**, freeze the exact production package with `phase12g_reference_profile_build_bind.py prepare` before running `phase12g_reference_profile_runner.gd` on actual Deck-class reference hardware, then seal the resulting packet so the hardware/profile/attestation capture digest is fixed before deliberate ingest. Hosted CI remains non-evidence.
 7. Keep E7 frozen as **285/285 PASS**; reacquire only affected signatures after relevant presentation/device changes.
 8. Evaluate **E12** only near release with current comparables and near-final build scope.
 9. Do not start **12H** until every remaining 12G gate has genuine evidence-backed disposition or an explicit release blocker.
