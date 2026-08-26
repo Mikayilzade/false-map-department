@@ -12,7 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 RUNNER = ROOT / "tests/phase12g_reference_profile_runner.gd"
 INGEST = ROOT / "scripts/phase12g_reference_profile_ingest.py"
-SOURCE = "a" * 40
+SOURCE = subprocess.run(["git", "rev-parse", "--verify", "HEAD"], cwd=ROOT, capture_output=True, text=True, check=True).stdout.strip().lower()
 
 
 def require(condition: bool, message: str) -> None:
@@ -67,6 +67,7 @@ def expect_module_rejection(module, packet: dict, marker: str) -> None:
 
 
 def main() -> None:
+    require(len(SOURCE) == 40, "audit checkout source must resolve to exact Git SHA")
     runner = RUNNER.read_text(encoding="utf-8")
     for marker in [
         "ProductionPlaytestController",
@@ -85,6 +86,8 @@ def main() -> None:
         'disposition != "reference_run"',
         "--expected-source-head",
         "--append",
+        "repository_checkout_head",
+        "repository checkout HEAD mismatch",
         "percentile_ms",
         "require_metric_match",
         "raw_summary_consistency_verified",
@@ -93,6 +96,7 @@ def main() -> None:
         require(marker in ingest_text, f"ingest missing contract marker: {marker}")
 
     module = load_ingest_module()
+    require(module.repository_checkout_head() == SOURCE, "ingest must resolve actual test checkout HEAD")
     audit_packet = fixture_packet("audit_fixture", "synthetic_audit")
     audit_row = module.validate_packet(audit_packet, SOURCE, allow_audit_fixture=True)
     require(audit_row["gate_id"] == "T8-44", "audit helper must preserve T8-44 identity")
@@ -104,6 +108,14 @@ def main() -> None:
     extra_raw_sample = copy.deepcopy(audit_packet)
     extra_raw_sample["raw_samples_us"]["late_game_edit"].append(999999)
     expect_module_rejection(module, extra_raw_sample, "exactly sample_count values")
+
+    wrong_expected = "0" * 40 if SOURCE != "0" * 40 else "1" * 40
+    try:
+        module.validate_packet(audit_packet, wrong_expected, allow_audit_fixture=True)
+    except SystemExit as exc:
+        require("repository checkout HEAD mismatch" in str(exc), "caller-supplied old SHA must fail against actual checkout")
+    else:
+        require(False, "caller-supplied old SHA bypassed actual checkout binding")
 
     with tempfile.TemporaryDirectory(prefix="fmd-t8-audit-") as temp_dir:
         temp = Path(temp_dir)
@@ -122,10 +134,11 @@ def main() -> None:
         wrong_source = fixture_packet("reference_run", "actual_deck_class_reference")
         packet_path.write_text(json.dumps(wrong_source, indent=2) + "\n", encoding="utf-8")
         rejected_source = subprocess.run(
-            [sys.executable, str(INGEST), "--packet", str(packet_path), "--expected-source-head", "b" * 40, "--evidence-root", str(evidence_root)],
+            [sys.executable, str(INGEST), "--packet", str(packet_path), "--expected-source-head", wrong_expected, "--evidence-root", str(evidence_root)],
             cwd=ROOT, capture_output=True, text=True, check=False,
         )
         require(rejected_source.returncode != 0, "wrong-source reference packet must reject")
+        require("repository checkout HEAD mismatch" in (rejected_source.stdout + rejected_source.stderr), "wrong expected source must fail on actual checkout identity")
         require(not (evidence_root / "T8-44.jsonl").exists(), "wrong-source rejection must not mutate evidence")
 
         tampered_reference = fixture_packet("reference_run", "actual_deck_class_reference")
@@ -139,7 +152,7 @@ def main() -> None:
         require("does not match raw_samples_us" in (rejected_metric.stdout + rejected_metric.stderr), "tampered summary rejection must be explicit")
         require(not (evidence_root / "T8-44.jsonl").exists(), "tampered summary rejection must preserve evidence bytes")
 
-    print("Phase 12G T8-44 acquisition audit: PASS (source pin + reference attestation + exact raw-sample cardinality + recomputed median/p95/p99 integrity + non-reference/tamper rejection; audit data never touched repository evidence)")
+    print("Phase 12G T8-44 acquisition audit: PASS (actual checkout/source pin + reference attestation + exact raw-sample cardinality + recomputed median/p95/p99 integrity + non-reference/tamper rejection; audit data never touched repository evidence)")
 
 
 if __name__ == "__main__":
