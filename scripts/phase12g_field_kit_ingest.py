@@ -14,6 +14,13 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 COLLECTOR = ROOT / "scripts/phase12g_collect_completed_rows.py"
 HUMAN_GATES = ("E1", "E2", "E3", "E4", "E5", "E6", "E9", "E10", "E11")
 RECEIPT_SCHEMA = "fmd.phase12g.field-kit-finalization-receipt.v1"
+FIELD_KIT_CHANNEL = "human_field_kit_v4"
+RETURN_IDENTITY_FIELDS = (
+    "field_kit_return_namespace",
+    "field_kit_packet_kind",
+    "field_kit_contract_hash",
+    "field_kit_finalization_receipt_sha256",
+)
 
 sys.path.insert(0, str(SCRIPT_DIR))
 import phase12g_provenance as provenance  # noqa: E402
@@ -105,12 +112,28 @@ def completed_files(kit_root: Path) -> dict[str, list[Path]]:
     return found
 
 
-def verify_finalization_receipts(kit_root: Path, manifest: dict, files_by_gate: dict[str, list[Path]]) -> dict[str, str]:
+def return_namespace(receipt: dict, receipt_path: Path) -> str:
+    packet_kind = str(receipt.get("packet_kind", ""))
+    if packet_kind == "first_session":
+        session_id = str(receipt.get("session_id", "")).strip()
+        if not session_id:
+            fail(f"{receipt_path}: first-session finalization receipt missing session_id")
+        return f"first_session:{session_id}"
+    if packet_kind == "mature_session":
+        tester_id = str(receipt.get("tester_id", "")).strip()
+        if not tester_id:
+            fail(f"{receipt_path}: mature-session finalization receipt missing tester_id")
+        return f"mature_session:{tester_id}"
+    fail(f"{receipt_path}: unsupported packet_kind for return identity: {packet_kind!r}")
+
+
+def verify_finalization_receipts(kit_root: Path, manifest: dict, files_by_gate: dict[str, list[Path]]) -> dict[str, dict]:
     completed_paths = sorted(path.resolve() for paths in files_by_gate.values() for path in paths)
     receipts = sorted(kit_root.rglob("finalization-receipt.json"))
     if not receipts:
         fail("completed observed-row files require offline finalization receipt(s)")
-    bound: dict[Path, str] = {}
+    bound: dict[Path, dict] = {}
+    namespace_identity: dict[str, tuple[str, str, str, str, str]] = {}
     for receipt_path in receipts:
         receipt = load_json(receipt_path)
         if receipt.get("schema") != RECEIPT_SCHEMA:
@@ -126,6 +149,19 @@ def verify_finalization_receipts(kit_root: Path, manifest: dict, files_by_gate: 
             fail(f"{receipt_path}: finalization receipt finalizer binding mismatch")
         if receipt.get("human_outcomes_inferred") is not False or receipt.get("repository_evidence_appended") is not False:
             fail(f"{receipt_path}: finalization receipt empirical boundary markers invalid")
+        namespace = return_namespace(receipt, receipt_path)
+        receipt_digest = sha256_file(receipt_path)
+        identity = (
+            str(receipt.get("packet_kind", "")),
+            str(receipt.get("source_head", "")),
+            str(receipt.get("field_kit_contract_hash", "")),
+            str(receipt.get("demo_build_id", "")),
+            str(receipt.get("production_build_id", "")),
+        )
+        prior_identity = namespace_identity.get(namespace)
+        if prior_identity is not None and prior_identity != identity:
+            fail(f"{receipt_path}: return namespace collision inside returned kit: {namespace}")
+        namespace_identity[namespace] = identity
         entries = receipt.get("completed_files", [])
         if not isinstance(entries, list) or not entries:
             fail(f"{receipt_path}: finalization receipt contains no completed-file bindings")
@@ -148,14 +184,23 @@ def verify_finalization_receipts(kit_root: Path, manifest: dict, files_by_gate: 
             actual_hash = sha256_file(path)
             if actual_hash != expected_hash:
                 fail(f"{path}: completed file changed after offline finalization (digest mismatch)")
-            bound[path] = actual_hash
+            bound[path] = {
+                "completed_file_sha256": actual_hash,
+                "return_namespace": namespace,
+                "packet_kind": str(receipt.get("packet_kind", "")),
+                "field_kit_contract_hash": str(receipt.get("field_kit_contract_hash", "")),
+                "finalization_receipt_sha256": receipt_digest,
+            }
     missing = [path for path in completed_paths if path not in bound]
     extra = [path for path in bound if path not in completed_paths]
     if missing:
         fail(f"completed file(s) missing finalization receipt binding: {[str(p.relative_to(kit_root)) for p in missing]}")
     if extra:
         fail(f"finalization receipt binds unexpected completed file(s): {[str(p.relative_to(kit_root)) for p in extra]}")
-    return {path.relative_to(kit_root).as_posix(): digest for path, digest in sorted(bound.items(), key=lambda item: str(item[0]))}
+    return {
+        path.relative_to(kit_root).as_posix(): binding
+        for path, binding in sorted(bound.items(), key=lambda item: str(item[0]))
+    }
 
 
 def run_collector(path: Path, evidence_root: Path, append: bool) -> dict:
@@ -182,19 +227,78 @@ def build_id_for_gate(manifest: dict, gate_id: str) -> str:
     return value
 
 
-def staged_with_provenance(path: Path, gate_id: str, manifest: dict, source_head: str, kit_root: Path) -> Path:
+def identity_tuple(row: dict) -> tuple[str, str, str, str, str, str]:
+    return (
+        str(row.get("field_kit_packet_kind", "")),
+        str(row.get("field_kit_contract_hash", "")),
+        str(row.get("field_kit_finalization_receipt_sha256", "")),
+        str(row.get("source_head", "")),
+        str(row.get("source_build_id", "")),
+        str(row.get("acquisition_channel", "")),
+    )
+
+
+def existing_return_identities(evidence_root: Path) -> dict[str, tuple[str, str, str, str, str, str]]:
+    identities: dict[str, tuple[str, str, str, str, str, str]] = {}
+    for gate_id in HUMAN_GATES:
+        path = evidence_root / f"{gate_id}.jsonl"
+        if not path.exists():
+            continue
+        for row in load_jsonl(path):
+            if str(row.get("acquisition_channel", "")) != FIELD_KIT_CHANNEL:
+                continue
+            missing = [field for field in RETURN_IDENTITY_FIELDS if not str(row.get(field, "")).strip()]
+            if missing:
+                fail(f"{path}: existing field-kit evidence missing durable return identity fields: {', '.join(missing)}")
+            namespace = str(row["field_kit_return_namespace"])
+            identity = identity_tuple(row)
+            prior = identities.get(namespace)
+            if prior is not None and prior != identity:
+                fail(f"{path}: existing field-kit return namespace collision: {namespace}")
+            identities[namespace] = identity
+    return identities
+
+
+def ensure_return_identity_compatible(evidence_root: Path, rows: list[dict]) -> None:
+    existing = existing_return_identities(evidence_root)
+    proposed: dict[str, tuple[str, str, str, str, str, str]] = {}
+    for row in rows:
+        namespace = str(row.get("field_kit_return_namespace", ""))
+        if not namespace:
+            fail("staged field-kit row missing return namespace")
+        identity = identity_tuple(row)
+        prior_proposed = proposed.get(namespace)
+        if prior_proposed is not None and prior_proposed != identity:
+            fail(f"proposed field-kit rows conflict under return namespace: {namespace}")
+        proposed[namespace] = identity
+        prior_existing = existing.get(namespace)
+        if prior_existing is not None and prior_existing != identity:
+            fail(f"field-kit return namespace collision with existing evidence: {namespace}; use a new session/tester namespace for a distinct finalized return")
+
+
+def staged_with_provenance(path: Path, gate_id: str, manifest: dict, source_head: str, kit_root: Path, binding: dict) -> tuple[Path, list[dict]]:
     try:
-        rows = provenance.enrich_rows(load_jsonl(path), source_head=source_head, build_id=build_id_for_gate(manifest, gate_id), channel="human_field_kit_v4")
+        rows = provenance.enrich_rows(load_jsonl(path), source_head=source_head, build_id=build_id_for_gate(manifest, gate_id), channel=FIELD_KIT_CHANNEL)
     except ValueError as exc:
         fail(f"{path}: {exc}")
+    enriched: list[dict] = []
+    for row in rows:
+        item = dict(row)
+        item.update({
+            "field_kit_return_namespace": str(binding["return_namespace"]),
+            "field_kit_packet_kind": str(binding["packet_kind"]),
+            "field_kit_contract_hash": str(binding["field_kit_contract_hash"]),
+            "field_kit_finalization_receipt_sha256": str(binding["finalization_receipt_sha256"]),
+        })
+        enriched.append(item)
     handle = tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", prefix=f".repository-ingest-{gate_id}-", suffix=".jsonl", dir=kit_root, delete=False)
     staged = Path(handle.name)
     try:
-        for row in rows:
+        for row in enriched:
             handle.write(json.dumps(row, sort_keys=True, ensure_ascii=False) + "\n")
     finally:
         handle.close()
-    return staged
+    return staged, enriched
 
 
 def main() -> None:
@@ -206,6 +310,7 @@ def main() -> None:
     args = parser.parse_args()
 
     kit_root = args.kit_dir.resolve()
+    evidence_root = args.evidence_root.resolve()
     manifest = load_json(kit_root / "field-kit-manifest.json")
     expected_source = validate_sha(args.expected_source_head, "--expected-source-head")
     manifest_source = validate_sha(str(manifest.get("source_head", "")), "field-kit manifest source_head")
@@ -221,26 +326,35 @@ def main() -> None:
     present = {gate: paths for gate, paths in files_by_gate.items() if paths}
     if not present:
         fail("returned kit contains no completed observed-row files")
-    receipt_digests = verify_finalization_receipts(kit_root, manifest, files_by_gate)
+    receipt_bindings = verify_finalization_receipts(kit_root, manifest, files_by_gate)
 
     results: list[dict] = []
     for gate_id in HUMAN_GATES:
         for path in files_by_gate[gate_id]:
-            staged = staged_with_provenance(path, gate_id, manifest, manifest_source, kit_root)
+            rel = str(path.relative_to(kit_root)).replace("\\", "/")
+            binding = receipt_bindings[rel]
+            staged, staged_rows = staged_with_provenance(path, gate_id, manifest, manifest_source, kit_root, binding)
             try:
-                result = run_collector(staged, args.evidence_root.resolve(), args.append)
+                ensure_return_identity_compatible(evidence_root, staged_rows)
+                result = run_collector(staged, evidence_root, args.append)
             finally:
                 staged.unlink(missing_ok=True)
             if str(result.get("gate_id", "")) != gate_id:
                 fail(f"collector gate mismatch for {path}")
-            results.append({"source": str(path.relative_to(kit_root)), "finalized_sha256": receipt_digests[str(path.relative_to(kit_root)).replace('\\', '/')], **result})
+            results.append({
+                "source": rel,
+                "finalized_sha256": str(binding["completed_file_sha256"]),
+                "return_namespace": str(binding["return_namespace"]),
+                **result,
+            })
 
     print(json.dumps({
         "status": "APPENDED" if args.append else "VALIDATED_DRY_RUN",
         "source_head": manifest_source,
         "kit_verified_offline": True,
         "finalization_receipts_verified": True,
-        "completed_file_digests_verified": len(receipt_digests),
+        "completed_file_digests_verified": len(receipt_bindings),
+        "return_identity_verified": True,
         "provenance_persisted_in_rows": True,
         "append_requested": args.append,
         "completed_file_count": len(results),
