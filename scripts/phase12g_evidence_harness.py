@@ -7,6 +7,8 @@ import json
 from pathlib import Path
 from statistics import mean
 
+from phase12g_qualitative_disposition_integrity import validate as validate_qualitative_dispositions
+
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "empirical/phase12g_gate_registry.json"
 PROTOCOLS = ROOT / "empirical/phase12g_session_protocols.json"
@@ -106,8 +108,6 @@ def evaluate_e7_exhaustive(rows: list[dict], threshold: dict) -> tuple[str, dict
         if signature not in expected:
             unknown_signatures.append(signature)
             continue
-        # Evidence is append-only. A later exact-signature rerun supersedes an older
-        # acquisition attempt for current gate evaluation without deleting history.
         latest_by_signature[signature] = row
 
     if unknown_signatures:
@@ -327,9 +327,14 @@ def evaluate_representative_threshold(gate_id: str, rows: list[dict], threshold:
     return status, detail
 
 
-def evaluate_qualitative(gate_id: str, rows: list[dict], dispositions: dict[str, dict]) -> tuple[str, dict]:
+def evaluate_qualitative(gate_id: str, rows: list[dict], dispositions: dict[str, dict], integrity_error: str | None = None) -> tuple[str, dict]:
     if not rows:
         return "PENDING", {"reason": "no evidence rows"}
+    if integrity_error is not None:
+        return "PENDING", {
+            "reason": "qualitative disposition unavailable because exact-byte integrity validation failed",
+            "integrity_error": integrity_error,
+        }
     disposition = dispositions.get(gate_id)
     if disposition is None:
         return "PENDING", {"reason": "evidence rows exist but explicit evidence-backed disposition is missing"}
@@ -351,7 +356,13 @@ def main() -> None:
     registry = load_json(REGISTRY)
     disposition_path = args.dispositions or (args.evidence_root / "dispositions.json")
     sample_adequacy_path = args.sample_adequacy or (args.evidence_root / "sample_adequacy.json")
-    dispositions = load_dispositions(disposition_path, registry)
+    qualitative_integrity_error: str | None = None
+    if disposition_path.exists():
+        try:
+            validate_qualitative_dispositions(args.evidence_root, disposition_path)
+        except SystemExit as exc:
+            qualitative_integrity_error = str(exc)
+    dispositions = {} if qualitative_integrity_error is not None else load_dispositions(disposition_path, registry)
     sample_adequacy = load_sample_adequacy(sample_adequacy_path)
     results: list[dict] = []
     for gate in registry["gates"]:
@@ -366,7 +377,7 @@ def main() -> None:
         elif gate_id == "E7":
             status, detail = evaluate_e7_exhaustive(rows, gate["canonical_threshold"])
         elif gate.get("canonical_threshold") is None:
-            status, detail = evaluate_qualitative(gate_id, rows, dispositions)
+            status, detail = evaluate_qualitative(gate_id, rows, dispositions, qualitative_integrity_error)
         elif gate_id in REPRESENTATIVE_SAMPLE_GATES:
             status, detail = evaluate_representative_threshold(gate_id, rows, gate["canonical_threshold"], args.evidence_root, sample_adequacy)
         else:
@@ -384,6 +395,10 @@ def main() -> None:
     summary = {
         "phase": "12G",
         "registry_version": registry["registry_version"],
+        "qualitative_disposition_integrity": {
+            "ok": qualitative_integrity_error is None,
+            "reason": qualitative_integrity_error or "exact-byte qualitative disposition integrity current",
+        },
         "counts": {status: sum(1 for r in results if r["status"] == status) for status in ["PASS", "FAIL", "PENDING", "BLOCKED"]},
         "gates": results,
     }
