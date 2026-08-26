@@ -5,6 +5,7 @@ Phase 12G operator workflow audit: PASS (blank-row rejection + append dedupe + e
 Phase 12G first-session batch audit: PASS (3 blank human packets + relocatable manifest paths + DEMO01 launch + no completed/evidence rows + readiness-only status)
 Phase 12G mature-session batch audit: PASS (frozen selections + counterbalance + relocatable manifest paths + null human outcomes + no-evidence finalize guard)
 Phase 12G human field-kit audit: PASS (source/build/role bound to exact packaged bytes + portable offline rehash + drift/substitution rejection; no human outcome inferred)
+Phase 12G participant qualification binding audit: PASS (receipt-bound first-session naive declaration + E2 naive eligibility + mature rules-known declaration + E3 rule-knowledge guard; declarations do not prove human truth/timing)
 Phase 12G field-kit ingest audit: PASS (acquisition package byte binding + offline/finalization receipt verification + actual checkout/source pin + dry-run default + deliberate append + idempotency + tamper rejection)
 Phase 12G human return identity audit: PASS (exact finalized-return multi-row/cross-gate reuse accepted; conflicting receipt reuse and incomplete durable identity rejected)
 Phase 12G human packet identity binding audit: PASS (receipt identity rechecked against immutable packet identity; completed-row tester/session and packet-kind/gate cross-binding enforced; no human outcome inferred)
