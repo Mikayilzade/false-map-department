@@ -21,43 +21,45 @@ Repository: `Mikayilzade/false-map-department`
 ## Latest autonomous run — 2026-08-26
 
 ### Phase / subphase
-**12G Empirical Design Gates / acquisition-time exact packaged-build binding for human field kits — EXACT-HEAD RUNTIME GREEN**
+**12G Empirical Design Gates / E8 + T8-44 acquisition-time exact packaged-build byte binding — EXACT-HEAD RUNTIME GREEN**
 
 ### Progress saved this run
 - Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, this status file, `GAME2_PHASE11_FINAL_FREEZE.md`, `empirical/PHASE12G_PROTOCOL.md`, and `empirical/PHASE12G_RETURN_INGEST.md`; resumed exactly from the prior `NEXT ACTION`.
-- Continued the existing central `fmd.phase12g.build-artifact-binding.v1` contract rather than inventing a second digest system.
-- Added `scripts/phase12g_acquisition_build_binding.py`, which verifies a caller-supplied canonical build record against the exact packaged artifact and source/build/role, then freezes the verified package bytes plus record inside the acquisition root. Demo and production artifacts live in separate role-owned directories while preserving the original artifact filename already bound by the canonical record.
-- Upgraded the portable human field kit to **v5**. `phase12g_human_field_kit.py prepare` now requires exact demo and production packaged artifacts plus their binding records; a human acquisition kit cannot be prepared append-ready from build labels alone.
-- The v5 manifest carries immutable demo/production `binding_id`, SHA-256, byte size, original filename and relative packaged-artifact/record paths, with an explicit `acquisition_build_bytes_required=true` boundary. Prepared blank packets remain non-evidence.
-- Hardened the bundled offline verifier so a relocated kit independently rehashes both frozen packaged builds and validates source/build/role/record identity without a repository checkout. Post-preparation package-byte drift is rejected.
-- Hardened the bundled offline finalizer so it first verifies the acquisition bytes and then keeps the existing receipt schema compatible with repository ingest. For v5 receipts, `field_kit_contract_hash` binds the complete immutable manifest and the receipt additionally exposes the exact role-specific `binding_id`, artifact SHA-256 and byte size used for that packet kind.
-- Added `phase12g_audit_build_fixture.py` solely for synthetic non-evidence test packages and upgraded field-kit, ingest, return-collision and finalization-receipt audits to exercise the real acquisition-byte contract.
-- The first notification-safe exact-head run correctly failed because the acquisition copy renamed the package after the canonical record had already bound its filename. Evidence identified `build artifact filename mismatch`; the implementation was repaired by preserving the bound basename under role-specific directories rather than weakening filename verification.
-- Adversarial coverage now proves exact package-byte rehash after relocation, byte-drift rejection, role/build substitution rejection, receipt/source tamper rejection, post-finalization completed-row tamper rejection, deliberate append/idempotency and return-namespace collision safety.
+- Reused the existing central `phase12g_acquisition_build_binding.py` + canonical build-artifact contract rather than creating a parallel digest mechanism.
+- Added `phase12g_e8_acquisition_build_bind.py` and `phase12g_marketing_acquisition_prepare.py`. The real E8 acquisition path now takes the exact production package plus its canonical artifact record before respondent observation, freezes those verified bytes into the portable packet, records `binding_id`, SHA-256, size, filename and relative package/record paths in both immutable manifests, upgrades real acquisition manifests to v3, and marks `acquisition_build_bytes_required=true`.
+- E8 binding refuses to be added after respondent observation starts or after finalization. Missing packaged bytes leave the packet **NOT APPEND READY** rather than silently relying on the build label.
+- Upgraded `phase12g_marketing_completion_receipt.py` to receipt schema v2. Receipt creation and verification now re-hash the frozen production package through the central binding helper and bind the package identity into the finalized respondent return; receipt binding tamper and package-byte substitution fail closed.
+- Updated E8 marketing and ingest audits to use the byte-bound acquisition lifecycle while preserving immutable five-role media, exact source pin, anti-fabrication, dry-run, append/idempotency, durable media provenance and post-finalization tamper checks.
+- Added `phase12g_reference_profile_build_bind.py` for T8-44. A reference acquisition root must freeze the exact production package before timing acquisition; the Godot-produced timing packet is then sealed to that pre-existing binding and upgraded to packet v2. Ingest rejects unsealed packet v1 for real evidence and re-verifies the frozen package bytes/source/build/production role before accepting the packet.
+- T8 raw timing metric recomputation, exact checkout/source pin and actual Deck-class attestation requirements remain intact. CI/synthetic audit fixtures remain explicitly non-evidence.
+- Added `phase12g_external_packet_build_binding_audit.py`, covering both external channels with package-byte drift, post-session substitution, wrong-role/build binding and receipt/packet binding tamper attacks. It uses only synthetic non-evidence fixtures.
+- Wired the combined boundary audit into the existing notification-safe Phase 12G precondition wrapper; no new workflow or notification-producing CI path was created.
 - No human, market, accessibility-review or Deck-class observation was created or inferred. No empirical gate disposition changed.
 
 ### Files / systems changed
-- `scripts/phase12g_acquisition_build_binding.py`
-- `scripts/phase12g_human_field_kit.py`
-- `scripts/phase12g_field_kit_offline_verify.py`
-- `scripts/phase12g_field_kit_offline_finalize.py`
-- `scripts/phase12g_audit_build_fixture.py`
-- `scripts/phase12g_human_field_kit_audit.py`
-- `scripts/phase12g_field_kit_ingest_audit.py`
-- `scripts/phase12g_field_kit_return_collision_audit.py`
-- `scripts/phase12g_finalization_receipt_audit.py`
+- `scripts/phase12g_e8_acquisition_build_bind.py`
+- `scripts/phase12g_marketing_acquisition_prepare.py`
+- `scripts/phase12g_marketing_completion_receipt.py`
+- `scripts/phase12g_marketing_expectation_audit.py`
+- `scripts/phase12g_marketing_expectation_ingest_audit.py`
+- `scripts/phase12g_reference_profile_build_bind.py`
+- `scripts/phase12g_reference_profile_ingest.py`
+- `scripts/phase12g_reference_profile_audit.py`
+- `scripts/phase12g_external_packet_build_binding_audit.py`
+- `scripts/run_phase12g_preconditions.sh`
 - `IMPLEMENTATION_STATUS.md`
 
 ### Validation / factual exact-head evidence
-- Initial acquisition-binding implementation head `19b6680a5570b6a1657cc3fb7b13763f2d589e46` was **NOT accepted**: automatic run **32964354307** recorded `result=FAIL`, `phase12g_instrumentation_rc=1`. Exact failure: `PHASE12G FIELD KIT FAIL: packaged build binding invalid: build artifact filename mismatch`.
-- Repaired implementation head validated: `c8ad799fe0ded1cc6e141a7f12f670db1220d153`.
-- Automatic notification-safe aggregate run **32964848234**: **PASS** for exact head `c8ad799fe0ded1cc6e141a7f12f670db1220d153`.
-- Evidence commit: `d867cad94f7ababc759299277238fe82de06fc71`.
-- `runtime-evidence/phase12c/latest/run-metadata.txt`: `head_sha=c8ad799fe0ded1cc6e141a7f12f670db1220d153`, `run_id=32964848234`.
+- Validated implementation head: `6e7403ece0399a9798781c7e82d543d312517ee2`.
+- Automatic notification-safe aggregate run **32969924186**: **PASS** for exact head `6e7403ece0399a9798781c7e82d543d312517ee2`.
+- Evidence commit: `142e6d4a9afed7ad62b5d469ae02001425edb007`.
+- `runtime-evidence/phase12c/latest/run-metadata.txt`: `head_sha=6e7403ece0399a9798781c7e82d543d312517ee2`, `run_id=32969924186`.
 - `runtime-evidence/phase12c/latest/result.json`: `result=PASS`, `runtime_rc=0`, `phase12g_instrumentation_rc=0`, `ci_policy_rc=0`, `bootstrap_preflight_rc=0`, `phase12a_contract_rc=0`, `fetch_godot_rc=0`.
-- `phase12g/human-field-kit-audit.log`: **PASS** — source/build/role bound to exact packaged bytes, portable offline rehash, drift/substitution rejection, no human outcome inferred.
-- `phase12g/field-kit-ingest-audit.log`: **PASS** — acquisition package byte binding, offline/finalization receipt verification, actual checkout/source pin, dry-run default, deliberate append, idempotency and tamper rejection.
-- The same aggregate preserved earlier 12A-12F and existing Phase 12G precondition/integrity gates green.
+- `phase12g/external-packet-build-binding-audit.log`: **PASS** — E8 packet/receipt + T8 pre-run/sealed packet exact production bytes; drift/substitution/role/build/binding tamper rejected; fixtures non-evidence.
+- `phase12g/marketing-expectation-audit.log`: **PASS** — immutable representative asset contract + exact source + no fabricated observations + package-byte-bound v3 acquisition/finalization + tamper rejection.
+- `phase12g/marketing-expectation-ingest-audit.log`: **PASS** — acquisition-time package bytes + digest-bound receipt + durable provenance + dry-run/append/idempotency/substitution rejection.
+- `phase12g/reference-profile-acquisition-audit.log`: **PASS** — raw-sample integrity + package bytes frozen before timing packet + sealed binding + post-session substitution/wrong-role/unsealed rejection.
+- The same aggregate preserved 12A-12F and all prior Phase 12G integrity/precondition gates green.
 
 ### Current empirical-gate state
 - **E7: PASS — 285/285 exhaustive frozen matrix.**
@@ -67,28 +69,27 @@ Repository: `Mikayilzade/false-map-department`
 - E8 still has no genuine representative five-role media/respondent evidence.
 - T8-44 still has no actual Deck-class reference-hardware evidence.
 - E12 remains intentionally near-release.
-- Synthetic audit packages, source/build manifests, artifact digests, binding IDs and integrity receipts are acquisition metadata, not empirical outcomes.
+- Synthetic assets/responses/timing samples, artifact records, hashes, binding IDs and receipts are integrity/acquisition metadata, not empirical outcomes.
 
 ### Failures / blockers
 - **No current autonomous implementation blocker.**
-- The concrete human-field-kit acquisition-time packaged-byte trust boundary is now closed and runtime-green.
+- Human field-kit, E8 and T8-44 external acquisition channels are now all bound to exact packaged build bytes at acquisition time rather than labels alone.
 - Genuine evidence-source blockers remain unchanged: real naive/mature participants, genuine representative E8 media/respondents, actual Deck-class reference hardware, and near-release E12 context.
 
 ### Canonical / empirical-gate impact
 - **No canonical contradiction discovered.**
 - No frozen gameplay, content, commercial scope, empirical threshold or evidence outcome changed.
-- Human-required gates remain PENDING because this run only hardened acquisition integrity.
+- Human/market/reference-hardware gates remain PENDING because this run hardened trust boundaries only.
 
 ## NEXT ACTION
 Continue **12G real evidence acquisition/enabling only**; never fabricate missing outcomes.
 
-1. Apply the same central acquisition-time packaged-build binding to the **E8 immutable marketing asset/respondent packet and completion receipt**. Require the exact production package + canonical artifact record at packet preparation, freeze/re-hash it inside the portable acquisition root, bind its `binding_id`/SHA-256 into the immutable packet/receipt, and fail closed or `NOT APPEND READY` without real package bytes.
-2. Apply the same contract to the **T8-44 reference-hardware profile packet** so raw timing samples/attestation cannot later be paired with another package sharing only the build label. Preserve the rule that CI/desktop simulation is non-evidence for Deck-class hardware.
-3. Add focused adversarial tests for E8/T8 package-byte drift, post-session artifact substitution, role/source/build mismatch and receipt/packet binding tamper; reuse `phase12g_acquisition_build_binding.py` and the canonical artifact contract rather than duplicating digest logic.
-4. After E8/T8 acquisition-time byte binding is closed, continue auditing only caller-controlled fields that can still cross the external return-to-append boundary; avoid duplicate guards for trust classes already closed.
-5. When actual builds and real participants are available, acquire genuine naive-human **E1 + E2 + E11** and mature-human **E3-E6 + E9-E10** observations through the source-pinned, byte-bound field-kit lifecycle.
-6. Keep E7 frozen as **285/285 PASS**; reacquire only affected signatures after relevant presentation/device changes.
-7. For **E8**, require genuine representative five-role media plus real respondents; synthetic assets/responses are never evidence.
-8. For **T8-44**, require actual Deck-class reference hardware with Godot 4.7.1 and frozen attestation; hosted CI remains non-evidence.
-9. Evaluate **E12** only near release with current comparables and near-final build scope.
-10. Do not start **12H** until every remaining 12G gate has genuine evidence-backed disposition or an explicit release blocker.
+1. Audit the remaining **caller-controlled fields crossing external return → repository append** now that human field-kit, E8 and T8 packaged-build byte identity are acquisition-bound. Prioritize fields that can still alter source/session/tester/respondent/hardware identity or qualitative disposition without an immutable receipt/packet source; do not duplicate already-closed source/build/package-byte guards.
+2. Where a real remaining trust gap exists, move that field under repository-generated or acquisition-generated immutable identity, bind it into the existing finalization receipt/packet, and add one focused adversarial regression. If no concrete gap exists, record that result rather than inventing another layer.
+3. Keep all automated/synthetic acquisition readiness work explicitly non-evidence. Do not convert CI, generated assets, synthetic respondents, accessibility simulations or desktop timing into human/market/Deck outcomes.
+4. When actual builds and real participants are available, acquire genuine naive-human **E1 + E2 + E11** and mature-human **E3-E6 + E9-E10** observations through the source-pinned, byte-bound field-kit lifecycle.
+5. For **E8**, use `phase12g_marketing_acquisition_prepare.py` with genuine representative five-role media and the exact production package/artifact record before exposing the packet to real respondents; then finalize/ingest the returned packet without inferring responses.
+6. For **T8-44**, freeze the exact production package with `phase12g_reference_profile_build_bind.py prepare` before running `phase12g_reference_profile_runner.gd` on actual Deck-class reference hardware, then seal and ingest that exact packet. Hosted CI remains non-evidence.
+7. Keep E7 frozen as **285/285 PASS**; reacquire only affected signatures after relevant presentation/device changes.
+8. Evaluate **E12** only near release with current comparables and near-final build scope.
+9. Do not start **12H** until every remaining 12G gate has genuine evidence-backed disposition or an explicit release blocker.
