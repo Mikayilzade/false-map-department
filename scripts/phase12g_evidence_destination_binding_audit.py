@@ -47,7 +47,8 @@ def main() -> None:
         SCRIPT_DIR / "phase12g_collect_completed_rows.py",
         [
             "from phase12g_evidence_destination import resolve_evidence_root",
-            "resolve_evidence_root(args.evidence_root, append=args.append)",
+            "external_rows = [row for row in rows",
+            "resolve_evidence_root(args.evidence_root, append=args.append and bool(external_rows))",
             "evidence destination rejected",
         ],
         "central collector",
@@ -92,8 +93,8 @@ def main() -> None:
         fail("E8 audit still expects production append to an isolated noncanonical root")
 
     print(
-        "Phase 12G evidence destination binding audit: PASS — shared collector append is canonical-root-only for human/E8/T8; "
-        "alternate roots remain dry-run-only and synthetic audits prove rejection without repository evidence mutation"
+        "Phase 12G evidence destination binding audit: PASS — external human/E8/T8 collector appends are canonical-root-only; "
+        "alternate roots remain available for non-evidence dry-run/synthetic workflows and production ingest audits prove redirect rejection"
     )
 
 
