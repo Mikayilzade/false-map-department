@@ -90,9 +90,10 @@ python3 scripts/phase12g_marketing_expectation_packet.py status --packet /path/e
 
 This closes a transport-integrity gap: comparing `respondents.json` with `completed-E8.jsonl` alone is insufficient because both files could otherwise be changed together after finalization. Repository ingest therefore requires and verifies the completion receipt before it accepts the rows. If a genuine correction is needed after finalization, prepare a new asset/response version rather than editing a finalized packet in place.
 
-Finalization still does **not** append repository evidence automatically. Deliberately review the rows, then use the source-pinned repository ingest path (dry-run first, explicit `--append` only after review):
+Finalization still does **not** append repository evidence automatically. Deliberately review the rows, then check out the packet's exact `source_head` in this repository before running ingest. The `--expected-source-head` argument is confirmation, not a substitute for the checkout: ingest resolves `git rev-parse --verify HEAD` itself and fails closed unless the actual checkout, the explicit expected SHA, `asset-set.json`, and `respondents.json` all identify the same source commit. Dry-run first, then use explicit `--append` only after review:
 
 ```bash
+git checkout <the packet source_head>
 python3 scripts/phase12g_marketing_expectation_ingest.py \
   --packet /path/e8-packet \
   --expected-source-head <the packet source_head>
@@ -103,7 +104,7 @@ python3 scripts/phase12g_marketing_expectation_ingest.py \
   --append
 ```
 
-The ingest re-verifies immutable assets, exact source/build provenance, the finalization receipt, respondent/completed-row equality, duplicate/idempotency rules, and then delegates to the normal append-only evidence collector. It does not infer a market outcome or gate disposition.
+The ingest re-verifies the actual repository checkout, immutable assets, exact source/build provenance, the finalization receipt, respondent/completed-row equality, duplicate/idempotency rules, and then delegates to the normal append-only evidence collector. It does not infer a market outcome or gate disposition.
 
 ### Durable repository-side packet identity
 
