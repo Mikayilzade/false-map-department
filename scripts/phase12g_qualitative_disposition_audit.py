@@ -23,13 +23,21 @@ def run(args: list[str], *, expect_ok: bool = True) -> subprocess.CompletedProce
     return completed
 
 
-def harness_status(root: Path, gate_id: str) -> str:
+def harness_payload(root: Path) -> dict:
     result = run([sys.executable, str(HARNESS), "--evidence-root", str(root)])
-    payload = json.loads(result.stdout)
+    return json.loads(result.stdout)
+
+
+def harness_gate(root: Path, gate_id: str) -> dict:
+    payload = harness_payload(root)
     for gate in payload["gates"]:
         if gate["gate_id"] == gate_id:
-            return gate["status"]
+            return gate
     raise SystemExit(f"missing {gate_id} in harness output")
+
+
+def harness_status(root: Path, gate_id: str) -> str:
+    return str(harness_gate(root, gate_id)["status"])
 
 
 def write_e8(path: Path, respondent_id: str, builder: bool) -> None:
@@ -70,6 +78,9 @@ def main() -> None:
         run([sys.executable, str(INTEGRITY), "--evidence-root", str(root), "--dispositions", str(dispositions)])
         if harness_status(root, "E8") != "PASS":
             raise SystemExit("explicit disposition should become visible to the harness only after rows exist")
+        current_payload = harness_payload(root)
+        if not current_payload.get("qualitative_disposition_integrity", {}).get("ok", False):
+            raise SystemExit("raw harness must expose current qualitative-disposition integrity state")
         run([sys.executable, str(DASHBOARD), "--evidence-root", str(root), "--output", str(dashboard)])
         if "E8 — marketing expectation | PASS" not in dashboard.read_text(encoding="utf-8"):
             raise SystemExit("dashboard must show the current exact-byte qualitative disposition")
@@ -91,9 +102,21 @@ def main() -> None:
         if "stale" not in (stale.stdout + stale.stderr).lower():
             raise SystemExit("post-disposition evidence mutation must fail explicitly as stale")
 
+        # The raw harness itself must now fail closed: stale reviewed evidence may
+        # not surface the previously recorded PASS even when the operator skips
+        # the standalone integrity command.
+        stale_payload = harness_payload(root)
+        stale_gate = next(gate for gate in stale_payload["gates"] if gate["gate_id"] == "E8")
+        if stale_gate["status"] != "PENDING":
+            raise SystemExit("raw harness must downgrade stale qualitative disposition to PENDING")
+        integrity_state = stale_payload.get("qualitative_disposition_integrity", {})
+        if integrity_state.get("ok", True) or "stale" not in str(integrity_state.get("reason", "")).lower():
+            raise SystemExit("raw harness must expose the stale exact-byte integrity reason")
+        if "integrity" not in str(stale_gate.get("detail", {}).get("reason", "")).lower():
+            raise SystemExit("raw harness qualitative gate detail must explain fail-closed integrity handling")
+
         # The standalone operator dashboard must enforce the same exact-byte
-        # review binding, not silently render the stale PASS from the low-level
-        # harness before a deliberate re-review occurs.
+        # review binding and fail closed until deliberate re-review occurs.
         stale_dashboard = run(
             [sys.executable, str(DASHBOARD), "--evidence-root", str(root), "--output", str(dashboard)],
             expect_ok=False,
@@ -114,6 +137,9 @@ def main() -> None:
         run([sys.executable, str(INTEGRITY), "--evidence-root", str(root), "--dispositions", str(dispositions)])
         if harness_status(root, "E8") != "FAIL":
             raise SystemExit("deliberately replaced disposition must reflect the newly reviewed evidence batch")
+        recovered_payload = harness_payload(root)
+        if not recovered_payload.get("qualitative_disposition_integrity", {}).get("ok", False):
+            raise SystemExit("raw harness integrity state must recover after deliberate exact-byte re-review")
         run([sys.executable, str(DASHBOARD), "--evidence-root", str(root), "--output", str(dashboard)])
         if "E8 — marketing expectation | FAIL" not in dashboard.read_text(encoding="utf-8"):
             raise SystemExit("dashboard must recover only after current evidence is deliberately re-reviewed")
@@ -131,7 +157,7 @@ def main() -> None:
             "--output", str(dispositions),
         ], expect_ok=False)
 
-    print("Phase 12G qualitative disposition audit: PASS (explicit review + exact evidence digest/row binding + stale integrity/dashboard rejection + deliberate replacement + threshold-gate guard)")
+    print("Phase 12G qualitative disposition audit: PASS (explicit review + exact evidence digest/row binding + raw-harness/dashboard stale rejection + deliberate replacement + threshold-gate guard)")
 
 
 if __name__ == "__main__":
