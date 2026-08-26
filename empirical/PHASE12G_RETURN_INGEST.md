@@ -14,6 +14,24 @@ For human field-kit ingest, the repository tool resolves the current checkout wi
 
 Never copy observations manually into `empirical/evidence/*.jsonl`. Use the gate-specific ingest path so duplicate-return checks, provenance checks, packet integrity checks, dry-run defaults and finalization-receipt checks remain active.
 
+## Immutable packaged-build byte binding
+
+`demo_build_id` and `production_build_id` are labels, not proof of executable/package identity. Before a genuine external Phase 12G observation can be appended to the repository evidence root, bind the exact packaged build file used for acquisition to source SHA + role + build label and re-verify those bytes at ingest time.
+
+Create a non-evidence binding record next to the exact packaged artifact:
+
+`python3 scripts/phase12g_build_artifact_contract.py create --source-head <40_SHA> --role demo|production --build-id <BUILD_LABEL> --artifact <BUILD_FILE> --output <ARTIFACT_RECORD.json>`
+
+At repository ingest, make the exact same artifact bytes and binding record available and set both:
+- `FMD_PHASE12G_BUILD_ARTIFACT_RECORD=<ARTIFACT_RECORD.json>`
+- `FMD_PHASE12G_BUILD_ARTIFACT_PATH=<BUILD_FILE>`
+
+The provenance layer recomputes SHA-256 and byte size from the supplied build file, verifies source/build/role binding, and persists the artifact digest metadata into staged evidence. The central collector independently re-verifies the same bytes before any append to the real `empirical/evidence` root. Human E1/E2/E11 require the `demo` role; human E3-E6/E9-E10, E8 and T8-44 require `production`.
+
+If immutable packaged build bytes are not available, dry-run/readiness checks may continue but `append_ready` is false for the real evidence root and deliberate append fails closed. Do not invent a digest or treat a source-bound build label as packaged-build proof. Missing build bytes mean the empirical observation is not append-ready and its gate remains PENDING.
+
+The artifact binding record and its digest are integrity/acquisition metadata, not empirical evidence and never imply a gate outcome.
+
 ## Human field-kit return — E1-E6, E9-E11
 
 1. Checkout the exact source commit recorded by the returned field kit. If the acquisition tree came from an external bundle archive rather than a Git checkout, it must have passed `EXTRACTED-SOURCE-VERIFY.py` against the independently retained source SHA before field-kit generation.
@@ -21,8 +39,8 @@ Never copy observations manually into `empirical/evidence/*.jsonl`. Use the gate
 3. Finalize every genuinely completed first/mature packet locally with the bundled `FIELD-KIT-FINALIZE.py`. Finalization writes `completed-*.jsonl` plus a packet-local `finalization-receipt.json` that binds the completed-file SHA-256/size to the exact field-kit contract, source SHA, demo/production build IDs and manifest-pinned finalizer hash.
 4. Transport the completed rows and their receipt together. Do not edit a finalized `completed-*.jsonl`; if an observation correction is genuinely required, correct the observer packet and rerun the bundled finalizer so a new matching receipt is produced before ingest.
 5. Run `python3 scripts/phase12g_field_kit_ingest.py --kit-dir <RETURNED_KIT> --expected-source-head <40_SHA>` without append first. Repository ingest resolves the actual checkout HEAD and rejects a mismatch before verification/collection; it also rejects any completed file that is missing a receipt binding, changed after finalization, bound by multiple receipts, or tied to different source/build/tool identity.
-6. Inspect the dry-run result and confirm `repository_checkout_head`, source/build attribution, receipt verification and completed-row counts.
-7. Only for genuine reviewed observations, repeat with the ingest tool's explicit `--append` option.
+6. Inspect the dry-run result and confirm `repository_checkout_head`, source/build attribution, receipt verification and completed-row counts. For a real repository append, also confirm the exact packaged build artifact/record for the relevant demo or production role is available as described above.
+7. Only for genuine reviewed observations, repeat with the ingest tool's explicit `--append` option while the packaged build artifact environment is set.
 8. Run `python3 scripts/phase12g_evidence_harness.py` and `python3 scripts/phase12g_gate_dashboard.py` after deliberate append.
 
 The receipt is an integrity/transport binding, not a cryptographic human attestation and not empirical evidence by itself. It detects completed-row changes between local finalization and repository ingest; it does not turn synthetic or unreviewed rows into valid observations.
@@ -32,7 +50,7 @@ The receipt is an integrity/transport binding, not a cryptographic human attesta
 1. Checkout the exact packet `source_head`; if the acquisition tree came from the external archive, verify that extracted tree first as described above.
 2. Keep the immutable five-role asset set and respondent return together.
 3. Run `python3 scripts/phase12g_marketing_expectation_ingest.py <RETURNED_PACKET>` in dry-run mode first.
-4. Append only genuine respondent observations after asset/respondent/source/build checks pass.
+4. Before real append, supply the exact production packaged build artifact + binding record through the build-artifact environment above; append only genuine respondent observations after asset/respondent/source/build/artifact-byte checks pass.
 5. Re-run the evidence harness/dashboard.
 
 ## Deck-class reference return — T8-44
@@ -40,7 +58,7 @@ The receipt is an integrity/transport binding, not a cryptographic human attesta
 1. Checkout the exact reference packet `source_head`; if the profiling tree came from the external archive, verify that extracted tree first as described above.
 2. Require actual Deck-class hardware attestation, Godot 4.7.1, exact build ID and raw timing samples.
 3. Run `python3 scripts/phase12g_reference_profile_ingest.py <RETURNED_PROFILE>` in dry-run mode first.
-4. Append only when raw samples, recomputed summary, source/build identity and reference-hardware attestation all validate.
+4. Before real append, supply the exact production packaged build artifact + binding record through the build-artifact environment above; append only when raw samples, recomputed summary, source/build/artifact-byte identity and reference-hardware attestation all validate.
 5. Re-run the evidence harness/dashboard.
 
-Hosted CI, synthetic timings, blank kits, generated packets, finalization receipts, dry-run output, bundle verification, extracted-source verification and acquisition-readiness audits are not empirical evidence and must not change a PENDING gate disposition.
+Hosted CI, synthetic timings, blank kits, generated packets, finalization receipts, build labels without packaged bytes, build-artifact binding records by themselves, dry-run output, bundle verification, extracted-source verification and acquisition-readiness audits are not empirical evidence and must not change a PENDING gate disposition.
