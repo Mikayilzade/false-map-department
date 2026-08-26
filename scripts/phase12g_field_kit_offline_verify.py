@@ -8,6 +8,8 @@ from pathlib import Path
 
 BUILD_SNAPSHOT_SCHEMA = "fmd.phase12g.acquisition-build-binding.v1"
 BUILD_RECORD_SCHEMA = "fmd.phase12g.build-artifact-binding.v1"
+FIRST_FINALIZED_GATES = ("E1", "E2", "E11")
+MATURE_FINALIZED_GATES = ("E3", "E4", "E5", "E6", "E9", "E10")
 
 
 def fail(message: str) -> None:
@@ -22,6 +24,27 @@ def load_json(path: Path) -> dict:
     if not isinstance(payload, dict):
         fail(f"{path}: expected JSON object")
     return payload
+
+
+def load_jsonl(path: Path) -> list[dict]:
+    rows: list[dict] = []
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except OSError as exc:
+        fail(f"{path}: unreadable JSONL: {exc}")
+    for line_no, raw in enumerate(lines, start=1):
+        if not raw.strip():
+            continue
+        try:
+            value = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            fail(f"{path}:{line_no}: malformed JSON row: {exc}")
+        if not isinstance(value, dict):
+            fail(f"{path}:{line_no}: completed row must be an object")
+        rows.append(value)
+    if not rows:
+        fail(f"{path}: finalized completed file contains no rows")
+    return rows
 
 
 def sha256_file(path: Path) -> str:
@@ -94,6 +117,57 @@ def verify_build_binding(root: Path, snapshot: object, source_head: str, role: s
     return snapshot
 
 
+def verify_optional_finalized_routing(packet_dir: Path, expected_gates: tuple[str, ...], packet_kind: str) -> None:
+    """Bind any returned finalized files to the immutable packet's canonical gate routes.
+
+    Unfinalized prepared packets remain valid. Once a finalization receipt exists, however,
+    the packet must contain exactly one completed file for every gate owned by that packet,
+    the receipt must name that same gate set, and every completed row must retain the gate ID
+    implied by its receipt-bound filename. This is checked by the bundled verifier before the
+    repository ingest can stage or append anything.
+    """
+    receipt_path = packet_dir / "finalization-receipt.json"
+    completed_paths = sorted(packet_dir.glob("completed-*.jsonl"))
+    if not receipt_path.exists():
+        if completed_paths:
+            fail(f"{packet_dir}: completed rows exist without a finalization receipt")
+        return
+
+    receipt = load_json(receipt_path)
+    if str(receipt.get("packet_kind", "")) != packet_kind:
+        fail(f"{receipt_path}: finalization receipt packet_kind mismatch")
+    receipt_gates = string_array(receipt.get("completed_gates", []), f"{receipt_path} completed_gates")
+    if receipt_gates != list(expected_gates):
+        fail(f"{receipt_path}: finalized gate route set mismatch; expected {list(expected_gates)}, got {receipt_gates}")
+
+    expected_names = [f"completed-{gate_id}.jsonl" for gate_id in expected_gates]
+    actual_names = [path.name for path in completed_paths]
+    if actual_names != sorted(expected_names):
+        fail(f"{packet_dir}: finalized completed-file route set mismatch; expected {sorted(expected_names)}, got {actual_names}")
+
+    receipt_entries = receipt.get("completed_files", [])
+    if not isinstance(receipt_entries, list) or len(receipt_entries) != len(expected_gates):
+        fail(f"{receipt_path}: completed-file receipt bindings must cover exactly {len(expected_gates)} gate routes")
+    receipt_names: list[str] = []
+    for index, raw_entry in enumerate(receipt_entries, start=1):
+        if not isinstance(raw_entry, dict):
+            fail(f"{receipt_path}: completed-file binding {index} must be an object")
+        name = Path(str(raw_entry.get("path", ""))).name
+        if not name:
+            fail(f"{receipt_path}: completed-file binding {index} path missing")
+        receipt_names.append(name)
+    if sorted(receipt_names) != sorted(expected_names) or len(set(receipt_names)) != len(receipt_names):
+        fail(f"{receipt_path}: receipt completed-file routes do not match immutable packet gate ownership")
+
+    for gate_id in expected_gates:
+        path = packet_dir / f"completed-{gate_id}.jsonl"
+        for row_index, row in enumerate(load_jsonl(path), start=1):
+            embedded_gate = str(row.get("gate_id", "")).strip()
+            if embedded_gate != gate_id:
+                shown = embedded_gate if embedded_gate else "<missing>"
+                fail(f"{path}:{row_index}: finalized row gate_id mismatch; receipt-bound route is {gate_id}, row claims {shown}")
+
+
 def first_contract(session_dir: Path) -> dict:
     manifest_path = session_dir / "session-manifest.json"
     observer_path = session_dir / "observer.json"
@@ -143,17 +217,21 @@ def verify(kit_root: Path) -> dict:
     if sha256_file(mature_manifest_path) != str(mature_section.get("batch_manifest_sha256", "")): fail("mature-session batch manifest hash mismatch")
     first_manifest = load_json(first_manifest_path); expected_first = {str(r.get("session_id", "")): r for r in first_section.get("packets", []) if isinstance(r, dict)}; first_count = 0
     for packet in first_manifest.get("packets", []):
-        actual = first_contract(resolve_relative(first_manifest_path.parent, packet.get("session_dir", ""), "first-session packet path")); expected = expected_first.get(actual["session_id"])
+        packet_dir = resolve_relative(first_manifest_path.parent, packet.get("session_dir", ""), "first-session packet path")
+        actual = first_contract(packet_dir); expected = expected_first.get(actual["session_id"])
         if not isinstance(expected, dict) or any(actual.get(k) != expected.get(k) for k in ["tester_id","session_id","demo_build_id","manifest_sha256","observer_keys"]): fail(f"first-session immutable contract changed: {actual['session_id']}")
+        verify_optional_finalized_routing(packet_dir, FIRST_FINALIZED_GATES, "first_session")
         first_count += 1
     if first_count != int(first_section.get("packet_count", -1)): fail("first-session packet count mismatch")
     mature_manifest = load_json(mature_manifest_path); expected_mature = {str(r.get("tester_id", "")): r for r in mature_section.get("packets", []) if isinstance(r, dict)}; mature_count = 0
     for packet in mature_manifest.get("packets", []):
-        actual = mature_contract(resolve_relative(mature_manifest_path.parent, packet.get("packet_dir", ""), "mature-session packet path")); expected = expected_mature.get(actual["tester_id"])
+        packet_dir = resolve_relative(mature_manifest_path.parent, packet.get("packet_dir", ""), "mature-session packet path")
+        actual = mature_contract(packet_dir); expected = expected_mature.get(actual["tester_id"])
         if not isinstance(expected, dict) or any(actual.get(k) != expected.get(k) for k in ["tester_id","build_id","identity_fingerprint","row_counts"]): fail(f"mature-session immutable contract changed: {actual['tester_id']}")
+        verify_optional_finalized_routing(packet_dir, MATURE_FINALIZED_GATES, "mature_session")
         mature_count += 1
     if mature_count != int(mature_section.get("packet_count", -1)): fail("mature-session packet count mismatch")
-    return {"status":"VERIFIED_OFFLINE","source_head":source_head,"first_packets":first_count,"mature_packets":mature_count,"acquisition_build_bytes_verified":True,"demo_binding_id":demo["binding_id"],"production_binding_id":production["binding_id"],"human_outcomes_inferred":False,"repository_evidence_appended":False}
+    return {"status":"VERIFIED_OFFLINE","source_head":source_head,"first_packets":first_count,"mature_packets":mature_count,"acquisition_build_bytes_verified":True,"demo_binding_id":demo["binding_id"],"production_binding_id":production["binding_id"],"finalized_gate_routes_verified":True,"human_outcomes_inferred":False,"repository_evidence_appended":False}
 
 
 def main() -> None:
