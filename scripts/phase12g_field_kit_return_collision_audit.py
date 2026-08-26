@@ -10,7 +10,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 KIT = ROOT / "scripts/phase12g_human_field_kit.py"
 INGEST = ROOT / "scripts/phase12g_field_kit_ingest.py"
-SOURCE_HEAD = "0123456789abcdef0123456789abcdef01234567"
 
 
 def fail(message: str) -> None:
@@ -26,6 +25,14 @@ def run(args: list[str], ok: bool = True, cwd: Path = ROOT) -> subprocess.Comple
     return result
 
 
+def repository_head() -> str:
+    result = run(["git", "rev-parse", "--verify", "HEAD"])
+    head = result.stdout.strip().lower()
+    if len(head) != 40 or any(ch not in "0123456789abcdef" for ch in head):
+        fail(f"invalid repository HEAD from git: {head!r}")
+    return head
+
+
 def load(path: Path) -> dict:
     value = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict):
@@ -37,10 +44,10 @@ def write(path: Path, value: dict) -> None:
     path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
-def prepare_finalize_first(kit_root: Path, demo_build: str, production_build: str, *, success: bool) -> str:
+def prepare_finalize_first(kit_root: Path, source_head: str, demo_build: str, production_build: str, *, success: bool) -> str:
     run([
         sys.executable, str(KIT), "prepare",
-        "--source-head", SOURCE_HEAD,
+        "--source-head", source_head,
         "--demo-build-id", demo_build,
         "--production-build-id", production_build,
         "--first-count", "1",
@@ -84,11 +91,11 @@ def prepare_finalize_first(kit_root: Path, demo_build: str, production_build: st
     return session_id
 
 
-def ingest(kit_root: Path, evidence_root: Path, *, append: bool, ok: bool = True) -> subprocess.CompletedProcess[str]:
+def ingest(kit_root: Path, evidence_root: Path, source_head: str, *, append: bool, ok: bool = True) -> subprocess.CompletedProcess[str]:
     args = [
         sys.executable, str(INGEST),
         "--kit-dir", str(kit_root),
-        "--expected-source-head", SOURCE_HEAD,
+        "--expected-source-head", source_head,
         "--evidence-root", str(evidence_root),
     ]
     if append:
@@ -97,6 +104,7 @@ def ingest(kit_root: Path, evidence_root: Path, *, append: bool, ok: bool = True
 
 
 def main() -> None:
+    source_head = repository_head()
     with tempfile.TemporaryDirectory(prefix="fmd-phase12g-return-collision-") as temp:
         root = Path(temp)
         evidence_root = root / "evidence"
@@ -105,14 +113,15 @@ def main() -> None:
 
         session_a = prepare_finalize_first(
             kit_a,
+            source_head,
             "return-collision-demo-a",
             "return-collision-production-a",
             success=True,
         )
-        appended = ingest(kit_a, evidence_root, append=True)
+        appended = ingest(kit_a, evidence_root, source_head, append=True)
         payload = json.loads(appended.stdout)
-        if payload.get("return_identity_verified") is not True:
-            fail("first ingest did not report durable return-identity verification")
+        if payload.get("return_identity_verified") is not True or payload.get("repository_checkout_head") != source_head:
+            fail("first ingest did not report durable return-identity and checkout verification")
         namespaces = {str(item.get("return_namespace", "")) for item in payload.get("results", [])}
         if namespaces != {f"first_session:{session_a}"}:
             fail(f"first ingest emitted unexpected return namespace(s): {sorted(namespaces)}")
@@ -136,13 +145,14 @@ def main() -> None:
         # canonically novel; row-level dedupe alone would therefore accept it.
         session_b = prepare_finalize_first(
             kit_b,
+            source_head,
             "return-collision-demo-b",
             "return-collision-production-b",
             success=False,
         )
         if session_b != session_a:
             fail("audit setup must intentionally reuse the same first-session namespace")
-        rejected = ingest(kit_b, evidence_root, append=True, ok=False)
+        rejected = ingest(kit_b, evidence_root, source_head, append=True, ok=False)
         detail = rejected.stdout + rejected.stderr
         if "return namespace collision with existing evidence" not in detail:
             fail(f"distinct finalized return reused namespace without explicit collision rejection:\n{detail}")
@@ -151,7 +161,7 @@ def main() -> None:
                 fail("collision rejection must preserve all existing evidence bytes")
 
         # Re-ingesting the exact original finalized return is still valid and idempotent.
-        repeat = ingest(kit_a, evidence_root, append=True)
+        repeat = ingest(kit_a, evidence_root, source_head, append=True)
         repeat_payload = json.loads(repeat.stdout)
         if any(int(item.get("new_rows", -1)) != 0 for item in repeat_payload.get("results", [])):
             fail("exact finalized-return retry must remain row-idempotent")
@@ -159,7 +169,7 @@ def main() -> None:
             if (evidence_root / f"{gate}.jsonl").read_bytes() != content:
                 fail("exact finalized-return retry must preserve evidence bytes")
 
-    print("Phase 12G field-kit return collision audit: PASS (durable namespace persisted; distinct finalized return cannot reuse namespace; exact finalized-return retry remains idempotent and byte-preserving)")
+    print("Phase 12G field-kit return collision audit: PASS (actual checkout/source pin + durable namespace persisted; distinct finalized return cannot reuse namespace; exact finalized-return retry remains idempotent and byte-preserving)")
 
 
 if __name__ == "__main__":
