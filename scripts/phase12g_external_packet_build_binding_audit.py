@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import copy
 import json
 import subprocess
 import sys
@@ -37,6 +36,7 @@ def expect_error(fn, marker: str) -> None:
 
 
 def make_assets(root: Path) -> list[str]:
+    root.mkdir(parents=True, exist_ok=True)
     specs = [
         ("store_key_art", ".png"),
         ("gameplay_map_world", ".png"),
@@ -107,18 +107,14 @@ def main() -> None:
         temp = Path(raw)
         artifact, record = build_fixture.create_bound_artifact(temp / "build", source_head=SOURCE, role="production", build_id="AUDIT-PROD")
 
-        # E8 real-acquisition preparation freezes package bytes before any response.
         e8_root = temp / "e8"
-        media = temp / "media"
-        media.mkdir()
-        prepare_e8(e8_root, media, artifact, record)
+        prepare_e8(e8_root, temp / "media", artifact, record)
         asset_set, respondents = e8_packet.load_and_verify_packet(e8_root)
         binding = e8_binding.verify_packet_binding(e8_root, asset_set, respondents)
         require(binding["artifact_sha256"] and binding["binding_id"], "E8 packet must expose central package binding")
         require(asset_set.get("acquisition_build_bytes_required") is True, "E8 immutable manifest must require package bytes")
 
-        rows = respondents["rows"]
-        rows[0].update({
+        respondents["rows"][0].update({
             "expected_play_category": "systemic puzzle",
             "freeform_builder_expectation": False,
             "notes": "synthetic integrity fixture only; not market evidence",
@@ -136,14 +132,13 @@ def main() -> None:
         rejected_receipt = e8_receipt.verify_receipt(e8_root, asset_set, respondents, e8_root / "completed-E8.jsonl")
         require(rejected_receipt.get("ok") is False and "build_binding" in str(rejected_receipt.get("code", "")), "E8 receipt binding tamper must fail closed")
 
-        # A fresh E8 packet rejects package-byte drift and wrong role/build records.
         drift_root = temp / "e8-drift"
-        drift_media = temp / "media-drift"
-        drift_media.mkdir()
-        prepare_e8(drift_root, drift_media, artifact, record)
-        frozen = drift_root / binding["packet_artifact_path"]
+        prepare_e8(drift_root, temp / "media-drift", artifact, record)
+        drift_binding = e8_binding.verify_packet_binding(drift_root)
+        frozen = drift_root / drift_binding["packet_artifact_path"]
         frozen.write_bytes(frozen.read_bytes() + b"DRIFT")
         expect_error(lambda: e8_binding.verify_packet_binding(drift_root), "artifact")
+
         wrong_artifact, wrong_record = build_fixture.create_bound_artifact(temp / "wrong", source_head=SOURCE, role="demo", build_id="AUDIT-PROD")
         raw_root = temp / "e8-wrong-role"
         proc = run_packet([
@@ -153,7 +148,6 @@ def main() -> None:
         require(proc.returncode == 0, "low-level E8 packet fixture should prepare")
         expect_error(lambda: e8_binding.bind_packet(raw_root, wrong_artifact, wrong_record), "role")
 
-        # T8 binding exists before timing packet and the sealed result must retain it.
         t8_root = temp / "t8"
         t8_snapshot = t8_binding.prepare(t8_root, source_head=SOURCE, build_id="AUDIT-PROD", artifact=artifact, record=record)
         t8_path = t8_root / "profile.json"
