@@ -43,6 +43,13 @@ def base_row(channel: str = CHANNEL) -> dict:
     }
 
 
+def run_collector(input_path: Path, evidence_root: Path, *, append: bool, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
+    command = [sys.executable, str(COLLECTOR), "--input", str(input_path), "--evidence-root", str(evidence_root)]
+    if append:
+        command.append("--append")
+    return subprocess.run(command, cwd=ROOT, text=True, capture_output=True, env=env)
+
+
 def test_helper() -> dict:
     base = base_row()
     base.pop("acquisition_channel")
@@ -76,22 +83,19 @@ def test_helper() -> dict:
 
 
 def test_collector_persistence(enriched: dict) -> None:
+    # Internal synthetic audit-channel rows are not external empirical evidence, so
+    # isolated append remains valid for testing generic collector serialization/dedupe.
     with tempfile.TemporaryDirectory(prefix="fmd-phase12g-provenance-") as raw:
         root = Path(raw)
         input_path = root / "input.jsonl"
         evidence_root = root / "evidence"
         input_path.write_text(json.dumps(enriched, sort_keys=True) + "\n", encoding="utf-8")
-        completed = subprocess.run(
-            [sys.executable, str(COLLECTOR), "--input", str(input_path), "--evidence-root", str(evidence_root), "--append"],
-            cwd=ROOT,
-            text=True,
-            capture_output=True,
-        )
-        expect(completed.returncode == 0, f"collector rejected enriched audit row: {(completed.stdout + completed.stderr).strip()}")
+        completed = run_collector(input_path, evidence_root, append=True)
+        expect(completed.returncode == 0, f"collector rejected enriched internal audit row: {(completed.stdout + completed.stderr).strip()}")
         target = evidence_root / "E1.jsonl"
-        expect(target.is_file(), "collector did not create temporary evidence target")
+        expect(target.is_file(), "collector did not create temporary internal audit target")
         rows = [json.loads(line) for line in target.read_text(encoding="utf-8").splitlines() if line.strip()]
-        expect(len(rows) == 1, "temporary append did not preserve exactly one row")
+        expect(len(rows) == 1, "temporary internal append did not preserve exactly one row")
         stored = rows[0]
         for key in ["source_head", "source_build_id", "acquisition_channel", "evidence_provenance_version"]:
             expect(stored.get(key) == enriched.get(key), f"collector lost provenance field {key}")
@@ -131,43 +135,35 @@ def test_external_artifact_binding() -> None:
         input_path = root / "external.jsonl"
         input_path.write_text(json.dumps(enriched, sort_keys=True) + "\n", encoding="utf-8")
         evidence_root = root / "evidence"
+
         force_env = {key: value for key, value in os.environ.items() if key not in {provenance.ARTIFACT_RECORD_ENV, provenance.ARTIFACT_PATH_ENV}}
         force_env["FMD_PHASE12G_REQUIRE_BUILD_ARTIFACT_BYTES"] = "1"
-        without_env = subprocess.run(
-            [sys.executable, str(COLLECTOR), "--input", str(input_path), "--evidence-root", str(evidence_root), "--append"],
-            cwd=ROOT,
-            text=True,
-            capture_output=True,
-            env=force_env,
-        )
-        expect(without_env.returncode != 0, "external append accepted source_build_id without packaged artifact bytes")
-        expect(not (evidence_root / "E1.jsonl").exists(), "failed external append mutated evidence")
+        without_env = run_collector(input_path, evidence_root, append=False, env=force_env)
+        expect(without_env.returncode == 0, f"external dry-run without bytes should remain a non-ready validation result: {(without_env.stdout + without_env.stderr).strip()}")
+        without_payload = json.loads(without_env.stdout)
+        expect(without_payload.get("append_ready") is False, "external dry-run without packaged bytes overstated append readiness")
+        expect(not (evidence_root / "E1.jsonl").exists(), "external dry-run without bytes mutated evidence")
 
         bound_env = dict(os.environ)
         bound_env[provenance.ARTIFACT_RECORD_ENV] = str(record_path)
         bound_env[provenance.ARTIFACT_PATH_ENV] = str(artifact)
         bound_env["FMD_PHASE12G_REQUIRE_BUILD_ARTIFACT_BYTES"] = "1"
-        with_env = subprocess.run(
-            [sys.executable, str(COLLECTOR), "--input", str(input_path), "--evidence-root", str(evidence_root), "--append"],
-            cwd=ROOT,
-            text=True,
-            capture_output=True,
-            env=bound_env,
-        )
-        expect(with_env.returncode == 0, f"byte-bound external append rejected: {(with_env.stdout + with_env.stderr).strip()}")
-        expect((evidence_root / "E1.jsonl").is_file(), "byte-bound external append did not persist evidence")
+        with_env = run_collector(input_path, evidence_root, append=False, env=bound_env)
+        expect(with_env.returncode == 0, f"byte-bound external dry-run rejected: {(with_env.stdout + with_env.stderr).strip()}")
+        bound_payload = json.loads(with_env.stdout)
+        expect(bound_payload.get("append_ready") is True, "verified packaged bytes did not make external dry-run append-ready")
+        expect(bound_payload.get("build_artifact_bytes_verified") is True, "external dry-run did not report byte verification")
+        expect(not (evidence_root / "E1.jsonl").exists(), "byte-bound external dry-run mutated evidence")
+
+        redirected = run_collector(input_path, evidence_root, append=True, env=bound_env)
+        expect(redirected.returncode != 0, "byte-bound external append to a noncanonical root was accepted")
+        expect("append evidence destination must be the canonical repository root" in (redirected.stdout + redirected.stderr), "redirected external append did not fail at the canonical destination boundary")
+        expect(not (evidence_root / "E1.jsonl").exists(), "rejected redirected external append mutated evidence")
 
         artifact.write_bytes(b"tampered-packaged-build")
-        tampered_root = root / "tampered-evidence"
-        tampered = subprocess.run(
-            [sys.executable, str(COLLECTOR), "--input", str(input_path), "--evidence-root", str(tampered_root), "--append"],
-            cwd=ROOT,
-            text=True,
-            capture_output=True,
-            env=bound_env,
-        )
-        expect(tampered.returncode != 0, "collector accepted packaged build bytes after digest-changing tamper")
-        expect(not (tampered_root / "E1.jsonl").exists(), "tampered build append mutated evidence")
+        tampered = run_collector(input_path, evidence_root, append=False, env=bound_env)
+        expect(tampered.returncode != 0, "collector dry-run accepted packaged build bytes after digest-changing tamper")
+        expect(not (evidence_root / "E1.jsonl").exists(), "tampered build validation mutated evidence")
 
 
 def test_ingest_wiring() -> None:
@@ -187,7 +183,10 @@ def main() -> None:
     test_collector_persistence(enriched)
     test_external_artifact_binding()
     test_ingest_wiring()
-    print("Phase 12G evidence provenance audit: PASS (external append requires exact packaged build bytes; source/build/channel/digest persist)")
+    print(
+        "Phase 12G evidence provenance audit: PASS — external dry-run verifies exact packaged bytes/readiness, "
+        "noncanonical production append is rejected, and source/build/channel/digest provenance remains intact"
+    )
 
 
 if __name__ == "__main__":
