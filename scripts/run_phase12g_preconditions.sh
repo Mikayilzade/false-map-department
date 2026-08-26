@@ -16,6 +16,7 @@ python3 scripts/phase12g_human_field_kit_audit.py | tee "$OUT_DIR/human-field-ki
 python3 scripts/phase12g_field_kit_ingest_audit.py | tee "$OUT_DIR/field-kit-ingest-audit.log"
 python3 scripts/phase12g_marketing_expectation_audit.py | tee "$OUT_DIR/marketing-expectation-audit.log"
 python3 scripts/phase12g_marketing_expectation_ingest_audit.py | tee "$OUT_DIR/marketing-expectation-ingest-audit.log"
+python3 scripts/phase12g_e8_asset_version_collision_audit.py | tee "$OUT_DIR/e8-asset-version-collision-audit.log"
 python3 scripts/phase12g_qualitative_disposition_audit.py | tee "$OUT_DIR/qualitative-disposition-audit.log"
 python3 scripts/phase12g_reference_profile_audit.py | tee "$OUT_DIR/reference-profile-acquisition-audit.log"
 python3 scripts/phase12g_external_acquisition_bundle_audit.py | tee "$OUT_DIR/external-acquisition-bundle-audit.log"
@@ -23,7 +24,8 @@ python3 scripts/phase12g_acquisition_readiness_audit.py | tee "$OUT_DIR/acquisit
 
 # Any real E8 repository row must remain self-describing after its external
 # finalized packet is gone: exact source/build/asset-set/receipt and per-role
-# frozen media hashes are durable integrity metadata on each row.
+# frozen media hashes are durable integrity metadata on each row. A reused
+# asset_version must also resolve to one exact finalized packet identity.
 python3 scripts/phase12g_e8_evidence_provenance_integrity.py | tee "$OUT_DIR/e8-evidence-provenance-integrity.log"
 
 # A qualitative PASS/FAIL/BLOCKED is valid only for the exact evidence bytes that
