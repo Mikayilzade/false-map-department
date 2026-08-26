@@ -6,6 +6,8 @@ import hashlib
 import json
 from pathlib import Path
 
+from phase12g_evidence_destination import resolve_control_path
+
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "empirical/phase12g_gate_registry.json"
 DEFAULT_EVIDENCE_ROOT = ROOT / "empirical/evidence"
@@ -33,6 +35,16 @@ def count_rows(path: Path) -> int:
 
 
 def validate(evidence_root: Path, dispositions_path: Path) -> dict:
+    evidence_root = evidence_root.resolve()
+    try:
+        dispositions_path = resolve_control_path(
+            evidence_root,
+            dispositions_path,
+            control_kind="dispositions",
+        )
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
+
     registry = load_json(REGISTRY)
     gates = {gate["gate_id"]: gate for gate in registry["gates"]}
     if not dispositions_path.exists():
@@ -102,8 +114,9 @@ def main() -> None:
     parser.add_argument("--evidence-root", type=Path, default=DEFAULT_EVIDENCE_ROOT)
     parser.add_argument("--dispositions", type=Path)
     args = parser.parse_args()
-    dispositions = args.dispositions or (args.evidence_root / "dispositions.json")
-    result = validate(args.evidence_root, dispositions)
+    evidence_root = args.evidence_root.resolve()
+    dispositions = args.dispositions or (evidence_root / "dispositions.json")
+    result = validate(evidence_root, dispositions)
     print(json.dumps(result, indent=2, sort_keys=True))
 
 
