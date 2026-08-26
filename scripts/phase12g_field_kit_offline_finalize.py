@@ -155,13 +155,13 @@ def finalize_first(session_dir: Path) -> tuple[dict, list[Path]]:
     if completion_seconds is None: completion_seconds = session_end
     rows = {
         "E1":{"schema_version":1,"gate_id":"E1","tester_id":tester_id,"naive":naive,"session_id":session_id,"understood_within_seconds":e1_time,"success":e1_success},
-        "E2":{"schema_version":1,"gate_id":"E2","tester_id":tester_id,"session_id":session_id,"packet_completed":packet_completed,"prediction_prompt_id":prompt_id,"success":e2_success},
-        "E11":{"schema_version":1,"gate_id":"E11","tester_id":tester_id,"demo_build_id":build_id,"start_timestamp":start_marker,"first_collateral_aha_seconds":aha_seconds,"completion_seconds":completion_seconds,"completed":completed},
+        "E2":{"schema_version":1,"gate_id":"E2","tester_id":tester_id,"naive":naive,"session_id":session_id,"packet_completed":packet_completed,"prediction_prompt_id":prompt_id,"success":e2_success},
+        "E11":{"schema_version":1,"gate_id":"E11","tester_id":tester_id,"naive":naive,"demo_build_id":build_id,"start_timestamp":start_marker,"first_collateral_aha_seconds":aha_seconds,"completion_seconds":completion_seconds,"completed":completed},
     }
     paths=[]
     for gate_id,row in rows.items():
         path=session_dir/f"completed-{gate_id}.jsonl"; write_jsonl(path,[row]); paths.append(path)
-    return {"kind":"first_session","session_id":session_id,"tester_id":tester_id,"completed_gates":list(FIRST_GATES)},paths
+    return {"kind":"first_session","session_id":session_id,"tester_id":tester_id,"naive_declared":naive,"completed_gates":list(FIRST_GATES)},paths
 
 
 def field_missing(row: dict, field: str) -> bool:
@@ -184,10 +184,11 @@ def finalize_mature(packet_dir: Path) -> tuple[dict,list[Path]]:
             missing=[field for field in MATURE_REQUIRED_FIELDS[gate_id] if field_missing(raw,field)]
             if missing: fail(f"{gate_id} row {index}: missing observed fields: {', '.join(missing)}")
             if str(raw.get("tester_id","")) != tester_id: fail(f"{gate_id} row {index}: tester identity mismatch")
+            if gate_id=="E3" and raw.get("rule_knowledge_confirmed") is not True: fail("E3 rows require rule_knowledge_confirmed=true; the frozen comparison is after rules are known")
             if gate_id=="E6" and raw.get("used_raw_debug_log") is not False: fail("E6 rows require used_raw_debug_log=false; raw debug logs are forbidden by protocol")
-            checked.append(dict(raw))
+            item=dict(raw); item["rules_known_before_session"]=True; checked.append(item)
         path=packet_dir/f"completed-{gate_id}.jsonl"; write_jsonl(path,checked); paths.append(path)
-    return {"kind":"mature_session","tester_id":tester_id,"completed_gates":list(MATURE_GATES)},paths
+    return {"kind":"mature_session","tester_id":tester_id,"rules_known_before_session_declared":True,"completed_gates":list(MATURE_GATES)},paths
 
 
 def write_receipt(kit_root: Path, packet_dir: Path, manifest: dict, result: dict, completed_paths: list[Path]) -> Path:
@@ -195,7 +196,10 @@ def write_receipt(kit_root: Path, packet_dir: Path, manifest: dict, result: dict
     if not isinstance(finalizer_contract,dict): fail("offline finalizer contract missing")
     entries=[]
     for path in sorted(completed_paths): entries.append({"path":path.resolve().relative_to(kit_root.resolve()).as_posix(),"sha256":sha256_file(path),"bytes":path.stat().st_size})
-    receipt={"schema":RECEIPT_SCHEMA,"source_head":str(manifest.get("source_head","")),"field_kit_contract_hash":str(manifest.get("contract_hash","")),"demo_build_id":str(manifest.get("demo_build_id","")),"production_build_id":str(manifest.get("production_build_id","")),"packet_kind":str(result.get("kind","")),"tester_id":str(result.get("tester_id","")),"session_id":str(result.get("session_id","")),"completed_gates":list(result.get("completed_gates",[])),"completed_files":entries,"finalizer_sha256":str(finalizer_contract.get("sha256","")),"human_outcomes_inferred":False,"repository_evidence_appended":False}
+    qualification={"declaration_only":True,"proves_human_truth_or_timing":False}
+    if result.get("kind")=="first_session": qualification.update({"naive":bool(result.get("naive_declared",False))})
+    else: qualification.update({"rules_known_before_session":result.get("rules_known_before_session_declared") is True})
+    receipt={"schema":RECEIPT_SCHEMA,"source_head":str(manifest.get("source_head","")),"field_kit_contract_hash":str(manifest.get("contract_hash","")),"demo_build_id":str(manifest.get("demo_build_id","")),"production_build_id":str(manifest.get("production_build_id","")),"packet_kind":str(result.get("kind","")),"tester_id":str(result.get("tester_id","")),"session_id":str(result.get("session_id","")),"participant_qualification":qualification,"completed_gates":list(result.get("completed_gates",[])),"completed_files":entries,"finalizer_sha256":str(finalizer_contract.get("sha256","")),"human_outcomes_inferred":False,"repository_evidence_appended":False}
     # For v5, field_kit_contract_hash cryptographically binds the exact demo and production binding IDs/SHA-256s in the immutable manifest.
     if int(manifest.get("field_kit_version",0)) >= 5:
         bindings=manifest.get("build_artifacts",{}); role="demo" if result.get("kind")=="first_session" else "production"
@@ -212,7 +216,7 @@ def main() -> None:
     if args.first_session: packet_dir=first_packet_dir(kit_root,manifest,args.first_session); result,completed_paths=finalize_first(packet_dir)
     else: packet_dir=mature_packet_dir(kit_root,manifest,args.mature_tester); result,completed_paths=finalize_mature(packet_dir)
     receipt_path=write_receipt(kit_root,packet_dir,manifest,result,completed_paths)
-    result.update({"status":"FINALIZED_LOCAL_OFFLINE","finalization_receipt":receipt_path.relative_to(kit_root).as_posix(),"completed_file_digests_bound":True,"acquisition_build_bytes_bound":int(manifest.get("field_kit_version",0))>=5,"human_outcomes_inferred":False,"repository_evidence_appended":False,"append_requires_matching_repository_review":True})
+    result.update({"status":"FINALIZED_LOCAL_OFFLINE","finalization_receipt":receipt_path.relative_to(kit_root).as_posix(),"completed_file_digests_bound":True,"participant_qualification_bound":True,"acquisition_build_bytes_bound":int(manifest.get("field_kit_version",0))>=5,"human_outcomes_inferred":False,"repository_evidence_appended":False,"append_requires_matching_repository_review":True})
     print(json.dumps(result,indent=2,sort_keys=True))
 
 if __name__=="__main__": main()
