@@ -2,11 +2,11 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 
 import phase12g_acquisition_build_binding as acquisition_binding
-import phase12g_marketing_expectation_packet as packet_tools
 
 BINDING_FILENAME = "acquisition-build-binding.json"
 
@@ -15,9 +15,23 @@ def canonical_json(value: object) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 
+def sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _load_packet(root: Path) -> tuple[dict, dict]:
+    # Delayed import avoids packet -> receipt -> binding -> packet circular import.
+    import phase12g_marketing_expectation_packet as packet_tools
+    return packet_tools.load_and_verify_packet(root)
+
+
 def bind_packet(root: Path, artifact: Path, record: Path) -> dict:
     root = root.resolve()
-    asset_set, respondents = packet_tools.load_and_verify_packet(root)
+    asset_set, respondents = _load_packet(root)
     if (root / "completed-E8.jsonl").exists() or (root / "completion-receipt.json").exists():
         raise SystemExit("refusing to bind E8 packaged build after packet finalization")
     rows = respondents.get("rows", [])
@@ -54,7 +68,7 @@ def bind_packet(root: Path, artifact: Path, record: Path) -> dict:
     respondents["acquisition_build_binding"] = snapshot
     respondents["acquisition_build_bytes_required"] = True
     respondents["schema"] = "fmd.phase12g.e8.respondent-packet.v3"
-    respondents["asset_set_sha256"] = packet_tools.sha256(asset_path)
+    respondents["asset_set_sha256"] = sha256(asset_path)
     respondent_path.write_text(json.dumps(respondents, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     verify_packet_binding(root, asset_set, respondents)
     return snapshot
@@ -63,7 +77,7 @@ def bind_packet(root: Path, artifact: Path, record: Path) -> dict:
 def verify_packet_binding(root: Path, asset_set: dict | None = None, respondents: dict | None = None) -> dict:
     root = root.resolve()
     if asset_set is None or respondents is None:
-        asset_set, respondents = packet_tools.load_and_verify_packet(root)
+        asset_set, respondents = _load_packet(root)
     if asset_set.get("acquisition_build_bytes_required") is not True or respondents.get("acquisition_build_bytes_required") is not True:
         raise ValueError("E8 packet is NOT APPEND READY: acquisition packaged build bytes are not required")
     asset_snapshot = asset_set.get("acquisition_build_binding")
