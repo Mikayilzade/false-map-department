@@ -1,1 +1,0 @@
-Phase 12G T8-44 acquisition audit: PASS (source pin + reference attestation + exact raw-sample cardinality + recomputed median/p95/p99 integrity + non-reference/tamper rejection; audit data never touched repository evidence)
