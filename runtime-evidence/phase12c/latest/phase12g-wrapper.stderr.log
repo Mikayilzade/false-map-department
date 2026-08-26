@@ -1,4 +1,1 @@
-PHASE12G FIELD KIT RETURN COLLISION AUDIT FAIL: command failed: /usr/bin/python3 /home/runner/work/false-map-department/false-map-department/scripts/phase12g_field_kit_ingest.py --kit-dir /tmp/fmd-phase12g-return-collision-dpok0owx/kit-a --expected-source-head 4c27203e402fcf8f3bafa26086075e22c964f03c --evidence-root /tmp/fmd-phase12g-return-collision-dpok0owx/evidence --append
-
-PHASE12G FIELD KIT INGEST FAIL: collector rejected /tmp/fmd-phase12g-return-collision-dpok0owx/kit-a/.repository-ingest-E1-1yt257p6.jsonl: evidence destination rejected: append evidence destination must be the canonical repository root /home/runner/work/false-map-department/false-map-department/empirical/evidence; got /tmp/fmd-phase12g-return-collision-dpok0owx/evidence
-
+PHASE12G EVIDENCE DESTINATION FAIL: central collector missing destination-boundary markers: ['resolve_evidence_root(args.evidence_root, append=args.append)']
