@@ -17,6 +17,7 @@ WINDOWS_RESERVED_NAMES = {
 }
 REQUIRED_SOURCE_BINDINGS = {
     "BUNDLE-VERIFY.py": "scripts/phase12g_external_acquisition_bundle_verify.py",
+    "EXTRACTED-SOURCE-VERIFY.py": "scripts/phase12g_extracted_source_verify.py",
     "FIELD-KIT-VERIFY.py": "scripts/phase12g_field_kit_offline_verify.py",
     "FIELD-KIT-FINALIZE.py": "scripts/phase12g_field_kit_offline_finalize.py",
     "RETURN-INGEST.md": "empirical/PHASE12G_RETURN_INGEST.md",
