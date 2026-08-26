@@ -10,12 +10,16 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+SCRIPT_DIR = Path(__file__).resolve().parent
 FIRST_BATCH = ROOT / "scripts/phase12g_first_session_batch.py"
 MATURE_BATCH = ROOT / "scripts/phase12g_mature_session_batch.py"
 OFFLINE_VERIFIER = ROOT / "scripts/phase12g_field_kit_offline_verify.py"
 OFFLINE_FINALIZER = ROOT / "scripts/phase12g_field_kit_offline_finalize.py"
-KIT_VERSION = 4
+KIT_VERSION = 5
 HUMAN_GATES = ["E1", "E2", "E3", "E4", "E5", "E6", "E9", "E10", "E11"]
+
+sys.path.insert(0, str(SCRIPT_DIR))
+import phase12g_acquisition_build_binding as acquisition_binding  # noqa: E402
 
 
 def fail(message: str) -> None:
@@ -78,13 +82,8 @@ def first_contract(session_dir: Path) -> dict:
         "observer_initially_blank": all(
             observer.get(key) is None
             for key in [
-                "naive",
-                "e1_success",
-                "e1_understood_at_seconds",
-                "e2_packet_completed",
-                "e2_success",
-                "first_collateral_aha_observed",
-                "first_collateral_aha_seconds",
+                "naive", "e1_success", "e1_understood_at_seconds", "e2_packet_completed",
+                "e2_success", "first_collateral_aha_observed", "first_collateral_aha_seconds",
                 "session_end_seconds",
             ]
         ),
@@ -130,30 +129,45 @@ def cmd_prepare(args: argparse.Namespace) -> None:
     source_head = validate_source_head(args.source_head)
     if not args.demo_build_id.strip() or not args.production_build_id.strip():
         fail("build IDs must be non-empty")
-    if not OFFLINE_VERIFIER.exists():
-        fail("offline field-kit verifier source is missing")
-    if not OFFLINE_FINALIZER.exists():
-        fail("offline field-kit finalizer source is missing")
+    if not OFFLINE_VERIFIER.exists() or not OFFLINE_FINALIZER.exists():
+        fail("offline field-kit verifier/finalizer source is missing")
 
     kit_root = Path(args.output_dir).resolve()
     if (kit_root / "field-kit-manifest.json").exists():
         fail("refusing to overwrite an existing field kit manifest")
+    kit_root.mkdir(parents=True, exist_ok=True)
+    try:
+        build_artifacts = {
+            "demo": acquisition_binding.freeze_into_root(
+                root=kit_root,
+                source_head=source_head,
+                role="demo",
+                build_id=args.demo_build_id,
+                artifact_path=Path(args.demo_build_artifact).resolve(),
+                record_path=Path(args.demo_build_artifact_record).resolve(),
+            ),
+            "production": acquisition_binding.freeze_into_root(
+                root=kit_root,
+                source_head=source_head,
+                role="production",
+                build_id=args.production_build_id,
+                artifact_path=Path(args.production_build_artifact).resolve(),
+                record_path=Path(args.production_build_artifact_record).resolve(),
+            ),
+        }
+    except ValueError as exc:
+        fail(f"packaged build binding invalid: {exc}")
+
     first_root = kit_root / "first-session"
     mature_root = kit_root / "mature-session"
-
     run([
-        sys.executable, str(FIRST_BATCH), "prepare",
-        "--count", str(args.first_count),
-        "--tester-prefix", args.first_tester_prefix,
-        "--session-prefix", args.first_session_prefix,
-        "--build-id", args.demo_build_id,
-        "--output-dir", str(first_root),
+        sys.executable, str(FIRST_BATCH), "prepare", "--count", str(args.first_count),
+        "--tester-prefix", args.first_tester_prefix, "--session-prefix", args.first_session_prefix,
+        "--build-id", args.demo_build_id, "--output-dir", str(first_root),
     ])
     run([
-        sys.executable, str(MATURE_BATCH), "prepare",
-        "--count", str(args.mature_count),
-        "--tester-prefix", args.mature_tester_prefix,
-        "--build-id", args.production_build_id,
+        sys.executable, str(MATURE_BATCH), "prepare", "--count", str(args.mature_count),
+        "--tester-prefix", args.mature_tester_prefix, "--build-id", args.production_build_id,
         "--output-dir", str(mature_root),
     ])
 
@@ -161,20 +175,13 @@ def cmd_prepare(args: argparse.Namespace) -> None:
     mature_manifest_path = mature_root / "batch-manifest.json"
     first_manifest = load_json(first_manifest_path)
     mature_manifest = load_json(mature_manifest_path)
-    first_packets = [
-        first_contract(resolve_batch_packet(first_manifest_path, row["session_dir"], "first-session packet path"))
-        for row in first_manifest.get("packets", [])
-    ]
-    mature_packets = [
-        mature_contract(resolve_batch_packet(mature_manifest_path, row["packet_dir"], "mature-session packet path"))
-        for row in mature_manifest.get("packets", [])
-    ]
+    first_packets = [first_contract(resolve_batch_packet(first_manifest_path, row["session_dir"], "first-session packet path")) for row in first_manifest.get("packets", [])]
+    mature_packets = [mature_contract(resolve_batch_packet(mature_manifest_path, row["packet_dir"], "mature-session packet path")) for row in mature_manifest.get("packets", [])]
     if not all(row["observer_initially_blank"] for row in first_packets):
         fail("first-session preparation unexpectedly populated a human outcome")
     if not all(row["rules_known_before_session_initially_blank"] for row in mature_packets):
         fail("mature-session preparation unexpectedly populated human eligibility")
 
-    kit_root.mkdir(parents=True, exist_ok=True)
     bundled_verifier = kit_root / "FIELD-KIT-VERIFY.py"
     bundled_finalizer = kit_root / "FIELD-KIT-FINALIZE.py"
     shutil.copy2(OFFLINE_VERIFIER, bundled_verifier)
@@ -185,31 +192,14 @@ def cmd_prepare(args: argparse.Namespace) -> None:
         "source_head": source_head,
         "demo_build_id": args.demo_build_id,
         "production_build_id": args.production_build_id,
-        "path_contract": "all nested manifests and packet paths are relative to their owning manifest",
+        "build_artifacts": build_artifacts,
+        "acquisition_build_bytes_required": True,
+        "path_contract": "all nested manifests, packet paths and packaged-build paths are relative to their owning acquisition root",
         "human_gates": HUMAN_GATES,
-        "offline_verifier": {
-            "path": "FIELD-KIT-VERIFY.py",
-            "sha256": sha256_file(bundled_verifier),
-            "requires_repository_checkout": False,
-        },
-        "offline_finalizer": {
-            "path": "FIELD-KIT-FINALIZE.py",
-            "sha256": sha256_file(bundled_finalizer),
-            "requires_repository_checkout": False,
-            "appends_repository_evidence": False,
-        },
-        "first_session": {
-            "batch_manifest": "first-session/batch-manifest.json",
-            "batch_manifest_sha256": sha256_file(first_manifest_path),
-            "packet_count": len(first_packets),
-            "packets": first_packets,
-        },
-        "mature_session": {
-            "batch_manifest": "mature-session/batch-manifest.json",
-            "batch_manifest_sha256": sha256_file(mature_manifest_path),
-            "packet_count": len(mature_packets),
-            "packets": mature_packets,
-        },
+        "offline_verifier": {"path": "FIELD-KIT-VERIFY.py", "sha256": sha256_file(bundled_verifier), "requires_repository_checkout": False},
+        "offline_finalizer": {"path": "FIELD-KIT-FINALIZE.py", "sha256": sha256_file(bundled_finalizer), "requires_repository_checkout": False, "appends_repository_evidence": False},
+        "first_session": {"batch_manifest": "first-session/batch-manifest.json", "batch_manifest_sha256": sha256_file(first_manifest_path), "packet_count": len(first_packets), "packets": first_packets},
+        "mature_session": {"batch_manifest": "mature-session/batch-manifest.json", "batch_manifest_sha256": sha256_file(mature_manifest_path), "packet_count": len(mature_packets), "packets": mature_packets},
         "human_outcomes_required": True,
         "prepared_packets_are_not_evidence": True,
         "repository_evidence_appended": False,
@@ -219,25 +209,22 @@ def cmd_prepare(args: argparse.Namespace) -> None:
     write_json(kit_root / "field-kit-manifest.json", manifest)
     (kit_root / "FIELD-KIT-INSTRUCTIONS.txt").write_text(
         "Phase 12G HUMAN FIELD KIT\n"
-        "This directory contains blank acquisition packets, not empirical evidence.\n"
-        "The entire directory may be moved/copied intact; nested packet paths are manifest-relative.\n"
-        "Integrity can be checked without a repository checkout: python3 FIELD-KIT-VERIFY.py --kit-dir .\n"
-        "Run genuine sessions and record observer fields without coaching. Prepared templates remain non-evidence.\n"
-        "After real observations, finalize locally without a repository checkout:\n"
-        "  python3 FIELD-KIT-FINALIZE.py --kit-dir . --first-session <SESSION_ID>\n"
-        "  python3 FIELD-KIT-FINALIZE.py --kit-dir . --mature-tester <TESTER_ID>\n"
-        "The bundled finalizer verifies kit integrity first and only writes completed-*.jsonl inside the kit.\n"
-        "It never appends repository evidence and never infers human outcomes.\n"
-        "After local finalization, return the intact kit to the matching source-head repository, validate completed rows, and append only through a deliberate repository command.\n",
+        "This directory contains blank acquisition packets plus exact frozen demo/production packaged build bytes; it is not empirical evidence.\n"
+        "Use only the packaged builds under build-artifacts/ for the sessions represented by this kit.\n"
+        "Integrity can be checked offline: python3 FIELD-KIT-VERIFY.py --kit-dir .\n"
+        "Run genuine sessions and record observer fields without coaching.\n"
+        "After real observations, finalize locally with FIELD-KIT-FINALIZE.py. The receipt binds completed rows to the exact frozen acquisition build digest/binding ID.\n"
+        "Return the intact kit; repository append remains a deliberate separate reviewed action.\n",
         encoding="utf-8",
     )
     print(json.dumps({
         "status": "PREPARED",
+        "append_ready": True,
         "source_head": source_head,
+        "demo_binding_id": build_artifacts["demo"]["binding_id"],
+        "production_binding_id": build_artifacts["production"]["binding_id"],
         "first_packets": len(first_packets),
         "mature_packets": len(mature_packets),
-        "offline_verifier_bundled": True,
-        "offline_finalizer_bundled": True,
         "human_outcomes_inferred": False,
         "repository_evidence_appended": False,
         "manifest": str(kit_root / "field-kit-manifest.json"),
@@ -258,23 +245,12 @@ def cmd_verify(args: argparse.Namespace) -> None:
         verifier_path.relative_to(kit_root)
     except ValueError:
         fail("offline verifier path escapes field-kit root")
-    if not verifier_path.exists():
-        fail("bundled offline verifier is missing")
-    if sha256_file(verifier_path) != str(verifier.get("sha256", "")):
-        fail("bundled offline verifier hash mismatch")
-    completed = subprocess.run(
-        [sys.executable, str(verifier_path), "--kit-dir", str(kit_root)],
-        cwd=kit_root,
-        text=True,
-        capture_output=True,
-    )
+    if not verifier_path.exists() or sha256_file(verifier_path) != str(verifier.get("sha256", "")):
+        fail("bundled offline verifier missing or hash mismatch")
+    completed = subprocess.run([sys.executable, str(verifier_path), "--kit-dir", str(kit_root)], cwd=kit_root, text=True, capture_output=True)
     if completed.returncode != 0:
-        detail = (completed.stdout + completed.stderr).strip()
-        fail(f"bundled offline verifier rejected kit: {detail}")
-    try:
-        result = json.loads(completed.stdout)
-    except json.JSONDecodeError as exc:
-        fail(f"bundled offline verifier returned malformed JSON: {exc}")
+        fail(f"bundled offline verifier rejected kit: {(completed.stdout + completed.stderr).strip()}")
+    result = json.loads(completed.stdout)
     if not isinstance(result, dict) or result.get("status") != "VERIFIED_OFFLINE":
         fail("bundled offline verifier returned unexpected disposition")
     result["status"] = "VERIFIED"
@@ -285,11 +261,14 @@ def cmd_verify(args: argparse.Namespace) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Prepare and integrity-check a portable Phase 12G real-human acquisition field kit without creating empirical outcomes.")
     sub = parser.add_subparsers(dest="command", required=True)
-
     prepare = sub.add_parser("prepare")
     prepare.add_argument("--source-head", required=True)
     prepare.add_argument("--demo-build-id", required=True)
     prepare.add_argument("--production-build-id", required=True)
+    prepare.add_argument("--demo-build-artifact", required=True)
+    prepare.add_argument("--demo-build-artifact-record", required=True)
+    prepare.add_argument("--production-build-artifact", required=True)
+    prepare.add_argument("--production-build-artifact-record", required=True)
     prepare.add_argument("--first-count", type=int, default=8)
     prepare.add_argument("--mature-count", type=int, default=6)
     prepare.add_argument("--first-tester-prefix", default="NAIVE-T")
@@ -297,11 +276,9 @@ def main() -> None:
     prepare.add_argument("--mature-tester-prefix", default="MATURE-T")
     prepare.add_argument("--output-dir", default=str(ROOT / ".phase12g-human-field-kit"))
     prepare.set_defaults(func=cmd_prepare)
-
     verify = sub.add_parser("verify")
     verify.add_argument("--kit-dir", required=True)
     verify.set_defaults(func=cmd_verify)
-
     args = parser.parse_args()
     args.func(args)
 
