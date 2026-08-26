@@ -2,16 +2,22 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 
 import phase12g_acquisition_build_binding as acquisition_binding
 
 BINDING_FILENAME = "acquisition-build-binding.json"
+CAPTURE_SCHEMA = "fmd.phase12g.t8-reference-capture-binding.v1"
 
 
 def canonical_json(value: object) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+
+
+def canonical_sha256(value: object) -> str:
+    return hashlib.sha256(canonical_json(value).encode("utf-8")).hexdigest()
 
 
 def load_packet(path: Path) -> dict:
@@ -53,6 +59,51 @@ def verify_prepared(root: Path, *, source_head: str, build_id: str) -> dict:
     )
 
 
+def capture_payload(packet: dict) -> dict:
+    row = packet.get("profile_row", {})
+    if not isinstance(row, dict):
+        raise ValueError("T8-44 profile_row missing/malformed")
+    raw = packet.get("raw_samples_us", {})
+    if not isinstance(raw, dict):
+        raise ValueError("T8-44 raw_samples_us missing/malformed")
+    return {
+        "source_head": str(packet.get("source_head", "")),
+        "hardware_attestation": str(packet.get("hardware_attestation", "")),
+        "profiling_disposition": str(packet.get("profiling_disposition", "")),
+        "hardware_id": str(row.get("hardware_id", "")),
+        "build_id": str(row.get("build_id", "")),
+        "dossier_id": str(row.get("dossier_id", "")),
+        "profile_row": row,
+        "raw_samples_us": raw,
+        "acquisition_build_binding": packet.get("acquisition_build_binding", {}),
+    }
+
+
+def make_capture_binding(packet: dict) -> dict:
+    payload = capture_payload(packet)
+    return {
+        "schema": CAPTURE_SCHEMA,
+        "payload_sha256": canonical_sha256(payload),
+        "source_head": payload["source_head"],
+        "hardware_id": payload["hardware_id"],
+        "hardware_attestation": payload["hardware_attestation"],
+        "build_id": payload["build_id"],
+        "dossier_id": payload["dossier_id"],
+    }
+
+
+def verify_capture_binding(packet: dict) -> dict:
+    actual = packet.get("reference_capture_binding")
+    if not isinstance(actual, dict):
+        raise ValueError("T8-44 sealed packet missing reference capture identity/attestation binding")
+    if actual.get("schema") != CAPTURE_SCHEMA:
+        raise ValueError("T8-44 reference capture binding schema unsupported")
+    expected = make_capture_binding(packet)
+    if canonical_json(actual) != canonical_json(expected):
+        raise ValueError("T8-44 reference capture identity/attestation binding mismatch")
+    return expected
+
+
 def seal(packet_path: Path) -> dict:
     packet_path = packet_path.resolve()
     root = packet_path.parent
@@ -70,6 +121,7 @@ def seal(packet_path: Path) -> dict:
     packet["packet_version"] = 2
     packet["acquisition_build_binding"] = snapshot
     packet["acquisition_build_bytes_required"] = True
+    packet["reference_capture_binding"] = make_capture_binding(packet)
     packet_path.write_text(json.dumps(packet, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return snapshot
 
@@ -91,11 +143,12 @@ def verify_sealed(packet_path: Path, packet: dict | None = None) -> dict:
     verified = verify_prepared(root, source_head=source_head, build_id=build_id)
     if canonical_json(packet.get("acquisition_build_binding")) != canonical_json(verified):
         raise ValueError("T8-44 sealed packet packaged build binding mismatch")
+    verify_capture_binding(packet)
     return verified
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Freeze production package bytes before T8-44 reference acquisition and seal the resulting profile packet to that exact package.")
+    parser = argparse.ArgumentParser(description="Freeze production package bytes before T8-44 reference acquisition and seal the resulting profile packet to that exact package and hardware-attested capture payload.")
     sub = parser.add_subparsers(dest="command", required=True)
     prep = sub.add_parser("prepare")
     prep.add_argument("--root", type=Path, required=True)
@@ -117,7 +170,7 @@ def main() -> None:
     else:
         snapshot = verify_sealed(args.packet)
         status = "VERIFIED"
-    print(json.dumps({"status": status, "binding_id": snapshot["binding_id"], "artifact_sha256": snapshot["artifact_sha256"], "artifact_bytes": snapshot["artifact_bytes"], "evidence_appended": False}, indent=2, sort_keys=True))
+    print(json.dumps({"status": status, "binding_id": snapshot["binding_id"], "artifact_sha256": snapshot["artifact_sha256"], "artifact_bytes": snapshot["artifact_bytes"], "reference_capture_binding_verified": status in {"SEALED", "VERIFIED"}, "evidence_appended": False}, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":
