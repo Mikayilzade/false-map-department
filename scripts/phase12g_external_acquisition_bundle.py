@@ -94,7 +94,7 @@ def write_operator_guide(path: Path, source_head: str) -> None:
             "Keep every unobserved gate PENDING until a genuine observation is deliberately ingested and re-evaluated.",
             "",
             "## Verify first",
-            "Run `python3 BUNDLE-VERIFY.py .` from the bundle root before extracting the source archive. Stop if verification fails. The verifier checks bundle hashes, archive path/type safety, and exact byte-for-byte bindings between the standalone verifier/finalizer/return instructions and their source-archive counterparts.",
+            f"From a trusted handoff, independently retain the exact source SHA `{source_head}`. Then run `python3 BUNDLE-VERIFY.py . --expected-source-head {source_head}` from the bundle root before extracting the source archive. Stop if verification fails. The expected SHA is deliberately supplied from outside the bundle, so transport cannot silently relabel a different self-consistent bundle as this source. The verifier also checks bundle hashes, archive path/type safety, and exact byte-for-byte bindings between the standalone verifier/finalizer/return instructions and their source-archive counterparts.",
             "",
             "## Human field kit (E1-E6, E9-E11)",
             "Use the verified archived repository at this exact source commit. Prepare the v4 field kit with `scripts/phase12g_human_field_kit.py`, transport it intact, verify with `FIELD-KIT-VERIFY.py`, collect genuine observations, and finalize with `FIELD-KIT-FINALIZE.py` before repository ingest.",
