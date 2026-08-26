@@ -8,9 +8,13 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-KIT = ROOT / "scripts/phase12g_human_field_kit.py"
-FINALIZER_SOURCE = ROOT / "scripts/phase12g_field_kit_offline_finalize.py"
-INGEST = ROOT / "scripts/phase12g_field_kit_ingest.py"
+SCRIPT_DIR = ROOT / "scripts"
+sys.path.insert(0, str(SCRIPT_DIR))
+from phase12g_audit_build_fixture import kit_build_args  # noqa: E402
+
+KIT = SCRIPT_DIR / "phase12g_human_field_kit.py"
+FINALIZER_SOURCE = SCRIPT_DIR / "phase12g_field_kit_offline_finalize.py"
+INGEST = SCRIPT_DIR / "phase12g_field_kit_ingest.py"
 
 
 def fail(message: str) -> None:
@@ -51,16 +55,20 @@ def main() -> None:
         root = Path(temp)
         kit_root = root / "kit"
         evidence_root = root / "evidence"
+        build_args = kit_build_args(root / "source-builds", source_head=source_head, demo_build_id="receipt-audit-demo", production_build_id="receipt-audit-production")
         run([
             sys.executable, str(KIT), "prepare",
             "--source-head", source_head,
             "--demo-build-id", "receipt-audit-demo",
             "--production-build-id", "receipt-audit-production",
+            *build_args,
             "--first-count", "1",
             "--mature-count", "1",
             "--output-dir", str(kit_root),
         ])
         manifest = load(kit_root / "field-kit-manifest.json")
+        if manifest.get("field_kit_version") != 5 or manifest.get("acquisition_build_bytes_required") is not True:
+            fail("receipt fixture must use acquisition-byte-bound field-kit v5")
         batch_path = kit_root / str(manifest["first_session"]["batch_manifest"])
         batch = load(batch_path)
         session_info = batch["packets"][0]
@@ -87,13 +95,10 @@ def main() -> None:
         })
 
         finalizer = kit_root / "FIELD-KIT-FINALIZE.py"
-        finalized = run([
-            sys.executable, str(finalizer), "--kit-dir", str(kit_root),
-            "--first-session", str(session_info["session_id"]),
-        ], cwd=kit_root)
+        finalized = run([sys.executable, str(finalizer), "--kit-dir", str(kit_root), "--first-session", str(session_info["session_id"])], cwd=kit_root)
         summary = json.loads(finalized.stdout)
-        if summary.get("status") != "FINALIZED_LOCAL_OFFLINE" or summary.get("completed_file_digests_bound") is not True:
-            fail("offline finalization must report receipt-bound completed files")
+        if summary.get("status") != "FINALIZED_LOCAL_OFFLINE" or summary.get("completed_file_digests_bound") is not True or summary.get("acquisition_build_bytes_bound") is not True:
+            fail("offline finalization must bind completed files to acquisition package bytes")
         receipt_path = kit_root / str(summary.get("finalization_receipt", ""))
         receipt = load(receipt_path)
         if receipt.get("schema") != "fmd.phase12g.field-kit-finalization-receipt.v1":
@@ -104,16 +109,15 @@ def main() -> None:
             fail("receipt must bind both build identities")
         if receipt.get("finalizer_sha256") != manifest["offline_finalizer"]["sha256"]:
             fail("receipt must bind the manifest-pinned offline finalizer")
+        build_binding = receipt.get("build_artifact_binding", {})
+        demo_binding = manifest["build_artifacts"]["demo"]
+        if build_binding.get("role") != "demo" or build_binding.get("binding_id") != demo_binding.get("binding_id") or build_binding.get("artifact_sha256") != demo_binding.get("artifact_sha256"):
+            fail("first-session receipt must expose exact frozen demo build binding")
         bindings = receipt.get("completed_files", [])
         if not isinstance(bindings, list) or len(bindings) != 3:
             fail("first-session receipt must bind exactly E1/E2/E11 completed files")
 
-        dry = run([
-            sys.executable, str(INGEST),
-            "--kit-dir", str(kit_root),
-            "--expected-source-head", source_head,
-            "--evidence-root", str(evidence_root),
-        ])
+        dry = run([sys.executable, str(INGEST), "--kit-dir", str(kit_root), "--expected-source-head", source_head, "--evidence-root", str(evidence_root)])
         dry_summary = json.loads(dry.stdout)
         if dry_summary.get("status") != "VALIDATED_DRY_RUN" or dry_summary.get("finalization_receipts_verified") is not True:
             fail("repository dry-run ingest must verify finalization receipt")
@@ -127,31 +131,21 @@ def main() -> None:
         completed_e1 = session_dir / "completed-E1.jsonl"
         original = completed_e1.read_bytes()
         completed_e1.write_bytes(original + b"\n")
-        tampered = run([
-            sys.executable, str(INGEST),
-            "--kit-dir", str(kit_root),
-            "--expected-source-head", source_head,
-            "--evidence-root", str(evidence_root),
-        ], ok=False)
+        tampered = run([sys.executable, str(INGEST), "--kit-dir", str(kit_root), "--expected-source-head", source_head, "--evidence-root", str(evidence_root)], ok=False)
         if "changed after offline finalization" not in (tampered.stdout + tampered.stderr):
             fail("post-finalization completed-row mutation must reject with receipt integrity reason")
         completed_e1.write_bytes(original)
 
         receipt["source_head"] = "fedcba9876543210fedcba9876543210fedcba98"
         write(receipt_path, receipt)
-        tampered_receipt = run([
-            sys.executable, str(INGEST),
-            "--kit-dir", str(kit_root),
-            "--expected-source-head", source_head,
-            "--evidence-root", str(evidence_root),
-        ], ok=False)
+        tampered_receipt = run([sys.executable, str(INGEST), "--kit-dir", str(kit_root), "--expected-source-head", source_head, "--evidence-root", str(evidence_root)], ok=False)
         if "finalization receipt source_head mismatch" not in (tampered_receipt.stdout + tampered_receipt.stderr):
             fail("receipt source tamper must reject")
 
         if not FINALIZER_SOURCE.exists():
             fail("repository finalizer source unexpectedly missing")
 
-    print("Phase 12G finalization-receipt audit: PASS (actual checkout/source pin + offline finalized rows source/build/tool/digest bound + repository dry-run verifies full coverage + post-finalization transport mutation rejected + zero evidence append)")
+    print("Phase 12G finalization-receipt audit: PASS (source/build/tool/completed-file binding + exact acquisition package binding + ingest verification + tamper rejection; zero evidence append)")
 
 
 if __name__ == "__main__":
