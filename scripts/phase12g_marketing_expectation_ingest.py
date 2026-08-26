@@ -25,6 +25,22 @@ def canonical(row: dict) -> str:
     return json.dumps(row, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 
+def repository_checkout_head() -> str:
+    completed = subprocess.run(
+        ["git", "rev-parse", "--verify", "HEAD"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if completed.returncode != 0:
+        raise SystemExit("unable to resolve repository checkout HEAD for E8 ingest")
+    head = completed.stdout.strip().lower()
+    if not SHA40.fullmatch(head):
+        raise SystemExit("repository checkout HEAD is not an exact 40-character lowercase Git commit SHA")
+    return head
+
+
 def load_jsonl(path: Path) -> list[dict]:
     rows: list[dict] = []
     for line_no, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
@@ -84,6 +100,11 @@ def validate_packet(root: Path, expected_source_head: str) -> tuple[dict, dict, 
     expected = expected_source_head.strip().lower()
     if not SHA40.fullmatch(expected):
         raise SystemExit("expected-source-head must be an exact 40-character lowercase Git commit SHA")
+    checkout_head = repository_checkout_head()
+    if checkout_head != expected:
+        raise SystemExit(
+            f"E8 repository checkout HEAD mismatch: expected packet source checkout {expected}, got {checkout_head}"
+        )
 
     asset_set, respondents = packet_tools.load_and_verify_packet(root)
     actual = str(asset_set.get("source_head", "")).lower()
@@ -195,6 +216,7 @@ def main() -> None:
         "asset_version": asset_set.get("asset_version"),
         "build_id": asset_set.get("build_id"),
         "source_head": asset_set.get("source_head"),
+        "repository_checkout_head": repository_checkout_head(),
         "respondent_count": len(respondents.get("rows", [])),
         "frozen_assets_verified": True,
         "respondent_packet_match_verified": True,
