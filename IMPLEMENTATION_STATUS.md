@@ -21,50 +21,42 @@ Repository: `Mikayilzade/false-map-department`
 ## Latest autonomous run — 2026-08-27
 
 ### Phase / subphase
-**12G Empirical Design Gates / external human + E8 + T8 canonical evidence-destination hardening — EXACT-HEAD PASS**
+**12G Empirical Design Gates / qualitative-disposition + representative-sample control-path ownership — EXACT-HEAD PASS**
 
 ### Progress saved this run
-- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, this status file, `GAME2_PHASE11_FINAL_FREEZE.md`, `empirical/PHASE12G_PROTOCOL.md`, `empirical/PHASE12G_RETURN_INGEST.md`, and the relevant Phase-12G collector/ingest/audit paths before changing anything.
-- Resumed exactly from the prior `NEXT ACTION` and confirmed that the human field-kit and E8 marketing ingest paths could still pass caller-controlled `--evidence-root` values through to the central collector during a deliberate `--append`, unlike the already-hardened T8 path.
-- Hardened `phase12g_collect_completed_rows.py` as the shared final destination boundary for **external empirical channels only** (`human_field_kit_v4`, `e8_marketing_packet`, `t8_reference_profile`): external `--append` now requires the canonical repository `empirical/evidence` root, while alternate roots remain available for dry-run validation and internal synthetic/operator tests.
-- Updated `phase12g_field_kit_ingest_audit.py` so its synthetic field kit proves receipt/source/build validation in an isolated dry run, proves a production append redirect is rejected before mutation, and still proves post-finalization transport tamper rejection.
-- Updated `phase12g_marketing_expectation_ingest_audit.py` so its synthetic five-role E8 packet proves finalized media/source/build validation in dry run, proves a production append redirect is rejected before mutation, and still proves source mismatch and packaged-build substitution rejection.
-- Extended `phase12g_evidence_destination_binding_audit.py` across the shared collector plus human/E8/T8 paths, explicitly preserving isolated non-evidence dry-run workflows while preventing external empirical append redirects.
-- The first hardened collector version intentionally exposed old synthetic audits that still treated temp-root external append as a production-success path. Repaired those concrete regressions rather than weakening the boundary:
-  - scoped the central guard to external empirical channels so generic internal/operator synthetic append fixtures can still test collector serialization and qualitative-review invalidation;
-  - rewrote `phase12g_field_kit_return_collision_audit.py` to test durable return-namespace compatibility/collision directly against isolated fixtures without performing a fake production append;
-  - rewrote the external part of `phase12g_provenance_audit.py` to prove package-byte readiness in dry run, canonical-destination rejection on redirected append, and digest-changing package tamper rejection without creating synthetic external evidence.
-- No gameplay/content rule, empirical threshold, evidence row, empirical observation, or empirical disposition changed.
+- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, this status file, `GAME2_PHASE11_FINAL_FREEZE.md`, `empirical/PHASE12G_PROTOCOL.md`, `empirical/PHASE12G_RETURN_INGEST.md`, and the relevant Phase-12G harness/disposition/adequacy paths before changing anything.
+- Resumed exactly from the prior `NEXT ACTION` and found a concrete remaining routing bypass: callers could combine the canonical repository evidence root with an alternate qualitative `dispositions.json` or E1/E2 `sample_adequacy.json`, allowing gate-controlling review/eligibility state outside the canonical evidence directory to affect raw harness output.
+- Extended the shared `phase12g_evidence_destination.py` trust-boundary helper with canonical control-file ownership. When the canonical `empirical/evidence` root is selected, qualitative dispositions must come from canonical `empirical/evidence/dispositions.json` and representative-sample adequacy must come from canonical `empirical/evidence/sample_adequacy.json`.
+- Preserved noncanonical evidence roots for isolated synthetic/dry-run audits so regression fixtures can still create temporary disposition/adequacy sidecars without becoming repository evidence.
+- Hardened `phase12g_evidence_harness.py` so canonical evidence cannot be evaluated with caller-redirected disposition or sample-adequacy controls; symlink/path-alias variants are normalized through resolved paths before comparison.
+- Hardened `phase12g_qualitative_disposition_integrity.py` so standalone integrity validation cannot bless an alternate disposition document against canonical evidence bytes.
+- Hardened `phase12g_qualitative_disposition.py` so the explicit qualitative review recorder rejects an alternate production output path before reading/writing empirical state; isolated synthetic roots retain their explicit-output test surface.
+- Expanded `phase12g_qualitative_disposition_audit.py` with concrete non-mutating attacks against canonical harness disposition routing, canonical E1/E2 sample-adequacy routing, standalone disposition-integrity routing, and recorder output routing; it also verifies no redirected control file is created and that the existing temp-root exact-byte/stale-review/replace tests still work.
+- The first exact-head run correctly produced aggregate **FAIL** because the new production guard rejected `sample_adequacy` as intended but the regression test compared the diagnostic with space-vs-underscore-sensitive text. Repaired only the test matcher by normalizing underscores; the production guard was not weakened.
+- No gameplay/content rule, empirical threshold, empirical evidence row, human/market/hardware observation, sample-adequacy decision, or qualitative disposition changed.
 
 ### Files / systems changed
-- `scripts/phase12g_collect_completed_rows.py`
-- `scripts/phase12g_field_kit_ingest_audit.py`
-- `scripts/phase12g_marketing_expectation_ingest_audit.py`
-- `scripts/phase12g_evidence_destination_binding_audit.py`
-- `scripts/phase12g_field_kit_return_collision_audit.py`
-- `scripts/phase12g_provenance_audit.py`
+- `scripts/phase12g_evidence_destination.py`
+- `scripts/phase12g_evidence_harness.py`
+- `scripts/phase12g_qualitative_disposition.py`
+- `scripts/phase12g_qualitative_disposition_integrity.py`
+- `scripts/phase12g_qualitative_disposition_audit.py`
 - `IMPLEMENTATION_STATUS.md`
 
 ### Validation / factual exact-head evidence
-- Final implementation head: `2e69f75ae5d9593d7b87805964523d08b66db056`.
-- Automatic notification-safe run: **33011587950 — completed / success** for exact head `2e69f75ae5d9593d7b87805964523d08b66db056`.
-- Committed evidence commit: `f03687b32b7308c0bed594b5b35e4798e2f27a7d`.
-- Committed run metadata explicitly names `head_sha=2e69f75ae5d9593d7b87805964523d08b66db056`.
+- Final implementation/repair head: `e40aa8cd72d930f32ea35d7e9ff95d294685fd2e`.
+- Final notification-safe automatic run: **33016428068 — completed / success** for exact head `e40aa8cd72d930f32ea35d7e9ff95d294685fd2e`.
+- Committed evidence commit: `df84bcd9e8affa21ef4e1360c4d1ca6ebec520af`.
+- Committed run metadata explicitly names `head_sha=e40aa8cd72d930f32ea35d7e9ff95d294685fd2e`.
 - Aggregate result: **PASS** (`runtime_rc=0`, `phase12g_instrumentation_rc=0`, `ci_policy_rc=0`, `bootstrap_preflight_rc=0`, `phase12a_contract_rc=0`, `fetch_godot_rc=0`).
-- Destination binding audit: **PASS** — external human/E8/T8 collector appends are canonical-root-only; alternate roots remain non-evidence dry-run/synthetic compatible.
-- Human field-kit ingest audit: **PASS** — receipt/source/build validation stays dry-run-isolated; redirected production append rejects before mutation; transport tamper still fails closed.
-- E8 ingest audit: **PASS** — finalized media/source/build validation stays dry-run-isolated; redirected production append rejects before mutation; source/package substitution still fails closed.
-- Field-kit return collision audit: **PASS** — exact retry compatibility and existing/proposed namespace collision rejection are proven with zero evidence mutation and no production-destination bypass.
-- Provenance audit: **PASS** — external dry-run verifies exact packaged bytes/readiness; noncanonical production append rejects; source/build/channel/digest provenance remains intact.
-- Existing real-Godot baseline, Phase-12G preconditions and E7 evidence remained green in the same final exact-head run.
-- No empirical evidence files were appended by this increment.
+- Qualitative disposition audit: **PASS** — canonical control-path binding + explicit review + exact evidence digest/row binding + raw-harness/dashboard stale rejection + deliberate replacement + threshold-gate guard.
+- Existing real-Godot baseline, all prior Phase-12G preconditions/integrity audits, the live evidence harness, and E7 evidence remained green in the final exact-head run.
+- No empirical evidence file or empirical control decision was appended by this increment.
 
-### Repaired validation failures
-- Run `33010940414` on head `f453e616aec8e93d894acd1da033f07ba909801f` correctly exposed that an overbroad first collector guard broke the generic synthetic operator workflow; the guard was narrowed to external empirical channels only.
-- Run `33011167165` on head `4c27203e402fcf8f3bafa26086075e22c964f03c` exposed an old field-kit collision audit that simulated production append into a temp root; the audit was converted to isolated durable-identity fixtures.
-- Run `33011313818` on head `39529883f069ab0ed41541c31d8ed1ca8b8909d1` exposed a stale destination-audit source marker; it was aligned to the external-only guard semantics.
-- Run `33011436957` on head `9aba1a902d3f3bef549e4f3fa093d1b817069cda` exposed an old provenance audit that still expected external temp-root append success; it was converted to dry-run readiness + redirect/tamper rejection.
-- No unresolved failure remains from this increment.
+### Repaired validation failure
+- Run **33016283319** on implementation head `65adb67938003bf508465cfb6da62d43e7473dae` recorded aggregate **FAIL** with `phase12g_instrumentation_rc=1`.
+- Exact failure was in the new regression assertion only: the real guard emitted `sample_adequacy`, while the test expected `sample adequacy` literally. The guard had already rejected the redirected control correctly.
+- Repair head `e40aa8cd72d930f32ea35d7e9ff95d294685fd2e` normalizes `_`/space only in the audit diagnostic matcher; final run `33016428068` is PASS. No unresolved failure remains from this increment.
 
 ### Current empirical-gate state
 - **E7: PASS — 285/285 exhaustive frozen matrix.**
@@ -74,7 +66,7 @@ Repository: `Mikayilzade/false-map-department`
 - E8 still has no genuine representative five-role media/respondent evidence.
 - T8-44 still has no actual Deck-class reference-hardware evidence; D38/D39 remain the canonically validated representative target class.
 - E12 remains intentionally near-release.
-- Synthetic fixtures, audits, hashes, readiness output, receipts, destination guards and hosted-run timing remain acquisition/integrity metadata, not empirical outcomes.
+- Synthetic fixtures, audits, hashes, readiness output, receipts, control-file guards and hosted-run timing remain acquisition/integrity metadata, not empirical outcomes.
 
 ### Failures / blockers
 - **No user-action blocker.**
@@ -84,20 +76,20 @@ Repository: `Mikayilzade/false-map-department`
 
 ### Canonical / empirical-gate impact
 - **No canonical contradiction discovered.**
-- This increment closes the remaining known caller-controlled external evidence-destination redirects at both gate-specific ingest and shared collector boundaries.
+- This increment closes the known caller-controlled alternate disposition/sample-adequacy control-file route when canonical evidence is being evaluated or reviewed.
 - It does not alter what counts as empirical evidence, any gate threshold, gate count, gameplay/content/commercial scope, or current disposition.
 
 ## NEXT ACTION
 Continue **12G real evidence acquisition/enabling only**; never fabricate missing outcomes.
 
-1. Treat source/build/package-byte binding, dry-run packaged-byte readiness, E8 respondent-slot identity, human returned-packet identity, T8 post-capture identity/attestation, T8 representative late-game Stability target validation, **human/E8/T8 canonical append destination**, participant-qualification transport, and canonical acquisition-channel selection as closed/regression-covered unless a new concrete flaw is found.
+1. Treat source/build/package-byte binding, dry-run packaged-byte readiness, E8 respondent-slot identity, human returned-packet identity, T8 post-capture identity/attestation, T8 representative late-game Stability target validation, human/E8/T8 canonical append destination, **canonical qualitative-disposition/sample-adequacy control-file ownership**, participant-qualification transport, and canonical acquisition-channel selection as closed/regression-covered unless a new concrete flaw is found.
 2. Continue the remaining gate-specific trust-boundary audit for a **genuinely distinct** caller-controlled value that can change gate routing, packet/asset identity, disposition consumption, or semantic eligibility before readiness/append. Next prioritize:
-   - gate-ID/routing ownership at the central collector versus each gate-specific finalized ingest path;
-   - qualitative disposition write/replace and dashboard/harness consumption bindings, especially any caller-controlled evidence root/gate mapping that could make a review apply to different bytes or a different gate;
-   - semantic eligibility fields that are trusted after packet finalization but before gate evaluation.
-3. Do not add redundant hashes or security theater. Prefer one concrete bypass test + minimum shared guard over duplicating existing source/build/destination checks.
+   - **gate-ID/routing ownership** at the central collector versus each gate-specific finalized ingest path, including whether a finalized packet can be validly re-labeled/routed to a different registered gate without breaking its receipt/source/build identity;
+   - **semantic eligibility fields** trusted after packet finalization but before gate evaluation (for example naive/packet-completed/role or equivalent fields), looking for a concrete post-finalization mutation path rather than adding redundant hashes;
+   - any remaining disposition **gate mapping** path distinct from the now-closed evidence/control-file path redirect.
+3. Prefer one concrete bypass test + minimum shared guard. Do not add redundant hashes or security theater.
 4. Keep all automated/synthetic readiness work explicitly non-evidence and keep empirical counts unchanged unless genuine observations are appended through canonical paths.
-5. When actual builds and real participants are available, acquire genuine first-session **E1 + E2 + E11** and mature-human **E3-E6 + E9-E10** observations through the source-pinned, byte-bound, packet-identity-, qualification-, channel-, readiness-, and canonical-destination-checked field-kit lifecycle.
+5. When actual builds and real participants are available, acquire genuine first-session **E1 + E2 + E11** and mature-human **E3-E6 + E9-E10** observations through the source-pinned, byte-bound, packet-identity-, qualification-, channel-, readiness-, canonical-destination-, and canonical-control-checked field-kit lifecycle.
 6. For **E8**, use `phase12g_marketing_acquisition_prepare.py` with genuine representative five-role media and the exact production package/artifact record before real respondents.
 7. For **T8-44**, use the exact production package bound before capture, profile canonical representative D38 or D39 on actual Deck-class reference hardware, then seal before deliberate ingest. Hosted CI remains non-evidence.
 8. Keep E7 frozen as **285/285 PASS**; evaluate **E12** only near release.
