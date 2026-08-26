@@ -217,14 +217,14 @@ def main() -> None:
     if failures:
         raise SystemExit("\n".join(failures))
 
+    external_rows = [row for row in rows if str(row.get("acquisition_channel", "")) in EXTERNAL_CHANNELS]
     try:
-        evidence_root = resolve_evidence_root(args.evidence_root, append=args.append)
+        evidence_root = resolve_evidence_root(args.evidence_root, append=args.append and bool(external_rows))
     except ValueError as exc:
         raise SystemExit(f"evidence destination rejected: {exc}") from exc
     verify_required_acquisition_channel(rows, gate_id, evidence_root)
     verify_human_participant_qualification(rows, gate_id)
 
-    external_rows = [row for row in rows if str(row.get("acquisition_channel", "")) in EXTERNAL_CHANNELS]
     enforce_external_artifact = bool(external_rows) and (
         evidence_root == DEFAULT_EVIDENCE_ROOT.resolve() or os.environ.get(FORCE_ARTIFACT_ENV, "") == "1"
     )
