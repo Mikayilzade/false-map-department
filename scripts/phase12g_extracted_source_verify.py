@@ -72,6 +72,9 @@ def verify_bundle(bundle: Path, expected_head: str) -> dict:
 
 
 def safe_relative(name: str, archive_root: str) -> str:
+    root_member = archive_root.rstrip("/")
+    if name == root_member:
+        return ""
     if not name.startswith(archive_root):
         fail("extracted_archive_member_outside_root", name)
     rel = name[len(archive_root):].rstrip("/")
