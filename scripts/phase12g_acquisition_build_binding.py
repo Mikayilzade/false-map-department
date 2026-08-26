@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import hashlib
-import json
 import shutil
 from pathlib import Path
 from typing import Any
@@ -51,11 +50,13 @@ def freeze_into_root(
         build_id=build_id,
         role=role,
     )
-    store = root / "build-artifacts"
+    # Keep the original package basename because the canonical artifact record
+    # binds artifact_filename as well as bytes. A role-owned directory prevents
+    # demo/production collisions when both exports share the same basename.
+    store = root / "build-artifacts" / role
     store.mkdir(parents=True, exist_ok=True)
-    suffix = artifact_path.suffix
-    frozen_artifact = store / f"{role}-package{suffix}"
-    frozen_record = store / f"{role}-binding.json"
+    frozen_artifact = store / artifact_path.name
+    frozen_record = store / "binding.json"
     if frozen_artifact.exists() or frozen_record.exists():
         raise ValueError(f"refusing to overwrite frozen {role} build binding")
     shutil.copy2(artifact_path, frozen_artifact)
