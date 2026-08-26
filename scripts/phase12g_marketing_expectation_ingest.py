@@ -12,6 +12,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 ROOT = SCRIPT_DIR.parent
 COLLECTOR = SCRIPT_DIR / "phase12g_collect_completed_rows.py"
 SHA40 = re.compile(r"^[0-9a-f]{40}$")
+E8_PACKET_PROVENANCE_SCHEMA = "fmd.phase12g.e8.evidence-packet-provenance.v1"
 
 sys.path.insert(0, str(SCRIPT_DIR))
 import phase12g_marketing_completion_receipt as completion_receipt  # noqa: E402
@@ -33,6 +34,49 @@ def load_jsonl(path: Path) -> list[dict]:
             raise SystemExit(f"{path}:{line_no}: completed E8 row must be an object")
         rows.append(value)
     return rows
+
+
+def durable_packet_provenance(root: Path, asset_set: dict, receipt_result: dict) -> dict:
+    receipt_path = root / completion_receipt.RECEIPT_FILENAME
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    assets = asset_set.get("assets", [])
+    if not isinstance(assets, list):
+        raise SystemExit("E8 asset manifest is malformed while building durable provenance")
+    frozen_assets_sha256_by_role: dict[str, str] = {}
+    frozen_assets_bytes_by_role: dict[str, int] = {}
+    for raw_asset in assets:
+        if not isinstance(raw_asset, dict):
+            raise SystemExit("E8 asset manifest entry is malformed while building durable provenance")
+        role = str(raw_asset.get("role", ""))
+        digest = str(raw_asset.get("sha256", ""))
+        if role not in packet_tools.REQUIRED_ASSET_ROLES or not re.fullmatch(r"[0-9a-f]{64}", digest):
+            raise SystemExit(f"E8 asset provenance invalid for role {role!r}")
+        frozen_assets_sha256_by_role[role] = digest
+        frozen_assets_bytes_by_role[role] = int(raw_asset.get("bytes", -1))
+    if tuple(frozen_assets_sha256_by_role.keys()) != packet_tools.REQUIRED_ASSET_ROLES:
+        raise SystemExit("E8 durable provenance asset roles do not match the frozen required role order")
+
+    def receipt_digest(field: str) -> str:
+        record = receipt.get(field)
+        if not isinstance(record, dict):
+            raise SystemExit(f"E8 completion receipt missing durable {field} record")
+        digest = str(record.get("sha256", ""))
+        if not re.fullmatch(r"[0-9a-f]{64}", digest):
+            raise SystemExit(f"E8 completion receipt has invalid {field} digest")
+        return digest
+
+    return {
+        "schema": E8_PACKET_PROVENANCE_SCHEMA,
+        "asset_version": str(asset_set.get("asset_version", "")),
+        "build_id": str(asset_set.get("build_id", "")),
+        "source_head": str(asset_set.get("source_head", "")),
+        "asset_set_sha256": packet_tools.sha256(root / "asset-set.json"),
+        "respondents_sha256": receipt_digest("respondents"),
+        "completed_rows_sha256": receipt_digest("completed_rows"),
+        "completion_receipt_sha256": str(receipt_result.get("receipt_sha256", "")),
+        "frozen_assets_sha256_by_role": frozen_assets_sha256_by_role,
+        "frozen_assets_bytes_by_role": frozen_assets_bytes_by_role,
+    }
 
 
 def validate_packet(root: Path, expected_source_head: str) -> tuple[dict, dict, Path, list[dict], dict]:
@@ -87,10 +131,14 @@ def validate_packet(root: Path, expected_source_head: str) -> tuple[dict, dict, 
     if actual_rows != expected_rows:
         raise SystemExit("completed-E8.jsonl does not exactly match the finalized source-pinned respondent rows")
 
+    packet_provenance = durable_packet_provenance(root, asset_set, receipt_result)
     collector_rows: list[dict] = []
     for row in completed:
         out = dict(row)
+        if "e8_packet_provenance" in out and out["e8_packet_provenance"] != packet_provenance:
+            raise SystemExit("respondent row conflicts with repository-owned E8 durable packet provenance")
         out["gate_id"] = "E8"
+        out["e8_packet_provenance"] = packet_provenance
         collector_rows.append(out)
     try:
         collector_rows = provenance.enrich_rows(
@@ -148,7 +196,8 @@ def main() -> None:
         "completion_receipt_verified": True,
         "completion_receipt_sha256": receipt_result.get("receipt_sha256"),
         "provenance_persisted_in_rows": True,
-        "evidence_boundary": "Validated respondent observations only; no market outcome or E8 disposition was inferred.",
+        "durable_packet_provenance_schema": E8_PACKET_PROVENANCE_SCHEMA,
+        "evidence_boundary": "Validated respondent observations only; durable packet provenance is integrity metadata and no market outcome or E8 disposition was inferred.",
     })
     print(json.dumps(result, indent=2, sort_keys=True))
 
