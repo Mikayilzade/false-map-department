@@ -1,1 +1,5 @@
-verified archive member escaped expected root during test extraction: false-map-department-7137e036d89c
+command returncode mismatch: expected 0, got 1
+cmd=['/usr/bin/python3', '/tmp/fmd-phase12g-external-bundle-d77rpj6_/bundle/EXTRACTED-SOURCE-VERIFY.py', '/tmp/fmd-phase12g-external-bundle-d77rpj6_/bundle', '/tmp/fmd-phase12g-external-bundle-d77rpj6_/extract/false-map-department-be354aa36b87', '--expected-source-head', 'be354aa36b87d40d483f3a876c5ae874d29b8a6f']
+stdout={"code": "extracted_archive_member_outside_root", "detail": "false-map-department-be354aa36b87", "ok": false}
+
+stderr=
