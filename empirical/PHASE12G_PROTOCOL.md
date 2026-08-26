@@ -6,7 +6,11 @@ This phase must separate implementation facts from human, hardware, and market e
 
 Raw observations are append-only JSON Lines files under `empirical/evidence/<GATE_ID>.jsonl`. Each row must contain every field declared by `empirical/phase12g_gate_registry.json`. Tester/respondent identifiers should be pseudonymous and contain no unnecessary personal data.
 
-Run `python3 scripts/phase12g_evidence_harness.py` to validate rows and produce a current summary. Run `bash scripts/run_phase12g_preconditions.sh` before collecting evidence to verify the registry and instrumentation are still aligned with the frozen design.
+Before consuming qualitative PASS/FAIL/BLOCKED decisions, run `python3 scripts/phase12g_qualitative_disposition_integrity.py`. A qualitative disposition is valid only for the exact evidence bytes and row count that were explicitly reviewed; appending or changing evidence makes the old review stale until it is deliberately re-reviewed. `python3 scripts/phase12g_gate_dashboard.py` enforces this integrity check itself and fails closed on a stale review.
+
+Run `python3 scripts/phase12g_evidence_harness.py` only after the qualitative-integrity check when working directly with low-level evidence files, then produce the current dashboard with `python3 scripts/phase12g_gate_dashboard.py`. Run `bash scripts/run_phase12g_preconditions.sh` before collecting evidence to verify the registry, decision bindings, and instrumentation are still aligned with the frozen design.
+
+For E1/E2, representative-sample adequacy is separately bound to the exact gate evidence SHA-256 and row count by `phase12g_set_sample_adequacy.py`; any append-only evidence change automatically returns the threshold gate to PENDING until adequacy is re-reviewed. Sample adequacy never changes the frozen 80%/70% thresholds.
 
 ## Playable telemetry packet
 
@@ -43,4 +47,4 @@ Run `GODOT_BIN=<Godot-4.7.1> bash scripts/run_phase12g_instrumentation.sh` to va
 
 E1 passes only at >=80% eligible naive comprehension within 180 seconds. E2 passes only at >=70% eligible prediction success. E7 requires 100% of the tested shippable-dossier/device-mode rows to complete interaction and pass capture review. T8-44 uses the frozen 8 ms median / 25 ms p95 typical-edit, 50 ms p99 late-game, and 16 ms p95 Stability-cycle targets on reference hardware.
 
-Gates without a frozen numeric threshold require an explicit evidence-backed disposition. A FAIL reopens only the smallest affected content/rule/presentation instance. Missing evidence is PENDING, not PASS and not FAIL.
+Gates without a frozen numeric threshold require an explicit evidence-backed disposition bound to the exact reviewed evidence bytes. A FAIL reopens only the smallest affected content/rule/presentation instance. Missing evidence is PENDING, not PASS and not FAIL. A stale review is never current evidence and must not be presented as a gate disposition.
