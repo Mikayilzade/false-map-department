@@ -21,39 +21,33 @@ Repository: `Mikayilzade/false-map-department`
 ## Latest autonomous run — 2026-08-26
 
 ### Phase / subphase
-**12G Empirical Design Gates / sample-adequacy inspection + qualitative-disposition exact-byte binding hardening — EXACT-HEAD RUNTIME GREEN**
+**12G Empirical Design Gates / raw evidence-harness qualitative-disposition self-validation — EXACT-HEAD RUNTIME GREEN**
 
 ### Progress saved this run
-- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, this status file, `GAME2_PHASE11_FINAL_FREEZE.md`, `empirical/PHASE12G_PROTOCOL.md`, and `empirical/phase12g_gate_registry.json` before changing Phase 12G acquisition infrastructure.
-- Resumed exactly from the previous `NEXT ACTION` and inspected `phase12g_set_sample_adequacy.py`, `phase12g_sample_adequacy_audit.py`, and the evidence harness.
-- Confirmed **E1/E2 representative-sample adequacy is already exact-byte bound**: the persisted adequacy record stores the current gate JSONL SHA-256 plus row count, and any append/change makes the harness return PENDING until adequacy is explicitly re-reviewed. No duplicate sample-adequacy mechanism was added.
-- Moved to the next genuine acquisition-enabling defect and found a legacy qualitative-disposition path: `phase12g_set_disposition.py` still wrote schema-v1 decisions containing only evidence row count. That path could not satisfy the newer exact-evidence review identity required by `phase12g_qualitative_disposition_integrity.py` and could allow stale/replaced evidence to retain an apparently reusable decision outside the guarded aggregate path.
-- Hardened the standalone Phase 12G dashboard so it runs qualitative-disposition integrity before rendering. A stale qualitative PASS/FAIL/BLOCKED now fails closed instead of appearing on an operator dashboard.
-- Updated the Phase 12G protocol to require qualitative exact-byte integrity before direct low-level harness consumption, while documenting that the dashboard enforces this guard itself.
-- Upgraded the compatibility `phase12g_set_disposition.py` path to the v2 exact-byte schema: every new decision now records explicit reviewer/operator ID, evidence file, SHA-256, row count, timestamp, interpretation mode, rationale and refs; existing decisions are write-once unless `--replace` is deliberately supplied; a non-empty legacy unbound disposition document is rejected rather than silently migrated.
-- Preserved the compatibility append-only `disposition_history.jsonl`, now with the same exact evidence identity on every new history row.
-- Extended the operator-workflow audit to prove compatibility-setter output passes exact-byte integrity, becomes stale after append-only evidence changes, makes the dashboard fail closed, and becomes current again only after deliberate re-review with `--replace`.
-- Extended the qualitative-disposition audit to prove the standalone dashboard rejects stale reviewed evidence and recovers only after deliberate replacement.
+- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, this status file, `GAME2_PHASE11_FINAL_FREEZE.md`, `empirical/PHASE12G_PROTOCOL.md`, and `empirical/phase12g_gate_registry.json` before changing Phase 12G evidence infrastructure.
+- Resumed exactly from the previous `NEXT ACTION` and inspected the low-level `phase12g_evidence_harness.py` qualitative-disposition consumption path plus the existing exact-byte integrity authority.
+- Confirmed a real bypass: the raw harness loaded `status` / `rationale` / `evidence_refs` directly from `dispositions.json` and, when invoked without the standalone integrity command, could surface a stale qualitative PASS/FAIL/BLOCKED after evidence bytes changed.
+- Made the raw harness self-validating by importing and invoking the existing `phase12g_qualitative_disposition_integrity.validate(...)` authority instead of duplicating SHA/row-count rules.
+- A stale or otherwise integrity-invalid qualitative disposition now causes the raw harness to ignore stored qualitative decisions for the summary, keep affected evidence-backed qualitative gates **PENDING**, and expose the integrity failure reason in top-level summary metadata and gate detail. It no longer emits the stale PASS/FAIL/BLOCKED result.
+- Preserved explicit fail-closed semantics without weakening the standalone operator integrity command: the standalone integrity tool still exits nonzero and remains the preferred pinpoint diagnostic; the dashboard still fails closed independently.
+- Extended `phase12g_qualitative_disposition_audit.py` to prove the complete lifecycle: exact-byte review becomes visible, evidence append makes the standalone integrity check stale, the raw harness independently downgrades E8 to PENDING and exposes the stale reason, the dashboard rejects the stale review, and deliberate `--replace` re-review restores the new reviewed status.
+- Updated `empirical/PHASE12G_PROTOCOL.md` so operators know raw harness summaries are self-validating while the explicit integrity command remains the recommended direct check.
 - No real evidence rows, human observations, market outcomes, hardware outcomes, gameplay, content, presentation, progression, persistence or frozen empirical thresholds changed.
 
 ### Files / systems changed
-- `scripts/phase12g_gate_dashboard.py`
+- `scripts/phase12g_evidence_harness.py`
 - `scripts/phase12g_qualitative_disposition_audit.py`
 - `empirical/PHASE12G_PROTOCOL.md`
-- `scripts/phase12g_set_disposition.py`
-- `scripts/phase12g_operator_workflow_audit.py`
 - `IMPLEMENTATION_STATUS.md`
 
 ### Validation / factual exact-head evidence
-- First implementation head `0a547ae2aba8cbf39d58af899e3307a011ad268e` produced run **32926949608** and correctly exposed a precondition contract-marker regression; result was **FAIL** and was not counted.
-- Marker repair head `6b25708c942dcf03d0dae3c87114de5ee8b593f5` produced run **32927042698** and exposed the deeper legacy schema-v1 operator path; result was **FAIL** and was not counted.
-- Final implementation head: `d947f42acba3c00f66515c00e4dc81e35b5396d9`.
-- Automatic notification-safe aggregate run **32927193737**: **PASS** for exact head `d947f42acba3c00f66515c00e4dc81e35b5396d9`.
-- Evidence commit: `3ff47c53063f35c1b98ce77cb220fbb0a1bc5744`.
-- `runtime-evidence/phase12c/latest/run-metadata.txt`: `head_sha=d947f42acba3c00f66515c00e4dc81e35b5396d9`, `run_id=32927193737`.
+- Final implementation head: `217c712d144f2e4c94029e5160160eba78b23182`.
+- Automatic notification-safe aggregate run **32930686923**: **PASS** for exact head `217c712d144f2e4c94029e5160160eba78b23182`.
+- Evidence commit: `394e413bdc0c0dab050f7d29a77acf61f39c9952`.
+- `runtime-evidence/phase12c/latest/run-metadata.txt`: `head_sha=217c712d144f2e4c94029e5160160eba78b23182`, `run_id=32930686923`.
 - `runtime-evidence/phase12c/latest/result.json`: `result=PASS`, `runtime_rc=0`, `phase12g_instrumentation_rc=0`, `ci_policy_rc=0`, `bootstrap_preflight_rc=0`, `phase12a_contract_rc=0`, `fetch_godot_rc=0`.
-- `runtime-evidence/phase12c/latest/phase12g/operator-workflow-audit.log`: **PASS** — blank-row rejection, append dedupe, exact-byte qualitative disposition, stale-review rejection and dashboard recovery all verified.
-- `runtime-evidence/phase12c/latest/phase12g/qualitative-disposition-audit.log`: **PASS** — explicit review, exact digest/row binding, stale integrity/dashboard rejection, deliberate replacement and threshold-gate guard verified.
+- `runtime-evidence/phase12c/latest/phase12g/qualitative-disposition-audit.log`: **PASS** — explicit review + exact evidence digest/row binding + raw-harness/dashboard stale rejection + deliberate replacement + threshold-gate guard.
+- The aggregate Phase 12G precondition/instrumentation path remained green and continued to validate the repository's live evidence rather than a fabricated outcome.
 - Current live evidence summary remains **PASS 1 / PENDING 12 / FAIL 0 / BLOCKED 0** with E7 at 285/285 and no fabricated human/market/hardware outcomes.
 
 ### Current empirical-gate state
@@ -69,8 +63,7 @@ Repository: `Mikayilzade/false-map-department`
 
 ### Failures / blockers
 - **No current autonomous implementation blocker.**
-- The sample-adequacy stale-reuse concern was already closed by exact SHA/row binding.
-- The discovered legacy qualitative-disposition review-identity gap is now closed for the compatibility setter, aggregate precondition flow, and standalone dashboard.
+- The raw-harness stale qualitative-disposition bypass discovered from the previous `NEXT ACTION` is closed and covered by the exact-head aggregate.
 - Remaining 12G blockers are genuine evidence-source blockers, not implementation claims: real naive/mature participants, genuine representative E8 media/respondents, actual Deck-class reference hardware, and near-release E12 context.
 
 ### Canonical/design impact
@@ -80,11 +73,12 @@ Repository: `Mikayilzade/false-map-department`
 ## NEXT ACTION
 Continue **12G real evidence acquisition/enabling only**; never fabricate missing outcomes.
 
-1. Treat E1/E2 sample-adequacy exact-byte binding, E8 finalized-media provenance, human field-kit finalized-return namespace identity, v2 qualitative-disposition recording, compatibility-setter exact evidence identity, and dashboard stale-review rejection as closed classes unless a new defect reopens one.
-2. Inspect the **low-level `phase12g_evidence_harness.py` qualitative-disposition consumption path itself**. The documented operator path now requires the integrity guard and the dashboard fails closed, but verify whether the raw harness can independently surface a stale qualitative disposition when invoked without the guard. If so, make the minimum self-validating change so raw harness summaries also return PENDING/BLOCKED rather than stale PASS/FAIL/BLOCKED; add an isolated regression without duplicating the existing integrity authority. If it is already self-safe, move to the next real acquisition-enabling integrity/readiness gap.
-3. When actual builds and real participants are available, acquire genuine naive-human **E1 + E2 + E11** and mature-human **E3-E6 + E9-E10** observations through the source-pinned field-kit lifecycle; finalize locally, transport with receipt, dry-run ingest, deliberately append, then run integrity + harness/dashboard.
-4. Keep E7 frozen as **285/285 PASS**; reacquire only affected signatures after relevant presentation/device changes.
-5. For **E8**, wait for genuine representative five-role media plus real respondents; synthetic assets/responses are never evidence.
-6. For **T8-44**, use actual Deck-class reference hardware with Godot 4.7.1 and the frozen attestation; hosted CI remains non-evidence.
-7. Evaluate **E12** only near release with current comparables and near-final build scope.
-8. Do not start **12H** until every remaining 12G gate has genuine evidence-backed disposition or an explicit release blocker.
+1. Treat E1/E2 sample-adequacy exact-byte binding, E8 finalized-media provenance, human field-kit finalized-return namespace identity, v2 qualitative-disposition recording, compatibility-setter exact evidence identity, dashboard stale-review rejection, and raw-harness stale-review rejection as closed classes unless a new defect reopens one.
+2. Inspect the remaining **direct qualitative-evidence consumer surfaces** and operator/readiness scripts for any path that can read or present `dispositions.json` (or a harness-derived qualitative PASS/FAIL/BLOCKED) without the exact-byte integrity authority. If a real bypass exists, close only that path and add an isolated regression; if none exists, move immediately to the next acquisition-enabling readiness/integrity gap rather than adding duplicate guards.
+3. Inspect the real human field-kit acquisition lifecycle for the next non-duplicative readiness gap between finalized local return -> transport receipt -> dry-run ingest -> deliberate append -> integrity/harness/dashboard. Improve only concrete operator-safety or provenance gaps that can be verified autonomously; do not synthesize participant outcomes.
+4. When actual builds and real participants are available, acquire genuine naive-human **E1 + E2 + E11** and mature-human **E3-E6 + E9-E10** observations through the source-pinned field-kit lifecycle.
+5. Keep E7 frozen as **285/285 PASS**; reacquire only affected signatures after relevant presentation/device changes.
+6. For **E8**, wait for genuine representative five-role media plus real respondents; synthetic assets/responses are never evidence.
+7. For **T8-44**, use actual Deck-class reference hardware with Godot 4.7.1 and the frozen attestation; hosted CI remains non-evidence.
+8. Evaluate **E12** only near release with current comparables and near-final build scope.
+9. Do not start **12H** until every remaining 12G gate has genuine evidence-backed disposition or an explicit release blocker.
