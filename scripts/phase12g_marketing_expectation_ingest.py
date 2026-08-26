@@ -15,6 +15,7 @@ SHA40 = re.compile(r"^[0-9a-f]{40}$")
 E8_PACKET_PROVENANCE_SCHEMA = "fmd.phase12g.e8.evidence-packet-provenance.v1"
 
 sys.path.insert(0, str(SCRIPT_DIR))
+import phase12g_e8_evidence_provenance_integrity as e8_integrity  # noqa: E402
 import phase12g_marketing_completion_receipt as completion_receipt  # noqa: E402
 import phase12g_marketing_expectation_packet as packet_tools  # noqa: E402
 import phase12g_provenance as provenance  # noqa: E402
@@ -164,6 +165,10 @@ def main() -> None:
 
     root = args.packet.resolve()
     asset_set, respondents, _, rows, receipt_result = validate_packet(root, args.expected_source_head)
+    evidence_root = args.evidence_root.resolve()
+    target_evidence = evidence_root / "E8.jsonl"
+    packet_provenance = rows[0]["e8_packet_provenance"]
+    compatibility = e8_integrity.validate_packet_identity_compatibility(target_evidence, packet_provenance)
 
     staged = root / ".repository-ingest-E8.jsonl"
     staged.write_text("".join(json.dumps(row, sort_keys=True, ensure_ascii=False) + "\n" for row in rows), encoding="utf-8")
@@ -174,7 +179,7 @@ def main() -> None:
             "--input",
             str(staged),
             "--evidence-root",
-            str(args.evidence_root.resolve()),
+            str(evidence_root),
         ]
         if args.append:
             command.append("--append")
@@ -197,6 +202,8 @@ def main() -> None:
         "completion_receipt_sha256": receipt_result.get("receipt_sha256"),
         "provenance_persisted_in_rows": True,
         "durable_packet_provenance_schema": E8_PACKET_PROVENANCE_SCHEMA,
+        "asset_version_identity_checked": True,
+        "existing_same_packet": compatibility.get("existing_same_packet", False),
         "evidence_boundary": "Validated respondent observations only; durable packet provenance is integrity metadata and no market outcome or E8 disposition was inferred.",
     })
     print(json.dumps(result, indent=2, sort_keys=True))
