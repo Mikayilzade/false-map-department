@@ -13,6 +13,19 @@ EXTERNAL_CHANNELS = {"human_field_kit_v4", "e8_marketing_packet", "t8_reference_
 HUMAN_FIELD_KIT_CHANNEL = "human_field_kit_v4"
 FIRST_SESSION_GATES = {"E1", "E2", "E11"}
 MATURE_SESSION_GATES = {"E3", "E4", "E5", "E6", "E9", "E10"}
+EXPECTED_EXTERNAL_CHANNEL_BY_GATE = {
+    "E1": HUMAN_FIELD_KIT_CHANNEL,
+    "E2": HUMAN_FIELD_KIT_CHANNEL,
+    "E3": HUMAN_FIELD_KIT_CHANNEL,
+    "E4": HUMAN_FIELD_KIT_CHANNEL,
+    "E5": HUMAN_FIELD_KIT_CHANNEL,
+    "E6": HUMAN_FIELD_KIT_CHANNEL,
+    "E8": "e8_marketing_packet",
+    "E9": HUMAN_FIELD_KIT_CHANNEL,
+    "E10": HUMAN_FIELD_KIT_CHANNEL,
+    "E11": HUMAN_FIELD_KIT_CHANNEL,
+    "T8-44": "t8_reference_profile",
+}
 ARTIFACT_FIELDS = (
     "source_build_role",
     "build_artifact_sha256",
@@ -22,6 +35,7 @@ ARTIFACT_FIELDS = (
     "build_artifact_bytes_verified",
 )
 FORCE_ARTIFACT_ENV = "FMD_PHASE12G_REQUIRE_BUILD_ARTIFACT_BYTES"
+FORCE_CHANNEL_ENV = "FMD_PHASE12G_REQUIRE_CANONICAL_ACQUISITION_CHANNEL"
 
 
 def missing(value) -> bool:
@@ -61,6 +75,30 @@ def reject_duplicate_input_rows(rows: list[dict]) -> None:
             first_index_by_row[key] = index
     if duplicates:
         raise SystemExit("input contains duplicate canonical observation rows: " + "; ".join(duplicates))
+
+
+def verify_required_acquisition_channel(rows: list[dict], gate_id: str, evidence_root: Path) -> None:
+    """Prevent caller-controlled channel labels from bypassing external evidence safeguards.
+
+    The external human/market/reference-hardware gates each have one prepared ingest path.
+    When writing the real repository evidence root (or when an audit explicitly forces this
+    check), their rows must retain that canonical channel. Otherwise a caller could remove or
+    relabel acquisition_channel and skip the channel-gated qualification/build-byte checks.
+    """
+    expected = EXPECTED_EXTERNAL_CHANNEL_BY_GATE.get(gate_id)
+    if expected is None:
+        return
+    enforce = evidence_root.resolve() == DEFAULT_EVIDENCE_ROOT.resolve() or os.environ.get(FORCE_CHANNEL_ENV, "") == "1"
+    if not enforce:
+        return
+    for index, row in enumerate(rows, start=1):
+        channel = str(row.get("acquisition_channel", "")).strip()
+        if channel != expected:
+            shown = channel if channel else "<missing>"
+            raise SystemExit(
+                f"row {index} {gate_id} acquisition_channel must be {expected}; got {shown}. "
+                "Use the gate-specific finalized ingest path; relabeling the channel cannot bypass provenance safeguards."
+            )
 
 
 def verify_human_participant_qualification(rows: list[dict], gate_id: str) -> None:
@@ -177,10 +215,11 @@ def main() -> None:
     if failures:
         raise SystemExit("\n".join(failures))
 
+    evidence_root = args.evidence_root.resolve()
+    verify_required_acquisition_channel(rows, gate_id, evidence_root)
     verify_human_participant_qualification(rows, gate_id)
 
     external_rows = [row for row in rows if str(row.get("acquisition_channel", "")) in EXTERNAL_CHANNELS]
-    evidence_root = args.evidence_root.resolve()
     enforce_external_artifact = bool(external_rows) and (
         evidence_root == DEFAULT_EVIDENCE_ROOT.resolve() or os.environ.get(FORCE_ARTIFACT_ENV, "") == "1"
     )
@@ -204,6 +243,9 @@ def main() -> None:
         "external_build_artifact_required": enforce_external_artifact,
         "build_artifact_bytes_verified": bool(args.append and enforce_external_artifact) or not enforce_external_artifact,
         "participant_qualification_checked": any(str(row.get("acquisition_channel", "")) == HUMAN_FIELD_KIT_CHANNEL for row in rows),
+        "canonical_acquisition_channel_checked": gate_id in EXPECTED_EXTERNAL_CHANNEL_BY_GATE and (
+            evidence_root == DEFAULT_EVIDENCE_ROOT.resolve() or os.environ.get(FORCE_CHANNEL_ENV, "") == "1"
+        ),
         "append_ready": append_ready,
     }
     print(json.dumps(result, indent=2, sort_keys=True))
