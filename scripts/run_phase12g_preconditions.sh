@@ -15,6 +15,7 @@ python3 scripts/phase12g_mature_session_batch_audit.py | tee "$OUT_DIR/mature-se
 python3 scripts/phase12g_human_field_kit_audit.py | tee "$OUT_DIR/human-field-kit-audit.log"
 python3 scripts/phase12g_field_kit_ingest_audit.py | tee "$OUT_DIR/field-kit-ingest-audit.log"
 python3 scripts/phase12g_human_return_identity_audit.py | tee "$OUT_DIR/human-return-identity-audit.log"
+python3 scripts/phase12g_packet_identity_binding_audit.py | tee "$OUT_DIR/packet-identity-binding-audit.log"
 python3 scripts/phase12g_field_kit_return_collision_audit.py | tee "$OUT_DIR/field-kit-return-collision-audit.log"
 python3 scripts/phase12g_marketing_expectation_audit.py | tee "$OUT_DIR/marketing-expectation-audit.log"
 python3 scripts/phase12g_marketing_expectation_ingest_audit.py | tee "$OUT_DIR/marketing-expectation-ingest-audit.log"
