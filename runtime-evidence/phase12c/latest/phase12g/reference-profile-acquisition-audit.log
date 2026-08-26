@@ -1,1 +1,0 @@
-Phase 12G T8-44 acquisition audit: PASS (actual checkout/source + raw-sample integrity + package bytes frozen before sample packet + sealed hardware identity/attestation capture binding + post-capture identity/attestation/dossier substitution rejection + post-session package substitution/wrong-role/unsealed rejection; audit data never touched repository evidence)

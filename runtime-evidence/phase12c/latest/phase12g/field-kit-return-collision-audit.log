@@ -1,1 +1,0 @@
-Phase 12G field-kit return collision audit: PASS (package-byte-bound finalizations + durable namespace collision rejection + exact retry idempotency)

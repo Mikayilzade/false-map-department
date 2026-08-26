@@ -1,1 +1,0 @@
-Phase 12G external acquisition bundle audit: PASS (exact-source v4 archive + independent expected-source handoff + byte-bound extracted-tree verifier + directory-name/SOURCE_HEAD distrust + adversarial extraction/transport rejection + zero evidence/disposition mutation)
