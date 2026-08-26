@@ -1,3 +1,253 @@
 Phase 12G precondition audit: PASS (E1-E12 + T8-44 registry/harness/operator workflow ready; isolated empty-evidence anti-fabrication check preserved without rejecting legitimate live evidence)
 Phase 12G instrumentation audit: PASS (E1/E2/E11 telemetry + T8-44 profile format; observer outcomes remain explicit)
 Phase 12G session packet audit: PASS (E3-E7 + E9/E10 templates, E10 canonical A1-A10 families, 57x5 E7 matrix, zero fabricated outcomes)
+Phase 12G operator workflow audit: PASS (blank-row rejection + append dedupe + exact-byte qualitative disposition + stale-review rejection + dashboard)
+Phase 12G first-session batch audit: PASS (3 blank human packets + relocatable manifest paths + DEMO01 launch + no completed/evidence rows + readiness-only status)
+Phase 12G mature-session batch audit: PASS (frozen selections + counterbalance + relocatable manifest paths + null human outcomes + no-evidence finalize guard)
+Phase 12G human field-kit audit: PASS (E1-E6/E9-E11 relocatable packets + self-contained verify/finalize + exact source/tool pinning + immutable tamper rejection + observer-local completed rows + no evidence append)
+Phase 12G field-kit ingest audit: PASS (offline verification + finalization receipt binding + exact source pin + dry-run default + deliberate append + cross-run idempotency + post-finalization tamper rejection with byte-preserving failure)
+Phase 12G human return identity audit: PASS (exact finalized-return multi-row/cross-gate reuse accepted; conflicting receipt reuse and incomplete durable identity rejected)
+Phase 12G field-kit return collision audit: PASS (durable namespace persisted; distinct finalized return cannot reuse namespace; exact finalized-return retry remains idempotent and byte-preserving)
+Phase 12G E8 marketing-acquisition audit: PASS (packet-owned immutable assets + exact source head + re-hash tamper rejection + blank-human anti-fabrication + local-only finalization)
+Phase 12G E8 ingest audit: PASS — source/assets + digest-bound finalization + durable self-contained packet provenance survives external packet removal + dry-run/append/idempotency/tamper rejection; synthetic audit data never touched repository evidence
+Phase 12G E8 asset-version collision audit: PASS — one asset_version is bound to one exact finalized packet; multiple respondents from that packet remain valid and conflicting later packet reuse is rejected before append
+Phase 12G qualitative disposition audit: PASS (explicit review + exact evidence digest/row binding + stale integrity/dashboard rejection + deliberate replacement + threshold-gate guard)
+Phase 12G T8-44 acquisition audit: PASS (source pin + reference attestation + exact raw-sample cardinality + recomputed median/p95/p99 integrity + non-reference/tamper rejection; audit data never touched repository evidence)
+Phase 12G external acquisition bundle audit: PASS (exact-source v4 archive + byte-bound standalone verifier/finalizer/return-ingest contract + adversarial transport rejection + zero evidence/disposition mutation)
+Phase 12G acquisition readiness audit: PASS (demo path preserved; mature empirical scene + explicit representative bindings + map-backed linked facts present; no human/capture PASS fabricated)
+Phase 12G E8 evidence provenance integrity: PASS (validated_rows=0, unique_asset_versions=0, durable_packet_identity=not-yet-observed)
+Phase 12G human return identity integrity: PASS (0 field-kit evidence rows, 0 finalized return namespaces; exact-return multi-row reuse allowed, conflicting reuse rejected)
+{
+  "ok": true,
+  "reason": "no qualitative dispositions recorded",
+  "validated_dispositions": 0
+}
+{
+  "counts": {
+    "BLOCKED": 0,
+    "FAIL": 0,
+    "PASS": 1,
+    "PENDING": 12
+  },
+  "gates": [
+    {
+      "automated_preconditions": [
+        "tutorial_runtime_green",
+        "map_world_correspondence_present"
+      ],
+      "detail": {
+        "reason": "no evidence rows"
+      },
+      "evidence_class": "human_playtest",
+      "gate_id": "E1",
+      "name": "map->world comprehension",
+      "rows": 0,
+      "status": "PENDING"
+    },
+    {
+      "automated_preconditions": [
+        "collateral_consequence_fixture_present",
+        "causal_explanation_runtime_green"
+      ],
+      "detail": {
+        "reason": "no evidence rows"
+      },
+      "evidence_class": "human_playtest",
+      "gate_id": "E2",
+      "name": "second-order prediction",
+      "rows": 0,
+      "status": "PENDING"
+    },
+    {
+      "automated_preconditions": [
+        "mature_dossier_set_identified",
+        "legal_edit_space_instrumentable"
+      ],
+      "detail": {
+        "reason": "no evidence rows"
+      },
+      "evidence_class": "human_comparative_playtest",
+      "gate_id": "E3",
+      "name": "mature reasoning beats blind enumeration",
+      "rows": 0,
+      "status": "PENDING"
+    },
+    {
+      "automated_preconditions": [
+        "reasoning_transformation_diversity_validation_green"
+      ],
+      "detail": {
+        "reason": "no evidence rows"
+      },
+      "evidence_class": "human_playtest",
+      "gate_id": "E4",
+      "name": "campaign repetition",
+      "rows": 0,
+      "status": "PENDING"
+    },
+    {
+      "automated_preconditions": [
+        "authority_source_inspection_present",
+        "linked_readability_budget_green"
+      ],
+      "detail": {
+        "reason": "no evidence rows"
+      },
+      "evidence_class": "human_playtest",
+      "gate_id": "E5",
+      "name": "linked authority comprehension",
+      "rows": 0,
+      "status": "PENDING"
+    },
+    {
+      "automated_preconditions": [
+        "causal_ribbon_budget_green",
+        "inspect_path_present"
+      ],
+      "detail": {
+        "reason": "no evidence rows"
+      },
+      "evidence_class": "human_playtest",
+      "gate_id": "E6",
+      "name": "causal readability",
+      "rows": 0,
+      "status": "PENDING"
+    },
+    {
+      "automated_preconditions": [
+        "phase12e_exit_sweep_green",
+        "controller_focus_green",
+        "1280x800_layout_green"
+      ],
+      "detail": {
+        "exhaustive_matrix_confirmed": true,
+        "expected_unique_rows": 285,
+        "failed_preview": [],
+        "failing_unique_rows": 0,
+        "metric": "shippable_dossiers_pass_rate",
+        "observed_unique_rows": 285,
+        "passing_unique_rows": 285,
+        "raw_evidence_rows": 285,
+        "target": 1.0,
+        "value": 1.0
+      },
+      "evidence_class": "mixed_capture_interaction",
+      "gate_id": "E7",
+      "name": "accessibility/device sweep",
+      "rows": 285,
+      "status": "PASS"
+    },
+    {
+      "automated_preconditions": [
+        "store_claims_match_implemented_capabilities"
+      ],
+      "detail": {
+        "reason": "no evidence rows"
+      },
+      "evidence_class": "market_test",
+      "gate_id": "E8",
+      "name": "marketing expectation",
+      "rows": 0,
+      "status": "PENDING"
+    },
+    {
+      "automated_preconditions": [
+        "remix_changed_dependency_validation_green",
+        "exact_12_remixes_present"
+      ],
+      "detail": {
+        "reason": "no evidence rows"
+      },
+      "evidence_class": "human_playtest",
+      "gate_id": "E9",
+      "name": "remix distinctness",
+      "rows": 0,
+      "status": "PENDING"
+    },
+    {
+      "automated_preconditions": [
+        "agent_archetype_runtime_green",
+        "no_dossier_script_override"
+      ],
+      "detail": {
+        "reason": "no evidence rows"
+      },
+      "evidence_class": "human_playtest",
+      "gate_id": "E10",
+      "name": "agent distinctness",
+      "rows": 0,
+      "status": "PENDING"
+    },
+    {
+      "automated_preconditions": [
+        "exact_demo01_demo05_present",
+        "demo_exclusions_green"
+      ],
+      "detail": {
+        "reason": "no evidence rows"
+      },
+      "evidence_class": "human_timing",
+      "gate_id": "E11",
+      "name": "demo timing",
+      "rows": 0,
+      "status": "PENDING"
+    },
+    {
+      "automated_preconditions": [
+        "release_candidate_near_final"
+      ],
+      "detail": {
+        "reason": "no evidence rows"
+      },
+      "evidence_class": "release_market_recheck",
+      "gate_id": "E12",
+      "name": "perceived value / final pricing",
+      "rows": 0,
+      "status": "PENDING"
+    },
+    {
+      "automated_preconditions": [
+        "repeatable_transaction_profiler_present",
+        "performance_signal_recorded"
+      ],
+      "detail": {
+        "reason": "no Deck-class reference hardware evidence"
+      },
+      "evidence_class": "reference_hardware_profile",
+      "gate_id": "T8-44",
+      "name": "Deck-class late-game performance",
+      "rows": 0,
+      "status": "PENDING"
+    }
+  ],
+  "phase": "12G",
+  "registry_version": 1
+}
+/home/runner/work/_temp/fmd-runtime-baseline/phase12g/gate-dashboard.md
+Phase 12G isolated empty-evidence anti-fabrication baseline: PASS (13 PENDING)
+Phase 12G live evidence summary accepted as current observed state: {'BLOCKED': 0, 'FAIL': 0, 'PASS': 1, 'PENDING': 12}
+Phase 12G first-session operator audit: PASS (observer outcomes explicit; raw collateral != human aha; no repository evidence mutation)
+Phase 12G sample adequacy audit: PASS (one-row PASS blocked; exact batch confirmation required; evidence changes invalidate confirmation; no invented minimum N)
+Phase 12G E7 capture mode audit: PASS (graphical Xvfb + bounded composite interaction acquisition; no synthetic capture-review outcome)
+Phase 12G E7 coverage audit: PASS (5/285 and 284/285 stay PENDING; exact 285 required; latest rerun wins without inflating coverage)
+Phase 12G full runtime readiness audit: PASS (57/57 shippable IDs ready; zero binding blockers)
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12G instrumentation tests: PASS
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12G production demo playtest tests: PASS
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12G broad production acquisition tests: PASS
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12G readiness-repair known solutions: PASS (7/7)
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FMD Phase 12G remix review-fix tests: PASS
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+Phase 12G instrumentation + finalization-receipt transport integrity + persisted source/build evidence provenance + first-session operator + representative-sample guard + exhaustive E7 coverage guard + 57/57 runtime readiness + graphical-capture guard + representative controller interaction probes + demo + broad production acquisition-readiness packet: PASS

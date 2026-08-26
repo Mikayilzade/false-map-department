@@ -1,0 +1,1 @@
+Phase 12G human field-kit audit: PASS (E1-E6/E9-E11 relocatable packets + self-contained verify/finalize + exact source/tool pinning + immutable tamper rejection + observer-local completed rows + no evidence append)

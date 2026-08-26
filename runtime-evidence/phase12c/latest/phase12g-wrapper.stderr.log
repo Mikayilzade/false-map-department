@@ -1,12 +1,8 @@
-PHASE12G OPERATOR WORKFLOW FAIL: command failed (1): /usr/bin/python3 /home/runner/work/false-map-department/false-map-department/scripts/phase12g_gate_dashboard.py --evidence-root /tmp/fmd-phase12g-operator-zi2ddlw7/evidence --output /tmp/fmd-phase12g-operator-zi2ddlw7/dashboard.md
-
-/tmp/fmd-phase12g-operator-zi2ddlw7/evidence/dispositions.json: expected schema fmd.phase12g.qualitative-dispositions.v2
-Traceback (most recent call last):
-  File "/home/runner/work/false-map-department/false-map-department/scripts/phase12g_gate_dashboard.py", line 91, in <module>
-    main()
-  File "/home/runner/work/false-map-department/false-map-department/scripts/phase12g_gate_dashboard.py", line 42, in main
-    subprocess.run(
-  File "/usr/lib/python3.12/subprocess.py", line 571, in run
-    raise CalledProcessError(retcode, process.args,
-subprocess.CalledProcessError: Command '['/usr/bin/python3', '/home/runner/work/false-map-department/false-map-department/scripts/phase12g_qualitative_disposition_integrity.py', '--evidence-root', '/tmp/fmd-phase12g-operator-zi2ddlw7/evidence']' returned non-zero exit status 1.
-
+ERROR: Parent node is busy adding/removing children, `remove_child()` can't be called at this time. Consider using `remove_child.call_deferred(child)` instead.
+   at: remove_child (scene/main/node.cpp:1750)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://src/presentation/entrypoint.gd:13)
+ERROR: Parent node is busy adding/removing children, `remove_child()` can't be called at this time. Consider using `remove_child.call_deferred(child)` instead.
+   at: remove_child (scene/main/node.cpp:1750)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://src/presentation/entrypoint.gd:13)
