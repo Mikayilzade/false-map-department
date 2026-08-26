@@ -23,6 +23,7 @@ python3 scripts/phase12g_qualitative_disposition_audit.py | tee "$OUT_DIR/qualit
 python3 scripts/phase12g_reference_profile_audit.py | tee "$OUT_DIR/reference-profile-acquisition-audit.log"
 python3 scripts/phase12g_external_acquisition_bundle_audit.py | tee "$OUT_DIR/external-acquisition-bundle-audit.log"
 python3 scripts/phase12g_acquisition_readiness_audit.py | tee "$OUT_DIR/acquisition-readiness-audit.log"
+python3 scripts/phase12g_build_identity_audit.py | tee "$OUT_DIR/build-source-identity-audit.log"
 
 # Any real E8 repository row must remain self-describing after its external
 # finalized packet is gone: exact source/build/asset-set/receipt and per-role
