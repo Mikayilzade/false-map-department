@@ -21,6 +21,11 @@ python3 scripts/phase12g_reference_profile_audit.py | tee "$OUT_DIR/reference-pr
 python3 scripts/phase12g_external_acquisition_bundle_audit.py | tee "$OUT_DIR/external-acquisition-bundle-audit.log"
 python3 scripts/phase12g_acquisition_readiness_audit.py | tee "$OUT_DIR/acquisition-readiness-audit.log"
 
+# Any real E8 repository row must remain self-describing after its external
+# finalized packet is gone: exact source/build/asset-set/receipt and per-role
+# frozen media hashes are durable integrity metadata on each row.
+python3 scripts/phase12g_e8_evidence_provenance_integrity.py | tee "$OUT_DIR/e8-evidence-provenance-integrity.log"
+
 # A qualitative PASS/FAIL/BLOCKED is valid only for the exact evidence bytes that
 # were explicitly reviewed. Reject stale/unbound dispositions before the evidence
 # harness or dashboard is allowed to consume them.
