@@ -19,6 +19,7 @@ python3 scripts/phase12g_field_kit_return_collision_audit.py | tee "$OUT_DIR/fie
 python3 scripts/phase12g_marketing_expectation_audit.py | tee "$OUT_DIR/marketing-expectation-audit.log"
 python3 scripts/phase12g_marketing_expectation_ingest_audit.py | tee "$OUT_DIR/marketing-expectation-ingest-audit.log"
 python3 scripts/phase12g_e8_asset_version_collision_audit.py | tee "$OUT_DIR/e8-asset-version-collision-audit.log"
+python3 scripts/phase12g_e8_respondent_identity_binding_audit.py | tee "$OUT_DIR/e8-respondent-identity-binding-audit.log"
 python3 scripts/phase12g_qualitative_disposition_audit.py | tee "$OUT_DIR/qualitative-disposition-audit.log"
 python3 scripts/phase12g_reference_profile_audit.py | tee "$OUT_DIR/reference-profile-acquisition-audit.log"
 python3 scripts/phase12g_external_packet_build_binding_audit.py | tee "$OUT_DIR/external-packet-build-binding-audit.log"
