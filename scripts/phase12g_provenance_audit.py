@@ -131,12 +131,14 @@ def test_external_artifact_binding() -> None:
         input_path = root / "external.jsonl"
         input_path.write_text(json.dumps(enriched, sort_keys=True) + "\n", encoding="utf-8")
         evidence_root = root / "evidence"
+        force_env = {key: value for key, value in os.environ.items() if key not in {provenance.ARTIFACT_RECORD_ENV, provenance.ARTIFACT_PATH_ENV}}
+        force_env["FMD_PHASE12G_REQUIRE_BUILD_ARTIFACT_BYTES"] = "1"
         without_env = subprocess.run(
             [sys.executable, str(COLLECTOR), "--input", str(input_path), "--evidence-root", str(evidence_root), "--append"],
             cwd=ROOT,
             text=True,
             capture_output=True,
-            env={key: value for key, value in os.environ.items() if key not in {provenance.ARTIFACT_RECORD_ENV, provenance.ARTIFACT_PATH_ENV}},
+            env=force_env,
         )
         expect(without_env.returncode != 0, "external append accepted source_build_id without packaged artifact bytes")
         expect(not (evidence_root / "E1.jsonl").exists(), "failed external append mutated evidence")
@@ -144,6 +146,7 @@ def test_external_artifact_binding() -> None:
         bound_env = dict(os.environ)
         bound_env[provenance.ARTIFACT_RECORD_ENV] = str(record_path)
         bound_env[provenance.ARTIFACT_PATH_ENV] = str(artifact)
+        bound_env["FMD_PHASE12G_REQUIRE_BUILD_ARTIFACT_BYTES"] = "1"
         with_env = subprocess.run(
             [sys.executable, str(COLLECTOR), "--input", str(input_path), "--evidence-root", str(evidence_root), "--append"],
             cwd=ROOT,
