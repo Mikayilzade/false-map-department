@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 from statistics import mean
 
+from phase12g_evidence_destination import resolve_control_path
 from phase12g_qualitative_disposition_integrity import validate as validate_qualitative_dispositions
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -354,12 +355,27 @@ def main() -> None:
     args = parser.parse_args()
 
     registry = load_json(REGISTRY)
-    disposition_path = args.dispositions or (args.evidence_root / "dispositions.json")
-    sample_adequacy_path = args.sample_adequacy or (args.evidence_root / "sample_adequacy.json")
+    evidence_root = args.evidence_root.resolve()
+    requested_dispositions = args.dispositions or (evidence_root / "dispositions.json")
+    requested_sample_adequacy = args.sample_adequacy or (evidence_root / "sample_adequacy.json")
+    try:
+        disposition_path = resolve_control_path(
+            evidence_root,
+            requested_dispositions,
+            control_kind="dispositions",
+        )
+        sample_adequacy_path = resolve_control_path(
+            evidence_root,
+            requested_sample_adequacy,
+            control_kind="sample_adequacy",
+        )
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
+
     qualitative_integrity_error: str | None = None
     if disposition_path.exists():
         try:
-            validate_qualitative_dispositions(args.evidence_root, disposition_path)
+            validate_qualitative_dispositions(evidence_root, disposition_path)
         except SystemExit as exc:
             qualitative_integrity_error = str(exc)
     dispositions = {} if qualitative_integrity_error is not None else load_dispositions(disposition_path, registry)
@@ -367,7 +383,7 @@ def main() -> None:
     results: list[dict] = []
     for gate in registry["gates"]:
         gate_id = gate["gate_id"]
-        rows = load_rows(args.evidence_root, gate_id)
+        rows = load_rows(evidence_root, gate_id)
         field_failures = validate_required_fields(gate, rows)
         if field_failures:
             status = "BLOCKED"
@@ -379,7 +395,7 @@ def main() -> None:
         elif gate.get("canonical_threshold") is None:
             status, detail = evaluate_qualitative(gate_id, rows, dispositions, qualitative_integrity_error)
         elif gate_id in REPRESENTATIVE_SAMPLE_GATES:
-            status, detail = evaluate_representative_threshold(gate_id, rows, gate["canonical_threshold"], args.evidence_root, sample_adequacy)
+            status, detail = evaluate_representative_threshold(gate_id, rows, gate["canonical_threshold"], evidence_root, sample_adequacy)
         else:
             status, detail = evaluate_numeric_threshold(rows, gate.get("canonical_threshold"))
         results.append({
