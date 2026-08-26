@@ -21,30 +21,32 @@ Repository: `Mikayilzade/false-map-department`
 ## Latest autonomous run — 2026-08-27
 
 ### Phase / subphase
-**12G Empirical Design Gates / finalized human field-kit gate-routing ownership — EXACT-HEAD PASS**
+**12G Empirical Design Gates / finalized human semantic-eligibility receipt binding — EXACT-HEAD PASS**
 
 ### Progress saved this run
-- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, this status file, `GAME2_PHASE11_FINAL_FREEZE.md`, `empirical/PHASE12G_PROTOCOL.md`, and the current field-kit collector/finalizer/verifier/ingest paths before changing anything.
-- Resumed exactly from the prior `NEXT ACTION` gate-ID/routing audit and found a concrete trust-boundary weakness worth fixing rather than adding another redundant digest: a caller could alter the embedded `gate_id` in a finalized human completed-row file and recompute that file's size/SHA entry inside the mutable finalization receipt. The repository ingest checked receipt/source/build identity, but the bundled offline verifier did not independently bind finalized filenames/rows to the immutable packet's canonical gate ownership before staging.
-- Hardened `phase12g_field_kit_offline_verify.py` so unfinalized prepared packets remain valid, but once a finalization receipt exists the bundled verifier requires the exact packet-owned finalized gate set and exactly one canonical `completed-<gate>.jsonl` route per gate.
-- The bundled verifier now checks receipt `packet_kind`, exact `completed_gates`, exact completed-file filename set, receipt entry filename set/no duplicates, and every finalized row's embedded `gate_id` against the gate implied by its receipt-bound filename.
-- This guard runs during returned-kit offline verification **before** repository ingest stages rows or invokes the central collector, so a gate relabel is rejected before any evidence append path can be reached.
-- Expanded `phase12g_field_kit_ingest_audit.py` with a concrete receipt-rebound routing attack: finalize a real synthetic first-session packet, change the receipt-bound E1 row to claim E2, recompute the E1 file's receipt byte length/SHA, and verify repository ingest still rejects it specifically at the immutable packet routing boundary. The audit restores the original finalized bytes afterward and proves the canonical packet validates again.
-- Existing wrong-source, noncanonical append-destination, post-finalization transport-tamper, package-byte, receipt, qualification and return-identity guards remain covered.
+- Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, this status file, `GAME2_PHASE11_FINAL_FREEZE.md`, `empirical/PHASE12G_PROTOCOL.md`, the gate registry, and the current field-kit finalizer/verifier/ingest/collector paths before changing anything.
+- Resumed exactly from the prior `NEXT ACTION` semantic-eligibility audit and found a concrete bypass distinct from the already-closed gate-route attack: a genuinely non-naive first-session participant can be finalized with `naive=false`, but a caller could change only the finalized E2 row to `naive=true` and recompute that completed file's mutable size/SHA receipt entry. Before this run, packet/source/build/route checks still allowed the altered row to reach collector eligibility, where `naive=true` changes whether E2 can count.
+- Hardened `phase12g_field_kit_offline_verify.py` with finalized semantic-eligibility verification before repository ingest/collector use.
+- First-session finalized rows must now retain a boolean `naive` exactly matching the receipt-bound participant qualification; E2 also retains a typed `packet_completed` field.
+- Mature-session finalized rows must retain receipt-declared `rules_known_before_session=true`; E3 must retain `rule_knowledge_confirmed=true`; E6 must retain `used_raw_debug_log=false`.
+- The guard deliberately does **not** claim to prove human naivety, rule knowledge, timing or any other empirical truth. It only prevents contradictory packet-local semantic eligibility declarations from being rebound after finalization.
+- Added `phase12g_semantic_eligibility_binding_audit.py`, which prepares a real synthetic byte-bound field kit, finalizes a non-naive E2 observation, flips only the finalized row to `naive=true`, recomputes the mutable completed-file receipt digest/size, and proves the bundled verifier rejects the contradiction before ingest. The audit restores the original bytes and proves the canonical packet verifies again.
+- Wired the new attack audit into the existing Phase-12G precondition wrapper rather than adding a new workflow or speculative rerun path.
 - No gameplay/content rule, empirical threshold, empirical evidence row, human/market/hardware observation, sample-adequacy decision, or qualitative disposition changed.
 
 ### Files / systems changed
 - `scripts/phase12g_field_kit_offline_verify.py`
-- `scripts/phase12g_field_kit_ingest_audit.py`
+- `scripts/phase12g_semantic_eligibility_binding_audit.py`
+- `scripts/run_phase12g_preconditions.sh`
 - `IMPLEMENTATION_STATUS.md`
 
 ### Validation / factual exact-head evidence
-- Final implementation head: `c1ca2e3566851fd61df594fb1e7e3771b12140e6`.
-- Notification-safe automatic run: **33020144498 — completed / success** for exact head `c1ca2e3566851fd61df594fb1e7e3771b12140e6`.
-- Committed evidence commit: `49d45fc4b622a10b25a17616032b6b375dcd5c03`.
-- Committed run metadata explicitly names `head_sha=c1ca2e3566851fd61df594fb1e7e3771b12140e6`.
+- Final implementation head: `8dd91163dbfec718cef494aad3d0ec6c8bdd99b1`.
+- Notification-safe automatic run: **33023894925 — completed / success** for exact head `8dd91163dbfec718cef494aad3d0ec6c8bdd99b1`.
+- Committed evidence commit: `06b5b1394889843e2a65bdf0f81378c820b40f6b`.
+- Committed run metadata explicitly names `head_sha=8dd91163dbfec718cef494aad3d0ec6c8bdd99b1`.
 - Aggregate result: **PASS** (`runtime_rc=0`, `phase12g_instrumentation_rc=0`, `ci_policy_rc=0`, `bootstrap_preflight_rc=0`, `phase12a_contract_rc=0`, `fetch_godot_rc=0`).
-- Field-kit ingest audit: **PASS** — `receipt-rebound gate relabels fail at immutable packet routing`; source/build/receipt validation remains dry-run-isolated; production append still rejects noncanonical destinations; ordinary transport tamper still fails closed.
+- Semantic-eligibility binding audit: **PASS** — `a finalized non-naive E2 row cannot be rebound to naive=true by recomputing only the completed-file receipt digest; canonical packet restores cleanly`.
 - Existing real-Godot baseline, all prior Phase-12G preconditions/integrity audits, live evidence harness, and E7 evidence remained green in the same exact-head run.
 - No empirical evidence file or empirical control decision was appended by this increment.
 
@@ -56,7 +58,7 @@ Repository: `Mikayilzade/false-map-department`
 - E8 still has no genuine representative five-role media/respondent evidence.
 - T8-44 still has no actual Deck-class reference-hardware evidence; D38/D39 remain the canonically validated representative target class.
 - E12 remains intentionally near-release.
-- Synthetic fixtures, audits, hashes, readiness output, receipts, routing guards and hosted-run timing remain acquisition/integrity metadata, not empirical outcomes.
+- Synthetic fixtures, audits, hashes, readiness output, receipts and routing/eligibility guards remain acquisition/integrity metadata, not empirical outcomes.
 
 ### Failures / blockers
 - **No user-action blocker.**
@@ -66,18 +68,15 @@ Repository: `Mikayilzade/false-map-department`
 
 ### Canonical / empirical-gate impact
 - **No canonical contradiction discovered.**
-- This increment closes the tested finalized human field-kit gate-ID/filename routing relabel path before staging/collector use.
-- It does not alter what counts as empirical evidence, any gate threshold, gate count, gameplay/content/commercial scope, or current disposition.
+- This increment closes the tested finalized human receipt-vs-row semantic qualification rebinding path for `naive`, mature rules-known state, E3 rule knowledge and E6 debug-log exclusion.
+- It does not prove the truth of those declarations and does not alter what counts as empirical evidence, any gate threshold, gate count, gameplay/content/commercial scope, or current disposition.
 
 ## NEXT ACTION
 Continue **12G real evidence acquisition/enabling only**; never fabricate missing outcomes.
 
-1. Treat source/build/package-byte binding, dry-run packaged-byte readiness, E8 respondent-slot identity, human returned-packet identity, T8 post-capture identity/attestation, T8 representative late-game Stability target validation, human/E8/T8 canonical append destination, canonical qualitative-disposition/sample-adequacy control-file ownership, participant-qualification transport, canonical acquisition-channel selection, and **human finalized gate-ID/filename routing ownership** as closed/regression-covered unless a new concrete flaw is found.
-2. Continue the remaining gate-specific trust-boundary audit for a **genuinely distinct** caller-controlled value that can change packet/asset identity, disposition consumption, or semantic eligibility before readiness/append. Next prioritize:
-   - **semantic eligibility fields trusted after packet finalization but before gate evaluation**, e.g. `naive`, `packet_completed`, `rule_knowledge_confirmed`, E8 respondent role/asset membership, or T8 reference disposition/attestation; test for a concrete mutation/rebinding path rather than adding redundant hashes;
-   - any remaining disposition **gate mapping** path distinct from the closed evidence/control-file redirect and human gate-route path;
-   - central collector behavior only where a gate-specific finalized ingest can still reach it with caller-controlled semantic meaning after its packet-specific verification.
-3. Prefer one concrete bypass test + minimum shared guard. Do not add redundant hashes or security theater.
+1. Treat source/build/package-byte binding, dry-run packaged-byte readiness, E8 respondent-slot identity, human returned-packet identity, T8 post-capture identity/attestation, T8 representative late-game Stability target validation, human/E8/T8 canonical append destination, canonical qualitative-disposition/sample-adequacy control-file ownership, participant-qualification transport, canonical acquisition-channel selection, human finalized gate-ID/filename routing ownership, and **human finalized receipt↔row semantic-eligibility binding** as closed/regression-covered unless a genuinely new flaw is found.
+2. Continue the remaining gate-specific trust-boundary audit for a **distinct caller-controlled semantic value** that can change eligibility/disposition after packet finalization. Next prioritize E2 `packet_completed`: determine whether a finalized `false -> true` mutation plus completed-file receipt digest rebound can alter E2 eligibility/counting despite the new qualification guard. Test the concrete path before changing code; if exploitable, bind the minimum authoritative finalized semantic source without pretending software proves the human observation.
+3. If E2 completion semantics are already harmless or independently derived, move to any remaining disposition **gate-mapping** path distinct from the closed evidence/control-file redirect, human gate-route and participant-qualification paths. Do not add redundant hashes or security theater.
 4. Keep all automated/synthetic readiness work explicitly non-evidence and keep empirical counts unchanged unless genuine observations are appended through canonical paths.
 5. When actual builds and real participants are available, acquire genuine first-session **E1 + E2 + E11** and mature-human **E3-E6 + E9-E10** observations through the source-pinned, byte-bound, packet-identity-, qualification-, channel-, routing-, readiness-, canonical-destination-, and canonical-control-checked field-kit lifecycle.
 6. For **E8**, use `phase12g_marketing_acquisition_prepare.py` with genuine representative five-role media and the exact production package/artifact record before real respondents.
