@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 RECORDER = ROOT / "scripts/phase12g_qualitative_disposition.py"
 INTEGRITY = ROOT / "scripts/phase12g_qualitative_disposition_integrity.py"
 HARNESS = ROOT / "scripts/phase12g_evidence_harness.py"
+DASHBOARD = ROOT / "scripts/phase12g_gate_dashboard.py"
 
 
 def run(args: list[str], *, expect_ok: bool = True) -> subprocess.CompletedProcess[str]:
@@ -49,6 +50,7 @@ def main() -> None:
         root = Path(temp)
         evidence = root / "E8.jsonl"
         dispositions = root / "dispositions.json"
+        dashboard = root / "dashboard.md"
         write_e8(evidence, "SYNTHETIC_R1", False)
 
         if harness_status(root, "E8") != "PENDING":
@@ -68,6 +70,9 @@ def main() -> None:
         run([sys.executable, str(INTEGRITY), "--evidence-root", str(root), "--dispositions", str(dispositions)])
         if harness_status(root, "E8") != "PASS":
             raise SystemExit("explicit disposition should become visible to the harness only after rows exist")
+        run([sys.executable, str(DASHBOARD), "--evidence-root", str(root), "--output", str(dashboard)])
+        if "E8 — marketing expectation | PASS" not in dashboard.read_text(encoding="utf-8"):
+            raise SystemExit("dashboard must show the current exact-byte qualitative disposition")
 
         # Recorder is write-once by default: a changed/reconsidered interpretation must be deliberate.
         run([
@@ -86,6 +91,16 @@ def main() -> None:
         if "stale" not in (stale.stdout + stale.stderr).lower():
             raise SystemExit("post-disposition evidence mutation must fail explicitly as stale")
 
+        # The standalone operator dashboard must enforce the same exact-byte
+        # review binding, not silently render the stale PASS from the low-level
+        # harness before a deliberate re-review occurs.
+        stale_dashboard = run(
+            [sys.executable, str(DASHBOARD), "--evidence-root", str(root), "--output", str(dashboard)],
+            expect_ok=False,
+        )
+        if "stale" not in (stale_dashboard.stdout + stale_dashboard.stderr).lower():
+            raise SystemExit("dashboard must fail closed with an explicit stale-disposition error")
+
         run([
             sys.executable, str(RECORDER), "E8",
             "--status", "FAIL",
@@ -99,6 +114,9 @@ def main() -> None:
         run([sys.executable, str(INTEGRITY), "--evidence-root", str(root), "--dispositions", str(dispositions)])
         if harness_status(root, "E8") != "FAIL":
             raise SystemExit("deliberately replaced disposition must reflect the newly reviewed evidence batch")
+        run([sys.executable, str(DASHBOARD), "--evidence-root", str(root), "--output", str(dashboard)])
+        if "E8 — marketing expectation | FAIL" not in dashboard.read_text(encoding="utf-8"):
+            raise SystemExit("dashboard must recover only after current evidence is deliberately re-reviewed")
 
         # Threshold gates may never be manually dispositioned through this path.
         e7 = root / "E7.jsonl"
@@ -113,7 +131,7 @@ def main() -> None:
             "--output", str(dispositions),
         ], expect_ok=False)
 
-    print("Phase 12G qualitative disposition audit: PASS (explicit review + exact evidence digest/row binding + stale rejection + deliberate replacement + threshold-gate guard)")
+    print("Phase 12G qualitative disposition audit: PASS (explicit review + exact evidence digest/row binding + stale integrity/dashboard rejection + deliberate replacement + threshold-gate guard)")
 
 
 if __name__ == "__main__":
