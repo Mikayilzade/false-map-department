@@ -146,8 +146,6 @@ def verify_sealed(packet_path: Path, packet: dict | None = None) -> dict:
     if packet.get("acquisition_build_bytes_required") is not True:
         raise ValueError("T8-44 profile packet is NOT APPEND READY: packaged build bytes not required")
     target = validate_packet_target(packet)
-    if canonical_json(packet.get("reference_target_contract")) != canonical_json(target):
-        raise ValueError("T8-44 sealed packet representative target contract mismatch")
     row = packet.get("profile_row", {})
     if not isinstance(row, dict):
         raise ValueError("T8-44 profile_row missing/malformed")
@@ -156,7 +154,12 @@ def verify_sealed(packet_path: Path, packet: dict | None = None) -> dict:
     verified = verify_prepared(root, source_head=source_head, build_id=build_id)
     if canonical_json(packet.get("acquisition_build_binding")) != canonical_json(verified):
         raise ValueError("T8-44 sealed packet packaged build binding mismatch")
+    # Preserve the existing first-line tamper signal: any post-capture mutation
+    # of hardware/build/dossier/raw samples must fail the capture binding before
+    # the independently recomputed target contract is compared.
     verify_capture_binding(packet)
+    if canonical_json(packet.get("reference_target_contract")) != canonical_json(target):
+        raise ValueError("T8-44 sealed packet representative target contract mismatch")
     return verified
 
 
