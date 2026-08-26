@@ -8,8 +8,12 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-KIT = ROOT / "scripts/phase12g_human_field_kit.py"
-INGEST = ROOT / "scripts/phase12g_field_kit_ingest.py"
+SCRIPT_DIR = ROOT / "scripts"
+sys.path.insert(0, str(SCRIPT_DIR))
+from phase12g_audit_build_fixture import kit_build_args  # noqa: E402
+
+KIT = SCRIPT_DIR / "phase12g_human_field_kit.py"
+INGEST = SCRIPT_DIR / "phase12g_field_kit_ingest.py"
 
 
 def fail(message: str) -> None:
@@ -50,16 +54,20 @@ def main() -> None:
         root = Path(temp)
         kit_root = root / "kit"
         evidence_root = root / "evidence"
+        build_args = kit_build_args(root / "source-builds", source_head=source_head, demo_build_id="ingest-audit-demo", production_build_id="ingest-audit-production")
         run([
             sys.executable, str(KIT), "prepare",
             "--source-head", source_head,
             "--demo-build-id", "ingest-audit-demo",
             "--production-build-id", "ingest-audit-production",
+            *build_args,
             "--first-count", "1",
             "--mature-count", "1",
             "--output-dir", str(kit_root),
         ])
         manifest = load(kit_root / "field-kit-manifest.json")
+        if manifest.get("acquisition_build_bytes_required") is not True:
+            fail("prepared ingest fixture must bind exact acquisition package bytes")
         batch_path = kit_root / str(manifest["first_session"]["batch_manifest"])
         batch = load(batch_path)
         packet = batch["packets"][0]
@@ -85,26 +93,18 @@ def main() -> None:
             "events": [{"event_type": "demo_completed", "elapsed_seconds": 900.0}],
         })
         finalizer = kit_root / "FIELD-KIT-FINALIZE.py"
-        finalized = run([
-            sys.executable, str(finalizer), "--kit-dir", str(kit_root),
-            "--first-session", str(packet["session_id"]),
-        ], cwd=kit_root)
+        finalized = run([sys.executable, str(finalizer), "--kit-dir", str(kit_root), "--first-session", str(packet["session_id"])], cwd=kit_root)
         finalized_result = json.loads(finalized.stdout)
-        if finalized_result.get("completed_file_digests_bound") is not True:
-            fail("audit setup must finalize observed rows with receipt bindings")
+        if finalized_result.get("completed_file_digests_bound") is not True or finalized_result.get("acquisition_build_bytes_bound") is not True:
+            fail("audit setup must finalize observed rows against exact acquisition package bytes")
 
-        dry = run([
-            sys.executable, str(INGEST),
-            "--kit-dir", str(kit_root),
-            "--expected-source-head", source_head,
-            "--evidence-root", str(evidence_root),
-        ])
+        dry = run([sys.executable, str(INGEST), "--kit-dir", str(kit_root), "--expected-source-head", source_head, "--evidence-root", str(evidence_root)])
         dry_result = json.loads(dry.stdout)
         if dry_result.get("status") != "VALIDATED_DRY_RUN" or dry_result.get("append_requested") is not False:
             fail("default ingest must be a validated dry run")
         if dry_result.get("repository_checkout_head") != source_head:
             fail("dry run must expose and bind the actual repository checkout HEAD")
-        if dry_result.get("completed_gate_ids") != ["E1", "E11", "E2"] and sorted(dry_result.get("completed_gate_ids", [])) != ["E1", "E11", "E2"]:
+        if sorted(dry_result.get("completed_gate_ids", [])) != ["E1", "E11", "E2"]:
             fail("dry run must discover finalized E1/E2/E11 rows")
         if dry_result.get("finalization_receipts_verified") is not True or int(dry_result.get("completed_file_digests_verified", 0)) != 3:
             fail("dry run must verify receipt bindings for all finalized files")
@@ -112,23 +112,12 @@ def main() -> None:
             fail("dry run must not append evidence")
 
         wrong_source = "fedcba9876543210fedcba9876543210fedcba98"
-        wrong = run([
-            sys.executable, str(INGEST),
-            "--kit-dir", str(kit_root),
-            "--expected-source-head", wrong_source,
-            "--evidence-root", str(evidence_root),
-        ], ok=False)
+        wrong = run([sys.executable, str(INGEST), "--kit-dir", str(kit_root), "--expected-source-head", wrong_source, "--evidence-root", str(evidence_root)], ok=False)
         wrong_text = wrong.stdout + wrong.stderr
         if "repository checkout source-head mismatch" not in wrong_text or source_head not in wrong_text:
             fail("caller-supplied source SHA must not bypass actual repository checkout identity")
 
-        appended = run([
-            sys.executable, str(INGEST),
-            "--kit-dir", str(kit_root),
-            "--expected-source-head", source_head,
-            "--evidence-root", str(evidence_root),
-            "--append",
-        ])
+        appended = run([sys.executable, str(INGEST), "--kit-dir", str(kit_root), "--expected-source-head", source_head, "--evidence-root", str(evidence_root), "--append"])
         append_result = json.loads(appended.stdout)
         if append_result.get("status") != "APPENDED" or append_result.get("human_outcomes_inferred") is not False:
             fail("explicit append must preserve no-inference boundary")
@@ -140,13 +129,7 @@ def main() -> None:
                 fail(f"explicit append must write exactly one validated {gate_id} row")
 
         before = {gate: (evidence_root / f"{gate}.jsonl").read_bytes() for gate in ("E1", "E2", "E11")}
-        repeat = run([
-            sys.executable, str(INGEST),
-            "--kit-dir", str(kit_root),
-            "--expected-source-head", source_head,
-            "--evidence-root", str(evidence_root),
-            "--append",
-        ])
+        repeat = run([sys.executable, str(INGEST), "--kit-dir", str(kit_root), "--expected-source-head", source_head, "--evidence-root", str(evidence_root), "--append"])
         repeat_result = json.loads(repeat.stdout)
         if any(int(item.get("new_rows", -1)) != 0 for item in repeat_result.get("results", [])):
             fail("repeat append must be idempotent at row level")
@@ -157,20 +140,14 @@ def main() -> None:
         completed_e1 = session_dir / "completed-E1.jsonl"
         original = completed_e1.read_bytes()
         completed_e1.write_bytes(original + b"\n")
-        transport_tamper = run([
-            sys.executable, str(INGEST),
-            "--kit-dir", str(kit_root),
-            "--expected-source-head", source_head,
-            "--evidence-root", str(evidence_root),
-            "--append",
-        ], ok=False)
+        transport_tamper = run([sys.executable, str(INGEST), "--kit-dir", str(kit_root), "--expected-source-head", source_head, "--evidence-root", str(evidence_root), "--append"], ok=False)
         if "changed after offline finalization" not in (transport_tamper.stdout + transport_tamper.stderr):
             fail("post-finalization transport mutation must reject before collector append")
         for gate, content in before.items():
             if (evidence_root / f"{gate}.jsonl").read_bytes() != content:
                 fail("receipt rejection must preserve existing evidence bytes exactly")
 
-    print("Phase 12G field-kit ingest audit: PASS (offline verification + finalization receipt binding + actual checkout/source pin + dry-run default + deliberate append + cross-run idempotency + post-finalization tamper rejection with byte-preserving failure)")
+    print("Phase 12G field-kit ingest audit: PASS (acquisition package byte binding + offline/finalization receipt verification + actual checkout/source pin + dry-run default + deliberate append + idempotency + tamper rejection)")
 
 
 if __name__ == "__main__":
