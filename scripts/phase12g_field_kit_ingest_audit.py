@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 import sys
@@ -46,6 +47,10 @@ def load(path: Path) -> dict:
 
 def write(path: Path, value: dict) -> None:
     path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def assert_no_evidence(root: Path) -> None:
@@ -178,7 +183,61 @@ def main() -> None:
             fail("real field-kit append must reject a caller-controlled noncanonical evidence root")
         assert_no_evidence(evidence_root)
 
+        # Attack the finalized routing boundary, not merely a stale digest. The finalization
+        # receipt is transport metadata and can itself be rewritten by a caller, so simulate
+        # a relabelled E1 row plus a recomputed receipt size/hash. The immutable packet's
+        # bundled verifier must still reject the row before repository ingest/collector use.
         completed_e1 = session_dir / "completed-E1.jsonl"
+        receipt_path = session_dir / "finalization-receipt.json"
+        original_e1 = completed_e1.read_bytes()
+        original_receipt = receipt_path.read_bytes()
+        e1_rows = [json.loads(line) for line in completed_e1.read_text(encoding="utf-8").splitlines() if line.strip()]
+        if len(e1_rows) != 1 or e1_rows[0].get("gate_id") != "E1":
+            fail("gate-routing attack fixture did not start from canonical finalized E1 row")
+        e1_rows[0]["gate_id"] = "E2"
+        completed_e1.write_text(json.dumps(e1_rows[0], sort_keys=True) + "\n", encoding="utf-8")
+        receipt = load(receipt_path)
+        rebound = False
+        for entry in receipt.get("completed_files", []):
+            if isinstance(entry, dict) and Path(str(entry.get("path", ""))).name == "completed-E1.jsonl":
+                entry["sha256"] = sha256_file(completed_e1)
+                entry["bytes"] = completed_e1.stat().st_size
+                rebound = True
+        if not rebound:
+            fail("gate-routing attack could not locate receipt-bound E1 file")
+        write(receipt_path, receipt)
+
+        rerouted = run([
+            sys.executable,
+            str(INGEST),
+            "--kit-dir",
+            str(kit_root),
+            "--expected-source-head",
+            source_head,
+            "--evidence-root",
+            str(evidence_root),
+        ], ok=False)
+        rerouted_text = (rerouted.stdout + rerouted.stderr).lower()
+        if "finalized row gate_id mismatch" not in rerouted_text or "route is e1" not in rerouted_text:
+            fail("receipt-rebound finalized E1->E2 relabel did not fail at immutable packet routing boundary")
+        assert_no_evidence(evidence_root)
+        completed_e1.write_bytes(original_e1)
+        receipt_path.write_bytes(original_receipt)
+
+        restored = run([
+            sys.executable,
+            str(INGEST),
+            "--kit-dir",
+            str(kit_root),
+            "--expected-source-head",
+            source_head,
+            "--evidence-root",
+            str(evidence_root),
+        ])
+        if json.loads(restored.stdout).get("status") != "VALIDATED_DRY_RUN":
+            fail("canonical finalized packet must validate again after routing-attack fixture restoration")
+        assert_no_evidence(evidence_root)
+
         completed_e1.write_bytes(completed_e1.read_bytes() + b"\n")
         transport_tamper = run([
             sys.executable,
@@ -195,8 +254,8 @@ def main() -> None:
         assert_no_evidence(evidence_root)
 
     print(
-        "Phase 12G field-kit ingest audit: PASS — receipt/source/build validation stays dry-run-isolated; "
-        "production append rejects noncanonical evidence destinations before mutation; transport tamper still fails closed"
+        "Phase 12G field-kit ingest audit: PASS — source/build/receipt validation stays dry-run-isolated; "
+        "receipt-rebound gate relabels fail at immutable packet routing; production append rejects noncanonical destinations; transport tamper fails closed"
     )
 
 
