@@ -1,4 +1,4 @@
-PHASE12G FIELD KIT RETURN COLLISION AUDIT FAIL: command failed: /usr/bin/python3 /home/runner/work/false-map-department/false-map-department/scripts/phase12g_field_kit_ingest.py --kit-dir /tmp/fmd-phase12g-return-collision-9kssh0k3/kit-a --expected-source-head 0123456789abcdef0123456789abcdef01234567 --evidence-root /tmp/fmd-phase12g-return-collision-9kssh0k3/evidence --append
+PHASE12G FINALIZATION RECEIPT AUDIT FAIL: command failed: /usr/bin/python3 /home/runner/work/false-map-department/false-map-department/scripts/phase12g_field_kit_ingest.py --kit-dir /tmp/fmd-phase12g-finalization-receipt-1v0zy39d/kit --expected-source-head 0123456789abcdef0123456789abcdef01234567 --evidence-root /tmp/fmd-phase12g-finalization-receipt-1v0zy39d/evidence
 
-PHASE12G FIELD KIT INGEST FAIL: repository checkout source-head mismatch: checkout 228ef8f31ce98300eae76157ab7f2953c9e74d8e, expected 0123456789abcdef0123456789abcdef01234567; checkout the exact field-kit source commit before ingest
+PHASE12G FIELD KIT INGEST FAIL: repository checkout source-head mismatch: checkout 239f5e4b5085af2da80aac18efd323d1c0682747, expected 0123456789abcdef0123456789abcdef01234567; checkout the exact field-kit source commit before ingest
 
