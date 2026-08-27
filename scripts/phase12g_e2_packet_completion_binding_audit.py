@@ -96,9 +96,8 @@ def main() -> None:
         observer = load(session_dir / "observer.json")
 
         # A genuine observer may explicitly record that the second-order packet was not
-        # completed. That makes the resulting E2 row ineligible in the numeric harness.
-        # The attack changes only the finalized row and its mutable completed-file receipt
-        # digest; it does not change the packet-local observer declaration.
+        # completed. The finalizer copies that declaration into the receipt boundary and
+        # finalized E2 row. A later row-only mutation must not redefine eligibility.
         observer.update({
             "naive": True,
             "e1_success": True,
@@ -141,12 +140,13 @@ def main() -> None:
         rows = [json.loads(line) for line in completed_e2.read_text(encoding="utf-8").splitlines() if line.strip()]
         if len(rows) != 1 or rows[0].get("packet_completed") is not False or rows[0].get("gate_id") != "E2":
             fail("E2 completion attack fixture did not begin with finalized packet_completed=false")
-        if observer.get("e2_packet_completed") is not False:
-            fail("packet-local observer declaration must remain e2_packet_completed=false")
+        receipt = load(receipt_path)
+        qualification = receipt.get("participant_qualification", {})
+        if not isinstance(qualification, dict) or qualification.get("e2_packet_completed") is not False:
+            fail("finalization receipt must retain e2_packet_completed=false declaration")
 
         rows[0]["packet_completed"] = True
         completed_e2.write_text(json.dumps(rows[0], sort_keys=True) + "\n", encoding="utf-8")
-        receipt = load(receipt_path)
         rebound = False
         for entry in receipt.get("completed_files", []):
             if isinstance(entry, dict) and Path(str(entry.get("path", ""))).name == "completed-E2.jsonl":
@@ -161,8 +161,8 @@ def main() -> None:
         attacked_text = (attacked.stdout + attacked.stderr).lower()
         if "finalized e2 packet completion mismatch" not in attacked_text:
             fail("receipt-rebound E2 packet_completed=false->true mutation did not fail at packet-completion boundary")
-        if "observer declares e2_packet_completed=false" not in attacked_text:
-            fail("packet-completion rejection did not identify the packet-local observer declaration")
+        if "receipt declares e2_packet_completed=false" not in attacked_text:
+            fail("packet-completion rejection did not identify the finalization-time receipt declaration")
 
         completed_e2.write_bytes(original_e2)
         receipt_path.write_bytes(original_receipt)
@@ -171,7 +171,7 @@ def main() -> None:
             fail("canonical finalized packet did not verify again after attack restoration")
 
     print(
-        "Phase 12G E2 packet completion binding audit: PASS — finalized packet_completed=false cannot be rebound to true by changing only completed-E2 bytes and its receipt digest; canonical packet restores cleanly"
+        "Phase 12G E2 packet completion binding audit: PASS — finalized packet_completed=false cannot be rebound to true by changing only completed-E2 bytes and its receipt digest; finalization-time receipt declaration remains authoritative; canonical packet restores cleanly"
     )
 
 
