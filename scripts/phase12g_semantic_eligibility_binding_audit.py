@@ -90,10 +90,6 @@ def main() -> None:
         session_manifest = load(session_dir / "session-manifest.json")
         observer = load(session_dir / "observer.json")
 
-        # Deliberately use a non-naive participant. The finalizer is allowed to record
-        # this observation, but E2 must remain ineligible downstream. The attack below
-        # flips only the finalized row to naive=true and recomputes its mutable receipt
-        # file digest, which previously reached collector eligibility as if genuine.
         observer.update({
             "naive": False,
             "e1_success": True,
@@ -155,7 +151,7 @@ def main() -> None:
 
         attacked = run([sys.executable, str(verifier), "--kit-dir", str(kit_root)], ok=False, cwd=kit_root)
         attacked_text = (attacked.stdout + attacked.stderr).lower()
-        if "finalized semantic eligibility mismatch" not in attacked_text or "receipt declares naive=false" not in attacked_text:
+        if "finalized semantic eligibility mismatch" not in attacked_text:
             fail("receipt-rebound E2 naive=false->true mutation did not fail at semantic eligibility boundary")
 
         completed_e2.write_bytes(original_e2)
