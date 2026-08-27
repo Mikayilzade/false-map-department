@@ -64,7 +64,7 @@ def require_metric_match(row: dict, field: str, expected: float) -> None:
 
 
 def validate_packet(packet: dict, expected_source_head: str, allow_audit_fixture: bool = False, packet_path: Path | None = None) -> dict:
-    expected_version = 1 if allow_audit_fixture and packet_path is None else 2
+    expected_version = 1 if allow_audit_fixture and packet_path is None else 3
     if int(packet.get("packet_version", 0)) != expected_version:
         fail(f"unsupported packet_version; expected {expected_version}")
     expected = validate_sha(expected_source_head, "expected source_head")
@@ -144,6 +144,9 @@ def validate_packet(packet: dict, expected_source_head: str, allow_audit_fixture
             binding = profile_build_binding.verify_sealed(packet_path, packet)
         except (OSError, ValueError, json.JSONDecodeError) as exc:
             fail(f"packaged build acquisition binding invalid: {exc}")
+        profile_snapshot = packet.get("hardware_profile_snapshot")
+        if not isinstance(profile_snapshot, dict) or not isinstance(profile_snapshot.get("profile"), dict):
+            fail("sealed reference packet lacks structured hardware profile snapshot")
         row = dict(row)
         row["t8_build_binding"] = {
             "binding_id": binding["binding_id"],
@@ -153,11 +156,12 @@ def validate_packet(packet: dict, expected_source_head: str, allow_audit_fixture
             "role": binding["role"],
         }
         row["t8_reference_target"] = target_contract
+        row["t8_hardware_profile"] = profile_snapshot
     return row
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Validate and deliberately ingest a source-pinned, packaged-build-bound real Deck-class T8-44 profile packet from representative late-game Stability content.")
+    parser = argparse.ArgumentParser(description="Validate and deliberately ingest a source-pinned, packaged-build-bound, structured-hardware-profile-bound real Deck-class T8-44 profile packet from representative late-game Stability content.")
     parser.add_argument("--packet", type=Path, required=True)
     parser.add_argument("--expected-source-head", required=True)
     parser.add_argument("--evidence-root", type=Path, default=ROOT / "empirical/evidence")
@@ -203,6 +207,7 @@ def main() -> None:
 
     binding = row["t8_build_binding"]
     target = row["t8_reference_target"]
+    hardware = row["t8_hardware_profile"]
     print(json.dumps({
         "status": "APPENDED" if args.append else "VALIDATED_DRY_RUN",
         "source_head": expected,
@@ -214,9 +219,12 @@ def main() -> None:
         "build_binding_id": binding["binding_id"],
         "artifact_sha256": binding["artifact_sha256"],
         "artifact_bytes": binding["artifact_bytes"],
+        "hardware_profile_sha256": hardware["profile_sha256"],
         "reference_target_contract": target,
         "raw_summary_consistency_verified": True,
         "acquisition_build_bytes_verified": True,
+        "structured_hardware_profile_verified": True,
+        "physical_hardware_truth_inferred": False,
         "representative_late_game_stability_target_verified": True,
         "provenance_persisted_in_rows": True,
         "collector": result,
