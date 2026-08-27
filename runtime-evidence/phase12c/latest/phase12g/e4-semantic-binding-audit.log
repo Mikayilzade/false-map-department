@@ -1,1 +1,0 @@
-Phase 12G E4 semantic binding audit: PASS — finalized window mapping is checked against immutable prepared packet identity; assessment/notes are frozen by a declaration-only finalization snapshot; identity and observer+row+digest rebounds are rejected, ingest appends zero evidence, canonical packet restores cleanly

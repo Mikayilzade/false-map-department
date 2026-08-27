@@ -1,1 +1,0 @@
-Phase 12G E8 asset-version collision audit: PASS — one asset_version is bound to one exact finalized packet; multiple respondents from that packet remain valid and conflicting later packet reuse is rejected before append

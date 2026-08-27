@@ -1,1 +1,0 @@
-Phase 12G semantic eligibility binding audit: PASS — a finalized non-naive E2 row cannot be rebound to naive=true by recomputing only the completed-file receipt digest; canonical packet restores cleanly
