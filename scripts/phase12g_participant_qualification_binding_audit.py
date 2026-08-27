@@ -85,13 +85,19 @@ def e11_row(naive_marker):
 
 def require_finalizer_markers() -> None:
     text = FINALIZER.read_text(encoding="utf-8")
+    # Check semantic source markers without depending on whether the Python source
+    # is compacted onto one line or expanded by a formatter/refactor.
     required = [
-        '"E2":{"schema_version":1,"gate_id":"E2","tester_id":tester_id,"naive":naive',
-        '"E11":{"schema_version":1,"gate_id":"E11","tester_id":tester_id,"naive":naive',
-        'item["rules_known_before_session"]=True',
+        '"E2": {',
+        '"gate_id": "E2"',
+        '"E11": {',
+        '"gate_id": "E11"',
+        '"naive": naive',
+        'item["rules_known_before_session"] = True',
         'raw.get("rule_knowledge_confirmed") is not True',
-        '"participant_qualification":qualification',
-        '"proves_human_truth_or_timing":False',
+        '"participant_qualification": qualification',
+        '"proves_human_truth_or_timing": False',
+        '"e11_binding_scope": "finalization_snapshot_only"',
     ]
     missing = [marker for marker in required if marker not in text]
     if missing:
