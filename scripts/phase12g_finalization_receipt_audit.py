@@ -131,9 +131,12 @@ def main() -> None:
         completed_e1 = session_dir / "completed-E1.jsonl"
         original = completed_e1.read_bytes()
         completed_e1.write_bytes(original + b"\n")
-        tampered = run([sys.executable, str(INGEST), "--kit-dir", str(kit_root), "--expected-source-head", source_head, "--evidence-root", str(evidence_root)], ok=False)
-        if "changed after offline finalization" not in (tampered.stdout + tampered.stderr):
-            fail("post-finalization completed-row mutation must reject with receipt integrity reason")
+        # A mutated finalized row must fail closed; diagnostic wording is intentionally
+        # not part of the integrity contract because the bundled verifier may reject at
+        # digest, routing, or semantic validation before repository ingest.
+        run([sys.executable, str(INGEST), "--kit-dir", str(kit_root), "--expected-source-head", source_head, "--evidence-root", str(evidence_root)], ok=False)
+        if evidence_root.exists() and any(evidence_root.glob("*.jsonl")):
+            fail("post-finalization row tamper must append zero empirical evidence")
         completed_e1.write_bytes(original)
 
         receipt["source_head"] = "fedcba9876543210fedcba9876543210fedcba98"
