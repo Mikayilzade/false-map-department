@@ -48,6 +48,35 @@ def sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def canonical_sha256(payload: object) -> str:
+    text = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def e3_outcome_snapshot(rows: list[dict]) -> list[dict]:
+    """Freeze only E3 outcome semantics not already in the immutable prepared identity.
+
+    dossier_id/method/counterbalance_order are bound by the field-kit mature packet
+    identity fingerprint. The finalization receipt independently freezes the human-
+    declared completion outcome/timing so later packet+completed-row edits cannot
+    rebound a comparative result by merely refreshing completed-file digests.
+    This is a declaration snapshot and is not proof that a human outcome/timing is true.
+    """
+    snapshot: list[dict] = []
+    for index, row in enumerate(rows, start=1):
+        completion = row.get("completion_seconds")
+        completed = row.get("completed")
+        if isinstance(completion, bool) or not isinstance(completion, (int, float)) or float(completion) < 0:
+            fail(f"E3 row {index}: completion_seconds must be numeric >= 0")
+        if not isinstance(completed, bool):
+            fail(f"E3 row {index}: completed must be true/false")
+        snapshot.append({
+            "completion_seconds": float(completion),
+            "completed": completed,
+        })
+    return snapshot
+
+
 def resolve_relative(root: Path, value: object, label: str) -> Path:
     raw = Path(str(value))
     if raw.is_absolute():
@@ -226,6 +255,7 @@ def finalize_mature(packet_dir: Path) -> tuple[dict, list[Path]]:
     if not isinstance(rows_by_gate, dict):
         fail("mature rows_by_gate must be an object")
     paths: list[Path] = []
+    finalized_e3_outcomes: list[dict] = []
     for gate_id in MATURE_GATES:
         rows = rows_by_gate.get(gate_id, [])
         if not isinstance(rows, list) or not rows:
@@ -246,10 +276,19 @@ def finalize_mature(packet_dir: Path) -> tuple[dict, list[Path]]:
             item = dict(raw)
             item["rules_known_before_session"] = True
             checked.append(item)
+        if gate_id == "E3":
+            finalized_e3_outcomes = e3_outcome_snapshot(checked)
         path = packet_dir / f"completed-{gate_id}.jsonl"
         write_jsonl(path, checked)
         paths.append(path)
-    return {"kind": "mature_session", "tester_id": tester_id, "rules_known_before_session_declared": True, "completed_gates": list(MATURE_GATES)}, paths
+    return {
+        "kind": "mature_session",
+        "tester_id": tester_id,
+        "rules_known_before_session_declared": True,
+        "e3_finalized_outcome_sha256": canonical_sha256(finalized_e3_outcomes),
+        "e3_finalized_row_count": len(finalized_e3_outcomes),
+        "completed_gates": list(MATURE_GATES),
+    }, paths
 
 
 def write_receipt(kit_root: Path, packet_dir: Path, manifest: dict, result: dict, completed_paths: list[Path]) -> Path:
@@ -275,7 +314,12 @@ def write_receipt(kit_root: Path, packet_dir: Path, manifest: dict, result: dict
             "e11_binding_scope": "finalization_snapshot_only",
         })
     else:
-        qualification.update({"rules_known_before_session": result.get("rules_known_before_session_declared") is True})
+        qualification.update({
+            "rules_known_before_session": result.get("rules_known_before_session_declared") is True,
+            "e3_outcome_sha256": str(result.get("e3_finalized_outcome_sha256", "")),
+            "e3_row_count": int(result.get("e3_finalized_row_count", 0)),
+            "e3_binding_scope": "finalization_snapshot_only",
+        })
 
     receipt = {
         "schema": RECEIPT_SCHEMA,
