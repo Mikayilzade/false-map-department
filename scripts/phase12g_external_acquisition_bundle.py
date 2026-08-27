@@ -11,7 +11,7 @@ from pathlib import Path, PurePosixPath
 
 ROOT = Path(__file__).resolve().parents[1]
 SHA40 = 40
-BUNDLE_SCHEMA = "fmd.phase12g.external-acquisition-bundle.v5"
+BUNDLE_SCHEMA = "fmd.phase12g.external-acquisition-bundle.v4"
 WINDOWS_FORBIDDEN_CHARS = set('<>:"|?*')
 WINDOWS_RESERVED_NAMES = {
     "CON", "PRN", "AUX", "NUL",
@@ -47,7 +47,6 @@ SOURCE_BINDINGS = {
     "EXTRACTED-SOURCE-VERIFY.py": "scripts/phase12g_extracted_source_verify.py",
     "FIELD-KIT-VERIFY.py": "scripts/phase12g_field_kit_offline_verify.py",
     "FIELD-KIT-FINALIZE.py": "scripts/phase12g_field_kit_offline_finalize.py",
-    "T8-HARDWARE-PROFILE.py": "scripts/phase12g_reference_hardware_profile.py",
     "RETURN-INGEST.md": "empirical/PHASE12G_RETURN_INGEST.md",
 }
 
@@ -111,7 +110,7 @@ def write_operator_guide(path: Path, source_head: str) -> None:
             "Do not prepare E8 until all five representative asset roles exist: store_key_art, gameplay_map_world, gameplay_consequence, late_game_linked, trailer. Use `scripts/phase12g_marketing_expectation_packet.py` only from the verified extracted source tree and with this exact source SHA; respondent fields remain blank until real respondents observe the immutable asset set.",
             "",
             "## Deck-class performance (T8-44)",
-            "Run Godot 4.7.1 on actual Deck-class reference hardware from the verified extracted source tree for this exact source commit. Before capture, create a structured operator-observed hardware profile with `python3 T8-HARDWARE-PROFILE.py template --hardware-id <PSEUDONYMOUS_HW_ID> --output <HARDWARE_PROFILE.json>`, replace all placeholder values with observed facts, and validate it. Run `tests/phase12g_reference_profile_runner.gd` with the same hardware ID, `FMD_T8_HARDWARE_PROFILE_PATH=<HARDWARE_PROFILE.json>`, `FMD_T8_DISPOSITION=reference_run` and `FMD_T8_REFERENCE_ATTESTATION=actual_deck_class_reference`. Then follow `RETURN-INGEST.md` to bind exact production package bytes, seal, dry-run ingest and explicitly append only genuine evidence. The structured profile prevents silent post-capture relabeling but is not software proof of physical hardware. Hosted CI and diagnostic timings are non-evidence.",
+            "Run Godot 4.7.1 on actual Deck-class reference hardware from the verified extracted source tree for this exact source commit. Before capture, create a structured operator-observed hardware profile from the extracted source with `python3 scripts/phase12g_reference_hardware_profile.py template --hardware-id <PSEUDONYMOUS_HW_ID> --output <HARDWARE_PROFILE.json>`, replace all placeholder values with observed facts, and validate it. Run `tests/phase12g_reference_profile_runner.gd` with the same hardware ID, `FMD_T8_HARDWARE_PROFILE_PATH=<HARDWARE_PROFILE.json>`, `FMD_T8_DISPOSITION=reference_run` and `FMD_T8_REFERENCE_ATTESTATION=actual_deck_class_reference`. Then follow `RETURN-INGEST.md` to bind exact production package bytes, seal, dry-run ingest and explicitly append only genuine evidence. The structured profile prevents silent post-capture relabeling but is not software proof of physical hardware. Hosted CI and diagnostic timings are non-evidence.",
             "",
             "## Return / ingest boundary",
             "Read `RETURN-INGEST.md`. It is copied byte-for-byte from the exact source archive and verified before use. All ingest tools default to dry-run. Verify exact source equality first, then use explicit append only for genuine completed observations. Run the evidence harness/dashboard after deliberate append. Nothing in this bundle marks a gate PASS or FAIL by itself.",
