@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 from pathlib import Path
@@ -88,3 +89,49 @@ def verify_snapshot(value: dict[str, Any], *, expected_hardware_id: str = "", re
     if canonical_json(value) != canonical_json(expected):
         raise ValueError("T8-44 hardware profile snapshot mismatch")
     return expected
+
+
+def reference_template(hardware_id: str) -> dict[str, Any]:
+    hardware_id = hardware_id.strip()
+    if not hardware_id:
+        raise ValueError("hardware_id must be non-empty")
+    return {
+        "schema": SCHEMA,
+        "hardware_id": hardware_id,
+        "hardware_class": REFERENCE_CLASS,
+        "device_model": "FILL_ACTUAL_DEVICE_MODEL",
+        "processor_or_apu": "FILL_ACTUAL_PROCESSOR_OR_APU",
+        "memory_gib": 0,
+        "os_name": "FILL_ACTUAL_OS_NAME",
+        "os_version": "FILL_ACTUAL_OS_VERSION",
+        "godot_version": "4.7.1.stable",
+        "operator_attestation": REFERENCE_ATTESTATION,
+    }
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Create or validate a structured T8-44 Deck-class reference-hardware profile. The profile is operator-observed acquisition metadata, not software proof of physical hardware.")
+    sub = parser.add_subparsers(dest="command", required=True)
+    template = sub.add_parser("template")
+    template.add_argument("--hardware-id", required=True)
+    template.add_argument("--output", type=Path, required=True)
+    check = sub.add_parser("validate")
+    check.add_argument("--profile", type=Path, required=True)
+    check.add_argument("--hardware-id", default="")
+    args = parser.parse_args()
+    if args.command == "template":
+        if args.output.exists():
+            raise SystemExit("refusing to overwrite existing hardware profile")
+        payload = reference_template(args.hardware_id)
+        args.output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        print(json.dumps({"status": "TEMPLATE_WRITTEN", "output": str(args.output), "requires_actual_values_before_reference_run": True}, sort_keys=True))
+        return
+    try:
+        result = snapshot(load(args.profile), expected_hardware_id=args.hardware_id, reference_required=True)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        raise SystemExit(str(exc)) from exc
+    print(json.dumps({"status": "VALID", "profile_sha256": result["profile_sha256"], "proves_physical_hardware_truth": False, "requires_operator_observation": True}, sort_keys=True))
+
+
+if __name__ == "__main__":
+    main()
