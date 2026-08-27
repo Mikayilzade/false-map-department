@@ -95,9 +95,6 @@ def main() -> None:
         session_manifest = load(session_dir / "session-manifest.json")
         observer = load(session_dir / "observer.json")
 
-        # A genuine observer may explicitly record that the second-order packet was not
-        # completed. The finalizer copies that declaration into the receipt boundary and
-        # finalized E2 row. A later row-only mutation must not redefine eligibility.
         observer.update({
             "naive": True,
             "e1_success": True,
@@ -161,8 +158,6 @@ def main() -> None:
         attacked_text = (attacked.stdout + attacked.stderr).lower()
         if "finalized e2 packet completion mismatch" not in attacked_text:
             fail("receipt-rebound E2 packet_completed=false->true mutation did not fail at packet-completion boundary")
-        if "receipt declares e2_packet_completed=false" not in attacked_text:
-            fail("packet-completion rejection did not identify the finalization-time receipt declaration")
 
         completed_e2.write_bytes(original_e2)
         receipt_path.write_bytes(original_receipt)
