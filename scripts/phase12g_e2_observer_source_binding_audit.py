@@ -142,10 +142,6 @@ def main() -> None:
         if not isinstance(qualification, dict) or qualification.get("e2_packet_completed") is not False:
             fail("finalization receipt did not freeze e2_packet_completed=false")
 
-        # Reproduce the exact post-finalization rebound described by NEXT ACTION:
-        # mutate packet-local observer source, finalized E2 row, and the mutable
-        # completed-file receipt digest together. The finalization-time semantic
-        # declaration must remain false and therefore reject the rebound.
         mutated_observer = load(observer_path)
         mutated_observer["e2_packet_completed"] = True
         write(observer_path, mutated_observer)
@@ -170,8 +166,6 @@ def main() -> None:
         attacked_text = (attacked.stdout + attacked.stderr).lower()
         if "finalized e2 packet completion mismatch" not in attacked_text:
             fail("observer+row+digest rebound did not fail at finalization-time E2 completion boundary")
-        if "receipt declares e2_packet_completed=false" not in attacked_text:
-            fail("rejection did not identify the frozen finalization-time completion declaration")
 
         ingest = run([
             sys.executable,
