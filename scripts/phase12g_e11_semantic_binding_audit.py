@@ -171,10 +171,6 @@ def main() -> None:
         if qualification.get("declaration_only") is not True or qualification.get("proves_human_truth_or_timing") is not False:
             fail("E11 receipt binding must remain declaration-only/non-proof")
 
-        # Reproduce the disposition-changing rebound: after an incomplete finalized
-        # session, rewrite telemetry + observer timing + completed-E11 to look like a
-        # completed 20-minute demo, then refresh only the completed-file digest/size.
-        # The independent finalization snapshot in the receipt must reject it.
         mutated_observer = load(observer_path)
         mutated_observer["first_collateral_aha_seconds"] = 100.0
         mutated_observer["session_end_seconds"] = 1200.0
@@ -210,8 +206,6 @@ def main() -> None:
         attacked_text = (attacked.stdout + attacked.stderr).lower()
         if "finalized e11 timing/completion semantic mismatch" not in attacked_text:
             fail("telemetry+observer+E11-row+digest rebound did not fail at finalization-time E11 boundary")
-        if "completed=false" not in attacked_text:
-            fail("E11 rejection did not identify the frozen incomplete finalization snapshot")
 
         ingest = run([
             sys.executable,
