@@ -15,6 +15,7 @@ python3 scripts/phase12g_mature_session_batch_audit.py | tee "$OUT_DIR/mature-se
 python3 scripts/phase12g_human_field_kit_audit.py | tee "$OUT_DIR/human-field-kit-audit.log"
 python3 scripts/phase12g_participant_qualification_binding_audit.py | tee "$OUT_DIR/participant-qualification-binding-audit.log"
 python3 scripts/phase12g_semantic_eligibility_binding_audit.py | tee "$OUT_DIR/semantic-eligibility-binding-audit.log"
+python3 scripts/phase12g_e2_packet_completion_binding_audit.py | tee "$OUT_DIR/e2-packet-completion-binding-audit.log"
 python3 scripts/phase12g_acquisition_channel_binding_audit.py | tee "$OUT_DIR/acquisition-channel-binding-audit.log"
 python3 scripts/phase12g_artifact_readiness_verification_audit.py | tee "$OUT_DIR/artifact-readiness-verification-audit.log"
 python3 scripts/phase12g_field_kit_ingest_audit.py | tee "$OUT_DIR/field-kit-ingest-audit.log"
