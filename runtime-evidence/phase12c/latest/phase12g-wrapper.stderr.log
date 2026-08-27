@@ -1,1 +1,1 @@
-PHASE12G SEMANTIC ELIGIBILITY BINDING AUDIT FAIL: receipt-rebound E2 naive=false->true mutation did not fail at semantic eligibility boundary
+PHASE12G E2 PACKET COMPLETION BINDING AUDIT FAIL: packet-completion rejection did not identify the finalization-time receipt declaration

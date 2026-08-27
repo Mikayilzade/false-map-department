@@ -6,3 +6,4 @@ Phase 12G first-session batch audit: PASS (3 blank human packets + relocatable m
 Phase 12G mature-session batch audit: PASS (frozen selections + counterbalance + relocatable manifest paths + null human outcomes + no-evidence finalize guard)
 Phase 12G human field-kit audit: PASS (source/build/role bound to exact packaged bytes + portable offline rehash + drift/substitution rejection; no human outcome inferred)
 Phase 12G participant qualification binding audit: PASS (receipt-bound first-session naive declaration + E2 naive eligibility + mature rules-known declaration + E3 rule-knowledge guard; declarations do not prove human truth/timing)
+Phase 12G semantic eligibility binding audit: PASS — a finalized non-naive E2 row cannot be rebound to naive=true by recomputing only the completed-file receipt digest; canonical packet restores cleanly
