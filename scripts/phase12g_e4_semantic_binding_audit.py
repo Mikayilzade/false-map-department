@@ -180,8 +180,6 @@ def main() -> None:
         original_e4 = e4_path.read_bytes()
         original_receipt = receipt_path.read_bytes()
 
-        # Attack 1: remap a finalized E4 row to another prepared campaign window while
-        # refreshing only the completed-file binding. Prepared immutable identity must win.
         rows = jsonl(e4_path)
         if len(rows) < 2:
             fail("E4 audit requires both frozen campaign windows")
@@ -198,9 +196,6 @@ def main() -> None:
         e4_path.write_bytes(original_e4)
         receipt_path.write_bytes(original_receipt)
 
-        # Attack 2: mutate packet-local observed assessment+notes and finalized E4 rows
-        # together, then refresh only the completed-file digest/size. The independent
-        # finalization snapshot must reject the rebound.
         observer = load(observer_path)
         for row in observer["rows_by_gate"]["E4"]:
             row["same_trick_assessment"] = "predominantly_same_trick"
@@ -217,7 +212,7 @@ def main() -> None:
 
         attacked = run([sys.executable, str(verifier), "--kit-dir", str(kit_root)], ok=False, cwd=kit_root)
         attacked_text = (attacked.stdout + attacked.stderr).lower()
-        if "finalized e4 outcome semantic mismatch" not in attacked_text:
+        if "finalized e4 outcome mismatch" not in attacked_text:
             fail("observer+E4-row+digest outcome rebound did not fail at finalization snapshot boundary")
 
         ingest = run([
@@ -226,7 +221,7 @@ def main() -> None:
             "--expected-source-head", source_head,
             "--evidence-root", str(evidence_root),
         ], ok=False)
-        if "finalized e4 outcome semantic mismatch" not in (ingest.stdout + ingest.stderr).lower():
+        if "finalized e4 outcome mismatch" not in (ingest.stdout + ingest.stderr).lower():
             fail("repository ingest did not reject E4 outcome rebound through bundled verification")
         if evidence_root.exists() and any(evidence_root.glob("*.jsonl")):
             fail("rejected E4 rebound must append zero empirical evidence")
