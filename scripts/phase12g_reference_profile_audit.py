@@ -16,6 +16,7 @@ INGEST = SCRIPT_DIR / "phase12g_reference_profile_ingest.py"
 SOURCE = subprocess.run(["git", "rev-parse", "--verify", "HEAD"], cwd=ROOT, capture_output=True, text=True, check=True).stdout.strip().lower()
 sys.path.insert(0, str(SCRIPT_DIR))
 import phase12g_audit_build_fixture as build_fixture  # noqa: E402
+import phase12g_reference_hardware_profile as hardware_profile  # noqa: E402
 import phase12g_reference_profile_build_bind as build_binding  # noqa: E402
 
 
@@ -32,11 +33,28 @@ def load_ingest_module():
     return module
 
 
+def fixture_hardware_profile(hardware_id: str = "AUDIT-HW", reference: bool = False) -> dict:
+    return {
+        "schema": hardware_profile.SCHEMA,
+        "hardware_id": hardware_id,
+        "hardware_class": "deck_class_reference" if reference else "synthetic_audit_fixture",
+        "device_model": "AUDIT DEVICE",
+        "processor_or_apu": "AUDIT APU",
+        "memory_gib": 16,
+        "os_name": "AuditOS",
+        "os_version": "1",
+        "godot_version": "4.7.1.stable",
+        "operator_attestation": "actual_deck_class_reference" if reference else "synthetic_audit",
+    }
+
+
 def fixture_packet(disposition: str, attestation: str, build_id: str = "AUDIT-BUILD") -> dict:
+    reference = disposition == "reference_run"
     return {
         "packet_version": 1,
         "source_head": SOURCE,
         "hardware_attestation": attestation,
+        "hardware_profile": fixture_hardware_profile(reference=reference),
         "profiling_disposition": disposition,
         "profile_row": {
             "schema_version": 1,
@@ -77,6 +95,7 @@ def main() -> None:
         "ProductionPlaytestController", "ReferenceHardwareProfiler", 'dossier_id = "D39"',
         "Time.get_ticks_usec()", 'disposition == "reference_run"',
         'attestation != "actual_deck_class_reference"', '"evidence_appended": false',
+        "FMD_T8_HARDWARE_PROFILE_PATH", "deck_class_reference", "operator_attestation",
     ]:
         require(marker in runner, f"runner missing contract marker: {marker}")
 
@@ -85,19 +104,17 @@ def main() -> None:
         'REFERENCE_ATTESTATION = "actual_deck_class_reference"',
         "phase12g_reference_profile_build_bind", "verify_sealed", "packet_path=packet_path",
         "raw_summary_consistency_verified", "acquisition_build_bytes_verified", "gate_disposition_inferred",
+        "structured_hardware_profile_verified", "physical_hardware_truth_inferred",
     ]:
-        require(marker in ingest_text, f"ingest missing byte-bound contract marker: {marker}")
+        require(marker in ingest_text, f"ingest missing byte/profile-bound contract marker: {marker}")
 
     binding_text = (SCRIPT_DIR / "phase12g_reference_profile_build_bind.py").read_text(encoding="utf-8")
     for marker in [
-        "reference_capture_binding",
-        "hardware_attestation",
-        "hardware_id",
-        "raw_samples_us",
-        "acquisition_build_binding",
-        "verify_capture_binding",
+        "reference_capture_binding", "hardware_attestation", "hardware_id", "raw_samples_us",
+        "acquisition_build_binding", "verify_capture_binding", "hardware_profile_snapshot",
+        "hardware_profile_sha256",
     ]:
-        require(marker in binding_text, f"T8 seal missing capture identity/attestation binding marker: {marker}")
+        require(marker in binding_text, f"T8 seal missing capture identity/attestation/profile binding marker: {marker}")
 
     module = load_ingest_module()
     require(module.repository_checkout_head() == SOURCE, "ingest must resolve actual test checkout HEAD")
@@ -130,21 +147,29 @@ def main() -> None:
         sealed = build_binding.seal(packet_path)
         require(sealed["binding_id"] == snapshot["binding_id"], "T8 seal must retain binding frozen before acquisition")
         sealed_packet = json.loads(packet_path.read_text(encoding="utf-8"))
+        require(int(sealed_packet.get("packet_version", 0)) == 3, "T8 sealed packet must use hardware-profile-bound packet v3")
         require(isinstance(sealed_packet.get("reference_capture_binding"), dict), "T8 seal must persist reference capture binding")
+        require(isinstance(sealed_packet.get("hardware_profile_snapshot"), dict), "T8 seal must persist structured hardware profile snapshot")
+        require(sealed_packet["hardware_profile_snapshot"].get("proves_physical_hardware_truth") is False, "hardware profile must explicitly remain operator attestation, not software proof")
         sealed_row = module.validate_packet(sealed_packet, SOURCE, allow_audit_fixture=True, packet_path=packet_path)
         require(sealed_row["t8_build_binding"]["artifact_sha256"] == snapshot["artifact_sha256"], "T8 validated row must carry acquisition-time package digest")
+        require(sealed_row["t8_hardware_profile"]["profile"]["hardware_id"] == "AUDIT-HW", "T8 validated row must persist structured hardware profile attribution")
 
         tampered_attestation = copy.deepcopy(sealed_packet)
         tampered_attestation["hardware_attestation"] = "swapped_after_capture"
-        expect_module_rejection(module, tampered_attestation, "reference capture identity/attestation binding mismatch", packet_path)
+        expect_module_rejection(module, tampered_attestation, "identity/attestation/hardware-profile binding mismatch", packet_path)
 
         tampered_hardware = copy.deepcopy(sealed_packet)
         tampered_hardware["profile_row"]["hardware_id"] = "SWAPPED-HW"
-        expect_module_rejection(module, tampered_hardware, "reference capture identity/attestation binding mismatch", packet_path)
+        expect_module_rejection(module, tampered_hardware, "hardware profile hardware_id mismatch", packet_path)
+
+        tampered_profile = copy.deepcopy(sealed_packet)
+        tampered_profile["hardware_profile_snapshot"]["profile"]["device_model"] = "SWAPPED DEVICE"
+        expect_module_rejection(module, tampered_profile, "hardware profile snapshot mismatch", packet_path)
 
         tampered_dossier = copy.deepcopy(sealed_packet)
         tampered_dossier["profile_row"]["dossier_id"] = "D38"
-        expect_module_rejection(module, tampered_dossier, "reference capture identity/attestation binding mismatch", packet_path)
+        expect_module_rejection(module, tampered_dossier, "identity/attestation/hardware-profile binding mismatch", packet_path)
 
         frozen = packet_root / snapshot["packet_artifact_path"]
         frozen.write_bytes(frozen.read_bytes() + b"SUBSTITUTED-AFTER-SAMPLES")
@@ -173,7 +198,15 @@ def main() -> None:
         else:
             require(False, "T8 accepted demo package as production reference package")
 
-    print("Phase 12G T8-44 acquisition audit: PASS (actual checkout/source + raw-sample integrity + package bytes frozen before sample packet + sealed hardware identity/attestation capture binding + post-capture identity/attestation/dossier substitution rejection + post-session package substitution/wrong-role/unsealed rejection; audit data never touched repository evidence)")
+    # Real-reference profile validation rejects empty/self-inconsistent claims before any evidence path.
+    try:
+        hardware_profile.snapshot(fixture_hardware_profile(reference=False), expected_hardware_id="AUDIT-HW", reference_required=True)
+    except ValueError as exc:
+        require("hardware_class" in str(exc) or "attestation" in str(exc), "non-reference hardware profile rejection must be explicit")
+    else:
+        require(False, "synthetic/non-reference hardware profile was accepted as actual Deck-class reference")
+
+    print("Phase 12G T8-44 acquisition audit: PASS (actual checkout/source + raw-sample integrity + package bytes frozen before sample packet + structured hardware profile and attestation bound into sealed capture + post-capture hardware/profile/dossier substitution rejection + post-session package substitution/wrong-role/unsealed rejection; software explicitly does not infer physical hardware truth; audit data never touched repository evidence)")
 
 
 if __name__ == "__main__":
