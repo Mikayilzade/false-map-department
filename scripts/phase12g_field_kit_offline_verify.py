@@ -117,6 +117,13 @@ def verify_build_binding(root: Path, snapshot: object, source_head: str, role: s
     return snapshot
 
 
+def _finalized_number(qualification: dict, key: str, minimum: float, receipt_path: Path) -> float:
+    value = qualification.get(key)
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or float(value) < minimum:
+        fail(f"{receipt_path}: first-session finalization must declare {key}>={minimum}")
+    return float(value)
+
+
 def verify_finalized_semantic_eligibility(
     packet_dir: Path,
     receipt_path: Path,
@@ -126,13 +133,14 @@ def verify_finalized_semantic_eligibility(
 ) -> None:
     """Keep finalized disposition-changing fields attached to finalization-time declarations.
 
-    The finalization receipt is the packet-local declaration boundary. For first-session packets,
-    the pinned finalizer copies naive eligibility, E1 success/timing, and E2 packet completion there
-    at finalization time. The verifier therefore never trusts a later observer.json edit to redefine
-    those finalized semantics merely because a caller also rewrites completed-file digests.
+    The finalization receipt is the packet-local declaration/snapshot boundary. For first-session
+    packets, the pinned finalizer copies naive eligibility, E1 success/timing, E2 packet completion,
+    and E11 timing/completion semantics there at finalization time. The verifier therefore never
+    trusts a later observer.json/telemetry edit to redefine those finalized rows merely because a
+    caller also rewrites completed-file digests.
 
-    These checks do not prove human naivety, comprehension, completion, or timing. They only prevent
-    contradictory post-finalization semantic rebinding inside a returned packet.
+    These checks do not prove human naivety, comprehension, a genuine aha, completion, or timing.
+    They only prevent contradictory post-finalization semantic rebinding inside a returned packet.
     """
     qualification = receipt.get("participant_qualification")
     if not isinstance(qualification, dict):
@@ -147,12 +155,25 @@ def verify_finalized_semantic_eligibility(
         declared_e1_success = qualification.get("e1_success")
         if not isinstance(declared_e1_success, bool):
             fail(f"{receipt_path}: first-session finalization must declare e1_success=true/false")
-        declared_e1_time = qualification.get("e1_understood_at_seconds")
-        if isinstance(declared_e1_time, bool) or not isinstance(declared_e1_time, (int, float)) or float(declared_e1_time) < 0:
-            fail(f"{receipt_path}: first-session finalization must declare e1_understood_at_seconds>=0")
+        declared_e1_time = _finalized_number(qualification, "e1_understood_at_seconds", 0.0, receipt_path)
         declared_packet_completed = qualification.get("e2_packet_completed")
         if not isinstance(declared_packet_completed, bool):
             fail(f"{receipt_path}: first-session finalization must declare e2_packet_completed=true/false")
+
+        declared_e11_start = _finalized_number(qualification, "e11_start_timestamp", 0.0, receipt_path)
+        declared_e11_aha = _finalized_number(qualification, "e11_first_collateral_aha_seconds", -1.0, receipt_path)
+        declared_e11_completion = _finalized_number(qualification, "e11_completion_seconds", 0.0, receipt_path)
+        declared_e11_completed = qualification.get("e11_completed")
+        if not isinstance(declared_e11_completed, bool):
+            fail(f"{receipt_path}: first-session finalization must declare e11_completed=true/false")
+        declared_e11_source = str(qualification.get("e11_completion_source", ""))
+        if declared_e11_source not in {"telemetry_demo_completed", "observer_session_end"}:
+            fail(f"{receipt_path}: first-session finalization has invalid e11_completion_source")
+        if declared_e11_completed != (declared_e11_source == "telemetry_demo_completed"):
+            fail(f"{receipt_path}: E11 completion source contradicts finalized completed flag")
+        if qualification.get("e11_binding_scope") != "finalization_snapshot_only":
+            fail(f"{receipt_path}: E11 finalization snapshot boundary marker missing")
+
         for gate_id in expected_gates:
             path = packet_dir / f"completed-{gate_id}.jsonl"
             for row_index, row in enumerate(load_jsonl(path), start=1):
@@ -171,10 +192,10 @@ def verify_finalized_semantic_eligibility(
                     row_time = row.get("understood_within_seconds")
                     if isinstance(row_time, bool) or not isinstance(row_time, (int, float)) or float(row_time) < 0:
                         fail(f"{path}:{row_index}: E1 understood_within_seconds must remain numeric >=0")
-                    if row_success is not declared_e1_success or float(row_time) != float(declared_e1_time):
+                    if row_success is not declared_e1_success or float(row_time) != declared_e1_time:
                         fail(
                             f"{path}:{row_index}: finalized E1 comprehension semantic mismatch; "
-                            f"receipt declares success={declared_e1_success}, understood_at_seconds={float(declared_e1_time)}, "
+                            f"receipt declares success={declared_e1_success}, understood_at_seconds={declared_e1_time}, "
                             f"row claims success={row_success}, understood_within_seconds={float(row_time)}"
                         )
                 if gate_id == "E2":
@@ -186,6 +207,31 @@ def verify_finalized_semantic_eligibility(
                             f"{path}:{row_index}: finalized E2 packet completion mismatch; "
                             f"receipt declares e2_packet_completed={declared_packet_completed}, "
                             f"row claims packet_completed={row_packet_completed}"
+                        )
+                if gate_id == "E11":
+                    row_start = row.get("start_timestamp")
+                    row_aha = row.get("first_collateral_aha_seconds")
+                    row_completion = row.get("completion_seconds")
+                    row_completed = row.get("completed")
+                    numeric_values = [row_start, row_aha, row_completion]
+                    if any(isinstance(value, bool) or not isinstance(value, (int, float)) for value in numeric_values):
+                        fail(f"{path}:{row_index}: E11 finalized timing fields must remain numeric")
+                    if float(row_start) < 0 or float(row_aha) < -1 or float(row_completion) < 0:
+                        fail(f"{path}:{row_index}: E11 finalized timing fields are out of range")
+                    if not isinstance(row_completed, bool):
+                        fail(f"{path}:{row_index}: E11 completed must remain true/false")
+                    if (
+                        float(row_start) != declared_e11_start
+                        or float(row_aha) != declared_e11_aha
+                        or float(row_completion) != declared_e11_completion
+                        or row_completed is not declared_e11_completed
+                    ):
+                        fail(
+                            f"{path}:{row_index}: finalized E11 timing/completion semantic mismatch; "
+                            f"receipt declares start={declared_e11_start}, aha_seconds={declared_e11_aha}, "
+                            f"completion_seconds={declared_e11_completion}, completed={declared_e11_completed}, "
+                            f"source={declared_e11_source}; row claims start={float(row_start)}, "
+                            f"aha_seconds={float(row_aha)}, completion_seconds={float(row_completion)}, completed={row_completed}"
                         )
         return
 
@@ -267,19 +313,40 @@ def first_contract(session_dir: Path) -> dict:
     observer_path = session_dir / "observer.json"
     manifest = load_json(manifest_path)
     observer = load_json(observer_path)
-    return {"tester_id": str(manifest.get("tester_id", "")), "session_id": str(manifest.get("session_id", "")), "demo_build_id": str(manifest.get("demo_build_id", "")), "manifest_sha256": sha256_file(manifest_path), "observer_keys": sorted(observer.keys())}
+    return {
+        "tester_id": str(manifest.get("tester_id", "")),
+        "session_id": str(manifest.get("session_id", "")),
+        "demo_build_id": str(manifest.get("demo_build_id", "")),
+        "manifest_sha256": sha256_file(manifest_path),
+        "observer_keys": sorted(observer.keys()),
+    }
 
 
 def mature_contract(packet_dir: Path) -> dict:
     packet = load_json(packet_dir / "observer-packet.json")
     rows_by_gate = packet.get("rows_by_gate", {})
-    if not isinstance(rows_by_gate, dict): fail(f"{packet_dir}: rows_by_gate must be an object")
+    if not isinstance(rows_by_gate, dict):
+        fail(f"{packet_dir}: rows_by_gate must be an object")
     identities: dict[str, list[dict]] = {}
     for gate_id in ["E3", "E4", "E5", "E6", "E9", "E10"]:
         rows = rows_by_gate.get(gate_id, [])
-        if not isinstance(rows, list): fail(f"{packet_dir}: {gate_id} rows must be an array")
-        identities[gate_id] = [{key: row.get(key) for key in sorted(row) if key in {"gate_id","tester_id","dossier_id","method","counterbalance_order","window_id","dossier_ids","remix_id","source_dossier_id","agent_a","agent_b","scenario_id"}} for row in rows if isinstance(row, dict)]
-    return {"tester_id": str(packet.get("tester_id", "")), "build_id": str(packet.get("build_id", "")), "identity_fingerprint": canonical_sha256(identities), "row_counts": {gate: len(identities[gate]) for gate in identities}}
+        if not isinstance(rows, list):
+            fail(f"{packet_dir}: {gate_id} rows must be an array")
+        identities[gate_id] = [
+            {
+                key: row.get(key)
+                for key in sorted(row)
+                if key in {"gate_id", "tester_id", "dossier_id", "method", "counterbalance_order", "window_id", "dossier_ids", "remix_id", "source_dossier_id", "agent_a", "agent_b", "scenario_id"}
+            }
+            for row in rows
+            if isinstance(row, dict)
+        ]
+    return {
+        "tester_id": str(packet.get("tester_id", "")),
+        "build_id": str(packet.get("build_id", "")),
+        "identity_fingerprint": canonical_sha256(identities),
+        "row_counts": {gate: len(identities[gate]) for gate in identities},
+    }
 
 
 def verify(kit_root: Path) -> dict:
@@ -287,48 +354,94 @@ def verify(kit_root: Path) -> dict:
     manifest = load_json(kit_root / "field-kit-manifest.json")
     if int(manifest.get("field_kit_version", 0)) < 5:
         fail("field kit version does not contain acquisition-time packaged-build binding")
-    saved_hash = str(manifest.get("contract_hash", "")); clean_manifest = dict(manifest); clean_manifest.pop("contract_hash", None)
-    if saved_hash != canonical_sha256(clean_manifest): fail("field-kit manifest contract hash mismatch")
+    saved_hash = str(manifest.get("contract_hash", ""))
+    clean_manifest = dict(manifest)
+    clean_manifest.pop("contract_hash", None)
+    if saved_hash != canonical_sha256(clean_manifest):
+        fail("field-kit manifest contract hash mismatch")
     source_head = validate_source_head(manifest.get("source_head", ""))
-    if manifest.get("repository_evidence_appended") is not False or manifest.get("prepared_packets_are_not_evidence") is not True: fail("field-kit evidence boundary flags changed")
-    if manifest.get("acquisition_build_bytes_required") is not True: fail("acquisition build-byte requirement missing")
+    if manifest.get("repository_evidence_appended") is not False or manifest.get("prepared_packets_are_not_evidence") is not True:
+        fail("field-kit evidence boundary flags changed")
+    if manifest.get("acquisition_build_bytes_required") is not True:
+        fail("acquisition build-byte requirement missing")
     build_artifacts = manifest.get("build_artifacts")
-    if not isinstance(build_artifacts, dict): fail("build_artifacts contract missing")
+    if not isinstance(build_artifacts, dict):
+        fail("build_artifacts contract missing")
     demo = verify_build_binding(kit_root, build_artifacts.get("demo"), source_head, "demo", str(manifest.get("demo_build_id", "")))
     production = verify_build_binding(kit_root, build_artifacts.get("production"), source_head, "production", str(manifest.get("production_build_id", "")))
 
-    verifier = manifest.get("offline_verifier", {}); verifier_path = resolve_relative(kit_root, verifier.get("path", ""), "offline verifier path")
-    if verifier_path.resolve() != Path(__file__).resolve() or sha256_file(verifier_path) != str(verifier.get("sha256", "")): fail("offline verifier identity/hash mismatch")
-    finalizer = manifest.get("offline_finalizer", {}); finalizer_path = resolve_relative(kit_root, finalizer.get("path", ""), "offline finalizer path")
-    if not finalizer_path.exists() or sha256_file(finalizer_path) != str(finalizer.get("sha256", "")): fail("offline finalizer missing/hash mismatch")
-    if finalizer.get("requires_repository_checkout") is not False or finalizer.get("appends_repository_evidence") is not False: fail("offline finalizer boundary changed")
-    expected_gates = ["E1","E2","E3","E4","E5","E6","E9","E10","E11"]
-    if string_array(manifest.get("human_gates", []), "human_gates") != expected_gates: fail("human gate set changed")
+    verifier = manifest.get("offline_verifier", {})
+    verifier_path = resolve_relative(kit_root, verifier.get("path", ""), "offline verifier path")
+    if verifier_path.resolve() != Path(__file__).resolve() or sha256_file(verifier_path) != str(verifier.get("sha256", "")):
+        fail("offline verifier identity/hash mismatch")
+    finalizer = manifest.get("offline_finalizer", {})
+    finalizer_path = resolve_relative(kit_root, finalizer.get("path", ""), "offline finalizer path")
+    if not finalizer_path.exists() or sha256_file(finalizer_path) != str(finalizer.get("sha256", "")):
+        fail("offline finalizer missing/hash mismatch")
+    if finalizer.get("requires_repository_checkout") is not False or finalizer.get("appends_repository_evidence") is not False:
+        fail("offline finalizer boundary changed")
+    expected_gates = ["E1", "E2", "E3", "E4", "E5", "E6", "E9", "E10", "E11"]
+    if string_array(manifest.get("human_gates", []), "human_gates") != expected_gates:
+        fail("human gate set changed")
 
-    first_section = manifest.get("first_session", {}); mature_section = manifest.get("mature_session", {})
-    first_manifest_path = resolve_relative(kit_root, first_section.get("batch_manifest", ""), "first batch manifest"); mature_manifest_path = resolve_relative(kit_root, mature_section.get("batch_manifest", ""), "mature batch manifest")
-    if sha256_file(first_manifest_path) != str(first_section.get("batch_manifest_sha256", "")): fail("first-session batch manifest hash mismatch")
-    if sha256_file(mature_manifest_path) != str(mature_section.get("batch_manifest_sha256", "")): fail("mature-session batch manifest hash mismatch")
-    first_manifest = load_json(first_manifest_path); expected_first = {str(r.get("session_id", "")): r for r in first_section.get("packets", []) if isinstance(r, dict)}; first_count = 0
+    first_section = manifest.get("first_session", {})
+    mature_section = manifest.get("mature_session", {})
+    first_manifest_path = resolve_relative(kit_root, first_section.get("batch_manifest", ""), "first batch manifest")
+    mature_manifest_path = resolve_relative(kit_root, mature_section.get("batch_manifest", ""), "mature batch manifest")
+    if sha256_file(first_manifest_path) != str(first_section.get("batch_manifest_sha256", "")):
+        fail("first-session batch manifest hash mismatch")
+    if sha256_file(mature_manifest_path) != str(mature_section.get("batch_manifest_sha256", "")):
+        fail("mature-session batch manifest hash mismatch")
+
+    first_manifest = load_json(first_manifest_path)
+    expected_first = {str(r.get("session_id", "")): r for r in first_section.get("packets", []) if isinstance(r, dict)}
+    first_count = 0
     for packet in first_manifest.get("packets", []):
         packet_dir = resolve_relative(first_manifest_path.parent, packet.get("session_dir", ""), "first-session packet path")
-        actual = first_contract(packet_dir); expected = expected_first.get(actual["session_id"])
-        if not isinstance(expected, dict) or any(actual.get(k) != expected.get(k) for k in ["tester_id","session_id","demo_build_id","manifest_sha256","observer_keys"]): fail(f"first-session immutable contract changed: {actual['session_id']}")
+        actual = first_contract(packet_dir)
+        expected = expected_first.get(actual["session_id"])
+        if not isinstance(expected, dict) or any(actual.get(k) != expected.get(k) for k in ["tester_id", "session_id", "demo_build_id", "manifest_sha256", "observer_keys"]):
+            fail(f"first-session immutable contract changed: {actual['session_id']}")
         verify_optional_finalized_routing(packet_dir, FIRST_FINALIZED_GATES, "first_session")
         first_count += 1
-    if first_count != int(first_section.get("packet_count", -1)): fail("first-session packet count mismatch")
-    mature_manifest = load_json(mature_manifest_path); expected_mature = {str(r.get("tester_id", "")): r for r in mature_section.get("packets", []) if isinstance(r, dict)}; mature_count = 0
+    if first_count != int(first_section.get("packet_count", -1)):
+        fail("first-session packet count mismatch")
+
+    mature_manifest = load_json(mature_manifest_path)
+    expected_mature = {str(r.get("tester_id", "")): r for r in mature_section.get("packets", []) if isinstance(r, dict)}
+    mature_count = 0
     for packet in mature_manifest.get("packets", []):
         packet_dir = resolve_relative(mature_manifest_path.parent, packet.get("packet_dir", ""), "mature-session packet path")
-        actual = mature_contract(packet_dir); expected = expected_mature.get(actual["tester_id"])
-        if not isinstance(expected, dict) or any(actual.get(k) != expected.get(k) for k in ["tester_id","build_id","identity_fingerprint","row_counts"]): fail(f"mature-session immutable contract changed: {actual['tester_id']}")
+        actual = mature_contract(packet_dir)
+        expected = expected_mature.get(actual["tester_id"])
+        if not isinstance(expected, dict) or any(actual.get(k) != expected.get(k) for k in ["tester_id", "build_id", "identity_fingerprint", "row_counts"]):
+            fail(f"mature-session immutable contract changed: {actual['tester_id']}")
         verify_optional_finalized_routing(packet_dir, MATURE_FINALIZED_GATES, "mature_session")
         mature_count += 1
-    if mature_count != int(mature_section.get("packet_count", -1)): fail("mature-session packet count mismatch")
-    return {"status":"VERIFIED_OFFLINE","source_head":source_head,"first_packets":first_count,"mature_packets":mature_count,"acquisition_build_bytes_verified":True,"demo_binding_id":demo["binding_id"],"production_binding_id":production["binding_id"],"finalized_gate_routes_verified":True,"finalized_semantic_eligibility_verified":True,"human_outcomes_inferred":False,"repository_evidence_appended":False}
+    if mature_count != int(mature_section.get("packet_count", -1)):
+        fail("mature-session packet count mismatch")
+
+    return {
+        "status": "VERIFIED_OFFLINE",
+        "source_head": source_head,
+        "first_packets": first_count,
+        "mature_packets": mature_count,
+        "acquisition_build_bytes_verified": True,
+        "demo_binding_id": demo["binding_id"],
+        "production_binding_id": production["binding_id"],
+        "finalized_gate_routes_verified": True,
+        "finalized_semantic_eligibility_verified": True,
+        "human_outcomes_inferred": False,
+        "repository_evidence_appended": False,
+    }
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(); parser.add_argument("--kit-dir", default="."); args = parser.parse_args(); print(json.dumps(verify(Path(args.kit_dir)), indent=2, sort_keys=True))
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--kit-dir", default=".")
+    args = parser.parse_args()
+    print(json.dumps(verify(Path(args.kit_dir)), indent=2, sort_keys=True))
 
-if __name__ == "__main__": main()
+
+if __name__ == "__main__":
+    main()
