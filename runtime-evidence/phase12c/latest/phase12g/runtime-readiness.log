@@ -1,0 +1,985 @@
+{
+  "blocked_ids": [],
+  "counts": {
+    "blocked": 0,
+    "ready": 57,
+    "total": 57
+  },
+  "evidence_kind": "PHASE12G_RUNTIME_ACQUISITION_PRECONDITION_NOT_GATE_OUTCOME",
+  "protocol_readiness": {
+    "E3": {
+      "blocked": [],
+      "ready": [
+        "D13",
+        "D18",
+        "D22",
+        "D29",
+        "D33",
+        "D36"
+      ],
+      "selected": [
+        "D13",
+        "D18",
+        "D22",
+        "D29",
+        "D33",
+        "D36"
+      ]
+    },
+    "E4": {
+      "blocked": [],
+      "ready": [
+        "D13",
+        "D14",
+        "D15",
+        "D16",
+        "D17",
+        "D18",
+        "D19",
+        "D20",
+        "D21",
+        "D22",
+        "D29",
+        "D30",
+        "D31",
+        "D32",
+        "D33",
+        "D34",
+        "D35",
+        "D36"
+      ],
+      "selected": [
+        "D13",
+        "D14",
+        "D15",
+        "D16",
+        "D17",
+        "D18",
+        "D19",
+        "D20",
+        "D21",
+        "D22",
+        "D29",
+        "D30",
+        "D31",
+        "D32",
+        "D33",
+        "D34",
+        "D35",
+        "D36"
+      ]
+    },
+    "E5": {
+      "blocked": [],
+      "ready": [
+        "D29",
+        "D32",
+        "D33",
+        "D34",
+        "D35",
+        "D36",
+        "D37",
+        "D38",
+        "D39",
+        "D40"
+      ],
+      "selected": [
+        "D29",
+        "D32",
+        "D33",
+        "D34",
+        "D35",
+        "D36",
+        "D37",
+        "D38",
+        "D39",
+        "D40"
+      ]
+    },
+    "E6": {
+      "blocked": [],
+      "ready": [
+        "D33",
+        "D34",
+        "D35",
+        "D36",
+        "D37",
+        "D38",
+        "D39",
+        "D40"
+      ],
+      "selected": [
+        "D33",
+        "D34",
+        "D35",
+        "D36",
+        "D37",
+        "D38",
+        "D39",
+        "D40"
+      ]
+    },
+    "E9": {
+      "blocked": [],
+      "ready": [
+        "REMIX01",
+        "REMIX02",
+        "REMIX03",
+        "REMIX04",
+        "REMIX05",
+        "REMIX06",
+        "REMIX07",
+        "REMIX08",
+        "REMIX09",
+        "REMIX10",
+        "REMIX11",
+        "REMIX12"
+      ],
+      "selected": [
+        "REMIX01",
+        "REMIX02",
+        "REMIX03",
+        "REMIX04",
+        "REMIX05",
+        "REMIX06",
+        "REMIX07",
+        "REMIX08",
+        "REMIX09",
+        "REMIX10",
+        "REMIX11",
+        "REMIX12"
+      ]
+    }
+  },
+  "ready_ids": [
+    "D01",
+    "D02",
+    "D03",
+    "D04",
+    "D05",
+    "D06",
+    "D07",
+    "D08",
+    "D09",
+    "D10",
+    "D11",
+    "D12",
+    "D13",
+    "D14",
+    "D15",
+    "D16",
+    "D17",
+    "D18",
+    "D19",
+    "D20",
+    "D21",
+    "D22",
+    "D23",
+    "D24",
+    "D25",
+    "D26",
+    "D27",
+    "D28",
+    "D29",
+    "D30",
+    "D31",
+    "D32",
+    "D33",
+    "D34",
+    "D35",
+    "D36",
+    "D37",
+    "D38",
+    "D39",
+    "D40",
+    "DEMO01",
+    "DEMO02",
+    "DEMO03",
+    "DEMO04",
+    "DEMO05",
+    "REMIX01",
+    "REMIX02",
+    "REMIX03",
+    "REMIX04",
+    "REMIX05",
+    "REMIX06",
+    "REMIX07",
+    "REMIX08",
+    "REMIX09",
+    "REMIX10",
+    "REMIX11",
+    "REMIX12"
+  ],
+  "rows": [
+    {
+      "agent_count": 1,
+      "blockers": [],
+      "dossier_id": "D01",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D02",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 1,
+      "blockers": [],
+      "dossier_id": "D03",
+      "editable_families": [
+        "bridge"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D04",
+      "editable_families": [
+        "bridge",
+        "road"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 1,
+      "blockers": [],
+      "dossier_id": "D05",
+      "editable_families": [
+        "border"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D06",
+      "editable_families": [
+        "border"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D07",
+      "editable_families": [
+        "restricted_zone"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 3,
+      "blockers": [],
+      "dossier_id": "D08",
+      "editable_families": [
+        "border",
+        "restricted_zone",
+        "road"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D09",
+      "editable_families": [
+        "landmark",
+        "road"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D10",
+      "editable_families": [
+        "landmark",
+        "road"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D11",
+      "editable_families": [
+        "waterway"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D12",
+      "editable_families": [
+        "bridge",
+        "waterway"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D13",
+      "editable_families": [
+        "restricted_zone",
+        "road"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D14",
+      "editable_families": [
+        "restricted_zone",
+        "road"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D15",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D16",
+      "editable_families": [
+        "restricted_zone",
+        "road"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 1,
+      "blockers": [],
+      "dossier_id": "D17",
+      "editable_families": [
+        "border"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 1,
+      "blockers": [],
+      "dossier_id": "D18",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D19",
+      "editable_families": [
+        "landmark",
+        "waterway"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D20",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D21",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 3,
+      "blockers": [],
+      "dossier_id": "D22",
+      "editable_families": [
+        "border",
+        "restricted_zone",
+        "road"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 1,
+      "blockers": [],
+      "dossier_id": "D23",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 2,
+      "linked_relation_count": 1,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 1,
+      "blockers": [],
+      "dossier_id": "D24",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 2,
+      "linked_relation_count": 1,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D25",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 2,
+      "linked_relation_count": 1,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D26",
+      "editable_families": [
+        "border",
+        "road"
+      ],
+      "layer_count": 2,
+      "linked_relation_count": 1,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D27",
+      "editable_families": [
+        "landmark",
+        "road"
+      ],
+      "layer_count": 2,
+      "linked_relation_count": 1,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D28",
+      "editable_families": [
+        "road",
+        "waterway"
+      ],
+      "layer_count": 2,
+      "linked_relation_count": 1,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D29",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 3,
+      "linked_relation_count": 1,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D30",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 2,
+      "linked_relation_count": 1,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 1,
+      "blockers": [],
+      "dossier_id": "D31",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 2,
+      "linked_relation_count": 1,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D32",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 3,
+      "linked_relation_count": 2,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D33",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 3,
+      "linked_relation_count": 2,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D34",
+      "editable_families": [
+        "landmark",
+        "road"
+      ],
+      "layer_count": 3,
+      "linked_relation_count": 2,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D35",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 3,
+      "linked_relation_count": 2,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D36",
+      "editable_families": [
+        "border",
+        "road"
+      ],
+      "layer_count": 3,
+      "linked_relation_count": 2,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D37",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 4,
+      "linked_relation_count": 2,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D38",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 4,
+      "linked_relation_count": 2,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "D39",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 4,
+      "linked_relation_count": 2,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 5,
+      "blockers": [],
+      "dossier_id": "D40",
+      "editable_families": [
+        "border",
+        "landmark",
+        "road"
+      ],
+      "layer_count": 4,
+      "linked_relation_count": 3,
+      "scope": "campaign",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 1,
+      "blockers": [],
+      "dossier_id": "DEMO01",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "demo",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "DEMO02",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "demo",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 1,
+      "blockers": [],
+      "dossier_id": "DEMO03",
+      "editable_families": [
+        "bridge"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "demo",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "DEMO04",
+      "editable_families": [
+        "bridge",
+        "road"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "demo",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "DEMO05",
+      "editable_families": [
+        "border",
+        "road"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "demo",
+      "source_substrate_id": "",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "REMIX01",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "remix",
+      "source_substrate_id": "D15",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "REMIX02",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "remix",
+      "source_substrate_id": "D20",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "REMIX03",
+      "editable_families": [
+        "road",
+        "waterway"
+      ],
+      "layer_count": 2,
+      "linked_relation_count": 1,
+      "scope": "remix",
+      "source_substrate_id": "D28",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "REMIX04",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 3,
+      "linked_relation_count": 2,
+      "scope": "remix",
+      "source_substrate_id": "D33",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "REMIX05",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 3,
+      "linked_relation_count": 2,
+      "scope": "remix",
+      "source_substrate_id": "D35",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "REMIX06",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "remix",
+      "source_substrate_id": "D20",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "REMIX07",
+      "editable_families": [
+        "landmark",
+        "road"
+      ],
+      "layer_count": 3,
+      "linked_relation_count": 2,
+      "scope": "remix",
+      "source_substrate_id": "D34",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "REMIX08",
+      "editable_families": [
+        "border",
+        "road"
+      ],
+      "layer_count": 3,
+      "linked_relation_count": 2,
+      "scope": "remix",
+      "source_substrate_id": "D36",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 3,
+      "blockers": [],
+      "dossier_id": "REMIX09",
+      "editable_families": [
+        "border",
+        "restricted_zone",
+        "road"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "remix",
+      "source_substrate_id": "D22",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "REMIX10",
+      "editable_families": [
+        "road"
+      ],
+      "layer_count": 4,
+      "linked_relation_count": 2,
+      "scope": "remix",
+      "source_substrate_id": "D37",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "REMIX11",
+      "editable_families": [
+        "bridge",
+        "waterway"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "remix",
+      "source_substrate_id": "D12",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    },
+    {
+      "agent_count": 2,
+      "blockers": [],
+      "dossier_id": "REMIX12",
+      "editable_families": [
+        "landmark",
+        "road"
+      ],
+      "layer_count": 1,
+      "linked_relation_count": 0,
+      "scope": "remix",
+      "source_substrate_id": "D10",
+      "status": "READY_FOR_RUNTIME_CAPTURE"
+    }
+  ],
+  "schema_version": 1
+}
