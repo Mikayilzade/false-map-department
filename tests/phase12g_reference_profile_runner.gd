@@ -7,6 +7,7 @@ const ReferenceHardwareProfiler = preload("res://src/application/reference_hardw
 func _initialize() -> void:
 	var output_path := OS.get_environment("FMD_T8_OUTPUT").strip_edges()
 	var hardware_id := OS.get_environment("FMD_T8_HARDWARE_ID").strip_edges()
+	var hardware_profile_path := OS.get_environment("FMD_T8_HARDWARE_PROFILE_PATH").strip_edges()
 	var build_id := OS.get_environment("FMD_T8_BUILD_ID").strip_edges()
 	var source_head := OS.get_environment("FMD_T8_SOURCE_HEAD").strip_edges().to_lower()
 	var dossier_id := OS.get_environment("FMD_T8_DOSSIER_ID").strip_edges()
@@ -32,6 +33,24 @@ func _initialize() -> void:
 	if disposition != "reference_run" and disposition != "diagnostic_run":
 		_fail("unsupported profiling disposition")
 		return
+
+	var hardware_profile: Dictionary = {}
+	if disposition == "reference_run":
+		if hardware_profile_path.is_empty():
+			_fail("reference_run requires FMD_T8_HARDWARE_PROFILE_PATH")
+			return
+		hardware_profile = _load_hardware_profile(hardware_profile_path)
+		if hardware_profile.is_empty():
+			return
+		if str(hardware_profile.get("hardware_id", "")).strip_edges() != hardware_id:
+			_fail("reference hardware profile hardware_id mismatch")
+			return
+		if str(hardware_profile.get("hardware_class", "")).strip_edges() != "deck_class_reference":
+			_fail("reference hardware profile must declare deck_class_reference")
+			return
+		if str(hardware_profile.get("operator_attestation", "")).strip_edges() != attestation:
+			_fail("reference hardware profile operator attestation mismatch")
+			return
 
 	var registry := ContentRegistry.new()
 	var loaded := registry.load_registry()
@@ -90,6 +109,7 @@ func _initialize() -> void:
 		"packet_version": 1,
 		"source_head": source_head,
 		"hardware_attestation": attestation,
+		"hardware_profile": hardware_profile,
 		"profiling_disposition": disposition,
 		"profile_row": profile_row,
 		"raw_samples_us": {
@@ -107,6 +127,25 @@ func _initialize() -> void:
 	file.close()
 	print("FMD Phase 12G T8-44 profile packet: WRITTEN (%s, %d samples)" % [disposition, sample_count])
 	quit(0)
+
+func _load_hardware_profile(path: String) -> Dictionary:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		_fail("unable to read reference hardware profile")
+		return {}
+	var parsed: Variant = JSON.parse_string(file.get_as_text())
+	if not (parsed is Dictionary):
+		_fail("reference hardware profile must be a JSON object")
+		return {}
+	var profile: Dictionary = parsed
+	for key in ["schema", "hardware_id", "hardware_class", "device_model", "processor_or_apu", "memory_gib", "os_name", "os_version", "godot_version", "operator_attestation"]:
+		if not profile.has(key):
+			_fail("reference hardware profile missing field: %s" % key)
+			return {}
+	if str(profile.get("schema", "")) != "fmd.phase12g.t8-reference-hardware-profile.v1":
+		_fail("reference hardware profile schema unsupported")
+		return {}
+	return profile.duplicate(true)
 
 func _measure_typical(dossier: Dictionary, solution: Array, sample_index: int) -> Dictionary:
 	var controller := ProductionPlaytestController.new()
