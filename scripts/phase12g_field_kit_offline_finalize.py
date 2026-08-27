@@ -133,6 +133,37 @@ def e5_semantic_snapshot(rows: list[dict]) -> list[dict]:
     return snapshot
 
 
+def e6_semantic_snapshot(rows: list[dict]) -> list[dict]:
+    """Freeze E6 observation scope plus disposition-relevant observer declarations.
+
+    Prepared mature identity already fixes tester_id+dossier_id. requirement_id is chosen
+    at observation time, while answered_cause and correct are human observer declarations.
+    used_raw_debug_log must remain false by protocol. This declaration-only snapshot binds
+    those mutable fields after finalization without claiming human truth or correctness.
+    """
+    snapshot: list[dict] = []
+    for index, row in enumerate(rows, start=1):
+        requirement_id = str(row.get("requirement_id", "")).strip()
+        answered_cause = row.get("answered_cause")
+        used_raw_debug_log = row.get("used_raw_debug_log")
+        correct = row.get("correct")
+        if not requirement_id or any(ch.isspace() for ch in requirement_id):
+            fail(f"E6 row {index}: requirement_id must be a non-empty stable identifier without whitespace")
+        if not isinstance(answered_cause, str) or not answered_cause.strip():
+            fail(f"E6 row {index}: answered_cause must be a non-empty observer declaration")
+        if used_raw_debug_log is not False:
+            fail(f"E6 row {index}: used_raw_debug_log must be false")
+        if not isinstance(correct, bool):
+            fail(f"E6 row {index}: correct must be true/false")
+        snapshot.append({
+            "requirement_id": requirement_id,
+            "answered_cause": answered_cause,
+            "used_raw_debug_log": False,
+            "correct": correct,
+        })
+    return snapshot
+
+
 def resolve_relative(root: Path, value: object, label: str) -> Path:
     raw = Path(str(value))
     if raw.is_absolute():
@@ -314,6 +345,7 @@ def finalize_mature(packet_dir: Path) -> tuple[dict, list[Path]]:
     finalized_e3_outcomes: list[dict] = []
     finalized_e4_outcomes: list[dict] = []
     finalized_e5_semantics: list[dict] = []
+    finalized_e6_semantics: list[dict] = []
     for gate_id in MATURE_GATES:
         rows = rows_by_gate.get(gate_id, [])
         if not isinstance(rows, list) or not rows:
@@ -340,6 +372,8 @@ def finalize_mature(packet_dir: Path) -> tuple[dict, list[Path]]:
             finalized_e4_outcomes = e4_outcome_snapshot(checked)
         if gate_id == "E5":
             finalized_e5_semantics = e5_semantic_snapshot(checked)
+        if gate_id == "E6":
+            finalized_e6_semantics = e6_semantic_snapshot(checked)
         path = packet_dir / f"completed-{gate_id}.jsonl"
         write_jsonl(path, checked)
         paths.append(path)
@@ -353,6 +387,8 @@ def finalize_mature(packet_dir: Path) -> tuple[dict, list[Path]]:
         "e4_finalized_row_count": len(finalized_e4_outcomes),
         "e5_finalized_semantic_sha256": canonical_sha256(finalized_e5_semantics),
         "e5_finalized_row_count": len(finalized_e5_semantics),
+        "e6_finalized_semantic_sha256": canonical_sha256(finalized_e6_semantics),
+        "e6_finalized_row_count": len(finalized_e6_semantics),
         "completed_gates": list(MATURE_GATES),
     }, paths
 
@@ -391,6 +427,9 @@ def write_receipt(kit_root: Path, packet_dir: Path, manifest: dict, result: dict
             "e5_semantic_sha256": str(result.get("e5_finalized_semantic_sha256", "")),
             "e5_row_count": int(result.get("e5_finalized_row_count", 0)),
             "e5_binding_scope": "finalization_snapshot_only",
+            "e6_semantic_sha256": str(result.get("e6_finalized_semantic_sha256", "")),
+            "e6_row_count": int(result.get("e6_finalized_row_count", 0)),
+            "e6_binding_scope": "finalization_snapshot_only",
         })
 
     receipt = {
