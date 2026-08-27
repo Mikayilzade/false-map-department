@@ -124,17 +124,16 @@ def verify_finalized_semantic_eligibility(
     expected_gates: tuple[str, ...],
     packet_kind: str,
 ) -> None:
-    """Keep finalized eligibility fields attached to their packet-local declarations.
+    """Keep finalized eligibility fields attached to finalization-time declarations.
 
-    The receipt remains the packet-local participant qualification statement. For E2,
-    packet-completion is a separate observed eligibility input created by the finalizer from
-    observer.json, so the bundled verifier also requires the finalized E2 row to retain that
-    packet-local observer declaration. A caller may transport returned bytes, but may not flip
-    either eligibility field and merely recompute that completed file's mutable size/SHA entry.
+    The finalization receipt is the packet-local declaration boundary. For E2, packet completion
+    is copied there from observer.json by the pinned finalizer at finalization time. The verifier
+    therefore never trusts a later observer.json edit to redefine finalized eligibility. A caller
+    may transport returned bytes or update a completed-file digest, but may not silently rebind
+    packet completion without also contradicting the finalization-time receipt declaration.
 
     These checks do not prove human naivety, completion, rule knowledge, or timing. They only
-    prevent contradictory packet-local semantic declarations from being silently rebound into
-    collector eligibility after finalization.
+    prevent contradictory post-finalization semantic rebinding inside a returned packet.
     """
     qualification = receipt.get("participant_qualification")
     if not isinstance(qualification, dict):
@@ -146,11 +145,9 @@ def verify_finalized_semantic_eligibility(
         declared_naive = qualification.get("naive")
         if not isinstance(declared_naive, bool):
             fail(f"{receipt_path}: first-session participant qualification must declare naive=true/false")
-        observer_path = packet_dir / "observer.json"
-        observer = load_json(observer_path)
-        declared_packet_completed = observer.get("e2_packet_completed")
+        declared_packet_completed = qualification.get("e2_packet_completed")
         if not isinstance(declared_packet_completed, bool):
-            fail(f"{observer_path}: first-session observer must retain e2_packet_completed=true/false")
+            fail(f"{receipt_path}: first-session finalization must declare e2_packet_completed=true/false")
         for gate_id in expected_gates:
             path = packet_dir / f"completed-{gate_id}.jsonl"
             for row_index, row in enumerate(load_jsonl(path), start=1):
@@ -169,7 +166,7 @@ def verify_finalized_semantic_eligibility(
                     if row_packet_completed is not declared_packet_completed:
                         fail(
                             f"{path}:{row_index}: finalized E2 packet completion mismatch; "
-                            f"observer declares e2_packet_completed={declared_packet_completed}, "
+                            f"receipt declares e2_packet_completed={declared_packet_completed}, "
                             f"row claims packet_completed={row_packet_completed}"
                         )
         return
