@@ -8,7 +8,7 @@ import tarfile
 import unicodedata
 from pathlib import Path, PurePosixPath
 
-SCHEMA = "fmd.phase12g.external-acquisition-bundle.v5"
+SCHEMA = "fmd.phase12g.external-acquisition-bundle.v4"
 WINDOWS_FORBIDDEN_CHARS = set('<>:"|?*')
 WINDOWS_RESERVED_NAMES = {
     "CON", "PRN", "AUX", "NUL",
@@ -20,7 +20,6 @@ REQUIRED_SOURCE_BINDINGS = {
     "EXTRACTED-SOURCE-VERIFY.py": "scripts/phase12g_extracted_source_verify.py",
     "FIELD-KIT-VERIFY.py": "scripts/phase12g_field_kit_offline_verify.py",
     "FIELD-KIT-FINALIZE.py": "scripts/phase12g_field_kit_offline_finalize.py",
-    "T8-HARDWARE-PROFILE.py": "scripts/phase12g_reference_hardware_profile.py",
     "RETURN-INGEST.md": "empirical/PHASE12G_RETURN_INGEST.md",
 }
 
