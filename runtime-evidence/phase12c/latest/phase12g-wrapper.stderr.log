@@ -1,1 +1,1 @@
-PHASE12G E2 OBSERVER SOURCE BINDING AUDIT FAIL: rejection did not identify the frozen finalization-time completion declaration
+PHASE12G E1 SEMANTIC BINDING AUDIT FAIL: rejection did not identify the frozen finalization-time E1 success/timing declaration
