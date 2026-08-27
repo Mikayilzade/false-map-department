@@ -1,1 +1,1 @@
-PHASE12G E3 SEMANTIC BINDING AUDIT FAIL: observer+E3-row+digest outcome rebound did not fail at finalization snapshot boundary
+PHASE12G FIELD KIT INGEST AUDIT FAIL: post-finalization transport mutation must reject during dry-run validation
