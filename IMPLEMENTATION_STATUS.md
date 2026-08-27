@@ -21,35 +21,33 @@ Repository: `Mikayilzade/false-map-department`
 ## Latest autonomous run — 2026-08-27
 
 ### Phase / subphase
-**12G Empirical Design Gates / E3 finalized comparative method/outcome/timing binding — EXACT-HEAD PASS**
+**12G Empirical Design Gates / E4 finalized campaign-repetition assessment binding — EXACT-HEAD PASS**
 
 ### Progress saved this run
 - Re-read `IMPLEMENTATION_START_HERE.md`, `CI_NOTIFICATION_POLICY.md`, this status file, `GAME2_PHASE11_FINAL_FREEZE.md`, `empirical/PHASE12G_PROTOCOL.md`, `empirical/phase12g_gate_registry.json`, `empirical/phase12g_session_protocols.json`, and the mature field-kit finalizer/verifier/ingest paths before changing anything.
-- Resumed exactly from the prior `NEXT ACTION` and inspected the frozen E3 contract: mature-human comparison uses `causal_reasoning` versus `systematic_legal_edit_search` across D13/D18/D22/D29/D33/D36 after rules are known; E3 remains `human_comparative_playtest` with no automatic numeric PASS threshold.
-- Distinguished already-immutable E3 identity from mutable outcome data instead of duplicating all fields in the receipt. The prepared mature packet identity fingerprint already freezes `tester_id`, `dossier_id`, `method`, and `counterbalance_order`; however finalized `completed-E3.jsonl` did not previously have to match those prepared identity fields, so a caller could remap a finalized row to the opposite method while refreshing only its completed-file digest/size.
-- Confirmed a second trust-boundary gap: `completion_seconds` and `completed` are intentionally mutable in `observer-packet.json` until real observation/finalization and are excluded from the prepared identity fingerprint. Before this increment they could be changed after finalization together with `completed-E3.jsonl` and the completed-file receipt digest/size, with no independent finalization-time outcome authority.
-- Hardened only the minimum disposition-changing E3 semantics. The finalizer now validates E3 `completion_seconds` as numeric >=0 and `completed` as boolean, then writes a declaration-only SHA-256 snapshot of the ordered completion timing/outcome pairs plus row count into mature `participant_qualification` with `e3_binding_scope=finalization_snapshot_only`.
-- Reused the existing independent prepared-packet authority for E3 identity mapping: the bundled verifier now requires every finalized E3 row's `tester_id`, `dossier_id`, `method`, and `counterbalance_order` to match the corresponding prepared source row. It does not duplicate those immutable fields in the finalization receipt.
-- The bundled verifier also recomputes the finalized E3 completion/timing snapshot and requires it to match the finalization-time receipt hash/count. `rules_known_before_session=true` and `rule_knowledge_confirmed=true` remain mandatory and unchanged.
-- Preserved the empirical boundary: the receipt remains explicitly `declaration_only=true` / `proves_human_truth_or_timing=false`. The new binding prevents contradictory post-finalization rebinding; it does not prove that a real person used either reasoning method, completed a dossier, or took the recorded time.
-- Added `phase12g_e3_semantic_binding_audit.py`. It prepares a source/build-byte-bound field kit and synthetic mature packet solely as an audit fixture, finalizes it, verifies the canonical packet, then runs two distinct rebound attacks: (1) changes a finalized E3 row to the opposite method while leaving prepared packet identity unchanged and refreshing only the completed-file digest/size; (2) changes mutable observer `completion_seconds`/`completed`, changes the finalized E3 row to match, and refreshes only the completed-file digest/size. Both attacks are rejected; repository ingest rejects the outcome rebound and appends zero evidence; restoring canonical bytes verifies cleanly.
-- Wired the E3 attack audit into the existing notification-safe Phase-12G precondition wrapper. No new workflow or empirical evidence path was created.
-- No gameplay/content rule, empirical threshold, human observation, qualitative disposition, evidence row, or gate count changed.
+- Resumed exactly from the prior `NEXT ACTION` and confirmed the frozen E4 contract: campaign-repetition evidence is genuine mature-human playtest assessment across the authored `D13_D22` and `D29_D36` windows, with allowed qualitative values `distinct`, `mixed`, and `predominantly_same_trick`; E4 has no automatic numeric PASS threshold.
+- Distinguished identity from mutable observed outcome data. The existing prepared mature-packet identity fingerprint already freezes `tester_id`, `window_id`, and `dossier_ids`, but finalized `completed-E4.jsonl` previously did not have to match those source identity fields. Separately, `same_trick_assessment` and `notes` are intentionally mutable until observation/finalization and had no independent finalization-time authority.
+- Closed the concrete post-finalization rebound path without changing the empirical contract. The finalizer now validates E4 assessment vocabulary and non-empty notes, then writes a declaration-only SHA-256 snapshot of ordered `same_trick_assessment` + `notes` pairs plus row count into mature `participant_qualification` with `e4_binding_scope=finalization_snapshot_only`.
+- Reused the existing prepared-packet identity authority rather than duplicating identity into the receipt. The bundled verifier now requires every finalized E4 row's `tester_id`, `window_id`, and `dossier_ids` to match its corresponding prepared source row.
+- The bundled verifier independently recomputes the finalized E4 assessment/notes snapshot and requires exact equality with the finalization-time receipt hash/count. The receipt remains explicitly `declaration_only=true` / `proves_human_truth_or_timing=false`; it prevents contradictory rebinding but does not prove any human perception or repetition judgment.
+- Added `phase12g_e4_semantic_binding_audit.py`. It prepares a source/build-byte-bound field kit and synthetic mature packet solely as a non-evidence audit fixture, finalizes it, verifies the canonical packet, then attacks both trust boundaries: (1) remaps a finalized E4 row from one prepared campaign window to the other while refreshing only the completed-file receipt digest/size; (2) changes packet-local `same_trick_assessment`/`notes`, changes finalized E4 rows to match, and refreshes only the completed-file digest/size. Both attacks are rejected; repository ingest rejects the outcome rebound and appends zero evidence; canonical bytes restore and verify cleanly.
+- Wired the E4 attack audit into the existing notification-safe Phase-12G precondition wrapper. No new workflow, empirical threshold, evidence route or gameplay/content behavior was created.
+- No empirical evidence row, qualitative disposition or gate count changed.
 
 ### Files / systems changed
 - `scripts/phase12g_field_kit_offline_finalize.py`
 - `scripts/phase12g_field_kit_offline_verify.py`
-- `scripts/phase12g_e3_semantic_binding_audit.py`
+- `scripts/phase12g_e4_semantic_binding_audit.py`
 - `scripts/run_phase12g_preconditions.sh`
 - `IMPLEMENTATION_STATUS.md`
 
 ### Validation / factual exact-head evidence
-- Final E3 implementation head: `77ddb054f333d4a60c514107f821a3f75584a153`.
-- Notification-safe automatic run: **33040153284 — completed / success** for exact head `77ddb054f333d4a60c514107f821a3f75584a153`.
-- Committed evidence commit: `a3c95768fa243b7a9d473d67012df4e1b0c2a3cb`.
-- Committed run metadata explicitly names `head_sha=77ddb054f333d4a60c514107f821a3f75584a153`.
+- Final E4 implementation head: `b46ad58e71060f6964033b6d3c862e804e30af11`.
+- Notification-safe automatic run: **33042973034 — completed / success** for exact head `b46ad58e71060f6964033b6d3c862e804e30af11`.
+- Committed evidence commit: `4d889d16296039d74730dbb57ee33f23257de15a`.
+- Committed run metadata explicitly names `head_sha=b46ad58e71060f6964033b6d3c862e804e30af11`.
 - Aggregate result: **PASS** (`runtime_rc=0`, `phase12g_instrumentation_rc=0`, `ci_policy_rc=0`, `bootstrap_preflight_rc=0`, `phase12a_contract_rc=0`, `fetch_godot_rc=0`).
-- E3 semantic-binding attack audit: **PASS** — finalized method mapping is checked against immutable prepared packet identity; completion timing/outcome is frozen by a declaration-only finalization snapshot; method rebound and observer+row+digest outcome rebound are rejected; ingest appends zero evidence; canonical packet restores cleanly.
+- E4 semantic-binding attack audit: **PASS** — finalized window mapping is checked against immutable prepared packet identity; assessment/notes are frozen by a declaration-only finalization snapshot; identity and observer+row+digest rebounds are rejected; ingest appends zero evidence; canonical packet restores cleanly.
 - Existing real-Godot baseline and prior Phase-12G acquisition/integrity/precondition audits remained green in the same exact-head aggregate run.
 - No empirical evidence file or qualitative/control disposition was appended by this increment.
 
@@ -57,7 +55,7 @@ Repository: `Mikayilzade/false-map-department`
 - **E7: PASS — 285/285 exhaustive frozen matrix.**
 - **E1, E2, E3, E4, E5, E6, E8, E9, E10, E11, E12, T8-44: PENDING.**
 - E1/E2/E11 still have no genuine first-session human rows.
-- E3-E6/E9-E10 still have no genuine mature-human rows.
+- E3-E6/E9-E10 still have no genuine mature-human rows; the E4 work above is integrity/acquisition enabling only.
 - E8 still has no genuine representative five-role media/respondent evidence.
 - T8-44 still has no actual Deck-class reference-hardware evidence; D38/D39 remain the canonically validated representative target class.
 - E12 remains intentionally near-release.
@@ -65,23 +63,23 @@ Repository: `Mikayilzade/false-map-department`
 
 ### Failures / blockers
 - **No user-action blocker.**
-- Software still cannot prove real human identity/naivety/comprehension/reasoning method/timing/completion, respondent representativeness, or physical Deck-class hardware truth. Those remain genuine observation/operator facts.
+- Software still cannot prove real human identity/naivety/comprehension/reasoning/perception/timing/completion, respondent representativeness, or physical Deck-class hardware truth. Those remain genuine observation/operator facts.
 - External empirical-source blockers remain: real first-session/mature participants, genuine representative E8 media/respondents, actual Deck-class reference hardware, and near-release E12 context.
 - There is still autonomous trust-boundary/readiness work to do before intervention is the only remaining action.
 
 ### Canonical / empirical-gate impact
 - **No canonical contradiction discovered.**
-- This increment closes the tested E3 post-finalization method-mapping rebound and completion/timing outcome rebound while reusing existing immutable packet identity wherever possible.
-- It does not prove E3 human reasoning truth, does not alter the comparative methods/dossiers, and does not change what counts as empirical evidence or current empirical disposition.
+- This increment closes the tested E4 post-finalization campaign-window identity rebound and assessment/notes rebound while reusing the existing immutable prepared identity wherever possible.
+- It does not prove E4 human campaign-repetition perception, does not alter the two campaign windows or assessment vocabulary, and does not change what counts as empirical evidence or the current empirical disposition.
 
 ## NEXT ACTION
 Continue **12G real evidence acquisition/enabling only**; never fabricate missing outcomes.
 
-1. Treat the regression-covered E1/E2/E3/E11 finalization boundaries as closed unless a genuinely distinct flaw is found.
-2. Move to the next distinct mature-human disposition-changing path: **E4 finalized campaign-repetition assessment mapping**. Inspect the frozen E4 registry/protocol/evaluator and prepared mature identity/finalization/verifier/ingest path before changing anything.
-3. Distinguish E4 identity fields already protected by the prepared mature packet fingerprint (`tester_id`, `window_id`, `dossier_ids`) from mutable observed fields (`same_trick_assessment`, `notes`). Determine whether finalized E4 outcome semantics can be rebound after finalization by mutating packet-local observed fields, `completed-E4.jsonl`, and completed-file receipt digest/size while bundled verification + dry-run ingest still pass.
-4. If exploitable, bind only the minimum finalization-time E4 semantics that can change the qualitative disposition. Prefer the existing immutable prepared-packet authority for identity mapping and a compact declaration-only finalization snapshot only for outcome fields that genuinely need it. Do not claim human perception/repetition truth from software checks.
-5. After E4, continue across distinct E5/E6/E9/E10 mature-human outcome mappings only where a concrete post-finalization rebound remains; do not repeatedly audit already-closed metadata.
+1. Treat the regression-covered E1/E2/E3/E4/E11 finalization boundaries as closed unless a genuinely distinct flaw is found.
+2. Move to the next distinct mature-human disposition-changing path: **E5 finalized linked-authority comprehension mapping**. Inspect the frozen E5 registry/protocol/evaluator and prepared mature identity/finalization/verifier/ingest path before changing anything.
+3. Determine exactly which E5 fields are already protected independently. The prepared mature identity currently covers `tester_id` and `dossier_id`; do not assume whether `requirement_id` is identity/scope or outcome until the E5 evaluator/protocol is inspected. The observed fields `identified_authority_layer`, `correct`, and `tutorial_recall_used` are disposition-relevant candidates for a finalization snapshot only if a concrete rebound exists.
+4. Test whether finalized E5 semantics can be rebound after finalization by mutating only fields that are legitimately mutable before finalization in packet-local source, `completed-E5.jsonl`, and completed-file receipt digest/size while bundled verification + dry-run ingest still pass. If exploitable, bind the minimum identity/outcome semantics necessary and preserve declaration-only/non-proof markers.
+5. After E5, continue across distinct E6/E9/E10 mature-human outcome mappings only where a concrete post-finalization rebound remains; do not repeatedly audit already-closed metadata.
 6. Keep all automated/synthetic readiness work explicitly non-evidence and keep empirical counts unchanged unless genuine observations are appended through canonical paths.
 7. When actual builds and real participants are available, acquire genuine first-session **E1 + E2 + E11** and mature-human **E3-E6 + E9-E10** observations through the source-pinned, byte-bound, identity-, qualification-, channel-, routing-, readiness-, canonical-destination-, and canonical-control-checked field-kit lifecycle.
 8. For **E8**, use the prepared marketing acquisition lifecycle only with genuine representative five-role media/respondents and the exact production artifact binding. For **T8-44**, profile D38 or D39 on actual Deck-class reference hardware; hosted CI remains non-evidence.
