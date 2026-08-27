@@ -59,6 +59,19 @@ def canonical_sha256(payload: object) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+def e3_outcome_snapshot(rows: list[dict], path: Path) -> list[dict]:
+    snapshot: list[dict] = []
+    for index, row in enumerate(rows, start=1):
+        completion = row.get("completion_seconds")
+        completed = row.get("completed")
+        if isinstance(completion, bool) or not isinstance(completion, (int, float)) or float(completion) < 0:
+            fail(f"{path}:{index}: E3 completion_seconds must remain numeric >=0")
+        if not isinstance(completed, bool):
+            fail(f"{path}:{index}: E3 completed must remain true/false")
+        snapshot.append({"completion_seconds": float(completion), "completed": completed})
+    return snapshot
+
+
 def validate_source_head(value: object) -> str:
     source_head = str(value).strip().lower()
     if len(source_head) != 40 or any(ch not in "0123456789abcdef" for ch in source_head):
@@ -133,14 +146,10 @@ def verify_finalized_semantic_eligibility(
 ) -> None:
     """Keep finalized disposition-changing fields attached to finalization-time declarations.
 
-    The finalization receipt is the packet-local declaration/snapshot boundary. For first-session
-    packets, the pinned finalizer copies naive eligibility, E1 success/timing, E2 packet completion,
-    and E11 timing/completion semantics there at finalization time. The verifier therefore never
-    trusts a later observer.json/telemetry edit to redefine those finalized rows merely because a
-    caller also rewrites completed-file digests.
-
-    These checks do not prove human naivety, comprehension, a genuine aha, completion, or timing.
-    They only prevent contradictory post-finalization semantic rebinding inside a returned packet.
+    The finalization receipt is the packet-local declaration/snapshot boundary. First-session
+    packets freeze E1/E2/E11 disposition semantics there. Mature packets reuse the immutable
+    prepared packet identity for E3 dossier/method/counterbalance mapping and freeze only E3
+    completion timing/outcome at finalization. These declarations do not prove human truth.
     """
     qualification = receipt.get("participant_qualification")
     if not isinstance(qualification, dict):
@@ -181,33 +190,22 @@ def verify_finalized_semantic_eligibility(
                 if not isinstance(row_naive, bool):
                     fail(f"{path}:{row_index}: finalized first-session row must retain naive=true/false")
                 if row_naive is not declared_naive:
-                    fail(
-                        f"{path}:{row_index}: finalized semantic eligibility mismatch; "
-                        f"receipt declares naive={declared_naive}, row claims naive={row_naive}"
-                    )
+                    fail(f"{path}:{row_index}: finalized semantic eligibility mismatch; receipt declares naive={declared_naive}, row claims naive={row_naive}")
                 if gate_id == "E1":
                     row_success = row.get("success")
+                    row_time = row.get("understood_within_seconds")
                     if not isinstance(row_success, bool):
                         fail(f"{path}:{row_index}: E1 success must remain true/false")
-                    row_time = row.get("understood_within_seconds")
                     if isinstance(row_time, bool) or not isinstance(row_time, (int, float)) or float(row_time) < 0:
                         fail(f"{path}:{row_index}: E1 understood_within_seconds must remain numeric >=0")
                     if row_success is not declared_e1_success or float(row_time) != declared_e1_time:
-                        fail(
-                            f"{path}:{row_index}: finalized E1 comprehension semantic mismatch; "
-                            f"receipt declares success={declared_e1_success}, understood_at_seconds={declared_e1_time}, "
-                            f"row claims success={row_success}, understood_within_seconds={float(row_time)}"
-                        )
+                        fail(f"{path}:{row_index}: finalized E1 comprehension semantic mismatch; receipt declares success={declared_e1_success}, understood_at_seconds={declared_e1_time}, row claims success={row_success}, understood_within_seconds={float(row_time)}")
                 if gate_id == "E2":
                     row_packet_completed = row.get("packet_completed")
                     if not isinstance(row_packet_completed, bool):
                         fail(f"{path}:{row_index}: E2 packet_completed must remain true/false")
                     if row_packet_completed is not declared_packet_completed:
-                        fail(
-                            f"{path}:{row_index}: finalized E2 packet completion mismatch; "
-                            f"receipt declares e2_packet_completed={declared_packet_completed}, "
-                            f"row claims packet_completed={row_packet_completed}"
-                        )
+                        fail(f"{path}:{row_index}: finalized E2 packet completion mismatch; receipt declares e2_packet_completed={declared_packet_completed}, row claims packet_completed={row_packet_completed}")
                 if gate_id == "E11":
                     row_start = row.get("start_timestamp")
                     row_aha = row.get("first_collateral_aha_seconds")
@@ -220,50 +218,58 @@ def verify_finalized_semantic_eligibility(
                         fail(f"{path}:{row_index}: E11 finalized timing fields are out of range")
                     if not isinstance(row_completed, bool):
                         fail(f"{path}:{row_index}: E11 completed must remain true/false")
-                    if (
-                        float(row_start) != declared_e11_start
-                        or float(row_aha) != declared_e11_aha
-                        or float(row_completion) != declared_e11_completion
-                        or row_completed is not declared_e11_completed
-                    ):
-                        fail(
-                            f"{path}:{row_index}: finalized E11 timing/completion semantic mismatch; "
-                            f"receipt declares start={declared_e11_start}, aha_seconds={declared_e11_aha}, "
-                            f"completion_seconds={declared_e11_completion}, completed={declared_e11_completed}, "
-                            f"source={declared_e11_source}; row claims start={float(row_start)}, "
-                            f"aha_seconds={float(row_aha)}, completion_seconds={float(row_completion)}, completed={row_completed}"
-                        )
+                    if float(row_start) != declared_e11_start or float(row_aha) != declared_e11_aha or float(row_completion) != declared_e11_completion or row_completed is not declared_e11_completed:
+                        fail(f"{path}:{row_index}: finalized E11 timing/completion semantic mismatch; receipt declares start={declared_e11_start}, aha_seconds={declared_e11_aha}, completion_seconds={declared_e11_completion}, completed={declared_e11_completed}, source={declared_e11_source}; row claims start={float(row_start)}, aha_seconds={float(row_aha)}, completion_seconds={float(row_completion)}, completed={row_completed}")
         return
 
     if packet_kind == "mature_session":
         if qualification.get("rules_known_before_session") is not True:
             fail(f"{receipt_path}: mature-session participant qualification must declare rules_known_before_session=true")
+        if qualification.get("e3_binding_scope") != "finalization_snapshot_only":
+            fail(f"{receipt_path}: E3 finalization snapshot boundary marker missing")
+        declared_e3_hash = str(qualification.get("e3_outcome_sha256", ""))
+        declared_e3_count = qualification.get("e3_row_count")
+        if len(declared_e3_hash) != 64 or any(ch not in "0123456789abcdef" for ch in declared_e3_hash):
+            fail(f"{receipt_path}: E3 finalized outcome hash missing/invalid")
+        if isinstance(declared_e3_count, bool) or not isinstance(declared_e3_count, int) or declared_e3_count < 1:
+            fail(f"{receipt_path}: E3 finalized row count missing/invalid")
+
+        packet = load_json(packet_dir / "observer-packet.json")
+        rows_by_gate = packet.get("rows_by_gate", {})
+        if not isinstance(rows_by_gate, dict):
+            fail(f"{packet_dir}: mature rows_by_gate missing/malformed")
+        source_e3 = rows_by_gate.get("E3", [])
+        if not isinstance(source_e3, list):
+            fail(f"{packet_dir}: E3 source rows must be an array")
+
         for gate_id in expected_gates:
             path = packet_dir / f"completed-{gate_id}.jsonl"
-            for row_index, row in enumerate(load_jsonl(path), start=1):
+            rows = load_jsonl(path)
+            for row_index, row in enumerate(rows, start=1):
                 if row.get("rules_known_before_session") is not True:
-                    fail(
-                        f"{path}:{row_index}: finalized semantic eligibility mismatch; "
-                        "mature receipt declares rules_known_before_session=true"
-                    )
+                    fail(f"{path}:{row_index}: finalized semantic eligibility mismatch; mature receipt declares rules_known_before_session=true")
                 if gate_id == "E3" and row.get("rule_knowledge_confirmed") is not True:
                     fail(f"{path}:{row_index}: E3 rule_knowledge_confirmed must remain true")
                 if gate_id == "E6" and row.get("used_raw_debug_log") is not False:
                     fail(f"{path}:{row_index}: E6 used_raw_debug_log must remain false")
+            if gate_id == "E3":
+                if len(rows) != len(source_e3) or len(rows) != declared_e3_count:
+                    fail(f"{path}: E3 finalized row-count semantic mismatch")
+                for index, (source, finalized) in enumerate(zip(source_e3, rows), start=1):
+                    if not isinstance(source, dict):
+                        fail(f"{packet_dir}: E3 source row {index} malformed")
+                    for key in ("tester_id", "dossier_id", "method", "counterbalance_order"):
+                        if finalized.get(key) != source.get(key):
+                            fail(f"{path}:{index}: E3 finalized identity mapping mismatch for {key}; prepared immutable packet is authoritative")
+                actual_e3_hash = canonical_sha256(e3_outcome_snapshot(rows, path))
+                if actual_e3_hash != declared_e3_hash:
+                    fail(f"{path}: finalized E3 outcome semantic mismatch; finalization-time completion/timing snapshot changed")
         return
 
     fail(f"{receipt_path}: unsupported packet_kind for semantic eligibility verification: {packet_kind}")
 
 
 def verify_optional_finalized_routing(packet_dir: Path, expected_gates: tuple[str, ...], packet_kind: str) -> None:
-    """Bind any returned finalized files to the immutable packet's canonical gate routes.
-
-    Unfinalized prepared packets remain valid. Once a finalization receipt exists, however,
-    the packet must contain exactly one completed file for every gate owned by that packet,
-    the receipt must name that same gate set, and every completed row must retain the gate ID
-    implied by its receipt-bound filename. This is checked by the bundled verifier before the
-    repository ingest can stage or append anything.
-    """
     receipt_path = packet_dir / "finalization-receipt.json"
     completed_paths = sorted(packet_dir.glob("completed-*.jsonl"))
     if not receipt_path.exists():
@@ -333,13 +339,8 @@ def mature_contract(packet_dir: Path) -> dict:
         if not isinstance(rows, list):
             fail(f"{packet_dir}: {gate_id} rows must be an array")
         identities[gate_id] = [
-            {
-                key: row.get(key)
-                for key in sorted(row)
-                if key in {"gate_id", "tester_id", "dossier_id", "method", "counterbalance_order", "window_id", "dossier_ids", "remix_id", "source_dossier_id", "agent_a", "agent_b", "scenario_id"}
-            }
-            for row in rows
-            if isinstance(row, dict)
+            {key: row.get(key) for key in sorted(row) if key in {"gate_id", "tester_id", "dossier_id", "method", "counterbalance_order", "window_id", "dossier_ids", "remix_id", "source_dossier_id", "agent_a", "agent_b", "scenario_id"}}
+            for row in rows if isinstance(row, dict)
         ]
     return {
         "tester_id": str(packet.get("tester_id", "")),
