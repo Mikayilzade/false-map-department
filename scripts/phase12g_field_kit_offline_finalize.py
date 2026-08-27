@@ -101,6 +101,38 @@ def e4_outcome_snapshot(rows: list[dict]) -> list[dict]:
     return snapshot
 
 
+def e5_semantic_snapshot(rows: list[dict]) -> list[dict]:
+    """Freeze E5 observation scope plus disposition-relevant observer declarations.
+
+    The prepared mature identity already fixes tester_id+dossier_id. requirement_id is
+    selected only when an actual requirement is tested, so it is mutable before
+    finalization but becomes part of the observed E5 scope. The authority-layer answer,
+    correctness declaration and tutorial-recall declaration are likewise finalized here.
+    This snapshot is declaration-only and cannot prove human comprehension or correctness.
+    """
+    snapshot: list[dict] = []
+    for index, row in enumerate(rows, start=1):
+        requirement_id = str(row.get("requirement_id", "")).strip()
+        authority_layer = str(row.get("identified_authority_layer", "")).strip()
+        correct = row.get("correct")
+        tutorial_recall_used = row.get("tutorial_recall_used")
+        if not requirement_id or any(ch.isspace() for ch in requirement_id):
+            fail(f"E5 row {index}: requirement_id must be a non-empty stable identifier without whitespace")
+        if not authority_layer or any(ch.isspace() for ch in authority_layer):
+            fail(f"E5 row {index}: identified_authority_layer must be a non-empty stable identifier without whitespace")
+        if not isinstance(correct, bool):
+            fail(f"E5 row {index}: correct must be true/false")
+        if not isinstance(tutorial_recall_used, bool):
+            fail(f"E5 row {index}: tutorial_recall_used must be true/false")
+        snapshot.append({
+            "requirement_id": requirement_id,
+            "identified_authority_layer": authority_layer,
+            "correct": correct,
+            "tutorial_recall_used": tutorial_recall_used,
+        })
+    return snapshot
+
+
 def resolve_relative(root: Path, value: object, label: str) -> Path:
     raw = Path(str(value))
     if raw.is_absolute():
@@ -281,6 +313,7 @@ def finalize_mature(packet_dir: Path) -> tuple[dict, list[Path]]:
     paths: list[Path] = []
     finalized_e3_outcomes: list[dict] = []
     finalized_e4_outcomes: list[dict] = []
+    finalized_e5_semantics: list[dict] = []
     for gate_id in MATURE_GATES:
         rows = rows_by_gate.get(gate_id, [])
         if not isinstance(rows, list) or not rows:
@@ -305,6 +338,8 @@ def finalize_mature(packet_dir: Path) -> tuple[dict, list[Path]]:
             finalized_e3_outcomes = e3_outcome_snapshot(checked)
         if gate_id == "E4":
             finalized_e4_outcomes = e4_outcome_snapshot(checked)
+        if gate_id == "E5":
+            finalized_e5_semantics = e5_semantic_snapshot(checked)
         path = packet_dir / f"completed-{gate_id}.jsonl"
         write_jsonl(path, checked)
         paths.append(path)
@@ -316,6 +351,8 @@ def finalize_mature(packet_dir: Path) -> tuple[dict, list[Path]]:
         "e3_finalized_row_count": len(finalized_e3_outcomes),
         "e4_finalized_outcome_sha256": canonical_sha256(finalized_e4_outcomes),
         "e4_finalized_row_count": len(finalized_e4_outcomes),
+        "e5_finalized_semantic_sha256": canonical_sha256(finalized_e5_semantics),
+        "e5_finalized_row_count": len(finalized_e5_semantics),
         "completed_gates": list(MATURE_GATES),
     }, paths
 
@@ -351,6 +388,9 @@ def write_receipt(kit_root: Path, packet_dir: Path, manifest: dict, result: dict
             "e4_outcome_sha256": str(result.get("e4_finalized_outcome_sha256", "")),
             "e4_row_count": int(result.get("e4_finalized_row_count", 0)),
             "e4_binding_scope": "finalization_snapshot_only",
+            "e5_semantic_sha256": str(result.get("e5_finalized_semantic_sha256", "")),
+            "e5_row_count": int(result.get("e5_finalized_row_count", 0)),
+            "e5_binding_scope": "finalization_snapshot_only",
         })
 
     receipt = {
