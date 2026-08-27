@@ -66,7 +66,12 @@ def verify_kit(kit_root: Path) -> dict:
     if not isinstance(verifier_contract, dict):
         fail("offline verifier contract missing")
     verifier = resolve_relative(kit_root, verifier_contract.get("path", ""), "offline verifier path")
-    completed = subprocess.run([sys.executable, str(verifier), "--kit-dir", str(kit_root)], cwd=kit_root, text=True, capture_output=True)
+    completed = subprocess.run(
+        [sys.executable, str(verifier), "--kit-dir", str(kit_root)],
+        cwd=kit_root,
+        text=True,
+        capture_output=True,
+    )
     if completed.returncode != 0:
         fail(f"kit integrity verification failed before finalization: {(completed.stdout + completed.stderr).strip()}")
     try:
@@ -118,7 +123,8 @@ def event_elapsed(telemetry: dict, event_type: str) -> float | None:
 
 def first_packet_dir(kit_root: Path, manifest: dict, session_id: str) -> Path:
     section = manifest.get("first_session", {})
-    if not isinstance(section, dict): fail("first_session section malformed")
+    if not isinstance(section, dict):
+        fail("first_session section malformed")
     batch_path = resolve_relative(kit_root, section.get("batch_manifest", ""), "first batch manifest")
     batch = load_json(batch_path)
     for packet in batch.get("packets", []):
@@ -129,7 +135,8 @@ def first_packet_dir(kit_root: Path, manifest: dict, session_id: str) -> Path:
 
 def mature_packet_dir(kit_root: Path, manifest: dict, tester_id: str) -> Path:
     section = manifest.get("mature_session", {})
-    if not isinstance(section, dict): fail("mature_session section malformed")
+    if not isinstance(section, dict):
+        fail("mature_session section malformed")
     batch_path = resolve_relative(kit_root, section.get("batch_manifest", ""), "mature batch manifest")
     batch = load_json(batch_path)
     for packet in batch.get("packets", []):
@@ -139,100 +146,200 @@ def mature_packet_dir(kit_root: Path, manifest: dict, tester_id: str) -> Path:
 
 
 def finalize_first(session_dir: Path) -> tuple[dict, list[Path]]:
-    session_manifest = load_json(session_dir / "session-manifest.json"); observer = load_json(session_dir / "observer.json"); telemetry = load_json(session_dir / "telemetry.json")
-    tester_id = require_id(session_manifest.get("tester_id", ""), "tester_id"); session_id = require_id(session_manifest.get("session_id", ""), "session_id"); build_id = require_id(session_manifest.get("demo_build_id", ""), "demo_build_id")
-    if observer.get("tester_id") != tester_id or observer.get("session_id") != session_id: fail("observer identity does not match first-session manifest")
-    if telemetry.get("tester_id") != tester_id or telemetry.get("session_id") != session_id or telemetry.get("demo_build_id") != build_id: fail("telemetry identity does not match first-session manifest")
-    naive = require_bool(observer, "naive"); e1_success = require_bool(observer, "e1_success"); e1_time = require_number(observer, "e1_understood_at_seconds"); packet_completed = require_bool(observer, "e2_packet_completed"); e2_success = require_bool(observer, "e2_success")
+    session_manifest = load_json(session_dir / "session-manifest.json")
+    observer = load_json(session_dir / "observer.json")
+    telemetry = load_json(session_dir / "telemetry.json")
+    tester_id = require_id(session_manifest.get("tester_id", ""), "tester_id")
+    session_id = require_id(session_manifest.get("session_id", ""), "session_id")
+    build_id = require_id(session_manifest.get("demo_build_id", ""), "demo_build_id")
+    if observer.get("tester_id") != tester_id or observer.get("session_id") != session_id:
+        fail("observer identity does not match first-session manifest")
+    if telemetry.get("tester_id") != tester_id or telemetry.get("session_id") != session_id or telemetry.get("demo_build_id") != build_id:
+        fail("telemetry identity does not match first-session manifest")
+
+    naive = require_bool(observer, "naive")
+    e1_success = require_bool(observer, "e1_success")
+    e1_time = require_number(observer, "e1_understood_at_seconds")
+    packet_completed = require_bool(observer, "e2_packet_completed")
+    e2_success = require_bool(observer, "e2_success")
     prompt_id = str(observer.get("e2_prediction_prompt_id", "")).strip()
-    if prompt_id != PREDICTION_PROMPT_ID: fail(f"e2_prediction_prompt_id must remain {PREDICTION_PROMPT_ID}")
-    aha_observed = require_bool(observer, "first_collateral_aha_observed"); aha_seconds = require_number(observer, "first_collateral_aha_seconds", minimum=-1.0)
-    if aha_observed and aha_seconds < 0: fail("first_collateral_aha_seconds must be >=0 when an aha was observed")
-    if not aha_observed and aha_seconds != -1.0: fail("use first_collateral_aha_seconds=-1 when no genuine aha was observed")
-    session_end = require_number(observer, "session_end_seconds"); start_marker = telemetry.get("session_started_ms")
-    if isinstance(start_marker, bool) or not isinstance(start_marker, (int, float)): fail("telemetry session_started_ms missing/invalid")
-    completion_seconds = event_elapsed(telemetry, "demo_completed"); completed = completion_seconds is not None
-    if completion_seconds is None: completion_seconds = session_end
+    if prompt_id != PREDICTION_PROMPT_ID:
+        fail(f"e2_prediction_prompt_id must remain {PREDICTION_PROMPT_ID}")
+
+    aha_observed = require_bool(observer, "first_collateral_aha_observed")
+    aha_seconds = require_number(observer, "first_collateral_aha_seconds", minimum=-1.0)
+    if aha_observed and aha_seconds < 0:
+        fail("first_collateral_aha_seconds must be >=0 when an aha was observed")
+    if not aha_observed and aha_seconds != -1.0:
+        fail("use first_collateral_aha_seconds=-1 when no genuine aha was observed")
+
+    session_end = require_number(observer, "session_end_seconds")
+    start_marker = telemetry.get("session_started_ms")
+    if isinstance(start_marker, bool) or not isinstance(start_marker, (int, float)):
+        fail("telemetry session_started_ms missing/invalid")
+    completion_event_seconds = event_elapsed(telemetry, "demo_completed")
+    completed = completion_event_seconds is not None
+    completion_source = "telemetry_demo_completed" if completed else "observer_session_end"
+    completion_seconds = completion_event_seconds if completion_event_seconds is not None else session_end
+
     rows = {
-        "E1":{"schema_version":1,"gate_id":"E1","tester_id":tester_id,"naive":naive,"session_id":session_id,"understood_within_seconds":e1_time,"success":e1_success},
-        "E2":{"schema_version":1,"gate_id":"E2","tester_id":tester_id,"naive":naive,"session_id":session_id,"packet_completed":packet_completed,"prediction_prompt_id":prompt_id,"success":e2_success},
-        "E11":{"schema_version":1,"gate_id":"E11","tester_id":tester_id,"naive":naive,"demo_build_id":build_id,"start_timestamp":start_marker,"first_collateral_aha_seconds":aha_seconds,"completion_seconds":completion_seconds,"completed":completed},
+        "E1": {"schema_version": 1, "gate_id": "E1", "tester_id": tester_id, "naive": naive, "session_id": session_id, "understood_within_seconds": e1_time, "success": e1_success},
+        "E2": {"schema_version": 1, "gate_id": "E2", "tester_id": tester_id, "naive": naive, "session_id": session_id, "packet_completed": packet_completed, "prediction_prompt_id": prompt_id, "success": e2_success},
+        "E11": {"schema_version": 1, "gate_id": "E11", "tester_id": tester_id, "naive": naive, "demo_build_id": build_id, "start_timestamp": start_marker, "first_collateral_aha_seconds": aha_seconds, "completion_seconds": completion_seconds, "completed": completed},
     }
-    paths=[]
-    for gate_id,row in rows.items():
-        path=session_dir/f"completed-{gate_id}.jsonl"; write_jsonl(path,[row]); paths.append(path)
+    paths: list[Path] = []
+    for gate_id, row in rows.items():
+        path = session_dir / f"completed-{gate_id}.jsonl"
+        write_jsonl(path, [row])
+        paths.append(path)
+
     return {
-        "kind":"first_session",
-        "session_id":session_id,
-        "tester_id":tester_id,
-        "naive_declared":naive,
-        "e1_success_declared":e1_success,
-        "e1_understood_at_seconds_declared":e1_time,
-        "e2_packet_completed_declared":packet_completed,
-        "completed_gates":list(FIRST_GATES),
-    },paths
+        "kind": "first_session",
+        "session_id": session_id,
+        "tester_id": tester_id,
+        "naive_declared": naive,
+        "e1_success_declared": e1_success,
+        "e1_understood_at_seconds_declared": e1_time,
+        "e2_packet_completed_declared": packet_completed,
+        "e11_start_timestamp_finalized": float(start_marker),
+        "e11_first_collateral_aha_seconds_declared": aha_seconds,
+        "e11_completion_seconds_finalized": float(completion_seconds),
+        "e11_completed_finalized": completed,
+        "e11_completion_source": completion_source,
+        "completed_gates": list(FIRST_GATES),
+    }, paths
 
 
 def field_missing(row: dict, field: str) -> bool:
-    if field not in row: return True
-    value=row[field]; return value is None or (isinstance(value,str) and not value.strip()) or (isinstance(value,list) and not value)
+    if field not in row:
+        return True
+    value = row[field]
+    return value is None or (isinstance(value, str) and not value.strip()) or (isinstance(value, list) and not value)
 
 
-def finalize_mature(packet_dir: Path) -> tuple[dict,list[Path]]:
-    packet=load_json(packet_dir/"observer-packet.json"); tester_id=require_id(packet.get("tester_id", ""),"tester_id")
-    if packet.get("rules_known_before_session") is not True: fail("rules_known_before_session must be explicitly true before mature-human rows can be finalized")
-    rows_by_gate=packet.get("rows_by_gate", {})
-    if not isinstance(rows_by_gate,dict): fail("mature rows_by_gate must be an object")
-    paths=[]
+def finalize_mature(packet_dir: Path) -> tuple[dict, list[Path]]:
+    packet = load_json(packet_dir / "observer-packet.json")
+    tester_id = require_id(packet.get("tester_id", ""), "tester_id")
+    if packet.get("rules_known_before_session") is not True:
+        fail("rules_known_before_session must be explicitly true before mature-human rows can be finalized")
+    rows_by_gate = packet.get("rows_by_gate", {})
+    if not isinstance(rows_by_gate, dict):
+        fail("mature rows_by_gate must be an object")
+    paths: list[Path] = []
     for gate_id in MATURE_GATES:
-        rows=rows_by_gate.get(gate_id,[])
-        if not isinstance(rows,list) or not rows: fail(f"{gate_id}: packet has no rows")
-        checked=[]
-        for index,raw in enumerate(rows,start=1):
-            if not isinstance(raw,dict): fail(f"{gate_id} row {index}: expected object")
-            missing=[field for field in MATURE_REQUIRED_FIELDS[gate_id] if field_missing(raw,field)]
-            if missing: fail(f"{gate_id} row {index}: missing observed fields: {', '.join(missing)}")
-            if str(raw.get("tester_id","") ) != tester_id: fail(f"{gate_id} row {index}: tester identity mismatch")
-            if gate_id=="E3" and raw.get("rule_knowledge_confirmed") is not True: fail("E3 rows require rule_knowledge_confirmed=true; the frozen comparison is after rules are known")
-            if gate_id=="E6" and raw.get("used_raw_debug_log") is not False: fail("E6 rows require used_raw_debug_log=false; raw debug logs are forbidden by protocol")
-            item=dict(raw); item["rules_known_before_session"]=True; checked.append(item)
-        path=packet_dir/f"completed-{gate_id}.jsonl"; write_jsonl(path,checked); paths.append(path)
-    return {"kind":"mature_session","tester_id":tester_id,"rules_known_before_session_declared":True,"completed_gates":list(MATURE_GATES)},paths
+        rows = rows_by_gate.get(gate_id, [])
+        if not isinstance(rows, list) or not rows:
+            fail(f"{gate_id}: packet has no rows")
+        checked: list[dict] = []
+        for index, raw in enumerate(rows, start=1):
+            if not isinstance(raw, dict):
+                fail(f"{gate_id} row {index}: expected object")
+            missing = [field for field in MATURE_REQUIRED_FIELDS[gate_id] if field_missing(raw, field)]
+            if missing:
+                fail(f"{gate_id} row {index}: missing observed fields: {', '.join(missing)}")
+            if str(raw.get("tester_id", "")) != tester_id:
+                fail(f"{gate_id} row {index}: tester identity mismatch")
+            if gate_id == "E3" and raw.get("rule_knowledge_confirmed") is not True:
+                fail("E3 rows require rule_knowledge_confirmed=true; the frozen comparison is after rules are known")
+            if gate_id == "E6" and raw.get("used_raw_debug_log") is not False:
+                fail("E6 rows require used_raw_debug_log=false; raw debug logs are forbidden by protocol")
+            item = dict(raw)
+            item["rules_known_before_session"] = True
+            checked.append(item)
+        path = packet_dir / f"completed-{gate_id}.jsonl"
+        write_jsonl(path, checked)
+        paths.append(path)
+    return {"kind": "mature_session", "tester_id": tester_id, "rules_known_before_session_declared": True, "completed_gates": list(MATURE_GATES)}, paths
 
 
 def write_receipt(kit_root: Path, packet_dir: Path, manifest: dict, result: dict, completed_paths: list[Path]) -> Path:
-    finalizer_contract=manifest.get("offline_finalizer", {})
-    if not isinstance(finalizer_contract,dict): fail("offline finalizer contract missing")
-    entries=[]
-    for path in sorted(completed_paths): entries.append({"path":path.resolve().relative_to(kit_root.resolve()).as_posix(),"sha256":sha256_file(path),"bytes":path.stat().st_size})
-    qualification={"declaration_only":True,"proves_human_truth_or_timing":False}
-    if result.get("kind")=="first_session":
+    finalizer_contract = manifest.get("offline_finalizer", {})
+    if not isinstance(finalizer_contract, dict):
+        fail("offline finalizer contract missing")
+    entries = []
+    for path in sorted(completed_paths):
+        entries.append({"path": path.resolve().relative_to(kit_root.resolve()).as_posix(), "sha256": sha256_file(path), "bytes": path.stat().st_size})
+
+    qualification = {"declaration_only": True, "proves_human_truth_or_timing": False}
+    if result.get("kind") == "first_session":
         qualification.update({
-            "naive":bool(result.get("naive_declared",False)),
-            "e1_success":bool(result.get("e1_success_declared",False)),
-            "e1_understood_at_seconds":float(result.get("e1_understood_at_seconds_declared",0.0)),
-            "e2_packet_completed":bool(result.get("e2_packet_completed_declared",False)),
+            "naive": bool(result.get("naive_declared", False)),
+            "e1_success": bool(result.get("e1_success_declared", False)),
+            "e1_understood_at_seconds": float(result.get("e1_understood_at_seconds_declared", 0.0)),
+            "e2_packet_completed": bool(result.get("e2_packet_completed_declared", False)),
+            "e11_start_timestamp": float(result.get("e11_start_timestamp_finalized", 0.0)),
+            "e11_first_collateral_aha_seconds": float(result.get("e11_first_collateral_aha_seconds_declared", -1.0)),
+            "e11_completion_seconds": float(result.get("e11_completion_seconds_finalized", 0.0)),
+            "e11_completed": bool(result.get("e11_completed_finalized", False)),
+            "e11_completion_source": str(result.get("e11_completion_source", "")),
+            "e11_binding_scope": "finalization_snapshot_only",
         })
     else:
-        qualification.update({"rules_known_before_session":result.get("rules_known_before_session_declared") is True})
-    receipt={"schema":RECEIPT_SCHEMA,"source_head":str(manifest.get("source_head","")),"field_kit_contract_hash":str(manifest.get("contract_hash","")),"demo_build_id":str(manifest.get("demo_build_id","")),"production_build_id":str(manifest.get("production_build_id","")),"packet_kind":str(result.get("kind","")),"tester_id":str(result.get("tester_id","")),"session_id":str(result.get("session_id","")),"participant_qualification":qualification,"completed_gates":list(result.get("completed_gates",[])),"completed_files":entries,"finalizer_sha256":str(finalizer_contract.get("sha256","")),"human_outcomes_inferred":False,"repository_evidence_appended":False}
+        qualification.update({"rules_known_before_session": result.get("rules_known_before_session_declared") is True})
+
+    receipt = {
+        "schema": RECEIPT_SCHEMA,
+        "source_head": str(manifest.get("source_head", "")),
+        "field_kit_contract_hash": str(manifest.get("contract_hash", "")),
+        "demo_build_id": str(manifest.get("demo_build_id", "")),
+        "production_build_id": str(manifest.get("production_build_id", "")),
+        "packet_kind": str(result.get("kind", "")),
+        "tester_id": str(result.get("tester_id", "")),
+        "session_id": str(result.get("session_id", "")),
+        "participant_qualification": qualification,
+        "completed_gates": list(result.get("completed_gates", [])),
+        "completed_files": entries,
+        "finalizer_sha256": str(finalizer_contract.get("sha256", "")),
+        "human_outcomes_inferred": False,
+        "repository_evidence_appended": False,
+    }
     # For v5, field_kit_contract_hash cryptographically binds the exact demo and production binding IDs/SHA-256s in the immutable manifest.
-    if int(manifest.get("field_kit_version",0)) >= 5:
-        bindings=manifest.get("build_artifacts",{}); role="demo" if result.get("kind")=="first_session" else "production"
-        binding=bindings.get(role) if isinstance(bindings,dict) else None
-        if not isinstance(binding,dict): fail(f"verified manifest missing {role} acquisition build binding")
-        receipt["build_artifact_binding"]={"role":role,"binding_id":str(binding.get("binding_id","")),"artifact_sha256":str(binding.get("artifact_sha256","")),"artifact_bytes":binding.get("artifact_bytes")}
-    receipt_path=packet_dir/"finalization-receipt.json"; write_json(receipt_path,receipt); return receipt_path
+    if int(manifest.get("field_kit_version", 0)) >= 5:
+        bindings = manifest.get("build_artifacts", {})
+        role = "demo" if result.get("kind") == "first_session" else "production"
+        binding = bindings.get(role) if isinstance(bindings, dict) else None
+        if not isinstance(binding, dict):
+            fail(f"verified manifest missing {role} acquisition build binding")
+        receipt["build_artifact_binding"] = {
+            "role": role,
+            "binding_id": str(binding.get("binding_id", "")),
+            "artifact_sha256": str(binding.get("artifact_sha256", "")),
+            "artifact_bytes": binding.get("artifact_bytes"),
+        }
+    receipt_path = packet_dir / "finalization-receipt.json"
+    write_json(receipt_path, receipt)
+    return receipt_path
 
 
 def main() -> None:
-    parser=argparse.ArgumentParser(description="Finalize already-observed Phase 12G human field-kit packets without a repository checkout. Never appends repository evidence.")
-    parser.add_argument("--kit-dir",default="."); group=parser.add_mutually_exclusive_group(required=True); group.add_argument("--first-session"); group.add_argument("--mature-tester"); args=parser.parse_args()
-    kit_root=Path(args.kit_dir).resolve(); manifest=verify_kit(kit_root)
-    if args.first_session: packet_dir=first_packet_dir(kit_root,manifest,args.first_session); result,completed_paths=finalize_first(packet_dir)
-    else: packet_dir=mature_packet_dir(kit_root,manifest,args.mature_tester); result,completed_paths=finalize_mature(packet_dir)
-    receipt_path=write_receipt(kit_root,packet_dir,manifest,result,completed_paths)
-    result.update({"status":"FINALIZED_LOCAL_OFFLINE","finalization_receipt":receipt_path.relative_to(kit_root).as_posix(),"completed_file_digests_bound":True,"participant_qualification_bound":True,"finalized_semantic_eligibility_bound":True,"acquisition_build_bytes_bound":int(manifest.get("field_kit_version",0))>=5,"human_outcomes_inferred":False,"repository_evidence_appended":False,"append_requires_matching_repository_review":True})
-    print(json.dumps(result,indent=2,sort_keys=True))
+    parser = argparse.ArgumentParser(description="Finalize already-observed Phase 12G human field-kit packets without a repository checkout. Never appends repository evidence.")
+    parser.add_argument("--kit-dir", default=".")
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--first-session")
+    group.add_argument("--mature-tester")
+    args = parser.parse_args()
+    kit_root = Path(args.kit_dir).resolve()
+    manifest = verify_kit(kit_root)
+    if args.first_session:
+        packet_dir = first_packet_dir(kit_root, manifest, args.first_session)
+        result, completed_paths = finalize_first(packet_dir)
+    else:
+        packet_dir = mature_packet_dir(kit_root, manifest, args.mature_tester)
+        result, completed_paths = finalize_mature(packet_dir)
+    receipt_path = write_receipt(kit_root, packet_dir, manifest, result, completed_paths)
+    result.update({
+        "status": "FINALIZED_LOCAL_OFFLINE",
+        "finalization_receipt": receipt_path.relative_to(kit_root).as_posix(),
+        "completed_file_digests_bound": True,
+        "participant_qualification_bound": True,
+        "finalized_semantic_eligibility_bound": True,
+        "acquisition_build_bytes_bound": int(manifest.get("field_kit_version", 0)) >= 5,
+        "human_outcomes_inferred": False,
+        "repository_evidence_appended": False,
+        "append_requires_matching_repository_review": True,
+    })
+    print(json.dumps(result, indent=2, sort_keys=True))
 
-if __name__=="__main__": main()
+
+if __name__ == "__main__":
+    main()
