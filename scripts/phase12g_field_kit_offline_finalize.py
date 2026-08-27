@@ -12,6 +12,7 @@ FIRST_GATES = ("E1", "E2", "E11")
 MATURE_GATES = ("E3", "E4", "E5", "E6", "E9", "E10")
 PREDICTION_PROMPT_ID = "DEMO02_PRE_EDIT_SECOND_ORDER_01"
 RECEIPT_SCHEMA = "fmd.phase12g.field-kit-finalization-receipt.v1"
+E4_ASSESSMENT_VALUES = {"distinct", "mixed", "predominantly_same_trick"}
 MATURE_REQUIRED_FIELDS = {
     "E3": ["tester_id", "dossier_id", "method", "completion_seconds", "completed", "rule_knowledge_confirmed"],
     "E4": ["tester_id", "window_id", "dossier_ids", "same_trick_assessment", "notes"],
@@ -73,6 +74,29 @@ def e3_outcome_snapshot(rows: list[dict]) -> list[dict]:
         snapshot.append({
             "completion_seconds": float(completion),
             "completed": completed,
+        })
+    return snapshot
+
+
+def e4_outcome_snapshot(rows: list[dict]) -> list[dict]:
+    """Freeze only mutable E4 assessment semantics at finalization.
+
+    tester_id/window_id/dossier_ids are already protected by the prepared mature
+    packet identity fingerprint. The receipt snapshot binds the observer-declared
+    qualitative assessment and notes after observation. It remains declaration-only
+    and does not prove that a human actually perceived campaign repetition this way.
+    """
+    snapshot: list[dict] = []
+    for index, row in enumerate(rows, start=1):
+        assessment = str(row.get("same_trick_assessment", "")).strip()
+        notes = row.get("notes")
+        if assessment not in E4_ASSESSMENT_VALUES:
+            fail(f"E4 row {index}: same_trick_assessment must be one of {sorted(E4_ASSESSMENT_VALUES)}")
+        if not isinstance(notes, str) or not notes.strip():
+            fail(f"E4 row {index}: notes must be a non-empty string")
+        snapshot.append({
+            "same_trick_assessment": assessment,
+            "notes": notes,
         })
     return snapshot
 
@@ -256,6 +280,7 @@ def finalize_mature(packet_dir: Path) -> tuple[dict, list[Path]]:
         fail("mature rows_by_gate must be an object")
     paths: list[Path] = []
     finalized_e3_outcomes: list[dict] = []
+    finalized_e4_outcomes: list[dict] = []
     for gate_id in MATURE_GATES:
         rows = rows_by_gate.get(gate_id, [])
         if not isinstance(rows, list) or not rows:
@@ -278,6 +303,8 @@ def finalize_mature(packet_dir: Path) -> tuple[dict, list[Path]]:
             checked.append(item)
         if gate_id == "E3":
             finalized_e3_outcomes = e3_outcome_snapshot(checked)
+        if gate_id == "E4":
+            finalized_e4_outcomes = e4_outcome_snapshot(checked)
         path = packet_dir / f"completed-{gate_id}.jsonl"
         write_jsonl(path, checked)
         paths.append(path)
@@ -287,6 +314,8 @@ def finalize_mature(packet_dir: Path) -> tuple[dict, list[Path]]:
         "rules_known_before_session_declared": True,
         "e3_finalized_outcome_sha256": canonical_sha256(finalized_e3_outcomes),
         "e3_finalized_row_count": len(finalized_e3_outcomes),
+        "e4_finalized_outcome_sha256": canonical_sha256(finalized_e4_outcomes),
+        "e4_finalized_row_count": len(finalized_e4_outcomes),
         "completed_gates": list(MATURE_GATES),
     }, paths
 
@@ -319,6 +348,9 @@ def write_receipt(kit_root: Path, packet_dir: Path, manifest: dict, result: dict
             "e3_outcome_sha256": str(result.get("e3_finalized_outcome_sha256", "")),
             "e3_row_count": int(result.get("e3_finalized_row_count", 0)),
             "e3_binding_scope": "finalization_snapshot_only",
+            "e4_outcome_sha256": str(result.get("e4_finalized_outcome_sha256", "")),
+            "e4_row_count": int(result.get("e4_finalized_row_count", 0)),
+            "e4_binding_scope": "finalization_snapshot_only",
         })
 
     receipt = {
