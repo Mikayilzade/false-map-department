@@ -110,6 +110,30 @@ def e5_semantic_snapshot(rows: list[dict], path: Path) -> list[dict]:
     return snapshot
 
 
+def e6_semantic_snapshot(rows: list[dict], path: Path) -> list[dict]:
+    snapshot: list[dict] = []
+    for index, row in enumerate(rows, start=1):
+        requirement_id = str(row.get("requirement_id", "")).strip()
+        answered_cause = row.get("answered_cause")
+        used_raw_debug_log = row.get("used_raw_debug_log")
+        correct = row.get("correct")
+        if not requirement_id or any(ch.isspace() for ch in requirement_id):
+            fail(f"{path}:{index}: E6 requirement_id must remain a non-empty stable identifier without whitespace")
+        if not isinstance(answered_cause, str) or not answered_cause.strip():
+            fail(f"{path}:{index}: E6 answered_cause must remain a non-empty observer declaration")
+        if used_raw_debug_log is not False:
+            fail(f"{path}:{index}: E6 used_raw_debug_log must remain false")
+        if not isinstance(correct, bool):
+            fail(f"{path}:{index}: E6 correct must remain true/false")
+        snapshot.append({
+            "requirement_id": requirement_id,
+            "answered_cause": answered_cause,
+            "used_raw_debug_log": False,
+            "correct": correct,
+        })
+    return snapshot
+
+
 def validate_source_head(value: object) -> str:
     source_head = str(value).strip().lower()
     if len(source_head) != 40 or any(ch not in "0123456789abcdef" for ch in source_head):
@@ -175,19 +199,13 @@ def _finalized_number(qualification: dict, key: str, minimum: float, receipt_pat
     return float(value)
 
 
-def verify_finalized_semantic_eligibility(
-    packet_dir: Path,
-    receipt_path: Path,
-    receipt: dict,
-    expected_gates: tuple[str, ...],
-    packet_kind: str,
-) -> None:
+def verify_finalized_semantic_eligibility(packet_dir: Path, receipt_path: Path, receipt: dict, expected_gates: tuple[str, ...], packet_kind: str) -> None:
     """Keep finalized disposition-changing fields attached to finalization-time declarations.
 
     The finalization receipt is the packet-local declaration/snapshot boundary. First-session
     packets freeze E1/E2/E11 disposition semantics there. Mature packets reuse immutable
     prepared identity where fields are known before observation, while finalization snapshots
-    freeze mutable E3/E4/E5 scope/outcomes. These declarations do not prove human truth.
+    freeze mutable E3/E4/E5/E6 scope/outcomes. These declarations do not prove human truth.
     """
     qualification = receipt.get("participant_qualification")
     if not isinstance(qualification, dict):
@@ -206,7 +224,6 @@ def verify_finalized_semantic_eligibility(
         declared_packet_completed = qualification.get("e2_packet_completed")
         if not isinstance(declared_packet_completed, bool):
             fail(f"{receipt_path}: first-session finalization must declare e2_packet_completed=true/false")
-
         declared_e11_start = _finalized_number(qualification, "e11_start_timestamp", 0.0, receipt_path)
         declared_e11_aha = _finalized_number(qualification, "e11_first_collateral_aha_seconds", -1.0, receipt_path)
         declared_e11_completion = _finalized_number(qualification, "e11_completion_seconds", 0.0, receipt_path)
@@ -220,7 +237,6 @@ def verify_finalized_semantic_eligibility(
             fail(f"{receipt_path}: E11 completion source contradicts finalized completed flag")
         if qualification.get("e11_binding_scope") != "finalization_snapshot_only":
             fail(f"{receipt_path}: E11 finalization snapshot boundary marker missing")
-
         for gate_id in expected_gates:
             path = packet_dir / f"completed-{gate_id}.jsonl"
             for row_index, row in enumerate(load_jsonl(path), start=1):
@@ -287,20 +303,26 @@ def verify_finalized_semantic_eligibility(
             fail(f"{receipt_path}: E5 finalized semantic hash missing/invalid")
         if isinstance(declared_e5_count, bool) or not isinstance(declared_e5_count, int) or declared_e5_count < 1:
             fail(f"{receipt_path}: E5 finalized row count missing/invalid")
+        if qualification.get("e6_binding_scope") != "finalization_snapshot_only":
+            fail(f"{receipt_path}: E6 finalization snapshot boundary marker missing")
+        declared_e6_hash = str(qualification.get("e6_semantic_sha256", ""))
+        declared_e6_count = qualification.get("e6_row_count")
+        if len(declared_e6_hash) != 64 or any(ch not in "0123456789abcdef" for ch in declared_e6_hash):
+            fail(f"{receipt_path}: E6 finalized semantic hash missing/invalid")
+        if isinstance(declared_e6_count, bool) or not isinstance(declared_e6_count, int) or declared_e6_count < 1:
+            fail(f"{receipt_path}: E6 finalized row count missing/invalid")
 
         packet = load_json(packet_dir / "observer-packet.json")
         rows_by_gate = packet.get("rows_by_gate", {})
         if not isinstance(rows_by_gate, dict):
             fail(f"{packet_dir}: mature rows_by_gate missing/malformed")
         source_e3 = rows_by_gate.get("E3", [])
-        if not isinstance(source_e3, list):
-            fail(f"{packet_dir}: E3 source rows must be an array")
         source_e4 = rows_by_gate.get("E4", [])
-        if not isinstance(source_e4, list):
-            fail(f"{packet_dir}: E4 source rows must be an array")
         source_e5 = rows_by_gate.get("E5", [])
-        if not isinstance(source_e5, list):
-            fail(f"{packet_dir}: E5 source rows must be an array")
+        source_e6 = rows_by_gate.get("E6", [])
+        for gate_id, source in (("E3", source_e3), ("E4", source_e4), ("E5", source_e5), ("E6", source_e6)):
+            if not isinstance(source, list):
+                fail(f"{packet_dir}: {gate_id} source rows must be an array")
 
         for gate_id in expected_gates:
             path = packet_dir / f"completed-{gate_id}.jsonl"
@@ -348,6 +370,18 @@ def verify_finalized_semantic_eligibility(
                 actual_e5_hash = canonical_sha256(e5_semantic_snapshot(rows, path))
                 if actual_e5_hash != declared_e5_hash:
                     fail(f"{path}: finalized E5 semantic mismatch; finalization-time requirement/authority/correctness/tutorial snapshot changed")
+            if gate_id == "E6":
+                if len(rows) != len(source_e6) or len(rows) != declared_e6_count:
+                    fail(f"{path}: E6 finalized row-count semantic mismatch")
+                for index, (source, finalized) in enumerate(zip(source_e6, rows), start=1):
+                    if not isinstance(source, dict):
+                        fail(f"{packet_dir}: E6 source row {index} malformed")
+                    for key in ("tester_id", "dossier_id"):
+                        if finalized.get(key) != source.get(key):
+                            fail(f"{path}:{index}: E6 finalized identity mapping mismatch for {key}; prepared immutable packet is authoritative")
+                actual_e6_hash = canonical_sha256(e6_semantic_snapshot(rows, path))
+                if actual_e6_hash != declared_e6_hash:
+                    fail(f"{path}: finalized E6 semantic mismatch; finalization-time requirement/cause/debug/correctness snapshot changed")
         return
 
     fail(f"{receipt_path}: unsupported packet_kind for semantic eligibility verification: {packet_kind}")
@@ -360,19 +394,16 @@ def verify_optional_finalized_routing(packet_dir: Path, expected_gates: tuple[st
         if completed_paths:
             fail(f"{packet_dir}: completed rows exist without a finalization receipt")
         return
-
     receipt = load_json(receipt_path)
     if str(receipt.get("packet_kind", "")) != packet_kind:
         fail(f"{receipt_path}: finalization receipt packet_kind mismatch")
     receipt_gates = string_array(receipt.get("completed_gates", []), f"{receipt_path} completed_gates")
     if receipt_gates != list(expected_gates):
         fail(f"{receipt_path}: finalized gate route set mismatch; expected {list(expected_gates)}, got {receipt_gates}")
-
     expected_names = [f"completed-{gate_id}.jsonl" for gate_id in expected_gates]
     actual_names = [path.name for path in completed_paths]
     if actual_names != sorted(expected_names):
         fail(f"{packet_dir}: finalized completed-file route set mismatch; expected {sorted(expected_names)}, got {actual_names}")
-
     receipt_entries = receipt.get("completed_files", [])
     if not isinstance(receipt_entries, list) or len(receipt_entries) != len(expected_gates):
         fail(f"{receipt_path}: completed-file receipt bindings must cover exactly {len(expected_gates)} gate routes")
@@ -386,7 +417,6 @@ def verify_optional_finalized_routing(packet_dir: Path, expected_gates: tuple[st
         receipt_names.append(name)
     if sorted(receipt_names) != sorted(expected_names) or len(set(receipt_names)) != len(receipt_names):
         fail(f"{receipt_path}: receipt completed-file routes do not match immutable packet gate ownership")
-
     for gate_id in expected_gates:
         path = packet_dir / f"completed-{gate_id}.jsonl"
         for row_index, row in enumerate(load_jsonl(path), start=1):
@@ -394,7 +424,6 @@ def verify_optional_finalized_routing(packet_dir: Path, expected_gates: tuple[st
             if embedded_gate != gate_id:
                 shown = embedded_gate if embedded_gate else "<missing>"
                 fail(f"{path}:{row_index}: finalized row gate_id mismatch; receipt-bound route is {gate_id}, row claims {shown}")
-
     verify_finalized_semantic_eligibility(packet_dir, receipt_path, receipt, expected_gates, packet_kind)
 
 
@@ -454,7 +483,6 @@ def verify(kit_root: Path) -> dict:
         fail("build_artifacts contract missing")
     demo = verify_build_binding(kit_root, build_artifacts.get("demo"), source_head, "demo", str(manifest.get("demo_build_id", "")))
     production = verify_build_binding(kit_root, build_artifacts.get("production"), source_head, "production", str(manifest.get("production_build_id", "")))
-
     verifier = manifest.get("offline_verifier", {})
     verifier_path = resolve_relative(kit_root, verifier.get("path", ""), "offline verifier path")
     if verifier_path.resolve() != Path(__file__).resolve() or sha256_file(verifier_path) != str(verifier.get("sha256", "")):
@@ -468,7 +496,6 @@ def verify(kit_root: Path) -> dict:
     expected_gates = ["E1", "E2", "E3", "E4", "E5", "E6", "E9", "E10", "E11"]
     if string_array(manifest.get("human_gates", []), "human_gates") != expected_gates:
         fail("human gate set changed")
-
     first_section = manifest.get("first_session", {})
     mature_section = manifest.get("mature_session", {})
     first_manifest_path = resolve_relative(kit_root, first_section.get("batch_manifest", ""), "first batch manifest")
@@ -477,7 +504,6 @@ def verify(kit_root: Path) -> dict:
         fail("first-session batch manifest hash mismatch")
     if sha256_file(mature_manifest_path) != str(mature_section.get("batch_manifest_sha256", "")):
         fail("mature-session batch manifest hash mismatch")
-
     first_manifest = load_json(first_manifest_path)
     expected_first = {str(r.get("session_id", "")): r for r in first_section.get("packets", []) if isinstance(r, dict)}
     first_count = 0
@@ -491,7 +517,6 @@ def verify(kit_root: Path) -> dict:
         first_count += 1
     if first_count != int(first_section.get("packet_count", -1)):
         fail("first-session packet count mismatch")
-
     mature_manifest = load_json(mature_manifest_path)
     expected_mature = {str(r.get("tester_id", "")): r for r in mature_section.get("packets", []) if isinstance(r, dict)}
     mature_count = 0
@@ -505,7 +530,6 @@ def verify(kit_root: Path) -> dict:
         mature_count += 1
     if mature_count != int(mature_section.get("packet_count", -1)):
         fail("mature-session packet count mismatch")
-
     return {
         "status": "VERIFIED_OFFLINE",
         "source_head": source_head,
