@@ -55,14 +55,6 @@ def canonical_sha256(payload: object) -> str:
 
 
 def e3_outcome_snapshot(rows: list[dict]) -> list[dict]:
-    """Freeze only E3 outcome semantics not already in the immutable prepared identity.
-
-    dossier_id/method/counterbalance_order are bound by the field-kit mature packet
-    identity fingerprint. The finalization receipt independently freezes the human-
-    declared completion outcome/timing so later packet+completed-row edits cannot
-    rebound a comparative result by merely refreshing completed-file digests.
-    This is a declaration snapshot and is not proof that a human outcome/timing is true.
-    """
     snapshot: list[dict] = []
     for index, row in enumerate(rows, start=1):
         completion = row.get("completion_seconds")
@@ -71,21 +63,11 @@ def e3_outcome_snapshot(rows: list[dict]) -> list[dict]:
             fail(f"E3 row {index}: completion_seconds must be numeric >= 0")
         if not isinstance(completed, bool):
             fail(f"E3 row {index}: completed must be true/false")
-        snapshot.append({
-            "completion_seconds": float(completion),
-            "completed": completed,
-        })
+        snapshot.append({"completion_seconds": float(completion), "completed": completed})
     return snapshot
 
 
 def e4_outcome_snapshot(rows: list[dict]) -> list[dict]:
-    """Freeze only mutable E4 assessment semantics at finalization.
-
-    tester_id/window_id/dossier_ids are already protected by the prepared mature
-    packet identity fingerprint. The receipt snapshot binds the observer-declared
-    qualitative assessment and notes after observation. It remains declaration-only
-    and does not prove that a human actually perceived campaign repetition this way.
-    """
     snapshot: list[dict] = []
     for index, row in enumerate(rows, start=1):
         assessment = str(row.get("same_trick_assessment", "")).strip()
@@ -94,22 +76,11 @@ def e4_outcome_snapshot(rows: list[dict]) -> list[dict]:
             fail(f"E4 row {index}: same_trick_assessment must be one of {sorted(E4_ASSESSMENT_VALUES)}")
         if not isinstance(notes, str) or not notes.strip():
             fail(f"E4 row {index}: notes must be a non-empty string")
-        snapshot.append({
-            "same_trick_assessment": assessment,
-            "notes": notes,
-        })
+        snapshot.append({"same_trick_assessment": assessment, "notes": notes})
     return snapshot
 
 
 def e5_semantic_snapshot(rows: list[dict]) -> list[dict]:
-    """Freeze E5 observation scope plus disposition-relevant observer declarations.
-
-    The prepared mature identity already fixes tester_id+dossier_id. requirement_id is
-    selected only when an actual requirement is tested, so it is mutable before
-    finalization but becomes part of the observed E5 scope. The authority-layer answer,
-    correctness declaration and tutorial-recall declaration are likewise finalized here.
-    This snapshot is declaration-only and cannot prove human comprehension or correctness.
-    """
     snapshot: list[dict] = []
     for index, row in enumerate(rows, start=1):
         requirement_id = str(row.get("requirement_id", "")).strip()
@@ -124,23 +95,11 @@ def e5_semantic_snapshot(rows: list[dict]) -> list[dict]:
             fail(f"E5 row {index}: correct must be true/false")
         if not isinstance(tutorial_recall_used, bool):
             fail(f"E5 row {index}: tutorial_recall_used must be true/false")
-        snapshot.append({
-            "requirement_id": requirement_id,
-            "identified_authority_layer": authority_layer,
-            "correct": correct,
-            "tutorial_recall_used": tutorial_recall_used,
-        })
+        snapshot.append({"requirement_id": requirement_id, "identified_authority_layer": authority_layer, "correct": correct, "tutorial_recall_used": tutorial_recall_used})
     return snapshot
 
 
 def e6_semantic_snapshot(rows: list[dict]) -> list[dict]:
-    """Freeze E6 observation scope plus disposition-relevant observer declarations.
-
-    Prepared mature identity already fixes tester_id+dossier_id. requirement_id is chosen
-    at observation time, while answered_cause and correct are human observer declarations.
-    used_raw_debug_log must remain false by protocol. This declaration-only snapshot binds
-    those mutable fields after finalization without claiming human truth or correctness.
-    """
     snapshot: list[dict] = []
     for index, row in enumerate(rows, start=1):
         requirement_id = str(row.get("requirement_id", "")).strip()
@@ -155,12 +114,44 @@ def e6_semantic_snapshot(rows: list[dict]) -> list[dict]:
             fail(f"E6 row {index}: used_raw_debug_log must be false")
         if not isinstance(correct, bool):
             fail(f"E6 row {index}: correct must be true/false")
-        snapshot.append({
-            "requirement_id": requirement_id,
-            "answered_cause": answered_cause,
-            "used_raw_debug_log": False,
-            "correct": correct,
-        })
+        snapshot.append({"requirement_id": requirement_id, "answered_cause": answered_cause, "used_raw_debug_log": False, "correct": correct})
+    return snapshot
+
+
+def e9_outcome_snapshot(rows: list[dict]) -> list[dict]:
+    """Freeze observation-time remix-distinctness declarations only.
+
+    tester_id/remix_id/source_dossier_id are already bound by prepared mature identity.
+    This snapshot binds the human qualitative outcome and notes without claiming that
+    a human actually observed or correctly described a changed causal problem.
+    """
+    snapshot: list[dict] = []
+    for index, row in enumerate(rows, start=1):
+        changed = row.get("described_as_changed_causal_problem")
+        notes = row.get("notes")
+        if not isinstance(changed, bool):
+            fail(f"E9 row {index}: described_as_changed_causal_problem must be true/false")
+        if not isinstance(notes, str) or not notes.strip():
+            fail(f"E9 row {index}: notes must be a non-empty observer declaration")
+        snapshot.append({"described_as_changed_causal_problem": changed, "notes": notes})
+    return snapshot
+
+
+def e10_outcome_snapshot(rows: list[dict]) -> list[dict]:
+    """Freeze observation-time agent-distinctness declarations only.
+
+    tester_id/agent_a/agent_b/scenario_id are already bound by prepared mature identity.
+    The prediction text and correctness declaration are finalized here, declaration-only.
+    """
+    snapshot: list[dict] = []
+    for index, row in enumerate(rows, start=1):
+        prediction = row.get("predicted_distinction")
+        correct = row.get("correct")
+        if not isinstance(prediction, str) or not prediction.strip():
+            fail(f"E10 row {index}: predicted_distinction must be a non-empty observer declaration")
+        if not isinstance(correct, bool):
+            fail(f"E10 row {index}: correct must be true/false")
+        snapshot.append({"predicted_distinction": prediction, "correct": correct})
     return snapshot
 
 
@@ -182,12 +173,7 @@ def verify_kit(kit_root: Path) -> dict:
     if not isinstance(verifier_contract, dict):
         fail("offline verifier contract missing")
     verifier = resolve_relative(kit_root, verifier_contract.get("path", ""), "offline verifier path")
-    completed = subprocess.run(
-        [sys.executable, str(verifier), "--kit-dir", str(kit_root)],
-        cwd=kit_root,
-        text=True,
-        capture_output=True,
-    )
+    completed = subprocess.run([sys.executable, str(verifier), "--kit-dir", str(kit_root)], cwd=kit_root, text=True, capture_output=True)
     if completed.returncode != 0:
         fail(f"kit integrity verification failed before finalization: {(completed.stdout + completed.stderr).strip()}")
     try:
@@ -272,7 +258,6 @@ def finalize_first(session_dir: Path) -> tuple[dict, list[Path]]:
         fail("observer identity does not match first-session manifest")
     if telemetry.get("tester_id") != tester_id or telemetry.get("session_id") != session_id or telemetry.get("demo_build_id") != build_id:
         fail("telemetry identity does not match first-session manifest")
-
     naive = require_bool(observer, "naive")
     e1_success = require_bool(observer, "e1_success")
     e1_time = require_number(observer, "e1_understood_at_seconds")
@@ -281,14 +266,12 @@ def finalize_first(session_dir: Path) -> tuple[dict, list[Path]]:
     prompt_id = str(observer.get("e2_prediction_prompt_id", "")).strip()
     if prompt_id != PREDICTION_PROMPT_ID:
         fail(f"e2_prediction_prompt_id must remain {PREDICTION_PROMPT_ID}")
-
     aha_observed = require_bool(observer, "first_collateral_aha_observed")
     aha_seconds = require_number(observer, "first_collateral_aha_seconds", minimum=-1.0)
     if aha_observed and aha_seconds < 0:
         fail("first_collateral_aha_seconds must be >=0 when an aha was observed")
     if not aha_observed and aha_seconds != -1.0:
         fail("use first_collateral_aha_seconds=-1 when no genuine aha was observed")
-
     session_end = require_number(observer, "session_end_seconds")
     start_marker = telemetry.get("session_started_ms")
     if isinstance(start_marker, bool) or not isinstance(start_marker, (int, float)):
@@ -297,7 +280,6 @@ def finalize_first(session_dir: Path) -> tuple[dict, list[Path]]:
     completed = completion_event_seconds is not None
     completion_source = "telemetry_demo_completed" if completed else "observer_session_end"
     completion_seconds = completion_event_seconds if completion_event_seconds is not None else session_end
-
     rows = {
         "E1": {"schema_version": 1, "gate_id": "E1", "tester_id": tester_id, "naive": naive, "session_id": session_id, "understood_within_seconds": e1_time, "success": e1_success},
         "E2": {"schema_version": 1, "gate_id": "E2", "tester_id": tester_id, "naive": naive, "session_id": session_id, "packet_completed": packet_completed, "prediction_prompt_id": prompt_id, "success": e2_success},
@@ -308,22 +290,7 @@ def finalize_first(session_dir: Path) -> tuple[dict, list[Path]]:
         path = session_dir / f"completed-{gate_id}.jsonl"
         write_jsonl(path, [row])
         paths.append(path)
-
-    return {
-        "kind": "first_session",
-        "session_id": session_id,
-        "tester_id": tester_id,
-        "naive_declared": naive,
-        "e1_success_declared": e1_success,
-        "e1_understood_at_seconds_declared": e1_time,
-        "e2_packet_completed_declared": packet_completed,
-        "e11_start_timestamp_finalized": float(start_marker),
-        "e11_first_collateral_aha_seconds_declared": aha_seconds,
-        "e11_completion_seconds_finalized": float(completion_seconds),
-        "e11_completed_finalized": completed,
-        "e11_completion_source": completion_source,
-        "completed_gates": list(FIRST_GATES),
-    }, paths
+    return {"kind": "first_session", "session_id": session_id, "tester_id": tester_id, "naive_declared": naive, "e1_success_declared": e1_success, "e1_understood_at_seconds_declared": e1_time, "e2_packet_completed_declared": packet_completed, "e11_start_timestamp_finalized": float(start_marker), "e11_first_collateral_aha_seconds_declared": aha_seconds, "e11_completion_seconds_finalized": float(completion_seconds), "e11_completed_finalized": completed, "e11_completion_source": completion_source, "completed_gates": list(FIRST_GATES)}, paths
 
 
 def field_missing(row: dict, field: str) -> bool:
@@ -346,6 +313,8 @@ def finalize_mature(packet_dir: Path) -> tuple[dict, list[Path]]:
     finalized_e4_outcomes: list[dict] = []
     finalized_e5_semantics: list[dict] = []
     finalized_e6_semantics: list[dict] = []
+    finalized_e9_outcomes: list[dict] = []
+    finalized_e10_outcomes: list[dict] = []
     for gate_id in MATURE_GATES:
         rows = rows_by_gate.get(gate_id, [])
         if not isinstance(rows, list) or not rows:
@@ -366,101 +335,51 @@ def finalize_mature(packet_dir: Path) -> tuple[dict, list[Path]]:
             item = dict(raw)
             item["rules_known_before_session"] = True
             checked.append(item)
-        if gate_id == "E3":
-            finalized_e3_outcomes = e3_outcome_snapshot(checked)
-        if gate_id == "E4":
-            finalized_e4_outcomes = e4_outcome_snapshot(checked)
-        if gate_id == "E5":
-            finalized_e5_semantics = e5_semantic_snapshot(checked)
-        if gate_id == "E6":
-            finalized_e6_semantics = e6_semantic_snapshot(checked)
+        if gate_id == "E3": finalized_e3_outcomes = e3_outcome_snapshot(checked)
+        if gate_id == "E4": finalized_e4_outcomes = e4_outcome_snapshot(checked)
+        if gate_id == "E5": finalized_e5_semantics = e5_semantic_snapshot(checked)
+        if gate_id == "E6": finalized_e6_semantics = e6_semantic_snapshot(checked)
+        if gate_id == "E9": finalized_e9_outcomes = e9_outcome_snapshot(checked)
+        if gate_id == "E10": finalized_e10_outcomes = e10_outcome_snapshot(checked)
         path = packet_dir / f"completed-{gate_id}.jsonl"
         write_jsonl(path, checked)
         paths.append(path)
     return {
-        "kind": "mature_session",
-        "tester_id": tester_id,
-        "rules_known_before_session_declared": True,
-        "e3_finalized_outcome_sha256": canonical_sha256(finalized_e3_outcomes),
-        "e3_finalized_row_count": len(finalized_e3_outcomes),
-        "e4_finalized_outcome_sha256": canonical_sha256(finalized_e4_outcomes),
-        "e4_finalized_row_count": len(finalized_e4_outcomes),
-        "e5_finalized_semantic_sha256": canonical_sha256(finalized_e5_semantics),
-        "e5_finalized_row_count": len(finalized_e5_semantics),
-        "e6_finalized_semantic_sha256": canonical_sha256(finalized_e6_semantics),
-        "e6_finalized_row_count": len(finalized_e6_semantics),
+        "kind": "mature_session", "tester_id": tester_id, "rules_known_before_session_declared": True,
+        "e3_finalized_outcome_sha256": canonical_sha256(finalized_e3_outcomes), "e3_finalized_row_count": len(finalized_e3_outcomes),
+        "e4_finalized_outcome_sha256": canonical_sha256(finalized_e4_outcomes), "e4_finalized_row_count": len(finalized_e4_outcomes),
+        "e5_finalized_semantic_sha256": canonical_sha256(finalized_e5_semantics), "e5_finalized_row_count": len(finalized_e5_semantics),
+        "e6_finalized_semantic_sha256": canonical_sha256(finalized_e6_semantics), "e6_finalized_row_count": len(finalized_e6_semantics),
+        "e9_finalized_outcome_sha256": canonical_sha256(finalized_e9_outcomes), "e9_finalized_row_count": len(finalized_e9_outcomes),
+        "e10_finalized_outcome_sha256": canonical_sha256(finalized_e10_outcomes), "e10_finalized_row_count": len(finalized_e10_outcomes),
         "completed_gates": list(MATURE_GATES),
     }, paths
 
 
 def write_receipt(kit_root: Path, packet_dir: Path, manifest: dict, result: dict, completed_paths: list[Path]) -> Path:
     finalizer_contract = manifest.get("offline_finalizer", {})
-    if not isinstance(finalizer_contract, dict):
-        fail("offline finalizer contract missing")
-    entries = []
-    for path in sorted(completed_paths):
-        entries.append({"path": path.resolve().relative_to(kit_root.resolve()).as_posix(), "sha256": sha256_file(path), "bytes": path.stat().st_size})
-
+    if not isinstance(finalizer_contract, dict): fail("offline finalizer contract missing")
+    entries = [{"path": path.resolve().relative_to(kit_root.resolve()).as_posix(), "sha256": sha256_file(path), "bytes": path.stat().st_size} for path in sorted(completed_paths)]
     qualification = {"declaration_only": True, "proves_human_truth_or_timing": False}
     if result.get("kind") == "first_session":
-        qualification.update({
-            "naive": bool(result.get("naive_declared", False)),
-            "e1_success": bool(result.get("e1_success_declared", False)),
-            "e1_understood_at_seconds": float(result.get("e1_understood_at_seconds_declared", 0.0)),
-            "e2_packet_completed": bool(result.get("e2_packet_completed_declared", False)),
-            "e11_start_timestamp": float(result.get("e11_start_timestamp_finalized", 0.0)),
-            "e11_first_collateral_aha_seconds": float(result.get("e11_first_collateral_aha_seconds_declared", -1.0)),
-            "e11_completion_seconds": float(result.get("e11_completion_seconds_finalized", 0.0)),
-            "e11_completed": bool(result.get("e11_completed_finalized", False)),
-            "e11_completion_source": str(result.get("e11_completion_source", "")),
-            "e11_binding_scope": "finalization_snapshot_only",
-        })
+        qualification.update({"naive": bool(result.get("naive_declared", False)), "e1_success": bool(result.get("e1_success_declared", False)), "e1_understood_at_seconds": float(result.get("e1_understood_at_seconds_declared", 0.0)), "e2_packet_completed": bool(result.get("e2_packet_completed_declared", False)), "e11_start_timestamp": float(result.get("e11_start_timestamp_finalized", 0.0)), "e11_first_collateral_aha_seconds": float(result.get("e11_first_collateral_aha_seconds_declared", -1.0)), "e11_completion_seconds": float(result.get("e11_completion_seconds_finalized", 0.0)), "e11_completed": bool(result.get("e11_completed_finalized", False)), "e11_completion_source": str(result.get("e11_completion_source", "")), "e11_binding_scope": "finalization_snapshot_only"})
     else:
         qualification.update({
             "rules_known_before_session": result.get("rules_known_before_session_declared") is True,
-            "e3_outcome_sha256": str(result.get("e3_finalized_outcome_sha256", "")),
-            "e3_row_count": int(result.get("e3_finalized_row_count", 0)),
-            "e3_binding_scope": "finalization_snapshot_only",
-            "e4_outcome_sha256": str(result.get("e4_finalized_outcome_sha256", "")),
-            "e4_row_count": int(result.get("e4_finalized_row_count", 0)),
-            "e4_binding_scope": "finalization_snapshot_only",
-            "e5_semantic_sha256": str(result.get("e5_finalized_semantic_sha256", "")),
-            "e5_row_count": int(result.get("e5_finalized_row_count", 0)),
-            "e5_binding_scope": "finalization_snapshot_only",
-            "e6_semantic_sha256": str(result.get("e6_finalized_semantic_sha256", "")),
-            "e6_row_count": int(result.get("e6_finalized_row_count", 0)),
-            "e6_binding_scope": "finalization_snapshot_only",
+            "e3_outcome_sha256": str(result.get("e3_finalized_outcome_sha256", "")), "e3_row_count": int(result.get("e3_finalized_row_count", 0)), "e3_binding_scope": "finalization_snapshot_only",
+            "e4_outcome_sha256": str(result.get("e4_finalized_outcome_sha256", "")), "e4_row_count": int(result.get("e4_finalized_row_count", 0)), "e4_binding_scope": "finalization_snapshot_only",
+            "e5_semantic_sha256": str(result.get("e5_finalized_semantic_sha256", "")), "e5_row_count": int(result.get("e5_finalized_row_count", 0)), "e5_binding_scope": "finalization_snapshot_only",
+            "e6_semantic_sha256": str(result.get("e6_finalized_semantic_sha256", "")), "e6_row_count": int(result.get("e6_finalized_row_count", 0)), "e6_binding_scope": "finalization_snapshot_only",
+            "e9_outcome_sha256": str(result.get("e9_finalized_outcome_sha256", "")), "e9_row_count": int(result.get("e9_finalized_row_count", 0)), "e9_binding_scope": "finalization_snapshot_only",
+            "e10_outcome_sha256": str(result.get("e10_finalized_outcome_sha256", "")), "e10_row_count": int(result.get("e10_finalized_row_count", 0)), "e10_binding_scope": "finalization_snapshot_only",
         })
-
-    receipt = {
-        "schema": RECEIPT_SCHEMA,
-        "source_head": str(manifest.get("source_head", "")),
-        "field_kit_contract_hash": str(manifest.get("contract_hash", "")),
-        "demo_build_id": str(manifest.get("demo_build_id", "")),
-        "production_build_id": str(manifest.get("production_build_id", "")),
-        "packet_kind": str(result.get("kind", "")),
-        "tester_id": str(result.get("tester_id", "")),
-        "session_id": str(result.get("session_id", "")),
-        "participant_qualification": qualification,
-        "completed_gates": list(result.get("completed_gates", [])),
-        "completed_files": entries,
-        "finalizer_sha256": str(finalizer_contract.get("sha256", "")),
-        "human_outcomes_inferred": False,
-        "repository_evidence_appended": False,
-    }
-    # For v5, field_kit_contract_hash cryptographically binds the exact demo and production binding IDs/SHA-256s in the immutable manifest.
+    receipt = {"schema": RECEIPT_SCHEMA, "source_head": str(manifest.get("source_head", "")), "field_kit_contract_hash": str(manifest.get("contract_hash", "")), "demo_build_id": str(manifest.get("demo_build_id", "")), "production_build_id": str(manifest.get("production_build_id", "")), "packet_kind": str(result.get("kind", "")), "tester_id": str(result.get("tester_id", "")), "session_id": str(result.get("session_id", "")), "participant_qualification": qualification, "completed_gates": list(result.get("completed_gates", [])), "completed_files": entries, "finalizer_sha256": str(finalizer_contract.get("sha256", "")), "human_outcomes_inferred": False, "repository_evidence_appended": False}
     if int(manifest.get("field_kit_version", 0)) >= 5:
         bindings = manifest.get("build_artifacts", {})
         role = "demo" if result.get("kind") == "first_session" else "production"
         binding = bindings.get(role) if isinstance(bindings, dict) else None
-        if not isinstance(binding, dict):
-            fail(f"verified manifest missing {role} acquisition build binding")
-        receipt["build_artifact_binding"] = {
-            "role": role,
-            "binding_id": str(binding.get("binding_id", "")),
-            "artifact_sha256": str(binding.get("artifact_sha256", "")),
-            "artifact_bytes": binding.get("artifact_bytes"),
-        }
+        if not isinstance(binding, dict): fail(f"verified manifest missing {role} acquisition build binding")
+        receipt["build_artifact_binding"] = {"role": role, "binding_id": str(binding.get("binding_id", "")), "artifact_sha256": str(binding.get("artifact_sha256", "")), "artifact_bytes": binding.get("artifact_bytes")}
     receipt_path = packet_dir / "finalization-receipt.json"
     write_json(receipt_path, receipt)
     return receipt_path
@@ -476,23 +395,11 @@ def main() -> None:
     kit_root = Path(args.kit_dir).resolve()
     manifest = verify_kit(kit_root)
     if args.first_session:
-        packet_dir = first_packet_dir(kit_root, manifest, args.first_session)
-        result, completed_paths = finalize_first(packet_dir)
+        packet_dir = first_packet_dir(kit_root, manifest, args.first_session); result, completed_paths = finalize_first(packet_dir)
     else:
-        packet_dir = mature_packet_dir(kit_root, manifest, args.mature_tester)
-        result, completed_paths = finalize_mature(packet_dir)
+        packet_dir = mature_packet_dir(kit_root, manifest, args.mature_tester); result, completed_paths = finalize_mature(packet_dir)
     receipt_path = write_receipt(kit_root, packet_dir, manifest, result, completed_paths)
-    result.update({
-        "status": "FINALIZED_LOCAL_OFFLINE",
-        "finalization_receipt": receipt_path.relative_to(kit_root).as_posix(),
-        "completed_file_digests_bound": True,
-        "participant_qualification_bound": True,
-        "finalized_semantic_eligibility_bound": True,
-        "acquisition_build_bytes_bound": int(manifest.get("field_kit_version", 0)) >= 5,
-        "human_outcomes_inferred": False,
-        "repository_evidence_appended": False,
-        "append_requires_matching_repository_review": True,
-    })
+    result.update({"status": "FINALIZED_LOCAL_OFFLINE", "finalization_receipt": receipt_path.relative_to(kit_root).as_posix(), "completed_file_digests_bound": True, "participant_qualification_bound": True, "finalized_semantic_eligibility_bound": True, "acquisition_build_bytes_bound": int(manifest.get("field_kit_version", 0)) >= 5, "human_outcomes_inferred": False, "repository_evidence_appended": False, "append_requires_matching_repository_review": True})
     print(json.dumps(result, indent=2, sort_keys=True))
 
 
