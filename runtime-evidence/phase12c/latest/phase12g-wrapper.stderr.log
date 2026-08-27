@@ -1,1 +1,1 @@
-PHASE12G FIELD KIT INGEST AUDIT FAIL: post-finalization transport mutation must reject during dry-run validation
+PHASE12G FINALIZATION RECEIPT AUDIT FAIL: post-finalization completed-row mutation must reject with receipt integrity reason
