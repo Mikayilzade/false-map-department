@@ -161,7 +161,16 @@ def finalize_first(session_dir: Path) -> tuple[dict, list[Path]]:
     paths=[]
     for gate_id,row in rows.items():
         path=session_dir/f"completed-{gate_id}.jsonl"; write_jsonl(path,[row]); paths.append(path)
-    return {"kind":"first_session","session_id":session_id,"tester_id":tester_id,"naive_declared":naive,"e2_packet_completed_declared":packet_completed,"completed_gates":list(FIRST_GATES)},paths
+    return {
+        "kind":"first_session",
+        "session_id":session_id,
+        "tester_id":tester_id,
+        "naive_declared":naive,
+        "e1_success_declared":e1_success,
+        "e1_understood_at_seconds_declared":e1_time,
+        "e2_packet_completed_declared":packet_completed,
+        "completed_gates":list(FIRST_GATES),
+    },paths
 
 
 def field_missing(row: dict, field: str) -> bool:
@@ -197,8 +206,15 @@ def write_receipt(kit_root: Path, packet_dir: Path, manifest: dict, result: dict
     entries=[]
     for path in sorted(completed_paths): entries.append({"path":path.resolve().relative_to(kit_root.resolve()).as_posix(),"sha256":sha256_file(path),"bytes":path.stat().st_size})
     qualification={"declaration_only":True,"proves_human_truth_or_timing":False}
-    if result.get("kind")=="first_session": qualification.update({"naive":bool(result.get("naive_declared",False)),"e2_packet_completed":bool(result.get("e2_packet_completed_declared",False))})
-    else: qualification.update({"rules_known_before_session":result.get("rules_known_before_session_declared") is True})
+    if result.get("kind")=="first_session":
+        qualification.update({
+            "naive":bool(result.get("naive_declared",False)),
+            "e1_success":bool(result.get("e1_success_declared",False)),
+            "e1_understood_at_seconds":float(result.get("e1_understood_at_seconds_declared",0.0)),
+            "e2_packet_completed":bool(result.get("e2_packet_completed_declared",False)),
+        })
+    else:
+        qualification.update({"rules_known_before_session":result.get("rules_known_before_session_declared") is True})
     receipt={"schema":RECEIPT_SCHEMA,"source_head":str(manifest.get("source_head","")),"field_kit_contract_hash":str(manifest.get("contract_hash","")),"demo_build_id":str(manifest.get("demo_build_id","")),"production_build_id":str(manifest.get("production_build_id","")),"packet_kind":str(result.get("kind","")),"tester_id":str(result.get("tester_id","")),"session_id":str(result.get("session_id","")),"participant_qualification":qualification,"completed_gates":list(result.get("completed_gates",[])),"completed_files":entries,"finalizer_sha256":str(finalizer_contract.get("sha256","")),"human_outcomes_inferred":False,"repository_evidence_appended":False}
     # For v5, field_kit_contract_hash cryptographically binds the exact demo and production binding IDs/SHA-256s in the immutable manifest.
     if int(manifest.get("field_kit_version",0)) >= 5:
