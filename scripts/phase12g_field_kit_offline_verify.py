@@ -124,16 +124,15 @@ def verify_finalized_semantic_eligibility(
     expected_gates: tuple[str, ...],
     packet_kind: str,
 ) -> None:
-    """Keep finalized eligibility fields attached to finalization-time declarations.
+    """Keep finalized disposition-changing fields attached to finalization-time declarations.
 
-    The finalization receipt is the packet-local declaration boundary. For E2, packet completion
-    is copied there from observer.json by the pinned finalizer at finalization time. The verifier
-    therefore never trusts a later observer.json edit to redefine finalized eligibility. A caller
-    may transport returned bytes or update a completed-file digest, but may not silently rebind
-    packet completion without also contradicting the finalization-time receipt declaration.
+    The finalization receipt is the packet-local declaration boundary. For first-session packets,
+    the pinned finalizer copies naive eligibility, E1 success/timing, and E2 packet completion there
+    at finalization time. The verifier therefore never trusts a later observer.json edit to redefine
+    those finalized semantics merely because a caller also rewrites completed-file digests.
 
-    These checks do not prove human naivety, completion, rule knowledge, or timing. They only
-    prevent contradictory post-finalization semantic rebinding inside a returned packet.
+    These checks do not prove human naivety, comprehension, completion, or timing. They only prevent
+    contradictory post-finalization semantic rebinding inside a returned packet.
     """
     qualification = receipt.get("participant_qualification")
     if not isinstance(qualification, dict):
@@ -145,6 +144,12 @@ def verify_finalized_semantic_eligibility(
         declared_naive = qualification.get("naive")
         if not isinstance(declared_naive, bool):
             fail(f"{receipt_path}: first-session participant qualification must declare naive=true/false")
+        declared_e1_success = qualification.get("e1_success")
+        if not isinstance(declared_e1_success, bool):
+            fail(f"{receipt_path}: first-session finalization must declare e1_success=true/false")
+        declared_e1_time = qualification.get("e1_understood_at_seconds")
+        if isinstance(declared_e1_time, bool) or not isinstance(declared_e1_time, (int, float)) or float(declared_e1_time) < 0:
+            fail(f"{receipt_path}: first-session finalization must declare e1_understood_at_seconds>=0")
         declared_packet_completed = qualification.get("e2_packet_completed")
         if not isinstance(declared_packet_completed, bool):
             fail(f"{receipt_path}: first-session finalization must declare e2_packet_completed=true/false")
@@ -159,6 +164,19 @@ def verify_finalized_semantic_eligibility(
                         f"{path}:{row_index}: finalized semantic eligibility mismatch; "
                         f"receipt declares naive={declared_naive}, row claims naive={row_naive}"
                     )
+                if gate_id == "E1":
+                    row_success = row.get("success")
+                    if not isinstance(row_success, bool):
+                        fail(f"{path}:{row_index}: E1 success must remain true/false")
+                    row_time = row.get("understood_within_seconds")
+                    if isinstance(row_time, bool) or not isinstance(row_time, (int, float)) or float(row_time) < 0:
+                        fail(f"{path}:{row_index}: E1 understood_within_seconds must remain numeric >=0")
+                    if row_success is not declared_e1_success or float(row_time) != float(declared_e1_time):
+                        fail(
+                            f"{path}:{row_index}: finalized E1 comprehension semantic mismatch; "
+                            f"receipt declares success={declared_e1_success}, understood_at_seconds={float(declared_e1_time)}, "
+                            f"row claims success={row_success}, understood_within_seconds={float(row_time)}"
+                        )
                 if gate_id == "E2":
                     row_packet_completed = row.get("packet_completed")
                     if not isinstance(row_packet_completed, bool):
