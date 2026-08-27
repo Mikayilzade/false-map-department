@@ -1,1 +1,0 @@
-Phase 12G E8 ingest audit: PASS — finalized media/source/build validation remains dry-run-isolated; production append rejects noncanonical evidence destinations before mutation; source and packaged-build tamper still fail closed
