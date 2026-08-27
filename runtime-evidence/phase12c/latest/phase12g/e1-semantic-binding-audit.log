@@ -1,1 +1,0 @@
-Phase 12G E1 semantic binding audit: PASS — finalized failing E1 success/timing cannot be rebound to passing by observer+row+completed-file-digest mutation; receipt declaration is finalization-time only, ingest appends zero evidence, canonical packet restores cleanly
