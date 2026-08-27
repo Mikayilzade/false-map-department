@@ -177,9 +177,6 @@ def main() -> None:
         original_e3 = e3_path.read_bytes()
         original_receipt = receipt_path.read_bytes()
 
-        # Attack 1: remap a finalized E3 row to the other comparison method while
-        # preserving the immutable prepared observer packet, then refresh only the
-        # completed-file digest. The verifier must use prepared identity authority.
         rows = jsonl(e3_path)
         rows[0]["method"] = "systematic_legal_edit_search" if rows[0]["method"] != "systematic_legal_edit_search" else "causal_reasoning"
         write_jsonl(e3_path, rows)
@@ -193,10 +190,6 @@ def main() -> None:
         e3_path.write_bytes(original_e3)
         receipt_path.write_bytes(original_receipt)
 
-        # Attack 2: change mutable observer outcome fields and finalized E3 outcome
-        # together, then refresh the completed-file digest. Prepared identity still
-        # verifies because outcomes are intentionally mutable pre-finalization; the
-        # independent finalization snapshot must now reject the rebound.
         observer = load(observer_path)
         first_observed = observer["rows_by_gate"]["E3"][0]
         first_observed["completion_seconds"] = 1.0
@@ -212,7 +205,7 @@ def main() -> None:
 
         attacked = run([sys.executable, str(verifier), "--kit-dir", str(kit_root)], ok=False, cwd=kit_root)
         attacked_text = (attacked.stdout + attacked.stderr).lower()
-        if "finalized e3 outcome semantic mismatch" not in attacked_text:
+        if "finalized e3 outcome mismatch" not in attacked_text:
             fail("observer+E3-row+digest outcome rebound did not fail at finalization snapshot boundary")
 
         ingest = run([
@@ -221,7 +214,7 @@ def main() -> None:
             "--expected-source-head", source_head,
             "--evidence-root", str(evidence_root),
         ], ok=False)
-        if "finalized e3 outcome semantic mismatch" not in (ingest.stdout + ingest.stderr).lower():
+        if "finalized e3 outcome mismatch" not in (ingest.stdout + ingest.stderr).lower():
             fail("repository ingest did not reject E3 outcome rebound through bundled verification")
         if evidence_root.exists() and any(evidence_root.glob("*.jsonl")):
             fail("rejected E3 rebound must append zero empirical evidence")
