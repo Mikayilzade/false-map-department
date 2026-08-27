@@ -10,6 +10,7 @@ BUILD_SNAPSHOT_SCHEMA = "fmd.phase12g.acquisition-build-binding.v1"
 BUILD_RECORD_SCHEMA = "fmd.phase12g.build-artifact-binding.v1"
 FIRST_FINALIZED_GATES = ("E1", "E2", "E11")
 MATURE_FINALIZED_GATES = ("E3", "E4", "E5", "E6", "E9", "E10")
+E4_ASSESSMENT_VALUES = {"distinct", "mixed", "predominantly_same_trick"}
 
 
 def fail(message: str) -> None:
@@ -69,6 +70,19 @@ def e3_outcome_snapshot(rows: list[dict], path: Path) -> list[dict]:
         if not isinstance(completed, bool):
             fail(f"{path}:{index}: E3 completed must remain true/false")
         snapshot.append({"completion_seconds": float(completion), "completed": completed})
+    return snapshot
+
+
+def e4_outcome_snapshot(rows: list[dict], path: Path) -> list[dict]:
+    snapshot: list[dict] = []
+    for index, row in enumerate(rows, start=1):
+        assessment = str(row.get("same_trick_assessment", "")).strip()
+        notes = row.get("notes")
+        if assessment not in E4_ASSESSMENT_VALUES:
+            fail(f"{path}:{index}: E4 same_trick_assessment invalid")
+        if not isinstance(notes, str) or not notes.strip():
+            fail(f"{path}:{index}: E4 notes must remain a non-empty string")
+        snapshot.append({"same_trick_assessment": assessment, "notes": notes})
     return snapshot
 
 
@@ -148,8 +162,9 @@ def verify_finalized_semantic_eligibility(
 
     The finalization receipt is the packet-local declaration/snapshot boundary. First-session
     packets freeze E1/E2/E11 disposition semantics there. Mature packets reuse the immutable
-    prepared packet identity for E3 dossier/method/counterbalance mapping and freeze only E3
-    completion timing/outcome at finalization. These declarations do not prove human truth.
+    prepared packet identity for E3/E4 identity mapping and freeze only mutable E3 completion
+    timing/outcome and E4 qualitative assessment/notes at finalization. These declarations do
+    not prove human truth.
     """
     qualification = receipt.get("participant_qualification")
     if not isinstance(qualification, dict):
@@ -233,6 +248,14 @@ def verify_finalized_semantic_eligibility(
             fail(f"{receipt_path}: E3 finalized outcome hash missing/invalid")
         if isinstance(declared_e3_count, bool) or not isinstance(declared_e3_count, int) or declared_e3_count < 1:
             fail(f"{receipt_path}: E3 finalized row count missing/invalid")
+        if qualification.get("e4_binding_scope") != "finalization_snapshot_only":
+            fail(f"{receipt_path}: E4 finalization snapshot boundary marker missing")
+        declared_e4_hash = str(qualification.get("e4_outcome_sha256", ""))
+        declared_e4_count = qualification.get("e4_row_count")
+        if len(declared_e4_hash) != 64 or any(ch not in "0123456789abcdef" for ch in declared_e4_hash):
+            fail(f"{receipt_path}: E4 finalized outcome hash missing/invalid")
+        if isinstance(declared_e4_count, bool) or not isinstance(declared_e4_count, int) or declared_e4_count < 1:
+            fail(f"{receipt_path}: E4 finalized row count missing/invalid")
 
         packet = load_json(packet_dir / "observer-packet.json")
         rows_by_gate = packet.get("rows_by_gate", {})
@@ -241,6 +264,9 @@ def verify_finalized_semantic_eligibility(
         source_e3 = rows_by_gate.get("E3", [])
         if not isinstance(source_e3, list):
             fail(f"{packet_dir}: E3 source rows must be an array")
+        source_e4 = rows_by_gate.get("E4", [])
+        if not isinstance(source_e4, list):
+            fail(f"{packet_dir}: E4 source rows must be an array")
 
         for gate_id in expected_gates:
             path = packet_dir / f"completed-{gate_id}.jsonl"
@@ -264,6 +290,18 @@ def verify_finalized_semantic_eligibility(
                 actual_e3_hash = canonical_sha256(e3_outcome_snapshot(rows, path))
                 if actual_e3_hash != declared_e3_hash:
                     fail(f"{path}: finalized E3 outcome semantic mismatch; finalization-time completion/timing snapshot changed")
+            if gate_id == "E4":
+                if len(rows) != len(source_e4) or len(rows) != declared_e4_count:
+                    fail(f"{path}: E4 finalized row-count semantic mismatch")
+                for index, (source, finalized) in enumerate(zip(source_e4, rows), start=1):
+                    if not isinstance(source, dict):
+                        fail(f"{packet_dir}: E4 source row {index} malformed")
+                    for key in ("tester_id", "window_id", "dossier_ids"):
+                        if finalized.get(key) != source.get(key):
+                            fail(f"{path}:{index}: E4 finalized identity mapping mismatch for {key}; prepared immutable packet is authoritative")
+                actual_e4_hash = canonical_sha256(e4_outcome_snapshot(rows, path))
+                if actual_e4_hash != declared_e4_hash:
+                    fail(f"{path}: finalized E4 outcome semantic mismatch; finalization-time assessment/notes snapshot changed")
         return
 
     fail(f"{receipt_path}: unsupported packet_kind for semantic eligibility verification: {packet_kind}")
