@@ -86,6 +86,30 @@ def e4_outcome_snapshot(rows: list[dict], path: Path) -> list[dict]:
     return snapshot
 
 
+def e5_semantic_snapshot(rows: list[dict], path: Path) -> list[dict]:
+    snapshot: list[dict] = []
+    for index, row in enumerate(rows, start=1):
+        requirement_id = str(row.get("requirement_id", "")).strip()
+        authority_layer = str(row.get("identified_authority_layer", "")).strip()
+        correct = row.get("correct")
+        tutorial_recall_used = row.get("tutorial_recall_used")
+        if not requirement_id or any(ch.isspace() for ch in requirement_id):
+            fail(f"{path}:{index}: E5 requirement_id must remain a non-empty stable identifier without whitespace")
+        if not authority_layer or any(ch.isspace() for ch in authority_layer):
+            fail(f"{path}:{index}: E5 identified_authority_layer must remain a non-empty stable identifier without whitespace")
+        if not isinstance(correct, bool):
+            fail(f"{path}:{index}: E5 correct must remain true/false")
+        if not isinstance(tutorial_recall_used, bool):
+            fail(f"{path}:{index}: E5 tutorial_recall_used must remain true/false")
+        snapshot.append({
+            "requirement_id": requirement_id,
+            "identified_authority_layer": authority_layer,
+            "correct": correct,
+            "tutorial_recall_used": tutorial_recall_used,
+        })
+    return snapshot
+
+
 def validate_source_head(value: object) -> str:
     source_head = str(value).strip().lower()
     if len(source_head) != 40 or any(ch not in "0123456789abcdef" for ch in source_head):
@@ -161,10 +185,9 @@ def verify_finalized_semantic_eligibility(
     """Keep finalized disposition-changing fields attached to finalization-time declarations.
 
     The finalization receipt is the packet-local declaration/snapshot boundary. First-session
-    packets freeze E1/E2/E11 disposition semantics there. Mature packets reuse the immutable
-    prepared packet identity for E3/E4 identity mapping and freeze only mutable E3 completion
-    timing/outcome and E4 qualitative assessment/notes at finalization. These declarations do
-    not prove human truth.
+    packets freeze E1/E2/E11 disposition semantics there. Mature packets reuse immutable
+    prepared identity where fields are known before observation, while finalization snapshots
+    freeze mutable E3/E4/E5 scope/outcomes. These declarations do not prove human truth.
     """
     qualification = receipt.get("participant_qualification")
     if not isinstance(qualification, dict):
@@ -256,6 +279,14 @@ def verify_finalized_semantic_eligibility(
             fail(f"{receipt_path}: E4 finalized outcome hash missing/invalid")
         if isinstance(declared_e4_count, bool) or not isinstance(declared_e4_count, int) or declared_e4_count < 1:
             fail(f"{receipt_path}: E4 finalized row count missing/invalid")
+        if qualification.get("e5_binding_scope") != "finalization_snapshot_only":
+            fail(f"{receipt_path}: E5 finalization snapshot boundary marker missing")
+        declared_e5_hash = str(qualification.get("e5_semantic_sha256", ""))
+        declared_e5_count = qualification.get("e5_row_count")
+        if len(declared_e5_hash) != 64 or any(ch not in "0123456789abcdef" for ch in declared_e5_hash):
+            fail(f"{receipt_path}: E5 finalized semantic hash missing/invalid")
+        if isinstance(declared_e5_count, bool) or not isinstance(declared_e5_count, int) or declared_e5_count < 1:
+            fail(f"{receipt_path}: E5 finalized row count missing/invalid")
 
         packet = load_json(packet_dir / "observer-packet.json")
         rows_by_gate = packet.get("rows_by_gate", {})
@@ -267,6 +298,9 @@ def verify_finalized_semantic_eligibility(
         source_e4 = rows_by_gate.get("E4", [])
         if not isinstance(source_e4, list):
             fail(f"{packet_dir}: E4 source rows must be an array")
+        source_e5 = rows_by_gate.get("E5", [])
+        if not isinstance(source_e5, list):
+            fail(f"{packet_dir}: E5 source rows must be an array")
 
         for gate_id in expected_gates:
             path = packet_dir / f"completed-{gate_id}.jsonl"
@@ -302,6 +336,18 @@ def verify_finalized_semantic_eligibility(
                 actual_e4_hash = canonical_sha256(e4_outcome_snapshot(rows, path))
                 if actual_e4_hash != declared_e4_hash:
                     fail(f"{path}: finalized E4 outcome semantic mismatch; finalization-time assessment/notes snapshot changed")
+            if gate_id == "E5":
+                if len(rows) != len(source_e5) or len(rows) != declared_e5_count:
+                    fail(f"{path}: E5 finalized row-count semantic mismatch")
+                for index, (source, finalized) in enumerate(zip(source_e5, rows), start=1):
+                    if not isinstance(source, dict):
+                        fail(f"{packet_dir}: E5 source row {index} malformed")
+                    for key in ("tester_id", "dossier_id"):
+                        if finalized.get(key) != source.get(key):
+                            fail(f"{path}:{index}: E5 finalized identity mapping mismatch for {key}; prepared immutable packet is authoritative")
+                actual_e5_hash = canonical_sha256(e5_semantic_snapshot(rows, path))
+                if actual_e5_hash != declared_e5_hash:
+                    fail(f"{path}: finalized E5 semantic mismatch; finalization-time requirement/authority/correctness/tutorial snapshot changed")
         return
 
     fail(f"{receipt_path}: unsupported packet_kind for semantic eligibility verification: {packet_kind}")
