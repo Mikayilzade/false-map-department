@@ -21,6 +21,7 @@ python3 scripts/phase12g_e1_semantic_binding_audit.py | tee "$OUT_DIR/e1-semanti
 python3 scripts/phase12g_e11_semantic_binding_audit.py | tee "$OUT_DIR/e11-semantic-binding-audit.log"
 python3 scripts/phase12g_e3_semantic_binding_audit.py | tee "$OUT_DIR/e3-semantic-binding-audit.log"
 python3 scripts/phase12g_e4_semantic_binding_audit.py | tee "$OUT_DIR/e4-semantic-binding-audit.log"
+python3 scripts/phase12g_e5_semantic_binding_audit.py | tee "$OUT_DIR/e5-semantic-binding-audit.log"
 python3 scripts/phase12g_acquisition_channel_binding_audit.py | tee "$OUT_DIR/acquisition-channel-binding-audit.log"
 python3 scripts/phase12g_artifact_readiness_verification_audit.py | tee "$OUT_DIR/artifact-readiness-verification-audit.log"
 python3 scripts/phase12g_field_kit_ingest_audit.py | tee "$OUT_DIR/field-kit-ingest-audit.log"
