@@ -74,7 +74,7 @@ def assert_e6_contract() -> None:
         fail("E6 required fields changed; re-audit threat model")
     protocols = load(PROTOCOLS)
     e6_protocol = protocols.get("protocols", {}).get("E6", {})
-    if e6_protocol.get("dossier_ids") != [f"D{index:02d}" for index in range(33, 41)]:
+    if e6_protocol.get("representative_dossiers") != [f"D{index:02d}" for index in range(33, 41)]:
         fail("E6 representative dossier contract changed; re-audit threat model")
 
 
