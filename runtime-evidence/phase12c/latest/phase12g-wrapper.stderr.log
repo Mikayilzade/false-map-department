@@ -1,1 +1,1 @@
-PHASE12G E11 SEMANTIC BINDING AUDIT FAIL: E11 rejection did not identify the frozen incomplete finalization snapshot
+PHASE12G E3 SEMANTIC BINDING AUDIT FAIL: observer+E3-row+digest outcome rebound did not fail at finalization snapshot boundary
