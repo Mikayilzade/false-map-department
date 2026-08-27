@@ -2,5 +2,5 @@ requested_godot_bin=/tmp/godot-4.7.1/Godot_v4.7.1-stable_linux.x86_64
 resolved_godot_bin=/tmp/godot-4.7.1/Godot_v4.7.1-stable_linux.x86_64
 fetch_pinned=0
 root=/home/runner/work/false-map-department/false-map-department
-uname=Linux runnervmgx7h7 6.17.0-1022-azure #22-Ubuntu SMP Mon Jul 27 17:24:03 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+uname=Linux runnervm76f27 6.17.0-1022-azure #22-Ubuntu SMP Mon Jul 27 17:24:03 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
 python=Python 3.12.3
