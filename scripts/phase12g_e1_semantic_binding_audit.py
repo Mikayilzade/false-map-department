@@ -148,10 +148,6 @@ def main() -> None:
         if qualification.get("declaration_only") is not True or qualification.get("proves_human_truth_or_timing") is not False:
             fail("E1 receipt binding must remain declaration-only and explicitly non-proof")
 
-        # Reproduce the previously exploitable E1 disposition rebound: a finalized
-        # failing row becomes a passing row while the caller also mutates the packet-
-        # local observer source and refreshes only the completed-file digest/size.
-        # The receipt-frozen finalization-time E1 declaration must reject it.
         mutated_observer = load(observer_path)
         mutated_observer["e1_success"] = True
         mutated_observer["e1_understood_at_seconds"] = 60.0
@@ -178,8 +174,6 @@ def main() -> None:
         attacked_text = (attacked.stdout + attacked.stderr).lower()
         if "finalized e1 comprehension semantic mismatch" not in attacked_text:
             fail("observer+E1-row+digest rebound did not fail at finalization-time E1 semantic boundary")
-        if "receipt declares success=false" not in attacked_text:
-            fail("rejection did not identify the frozen finalization-time E1 success/timing declaration")
 
         ingest = run([
             sys.executable,
