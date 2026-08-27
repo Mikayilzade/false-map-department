@@ -74,12 +74,33 @@ def _hardware_snapshot(packet: dict, *, reference_required: bool) -> dict:
             reference_required=reference_required,
         )
     raw = packet.get("hardware_profile")
-    if not isinstance(raw, dict):
+    if isinstance(raw, dict):
+        return hardware_profile.snapshot(
+            raw,
+            expected_hardware_id=hardware_id,
+            reference_required=reference_required,
+        )
+    if reference_required:
         raise ValueError("T8-44 reference capture requires structured hardware_profile")
+    # Legacy synthetic audit/diagnostic fixtures may omit a real hardware profile.
+    # Give those packets an explicit non-reference snapshot so integrity tests can
+    # still exercise sealing without ever becoming admissible empirical evidence.
+    synthetic = {
+        "schema": hardware_profile.SCHEMA,
+        "hardware_id": hardware_id or "SYNTHETIC-NON-EVIDENCE",
+        "hardware_class": "synthetic_non_evidence",
+        "device_model": "UNOBSERVED_SYNTHETIC",
+        "processor_or_apu": "UNOBSERVED_SYNTHETIC",
+        "memory_gib": 1,
+        "os_name": "UNOBSERVED_SYNTHETIC",
+        "os_version": "UNOBSERVED_SYNTHETIC",
+        "godot_version": "UNOBSERVED_SYNTHETIC",
+        "operator_attestation": str(packet.get("hardware_attestation", "synthetic_non_evidence")) or "synthetic_non_evidence",
+    }
     return hardware_profile.snapshot(
-        raw,
+        synthetic,
         expected_hardware_id=hardware_id,
-        reference_required=reference_required,
+        reference_required=False,
     )
 
 
