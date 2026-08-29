@@ -12,13 +12,37 @@ Repository: `Mikayilzade/false-map-department`
 - 12B Vertical Slice: **COMPLETE**
 - 12C Core Systems: **COMPLETE**
 - 12D Content Population: **COMPLETE**
-- 12E UX / Accessibility / Controller / Deck: **COMPLETE**
+- 12E UX / Accessibility / Controller / Deck: **FUNCTIONAL CONTRACTS COMPLETE; PLAYER-FACING PRESENTATION INCOMPLETE**
 - 12F Adversarial QA: **COMPLETE — real-Godot runtime-green**
 - 12G Empirical Gates: **IN PROGRESS — E7 exhaustive 285/285 PASS; remaining genuine human/market/reference-hardware evidence PENDING**
 - 12H Release Candidate: **NO**
 - IMPLEMENTATION COMPLETE: **NO**
 
-## Latest owner-playtest build preparation — 2026-08-29
+## Latest owner-directed visual vertical slice — 2026-08-29
+
+### Accurate product classification
+**Functional deterministic gameplay/backend prototype with player-facing presentation still incomplete.** The previous engineering shell and raw-ID list views do not qualify as a playable/demo/presentation-complete product. The game and demo are **not complete**.
+
+Owner rejection of the prior Windows presentation is important owner evidence, but it is **not Phase 12G empirical evidence** and changes no empirical disposition. `PRODUCT_ACCEPTANCE_RULES.md` now makes the built-runtime player-facing gate explicit.
+
+### DEMO01-only implementation
+- Replaced the normal DEMO01 engineering/list surface with an intentional illustrated case view: a paper official map, recognizable home and post office, a living-district world twin, a visible courier, road geometry, route feedback, plain-language objective and completion presentation.
+- The missing road is directly clickable/focusable on the map. It still delegates the edit to the existing `ProductionPlaytestController`; frozen legality, command, transaction, reaction, objective and Undo behavior are unchanged.
+- Normal DEMO01 presentation contains no raw road, agent, node, objective or event identifiers. Existing engineering presentation remains only for the explicitly requested DEMO02-DEMO05/non-demo routes and is not claimed player-ready.
+- Extended the exact-head native Windows workflow to run the player-presentation audit, launch the real exported PE headlessly for runtime smoke, launch the same PE graphically for initial and completed DEMO01 screenshots, and upload those captures with the exact-head logs.
+- No cosmetic conversion of DEMO02-DEMO05 was started. Phase 12H remains closed.
+
+### Validation state
+- Local static/product/CI audits: **PASS** — DEMO01 player-presentation gate, CI policy, Phase 12A entrypoint contract, Phase 12G acquisition-route preservation, Phase 12D demo-content contract, JSON parse and diff whitespace checks.
+- Exact tested PR-head SHA: **PENDING NATIVE WINDOWS RUN**.
+- GitHub Actions workflow run ID/result: **PENDING NATIVE WINDOWS RUN**.
+- Runnable artifact name after PASS: `FalseMapDepartment-Windows-x86_64-owner-playtest`.
+- Required native smoke and built-runtime screenshots: **PENDING; no success claimed before inspection of the exact-head run**.
+
+## NEXT ACTION — OWNER VISUAL ACCEPTANCE
+Run and inspect `Windows Owner Playtest Build` for the exact PR head. Repair only concrete export/runtime/capture failures if present. After a factual PASS, record the exact SHA, run ID/result, artifact and screenshot names here, then ask Mikayil to download `FalseMapDepartment-Windows-x86_64-owner-playtest`, extract the inner ZIP, double-click `FalseMapDepartment.exe`, and judge whether DEMO01 now looks and feels like an actual game. **Stop at DEMO01. Do not convert DEMO02-DEMO05 unless Mikayil explicitly approves this visual/gameplay direction.**
+
+## Previous owner-playtest build preparation — 2026-08-29
 
 ### Phase / scope
 **Phase 12G support / owner smoke-playtest packaging — NOT Phase 12H and not empirical evidence**
@@ -42,7 +66,7 @@ Repository: `Mikayilzade/false-map-department`
 - **No canonical contradiction discovered.** Frozen gameplay is unchanged.
 - This work is owner smoke/playtest build preparation only. It does not start Phase 12H, does not append empirical observations, and does not change the 12G dashboard.
 
-## NEXT ACTION
+## Previous NEXT ACTION
 Inspect the `Windows Owner Playtest Build` run triggered for the exact PR head. If it fails, repair only the concrete build/runtime failure and rerun once coherently. When it passes, record its exact head SHA, run ID/result, `FalseMapDepartment-Windows-x86_64-owner-playtest` artifact name and native-PE smoke result here. Mikayil's next action is then: open that successful exact-head Actions run, download the `FalseMapDepartment-Windows-x86_64-owner-playtest` artifact, extract the inner `FalseMapDepartment-Windows-x86_64-owner-playtest.zip`, extract that ZIP, and double-click `FalseMapDepartment.exe`; confirm DEMO01 appears first and manually play through `DEMO01 -> DEMO02 -> DEMO03 -> DEMO04 -> DEMO05`. Record this as owner smoke feedback only, not Phase 12G evidence, and keep Phase 12H closed.
 
 ## Previous autonomous run — 2026-08-27

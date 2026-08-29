@@ -10,6 +10,8 @@ on:
       - 'src/**'
       - 'content/**'
       - 'scripts/build_windows_playtest.ps1'
+      - 'scripts/demo01_player_presentation_audit.py'
+      - 'PRODUCT_ACCEPTANCE_RULES.md'
 
 permissions:
   contents: read
@@ -34,7 +36,9 @@ jobs:
 
       - name: Build and smoke actual exported executable
         shell: pwsh
-        run: ./scripts/build_windows_playtest.ps1
+        run: |
+          python scripts/demo01_player_presentation_audit.py
+          ./scripts/build_windows_playtest.ps1
 
       - name: Publish smoke evidence in run summary
         if: always()
@@ -62,5 +66,8 @@ jobs:
             build/windows/smoke-evidence.md
             build/windows/export.log
             build/windows/windows-smoke.log
+            build/windows/windows-capture-initial.log
+            build/windows/windows-smoke-solved.log
+            build/windows/screenshots/*.png
           if-no-files-found: warn
           retention-days: 14

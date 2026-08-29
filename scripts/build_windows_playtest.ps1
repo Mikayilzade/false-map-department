@@ -64,6 +64,8 @@ Remove-Item $Exe, $Package -Force -ErrorAction SilentlyContinue
 if ($LASTEXITCODE -ne 0 -or -not (Test-Path $Exe)) { throw "Godot Windows export failed" }
 
 $SmokeLog = Join-Path $BuildDir "windows-smoke.log"
+$ScreenshotDir = Join-Path $BuildDir "screenshots"
+New-Item -ItemType Directory -Force $ScreenshotDir | Out-Null
 $Process = Start-Process -FilePath $Exe -ArgumentList @("--headless", "--log-file", $SmokeLog, "--quit-after", "5") -PassThru
 if (-not $Process.WaitForExit(30000)) {
     $Process.Kill()
@@ -79,6 +81,32 @@ if (-not $Smoke.Contains($Ready)) { throw "DEMO01/production sequence marker mis
 if ($Smoke -match "SCRIPT ERROR|Failed to route|Production playtest load failed|runtime initialization failed") {
     throw "Actual PE output contains a script/load/runtime initialization error"
 }
+$InitialLog = Join-Path $BuildDir "windows-capture-initial.log"
+$env:FMD_OWNER_SCREENSHOT_PATH = Join-Path $ScreenshotDir "demo01-before-road.png"
+$env:FMD_OWNER_CAPTURE_SOLVED = "0"
+$InitialProcess = Start-Process -FilePath $Exe -ArgumentList @("--rendering-method", "gl_compatibility", "--log-file", $InitialLog, "--quit-after", "20") -PassThru
+if (-not $InitialProcess.WaitForExit(30000)) {
+    $InitialProcess.Kill()
+    throw "Exported Windows executable did not exit after initial visual capture"
+}
+if ($InitialProcess.ExitCode -ne 0) { throw "Initial Windows visual capture exited $($InitialProcess.ExitCode)" }
+if (-not (Test-Path $env:FMD_OWNER_SCREENSHOT_PATH)) { throw "Initial DEMO01 runtime screenshot was not captured" }
+
+$SolvedLog = Join-Path $BuildDir "windows-smoke-solved.log"
+$env:FMD_OWNER_SCREENSHOT_PATH = Join-Path $ScreenshotDir "demo01-road-complete.png"
+$env:FMD_OWNER_CAPTURE_SOLVED = "1"
+$SolvedProcess = Start-Process -FilePath $Exe -ArgumentList @("--rendering-method", "gl_compatibility", "--log-file", $SolvedLog, "--quit-after", "20") -PassThru
+if (-not $SolvedProcess.WaitForExit(30000)) {
+    $SolvedProcess.Kill()
+    throw "Exported Windows executable did not exit after solved-state capture"
+}
+if ($SolvedProcess.ExitCode -ne 0) { throw "Solved-state Windows capture exited $($SolvedProcess.ExitCode)" }
+if (-not (Test-Path $env:FMD_OWNER_SCREENSHOT_PATH)) { throw "Solved DEMO01 runtime screenshot was not captured" }
+$SolvedSmoke = Get-Content $SolvedLog -Raw
+if (-not $SolvedSmoke.Contains("FMD_OWNER_SCREENSHOT_READY state=solved")) { throw "Solved DEMO01 capture did not reach completion" }
+if ($SolvedSmoke -match "SCRIPT ERROR|Failed to route|Production playtest load failed|runtime initialization failed") {
+    throw "Solved-state actual PE output contains a script/load/runtime initialization error"
+}
 
 $Readme = Join-Path $BuildDir "OWNER_PLAYTEST.txt"
 @"
@@ -86,7 +114,8 @@ FALSE MAP DEPARTMENT — OWNER PLAYTEST
 Exact source head: $HeadSha
 
 Double-click FalseMapDepartment.exe. No Godot installation or environment variables are required.
-The build opens DEMO01 and continues through DEMO02, DEMO03, DEMO04 and DEMO05.
+This visual-direction review is intentionally limited to DEMO01. Stop after completing it;
+DEMO02-DEMO05 are not player-presentation ready and await owner approval of this direction.
 This owner smoke build is not Phase 12G empirical evidence and is not a Phase 12H release candidate.
 "@ | Set-Content -Encoding UTF8 $Readme
 Compress-Archive -Path $Exe, $Readme -DestinationPath $Package -CompressionLevel Optimal -Force
@@ -104,6 +133,7 @@ $Evidence = Join-Path $BuildDir "smoke-evidence.md"
 - DEMO01 initialized through production runtime: **PASS**
 - Sequence ``DEMO01 -> DEMO02 -> DEMO03 -> DEMO04 -> DEMO05``: **PASS**
 - Script/load/runtime initialization errors: **NONE**
+- Player-facing screenshots: ``demo01-before-road.png``, ``demo01-road-complete.png``
 - EXE SHA-256: ``$ExeSha``
 - ZIP SHA-256: ``$ZipSha``
 "@ | Set-Content -Encoding UTF8 $Evidence

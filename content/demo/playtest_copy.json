@@ -4,7 +4,7 @@
   "dossiers": {
     "DEMO01": {
       "title": "Demo 1 — The Official Road",
-      "brief": "The courier needs a route from home to the office. Change the official map, then watch the derived world react to that map fact.",
+      "brief": "Connect the courier's home to the post office by adding the missing road to the official map.",
       "requirements": {
         "DEMO01_OBJ_COURIER_OFFICE": "Courier must be able to reach the office."
       }

@@ -24,6 +24,8 @@ const COPY_PATH := "res://content/demo/playtest_copy.json"
 @onready var correspondence_button: Button = $Margin/Layout/HistoryControls/Correspondence
 @onready var stability_button: Button = $Margin/Layout/HistoryControls/Stability
 @onready var next_dossier_button: Button = $Margin/Layout/HistoryControls/NextDossier
+@onready var engineering_shell: MarginContainer = $Margin
+@onready var demo01_visual: Control = $Demo01Visual
 
 var _registry := ContentRegistry.new()
 var _controller := ProductionPlaytestController.new()
@@ -49,6 +51,7 @@ func _ready() -> void:
 	if not _open_dossier(requested):
 		return
 	print("FMD_PRODUCTION_DEMO_READY dossier=%s sequence=%s runtime=production" % [_current_dossier_id, ",".join(DEMO_SEQUENCE)])
+	_configure_presentation()
 
 	previous_button.pressed.connect(_on_previous)
 	next_button.pressed.connect(_on_next)
@@ -61,6 +64,34 @@ func _ready() -> void:
 	candidate_list.item_selected.connect(_on_candidate_selected)
 	candidate_list.item_activated.connect(_on_candidate_activated)
 	_render()
+	_run_owner_capture_hook()
+
+func _configure_presentation() -> void:
+	var player_facing_demo01 := _current_dossier_id == "DEMO01"
+	engineering_shell.visible = not player_facing_demo01
+	demo01_visual.visible = player_facing_demo01
+	if player_facing_demo01:
+		demo01_visual.road_activated.connect(_on_demo01_road_activated)
+		demo01_visual.undo_requested.connect(_on_undo)
+		demo01_visual.grab_focus()
+
+func _on_demo01_road_activated() -> void:
+	_on_apply()
+
+func _run_owner_capture_hook() -> void:
+	var capture_path := OS.get_environment("FMD_OWNER_SCREENSHOT_PATH").strip_edges()
+	if capture_path.is_empty() or _current_dossier_id != "DEMO01":
+		return
+	if OS.get_environment("FMD_OWNER_CAPTURE_SOLVED") == "1" and not _controller.is_cleared():
+		_on_apply()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var image := get_viewport().get_texture().get_image()
+	var result := image.save_png(capture_path)
+	if result != OK:
+		push_error("Owner screenshot capture failed: %s" % error_string(result))
+	else:
+		print("FMD_OWNER_SCREENSHOT_READY state=%s" % ("solved" if _controller.is_cleared() else "initial"))
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_PREDELETE:
@@ -137,7 +168,7 @@ func _on_next() -> void:
 func _on_apply() -> void:
 	var result := _controller.toggle_selected()
 	if bool(result.get("accepted", false)):
-		status_label.text = "Accepted authoritative edit — world consequences resolved deterministically."
+		status_label.text = "The official map changed. The district followed."
 		_record_first_broken_requirement()
 	else:
 		status_label.text = "Edit rejected before mutation: %s" % str(result.get("code", "unknown"))
@@ -225,6 +256,9 @@ func _maybe_record_demo_completion() -> void:
 
 func _render() -> void:
 	var snapshot := _controller.snapshot()
+	if _current_dossier_id == "DEMO01":
+		var visual_notice := "The official road now reaches the post office." if bool(snapshot.get("cleared", false)) else "The courier is waiting. Draw the missing road on the official map."
+		demo01_visual.present(snapshot, visual_notice)
 	var copy: Dictionary = _dictionary(_copy_by_id.get(_current_dossier_id, {}))
 	title_label.text = str(copy.get("title", _current_dossier_id))
 	brief_label.text = str(copy.get("brief", "Change the official map until every visible requirement is satisfied."))
