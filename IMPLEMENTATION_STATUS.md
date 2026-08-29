@@ -1,6 +1,6 @@
 # FALSE MAP DEPARTMENT — IMPLEMENTATION STATUS
 
-Last updated: 2026-08-27
+Last updated: 2026-08-29
 Repository: `Mikayilzade/false-map-department`
 
 ## Master state
@@ -18,7 +18,32 @@ Repository: `Mikayilzade/false-map-department`
 - 12H Release Candidate: **NO**
 - IMPLEMENTATION COMPLETE: **NO**
 
-## Latest autonomous run — 2026-08-27
+## Latest owner-playtest build preparation — 2026-08-29
+
+### Phase / scope
+**Phase 12G support / owner smoke-playtest packaging — NOT Phase 12H and not empirical evidence**
+
+### Completed
+- Changed the ordinary project launch to route directly to the existing production demo scene with `DEMO01` as its default, while preserving the explicit environment-driven Phase 12G dossier routes. The legacy/bootstrap shell is no longer the no-environment launch target.
+- Added startup markers emitted only after the production entry route is chosen and DEMO01 has successfully initialized through `ProductionPlaytestController`; these make an exported-artifact smoke distinguish production gameplay from the legacy/debug shell.
+- Added a Godot `Windows Desktop` x86_64 release export preset. It creates one embedded-PCK executable at `build/windows/FalseMapDepartment.exe`.
+- Added `scripts/build_windows_playtest.sh`, which obtains and checksum-verifies the pinned Godot 4.7.1 editor and official export templates, exports the Windows executable, and creates the portable `build/FalseMapDepartment-Windows-x86_64-owner-playtest.zip` package.
+- Added `scripts/smoke_windows_playtest.sh`, which launches the actual exported PE under Wine in headless display mode and requires both the production-route and DEMO01-ready markers while rejecting Godot script/load/initialization errors.
+- No gameplay, content, canonical rule, Phase 12G evidence, or gate disposition changed.
+
+### Validation and concrete environment blocker
+- Static entrypoint/export/build contracts pass locally.
+- A real Windows build was attempted with `scripts/build_windows_playtest.sh`, but this container's outbound proxy rejected the official GitHub release download with HTTP 403 before the pinned editor/export templates could be acquired. There was no preinstalled Godot 4.7.1 or export-template cache. Therefore **no Windows artifact was produced and no artifact-launch success is claimed**.
+- Expected artifact paths after a successful build remain `build/windows/FalseMapDepartment.exe` and `build/FalseMapDepartment-Windows-x86_64-owner-playtest.zip`; neither path is evidence until the build and Wine smoke both pass.
+
+### Canonical / phase impact
+- **No canonical contradiction discovered.** Frozen gameplay is unchanged.
+- This work is owner smoke/playtest build preparation only. It does not start Phase 12H, does not append empirical observations, and does not change the 12G dashboard.
+
+## NEXT ACTION
+On a build host that can download the official Godot 4.7.1 assets (or with verified offline inputs/cache), run `scripts/build_windows_playtest.sh`, install/use Wine, then run `scripts/smoke_windows_playtest.sh`. Only after that smoke prints `Windows artifact smoke: PASS`, provide `build/FalseMapDepartment-Windows-x86_64-owner-playtest.zip` to the owner. The owner should extract it on Windows, double-click `FalseMapDepartment.exe`, confirm DEMO01 appears first, and manually play through the existing `DEMO01 -> DEMO02 -> DEMO03 -> DEMO04 -> DEMO05` sequence. Record this as owner smoke feedback only, not Phase 12G evidence, and keep Phase 12H closed.
+
+## Previous autonomous run — 2026-08-27
 
 ### Phase / subphase
 **12G Empirical Design Gates / T8-44 reference-hardware profile attribution + sealed-capture binding — EXACT-HEAD PASS**
@@ -77,7 +102,7 @@ Repository: `Mikayilzade/false-map-department`
 - No synthetic or diagnostic T8 row was appended to canonical evidence.
 - All other unobserved empirical gates remain PENDING.
 
-## NEXT ACTION
+## Previous NEXT ACTION (superseded only for immediate build handoff)
 Phase 12G now requires genuine external evidence before further autonomous implementation can legitimately advance gate disposition.
 
 1. **T8-44:** on actual Deck-class reference hardware, use the exact-source external acquisition bundle; verify/extract the source, create and validate `phase12g_reference_hardware_profile.py` profile with observed device facts, run Godot 4.7.1 with `FMD_T8_DISPOSITION=reference_run`, `FMD_T8_REFERENCE_ATTESTATION=actual_deck_class_reference` and `FMD_T8_HARDWARE_PROFILE_PATH`, bind the exact production package bytes, seal the returned packet, then dry-run ingest before any deliberate append.

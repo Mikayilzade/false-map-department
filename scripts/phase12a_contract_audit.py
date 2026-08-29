@@ -35,8 +35,9 @@ def main() -> None:
             "src/presentation/entrypoint.gd",
             [
                 'OS.get_environment("FMD_PLAYTEST_DOSSIER_ID")',
-                'res://src/presentation/main.tscn',
                 'res://src/presentation/production_playtest.tscn',
+                'var target := PRODUCTION_PLAYTEST',
+                'FMD_BOOT_ROUTE',
                 "requested.is_empty()",
             ],
         )
@@ -131,7 +132,7 @@ def main() -> None:
         'ARCHIVE="Godot_v4.7.1-stable_linux.x86_64.zip"',
         'SHA512-SUMS.txt',
         'sha512sum -c -',
-        'github.com/godotengine/godot/releases/download',
+        'github.com/godotengine/godot-builds/releases/download',
         'FMD_GODOT_ARCHIVE',
         'FMD_GODOT_SHA512_MANIFEST',
         'copy_offline_inputs',
@@ -173,7 +174,7 @@ def main() -> None:
         if token not in runtime_runner:
             fail(f"runtime runner missing verification/evidence contract: {token}")
 
-    print(f"Phase 12A contract audit: PASS ({len(domain_files)} domain files checked; guarded playtest entrypoint allowed)")
+    print(f"Phase 12A contract audit: PASS ({len(domain_files)} domain files checked; production demo is the default entrypoint)")
 
 
 if __name__ == "__main__":

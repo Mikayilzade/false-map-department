@@ -48,6 +48,7 @@ func _ready() -> void:
 	_demo_sequence_mode = DEMO_SEQUENCE.has(requested)
 	if not _open_dossier(requested):
 		return
+	print("FMD_PRODUCTION_DEMO_READY dossier=%s sequence=%s runtime=production" % [_current_dossier_id, ",".join(DEMO_SEQUENCE)])
 
 	previous_button.pressed.connect(_on_previous)
 	next_button.pressed.connect(_on_next)
