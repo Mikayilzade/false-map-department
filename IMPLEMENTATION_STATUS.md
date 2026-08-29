@@ -29,11 +29,13 @@ Repository: `Mikayilzade/false-map-department`
 - Added a Godot `Windows Desktop` x86_64 release export preset. It creates one embedded-PCK executable at `build/windows/FalseMapDepartment.exe`.
 - Added `scripts/build_windows_playtest.sh`, which obtains and checksum-verifies the pinned Godot 4.7.1 editor and official export templates, exports the Windows executable, and creates the portable `build/FalseMapDepartment-Windows-x86_64-owner-playtest.zip` package.
 - Added `scripts/smoke_windows_playtest.sh`, which launches the actual exported PE under Wine in headless display mode and requires both the production-route and DEMO01-ready markers while rejecting Godot script/load/initialization errors.
+- Added the notification-safe, PR-path-scoped `Windows Owner Playtest Build` workflow on native `windows-latest`. It checks out the exact PR head rather than GitHub's synthetic merge commit, verifies official Godot 4.7.1 editor/template SHA-512 hashes, exports and launches the actual Windows PE, packages the standalone executable, and uploads both the runnable owner ZIP and exact-head smoke logs. Concurrency cancellation prevents obsolete runs from creating CI noise.
 - No gameplay, content, canonical rule, Phase 12G evidence, or gate disposition changed.
 
 ### Validation and concrete environment blocker
 - Static entrypoint/export/build contracts pass locally.
 - A real Windows build was attempted with `scripts/build_windows_playtest.sh`, but this container's outbound proxy rejected the official GitHub release download with HTTP 403 before the pinned editor/export templates could be acquired. There was no preinstalled Godot 4.7.1 or export-template cache. Therefore **no Windows artifact was produced and no artifact-launch success is claimed**.
+- Native Windows PR validation is configured but its exact-head GitHub Actions result is still pending. Do not replace this line with PASS until the workflow run has completed successfully and its run ID, tested head SHA, smoke result and uploaded artifact have been inspected.
 - Expected artifact paths after a successful build remain `build/windows/FalseMapDepartment.exe` and `build/FalseMapDepartment-Windows-x86_64-owner-playtest.zip`; neither path is evidence until the build and Wine smoke both pass.
 
 ### Canonical / phase impact
@@ -41,7 +43,7 @@ Repository: `Mikayilzade/false-map-department`
 - This work is owner smoke/playtest build preparation only. It does not start Phase 12H, does not append empirical observations, and does not change the 12G dashboard.
 
 ## NEXT ACTION
-On a build host that can download the official Godot 4.7.1 assets (or with verified offline inputs/cache), run `scripts/build_windows_playtest.sh`, install/use Wine, then run `scripts/smoke_windows_playtest.sh`. Only after that smoke prints `Windows artifact smoke: PASS`, provide `build/FalseMapDepartment-Windows-x86_64-owner-playtest.zip` to the owner. The owner should extract it on Windows, double-click `FalseMapDepartment.exe`, confirm DEMO01 appears first, and manually play through the existing `DEMO01 -> DEMO02 -> DEMO03 -> DEMO04 -> DEMO05` sequence. Record this as owner smoke feedback only, not Phase 12G evidence, and keep Phase 12H closed.
+Inspect the `Windows Owner Playtest Build` run triggered for the exact PR head. If it fails, repair only the concrete build/runtime failure and rerun once coherently. When it passes, record its exact head SHA, run ID/result, `FalseMapDepartment-Windows-x86_64-owner-playtest` artifact name and native-PE smoke result here. Mikayil's next action is then: open that successful exact-head Actions run, download the `FalseMapDepartment-Windows-x86_64-owner-playtest` artifact, extract the inner `FalseMapDepartment-Windows-x86_64-owner-playtest.zip`, extract that ZIP, and double-click `FalseMapDepartment.exe`; confirm DEMO01 appears first and manually play through `DEMO01 -> DEMO02 -> DEMO03 -> DEMO04 -> DEMO05`. Record this as owner smoke feedback only, not Phase 12G evidence, and keep Phase 12H closed.
 
 ## Previous autonomous run — 2026-08-27
 

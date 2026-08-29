@@ -1,0 +1,66 @@
+name: Windows Owner Playtest Build
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - '.github/workflows/windows-owner-playtest.yml'
+      - 'export_presets.cfg'
+      - 'project.godot'
+      - 'src/**'
+      - 'content/**'
+      - 'scripts/build_windows_playtest.ps1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fmd-windows-owner-playtest-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-smoke:
+    name: Export and launch Windows x86_64 owner build
+    runs-on: windows-latest
+    timeout-minutes: 20
+    env:
+      FMD_EXACT_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      FMD_ARTIFACT_NAME: FalseMapDepartment-Windows-x86_64-owner-playtest
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Build and smoke actual exported executable
+        shell: pwsh
+        run: ./scripts/build_windows_playtest.ps1
+
+      - name: Publish smoke evidence in run summary
+        if: always()
+        shell: pwsh
+        run: |
+          if (Test-Path build/windows/smoke-evidence.md) {
+            Get-Content build/windows/smoke-evidence.md | Add-Content $env:GITHUB_STEP_SUMMARY
+          }
+
+      - name: Upload runnable owner ZIP
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.FMD_ARTIFACT_NAME }}
+          path: build/FalseMapDepartment-Windows-x86_64-owner-playtest.zip
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload exact-head smoke logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-owner-playtest-smoke-evidence-${{ env.FMD_EXACT_HEAD_SHA }}
+          path: |
+            build/windows/smoke-evidence.md
+            build/windows/export.log
+            build/windows/windows-smoke.log
+          if-no-files-found: warn
+          retention-days: 14
