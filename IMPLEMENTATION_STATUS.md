@@ -18,7 +18,30 @@ Repository: `Mikayilzade/false-map-department`
 - 12H Release Candidate: **NO**
 - IMPLEMENTATION COMPLETE: **NO**
 
-## Latest Windows lifecycle repair — 2026-08-31
+## Latest full-demo player-facing presentation — 2026-08-31
+
+### Scope and owner direction
+- Owner accepted the existing DEMO01 visual language as the baseline prototype direction and explicitly requested no further isolated DEMO01 polish.
+- Extended that same reusable dual-view presentation system through **DEMO02-DEMO05 only**. Campaign D01-D40 presentation was not started; frozen dossier JSON and production runtime remain authoritative.
+
+### Player-facing sequence implemented
+- Normal `DEMO01 -> DEMO02 -> DEMO03 -> DEMO04 -> DEMO05` now stays in the player-facing case view. The engineering list/table shell is available only with explicit `FMD_DEVELOPER_SHELL=1` routing.
+- Each case keeps `OFFICIAL MAP` on the left and `LIVING DISTRICT` on the right, uses direct map candidate interaction, always-visible human-readable GOAL/PROTECT rows with `MET`/`NOT MET` text, visible Undo, keyboard/controller candidate traversal, a clear `NEXT CASE`, and a final demo-complete state.
+- Short deterministic presentation stages make causality legible as `MAP EDIT -> WORLD CHANGES -> ROUTE REACTS -> CONDITIONS UPDATE`. Reduced-motion mode publishes the same map/world/route/status facts immediately without depending on animation.
+- DEMO02 shows separate clinic and garden journeys and visibly retracts the livestock route when its road is removed. DEMO03 pairs the official bridge symbol with the living crossing before the courier travels. DEMO04 shows the courier and livestock simultaneously across its two-edit solution. DEMO05 keeps physical road geometry distinct from patterned EAST/WEST authority, shows courier-versus-resident permission, and exposes Stability as `CONFIRM DISTRICT`.
+- Corrected `playtest_copy.json` requirement keys and language to match canonical DEMO01-DEMO05 dossier objective/invariant data rather than changing gameplay content.
+
+### Validation and evidence state
+- Player-presentation audit now covers all five cases, rejects internal IDs/debug terminology in the normal visual, checks causal/accessibility/flow controls, and proves player copy requirement IDs exactly match canonical dossier JSON.
+- Native Windows workflow now strictly verifies the continuous production flow, captures initial and solved runtime images for every case plus intermediate consequence states for DEMO04-DEMO05, scans every runtime log for errors, and uploads all images/logs with the runnable ZIP.
+- Local static/content/CI validation: **PASS** — DEMO01-DEMO05 player-presentation/canonical-copy audit, lifecycle contract, CI policy, Phase 12G route preservation, Phase 12D demo content, JSON parsing, shell syntax and diff whitespace.
+- Exact repaired PR-head Windows run SHA / run ID / result: **PENDING — no clean full-demo PASS claimed yet**.
+- Owner acceptance: **PENDING**. Phase 12G human empirical evidence: **PENDING**. Phase 12H: **CLOSED**.
+
+## NEXT ACTION — OWNER FULL DEMO SMOKE
+Run and inspect `Windows Owner Playtest Build` for the exact PR head. Require a launched exported PE, strict zero unexpected Godot/application errors, a factual continuous `DEMO01-DEMO05` marker, and all requested initial/consequence/solved screenshots. Record exact head/run/artifact evidence only after that clean run. Then Mikayil downloads `FalseMapDepartment-Windows-x86_64-owner-playtest` and personally plays DEMO01-DEMO05. Only after OWNER FULL DEMO SMOKE may the demo be handed to a naive external friend for an actual understanding/playability verdict. **Stop here; do not expand into D01-D40.**
+
+## Previous Windows lifecycle repair — 2026-08-31
 
 ### Owner evidence and disposition
 - Owner accepted the DEMO01 player-facing visual direction shown by native Windows run **33250660527** at exact head `62fd5f478971e32963ae9580243f4a0e3493aecb` for continued owner testing.
@@ -37,7 +60,7 @@ Repository: `Mikayilzade/false-map-department`
 - Repaired exact-head native Windows run SHA / run ID / result: **PENDING NEW PR RUN — no clean PASS claimed yet**.
 - Expected runnable artifact after clean PASS: `FalseMapDepartment-Windows-x86_64-owner-playtest` with refreshed initial/solved screenshots and strict-clean logs.
 
-## NEXT ACTION — OWNER VISUAL ACCEPTANCE
+## Previous NEXT ACTION — OWNER VISUAL ACCEPTANCE
 Run `Windows Owner Playtest Build` for the exact repaired PR head and inspect all three runtime logs, not only the workflow badge. Require strict zero Godot/application runtime errors, refreshed initial and solved screenshots, and a successfully launched exported PE. Record the exact head SHA, run ID/result and artifact only after that clean result. Then Mikayil should download `FalseMapDepartment-Windows-x86_64-owner-playtest`, extract the inner ZIP, double-click `FalseMapDepartment.exe`, and perform OWNER VISUAL ACCEPTANCE of DEMO01. **Stop after this repair; do not implement DEMO02-DEMO05.**
 
 ## Previous owner-directed visual vertical slice — 2026-08-29

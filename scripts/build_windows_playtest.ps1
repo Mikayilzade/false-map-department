@@ -82,6 +82,7 @@ function Assert-CleanGodotRuntimeLog([string]$Path, [string]$Label) {
 $SmokeLog = Join-Path $BuildDir "windows-smoke.log"
 $ScreenshotDir = Join-Path $BuildDir "screenshots"
 New-Item -ItemType Directory -Force $ScreenshotDir | Out-Null
+$env:FMD_OWNER_VERIFY_SEQUENCE = "1"
 $Process = Start-Process -FilePath $Exe -ArgumentList @("--headless", "--audio-driver", "Dummy", "--log-file", $SmokeLog, "--quit-after", "5") -PassThru
 if (-not $Process.WaitForExit(30000)) {
     $Process.Kill()
@@ -91,32 +92,34 @@ if ($Process.ExitCode -ne 0) { throw "Exported Windows executable exited $($Proc
 $Smoke = Assert-CleanGodotRuntimeLog $SmokeLog "Headless exported-PE smoke"
 $Route = "FMD_BOOT_ROUTE target=res://src/presentation/production_playtest.tscn requested=DEMO01_DEFAULT"
 $Ready = "FMD_PRODUCTION_DEMO_READY dossier=DEMO01 sequence=DEMO01,DEMO02,DEMO03,DEMO04,DEMO05 runtime=production"
+$SequenceReady = "FMD_OWNER_SEQUENCE_READY sequence=DEMO01,DEMO02,DEMO03,DEMO04,DEMO05 flow=production"
 if (-not $Smoke.Contains($Route)) { throw "Production playtest route marker missing from actual PE output" }
 if (-not $Smoke.Contains($Ready)) { throw "DEMO01/production sequence marker missing from actual PE output" }
-$InitialLog = Join-Path $BuildDir "windows-capture-initial.log"
-$env:FMD_OWNER_SCREENSHOT_PATH = Join-Path $ScreenshotDir "demo01-before-road.png"
-$env:FMD_OWNER_CAPTURE_SOLVED = "0"
-$InitialProcess = Start-Process -FilePath $Exe -ArgumentList @("--audio-driver", "Dummy", "--rendering-method", "gl_compatibility", "--log-file", $InitialLog, "--quit-after", "20") -PassThru
-if (-not $InitialProcess.WaitForExit(30000)) {
-    $InitialProcess.Kill()
-    throw "Exported Windows executable did not exit after initial visual capture"
-}
-if ($InitialProcess.ExitCode -ne 0) { throw "Initial Windows visual capture exited $($InitialProcess.ExitCode)" }
-Assert-CleanGodotRuntimeLog $InitialLog "Initial DEMO01 visual capture" | Out-Null
-if (-not (Test-Path $env:FMD_OWNER_SCREENSHOT_PATH)) { throw "Initial DEMO01 runtime screenshot was not captured" }
+if (-not $Smoke.Contains($SequenceReady)) { throw "Continuous DEMO01-DEMO05 production flow verification marker missing" }
+$env:FMD_OWNER_VERIFY_SEQUENCE = "0"
 
-$SolvedLog = Join-Path $BuildDir "windows-smoke-solved.log"
-$env:FMD_OWNER_SCREENSHOT_PATH = Join-Path $ScreenshotDir "demo01-road-complete.png"
-$env:FMD_OWNER_CAPTURE_SOLVED = "1"
-$SolvedProcess = Start-Process -FilePath $Exe -ArgumentList @("--audio-driver", "Dummy", "--rendering-method", "gl_compatibility", "--log-file", $SolvedLog, "--quit-after", "20") -PassThru
-if (-not $SolvedProcess.WaitForExit(30000)) {
-    $SolvedProcess.Kill()
-    throw "Exported Windows executable did not exit after solved-state capture"
+function Capture-DemoState([string]$Dossier, [int]$Step, [string]$State) {
+    $Slug = $Dossier.ToLowerInvariant()
+    $Log = Join-Path $BuildDir "windows-capture-$Slug-$State.log"
+    $Screenshot = Join-Path $ScreenshotDir "$Slug-$State.png"
+    $env:FMD_PLAYTEST_DOSSIER_ID = $Dossier
+    $env:FMD_OWNER_SCREENSHOT_PATH = $Screenshot
+    $env:FMD_OWNER_CAPTURE_STEP = "$Step"
+    $Capture = Start-Process -FilePath $Exe -ArgumentList @("--audio-driver", "Dummy", "--rendering-method", "gl_compatibility", "--log-file", $Log, "--quit-after", "20") -PassThru
+    if (-not $Capture.WaitForExit(30000)) { $Capture.Kill(); throw "$Dossier $State capture timed out" }
+    if ($Capture.ExitCode -ne 0) { throw "$Dossier $State capture exited $($Capture.ExitCode)" }
+    $Text = Assert-CleanGodotRuntimeLog $Log "$Dossier $State visual capture"
+    if (-not (Test-Path $Screenshot)) { throw "$Dossier $State runtime screenshot was not captured" }
+    $Expected = "FMD_OWNER_SCREENSHOT_READY dossier=$Dossier step=$Step state=$State"
+    if (-not $Text.Contains($Expected)) { throw "$Dossier $State capture marker missing" }
 }
-if ($SolvedProcess.ExitCode -ne 0) { throw "Solved-state Windows capture exited $($SolvedProcess.ExitCode)" }
-if (-not (Test-Path $env:FMD_OWNER_SCREENSHOT_PATH)) { throw "Solved DEMO01 runtime screenshot was not captured" }
-$SolvedSmoke = Assert-CleanGodotRuntimeLog $SolvedLog "Solved DEMO01 visual capture"
-if (-not $SolvedSmoke.Contains("FMD_OWNER_SCREENSHOT_READY state=solved")) { throw "Solved DEMO01 capture did not reach completion" }
+
+$SolutionSteps = @{ DEMO01 = 1; DEMO02 = 1; DEMO03 = 1; DEMO04 = 2; DEMO05 = 2 }
+foreach ($Dossier in @("DEMO01", "DEMO02", "DEMO03", "DEMO04", "DEMO05")) {
+    Capture-DemoState $Dossier 0 "initial"
+    if ($SolutionSteps[$Dossier] -gt 1) { Capture-DemoState $Dossier 1 "consequence" }
+    Capture-DemoState $Dossier $SolutionSteps[$Dossier] "solved"
+}
 
 $Readme = Join-Path $BuildDir "OWNER_PLAYTEST.txt"
 @"
@@ -124,8 +127,8 @@ FALSE MAP DEPARTMENT — OWNER PLAYTEST
 Exact source head: $HeadSha
 
 Double-click FalseMapDepartment.exe. No Godot installation or environment variables are required.
-This visual-direction review is intentionally limited to DEMO01. Stop after completing it;
-DEMO02-DEMO05 are not player-presentation ready and await owner approval of this direction.
+Play the complete owner-review sequence from DEMO01 through DEMO05, using NEXT CASE after each clear.
+This build is limited to the five-case demo; campaign D01-D40 presentation is not part of this review.
 This owner smoke build is not Phase 12G empirical evidence and is not a Phase 12H release candidate.
 "@ | Set-Content -Encoding UTF8 $Readme
 Compress-Archive -Path $Exe, $Readme -DestinationPath $Package -CompressionLevel Optimal -Force
@@ -143,7 +146,7 @@ $Evidence = Join-Path $BuildDir "smoke-evidence.md"
 - DEMO01 initialized through production runtime: **PASS**
 - Sequence ``DEMO01 -> DEMO02 -> DEMO03 -> DEMO04 -> DEMO05``: **PASS**
 - Godot ``ERROR:`` / script / load / runtime initialization errors: **NONE** (strict scan; Dummy audio driver)
-- Player-facing screenshots: ``demo01-before-road.png``, ``demo01-road-complete.png``
+- Player-facing screenshots: initial + solved for DEMO01-DEMO05; intermediate consequence for DEMO04-DEMO05
 - EXE SHA-256: ``$ExeSha``
 - ZIP SHA-256: ``$ZipSha``
 "@ | Set-Content -Encoding UTF8 $Evidence

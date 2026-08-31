@@ -66,8 +66,7 @@ jobs:
             build/windows/smoke-evidence.md
             build/windows/export.log
             build/windows/windows-smoke.log
-            build/windows/windows-capture-initial.log
-            build/windows/windows-smoke-solved.log
+            build/windows/windows-capture-*.log
             build/windows/screenshots/*.png
           if-no-files-found: warn
           retention-days: 14

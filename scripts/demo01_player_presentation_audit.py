@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from pathlib import Path
 import re
+import json
 
 ROOT = Path(__file__).resolve().parents[1]
 visual = (ROOT / "src/presentation/demo01_visual.gd").read_text(encoding="utf-8")
@@ -9,7 +10,7 @@ entrypoint = (ROOT / "src/presentation/entrypoint.gd").read_text(encoding="utf-8
 windows_build = (ROOT / "scripts/build_windows_playtest.ps1").read_text(encoding="utf-8")
 
 forbidden = [
-    r"DEMO01_(?:R|AG|N|OBJ|LM|L1)_",
+    r"DEMO\d\d_(?:R|B|AG|N|OBJ|INV|LM|L1|C|J)_",
     r"subject_stable_id",
     r"event_type",
     r"candidate_id",
@@ -22,8 +23,12 @@ for pattern in forbidden:
         raise SystemExit(f"DEMO01 PLAYER PRESENTATION AUDIT FAIL: normal visual contains {pattern}")
 
 required = [
-    "OFFICIAL MAP", "LIVING DISTRICT", "Connect the courier's home",
-    "road_activated.emit()", "Courier waiting", "Courier delivered!",
+    "OFFICIAL MAP", "LIVING DISTRICT", "CASE CONDITIONS",
+    "MAP EDIT", "WORLD CHANGES", "ROUTE REACTS", "CONDITIONS UPDATE",
+    "candidate_activated.emit", "stability_requested.emit", "next_case_requested.emit",
+    "THE GARDEN SHORTCUT", "THE PAPER BRIDGE", "TWO SIDES OF THE CANAL", "A LINE IS NOT A WALL",
+    "GOAL  ", "PROTECT  ", "CONFIRM DISTRICT", "NEXT CASE",
+    "DEMO COMPLETE", "WORKPLACE",
 ]
 for marker in required:
     if marker not in visual:
@@ -34,11 +39,22 @@ for marker in [
     "_route_to_scene.call_deferred(target)",
     '"--audio-driver", "Dummy"',
     '"(?m)^\\s*(?:SCRIPT )?ERROR:"',
-    'Assert-CleanGodotRuntimeLog $InitialLog',
-    'Assert-CleanGodotRuntimeLog $SolvedLog',
+    'Assert-CleanGodotRuntimeLog $Log',
+    'Capture-DemoState $Dossier 0 "initial"',
+    'Capture-DemoState $Dossier $SolutionSteps[$Dossier] "solved"',
 ]:
     source = entrypoint if "call_deferred" in marker else windows_build
     if marker not in source:
         raise SystemExit(f"DEMO01 PLAYER PRESENTATION AUDIT FAIL: lifecycle/runtime-log guard missing: {marker}")
 
-print("DEMO01 player presentation audit: PASS (visual/player gate + deferred entry route + strict Windows runtime logs)")
+copy = json.loads((ROOT / "content/demo/playtest_copy.json").read_text(encoding="utf-8"))["dossiers"]
+for number in range(1, 6):
+    dossier_id = f"DEMO{number:02d}"
+    dossier = json.loads((ROOT / f"content/demo/{dossier_id}.json").read_text(encoding="utf-8"))
+    canonical_ids = {row["objective_id"] for row in dossier["objectives"]}
+    canonical_ids.update(row["invariant_id"] for row in dossier["protected_invariants"])
+    copy_ids = set(copy[dossier_id]["requirements"])
+    if copy_ids != canonical_ids:
+        raise SystemExit(f"DEMO PLAYER PRESENTATION AUDIT FAIL: {dossier_id} copy contradicts canonical requirement IDs")
+
+print("DEMO01-DEMO05 player presentation audit: PASS (dual views, direct edits, causal stages, canonical copy, no internal UI IDs)")
