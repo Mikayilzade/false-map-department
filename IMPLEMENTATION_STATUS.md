@@ -18,7 +18,29 @@ Repository: `Mikayilzade/false-map-department`
 - 12H Release Candidate: **NO**
 - IMPLEMENTATION COMPLETE: **NO**
 
-## Latest full-demo player-facing presentation — 2026-08-31
+## Latest screenshot-semantic evidence repair — 2026-08-31
+
+### Reviewed exact-head evidence
+- Native Windows run **33424404974** for exact head `ecea44a1122d0a8e6ddd3948910cd235e8949122` is runtime-clean, but **not owner-handoff ready**: built screenshots exposed false initial `[MET]` labels and captures taken before the 0.72-second causal presentation settled.
+- The run remains useful build/runtime evidence only. It is not owner acceptance, Phase 12G human evidence, or permission to start Phase 12H.
+
+### Concrete repairs
+- Unevaluated runtime requirement buckets now render the explicit non-color state `[NOT YET CHECKED]` instead of being coerced to `[MET]`. Once canonical runtime evaluation exists, the presentation uses its actual boolean truth. Frozen evaluation timing is unchanged.
+- Requirement rows and completion controls publish from the same staged snapshot as map/world feedback, so condition/button state cannot jump ahead of the displayed causal stage.
+- The reusable presentation now exposes an explicit `presentation_settled` contract. Owner capture waits for that signal and then the first fully rendered settled frame; the former arbitrary two-frame wait was removed.
+- Screenshot markers bind dossier, solution step, settled state and active-candidate vector. Windows evidence checks canonical initial/consequence/solved vectors, 1280×800 dimensions, nontrivial PNG size, and distinct initial-versus-solved bytes in addition to strict runtime logs.
+- DEMO05 Courier and Resident use separate visual lanes and non-overlapping labels while retaining their canonical shared start/location semantics.
+- No gameplay/content semantics, empirical route, campaign presentation, or DEMO01-DEMO05 scope boundary changed.
+
+### Validation state
+- Local player-presentation/evidence audit: **PASS** — tri-state initial conditions, explicit settled capture, active-vector/image evidence, canonical copy, lifecycle, CI policy, Phase 12G routes, Phase 12D content, JSON, shell syntax and whitespace checks.
+- Repaired exact-head Windows run/artifact/screenshots: **PENDING — no clean screenshot-semantic PASS claimed yet**.
+- Owner acceptance: **PENDING**. Phase 12G human evidence: **PENDING**. Phase 12H: **CLOSED**.
+
+## NEXT ACTION — OWNER FULL DEMO SMOKE
+Run `Windows Owner Playtest Build` on the exact repaired PR head. Inspect every initial/consequence/solved screenshot for agreement between map/world, agent route, condition state and controls; require settled-state/active-vector assertions and zero runtime errors. After recording exact head/run/artifact evidence, Mikayil downloads `FalseMapDepartment-Windows-x86_64-owner-playtest` and personally plays DEMO01-DEMO05. Stop after this repair; do not expand into D01-D40.
+
+## Previous full-demo player-facing presentation — 2026-08-31
 
 ### Scope and owner direction
 - Owner accepted the existing DEMO01 visual language as the baseline prototype direction and explicitly requested no further isolated DEMO01 polish.
@@ -38,7 +60,7 @@ Repository: `Mikayilzade/false-map-department`
 - Exact repaired PR-head Windows run SHA / run ID / result: **PENDING — no clean full-demo PASS claimed yet**.
 - Owner acceptance: **PENDING**. Phase 12G human empirical evidence: **PENDING**. Phase 12H: **CLOSED**.
 
-## NEXT ACTION — OWNER FULL DEMO SMOKE
+## Previous NEXT ACTION — OWNER FULL DEMO SMOKE
 Run and inspect `Windows Owner Playtest Build` for the exact PR head. Require a launched exported PE, strict zero unexpected Godot/application errors, a factual continuous `DEMO01-DEMO05` marker, and all requested initial/consequence/solved screenshots. Record exact head/run/artifact evidence only after that clean run. Then Mikayil downloads `FalseMapDepartment-Windows-x86_64-owner-playtest` and personally plays DEMO01-DEMO05. Only after OWNER FULL DEMO SMOKE may the demo be handed to a naive external friend for an actual understanding/playability verdict. **Stop here; do not expand into D01-D40.**
 
 ## Previous Windows lifecycle repair — 2026-08-31

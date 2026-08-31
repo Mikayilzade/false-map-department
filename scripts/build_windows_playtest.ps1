@@ -98,7 +98,7 @@ if (-not $Smoke.Contains($Ready)) { throw "DEMO01/production sequence marker mis
 if (-not $Smoke.Contains($SequenceReady)) { throw "Continuous DEMO01-DEMO05 production flow verification marker missing" }
 $env:FMD_OWNER_VERIFY_SEQUENCE = "0"
 
-function Capture-DemoState([string]$Dossier, [int]$Step, [string]$State) {
+function Capture-DemoState([string]$Dossier, [int]$Step, [string]$State, [string]$ExpectedActive, [string]$ExpectedConditions) {
     $Slug = $Dossier.ToLowerInvariant()
     $Log = Join-Path $BuildDir "windows-capture-$Slug-$State.log"
     $Screenshot = Join-Path $ScreenshotDir "$Slug-$State.png"
@@ -110,15 +110,31 @@ function Capture-DemoState([string]$Dossier, [int]$Step, [string]$State) {
     if ($Capture.ExitCode -ne 0) { throw "$Dossier $State capture exited $($Capture.ExitCode)" }
     $Text = Assert-CleanGodotRuntimeLog $Log "$Dossier $State visual capture"
     if (-not (Test-Path $Screenshot)) { throw "$Dossier $State runtime screenshot was not captured" }
-    $Expected = "FMD_OWNER_SCREENSHOT_READY dossier=$Dossier step=$Step state=$State"
+    $Expected = "FMD_OWNER_SCREENSHOT_READY dossier=$Dossier step=$Step state=$State settled=true active=$ExpectedActive $ExpectedConditions"
     if (-not $Text.Contains($Expected)) { throw "$Dossier $State capture marker missing" }
+    $Image = [System.Drawing.Image]::FromFile($Screenshot)
+    try {
+        if ($Image.Width -ne 1280 -or $Image.Height -ne 800) { throw "$Dossier $State screenshot has unexpected dimensions" }
+    } finally {
+        $Image.Dispose()
+    }
+    if ((Get-Item $Screenshot).Length -lt 10000) { throw "$Dossier $State screenshot is unexpectedly small/blank" }
 }
 
 $SolutionSteps = @{ DEMO01 = 1; DEMO02 = 1; DEMO03 = 1; DEMO04 = 2; DEMO05 = 2 }
+$InitialActive = @{ DEMO01 = "0"; DEMO02 = "1,1"; DEMO03 = "0"; DEMO04 = "0,1"; DEMO05 = "0,0" }
+$SolvedActive = @{ DEMO01 = "1"; DEMO02 = "1,0"; DEMO03 = "1"; DEMO04 = "1,0"; DEMO05 = "1,1" }
+$ConsequenceActive = @{ DEMO04 = "0,0"; DEMO05 = "1,0" }
+$InitialConditions = @{ DEMO01 = "goal=pending protected=none"; DEMO02 = "goal=pending protected=pending"; DEMO03 = "goal=pending protected=none"; DEMO04 = "goal=pending protected=pending"; DEMO05 = "goal=pending protected=pending" }
+$SolvedConditions = @{ DEMO01 = "goal=met protected=none"; DEMO02 = "goal=met protected=met"; DEMO03 = "goal=met protected=none"; DEMO04 = "goal=met protected=met"; DEMO05 = "goal=met protected=met" }
+$ConsequenceConditions = @{ DEMO04 = "goal=not_met protected=met"; DEMO05 = "goal=not_met protected=met" }
 foreach ($Dossier in @("DEMO01", "DEMO02", "DEMO03", "DEMO04", "DEMO05")) {
-    Capture-DemoState $Dossier 0 "initial"
-    if ($SolutionSteps[$Dossier] -gt 1) { Capture-DemoState $Dossier 1 "consequence" }
-    Capture-DemoState $Dossier $SolutionSteps[$Dossier] "solved"
+    Capture-DemoState $Dossier 0 "initial" $InitialActive[$Dossier] $InitialConditions[$Dossier]
+    if ($SolutionSteps[$Dossier] -gt 1) { Capture-DemoState $Dossier 1 "consequence" $ConsequenceActive[$Dossier] $ConsequenceConditions[$Dossier] }
+    Capture-DemoState $Dossier $SolutionSteps[$Dossier] "solved" $SolvedActive[$Dossier] $SolvedConditions[$Dossier]
+    $InitialHash = (Get-FileHash -Algorithm SHA256 (Join-Path $ScreenshotDir "$($Dossier.ToLowerInvariant())-initial.png")).Hash
+    $SolvedHash = (Get-FileHash -Algorithm SHA256 (Join-Path $ScreenshotDir "$($Dossier.ToLowerInvariant())-solved.png")).Hash
+    if ($InitialHash -eq $SolvedHash) { throw "$Dossier initial and solved screenshots are byte-identical" }
 }
 
 $Readme = Join-Path $BuildDir "OWNER_PLAYTEST.txt"

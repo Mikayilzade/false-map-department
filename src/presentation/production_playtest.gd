@@ -101,17 +101,22 @@ func _run_owner_capture_hook() -> void:
 	var commands: Array = _array(envelope.get("solution_commands", []))
 	for index in range(mini(requested_steps, commands.size())):
 		_controller.execute_authored_command(_dictionary(commands[index]), index)
+	var rendered_by_stability := false
 	if requested_steps >= commands.size() and _current_dossier_id == "DEMO05":
 		_on_stability()
-	_render()
-	await get_tree().process_frame
+		rendered_by_stability = true
+	if not rendered_by_stability:
+		_render()
+	if not demo01_visual.is_presentation_settled():
+		await demo01_visual.presentation_settled
+	# Capture the first frame that contains the fully published settled presentation.
 	await get_tree().process_frame
 	var image := get_viewport().get_texture().get_image()
 	var result := image.save_png(capture_path)
 	if result != OK:
 		push_error("Owner screenshot capture failed: %s" % error_string(result))
 	else:
-		print("FMD_OWNER_SCREENSHOT_READY dossier=%s step=%d state=%s" % [_current_dossier_id, requested_steps, "solved" if _controller.is_cleared() else "consequence" if requested_steps > 0 else "initial"])
+		print("FMD_OWNER_SCREENSHOT_READY dossier=%s step=%d state=%s settled=true active=%s %s" % [_current_dossier_id, requested_steps, "solved" if _controller.is_cleared() else "consequence" if requested_steps > 0 else "initial", demo01_visual.active_candidate_evidence(), demo01_visual.condition_evidence()])
 
 func _run_owner_sequence_verification() -> void:
 	if OS.get_environment("FMD_OWNER_VERIFY_SEQUENCE") != "1" or _current_dossier_id != "DEMO01":

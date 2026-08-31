@@ -29,6 +29,7 @@ required = [
     "THE GARDEN SHORTCUT", "THE PAPER BRIDGE", "TWO SIDES OF THE CANAL", "A LINE IS NOT A WALL",
     "GOAL  ", "PROTECT  ", "CONFIRM DISTRICT", "NEXT CASE",
     "DEMO COMPLETE", "WORKPLACE",
+    "NOT YET CHECKED", "presentation_settled", "active_candidate_evidence", "condition_evidence",
 ]
 for marker in required:
     if marker not in visual:
@@ -46,6 +47,22 @@ for marker in [
     source = entrypoint if "call_deferred" in marker else windows_build
     if marker not in source:
         raise SystemExit(f"DEMO01 PLAYER PRESENTATION AUDIT FAIL: lifecycle/runtime-log guard missing: {marker}")
+
+for marker in [
+    'return "PENDING"',
+    'await demo01_visual.presentation_settled',
+    'settled=true active=%s',
+    'lane_offset: float',
+    'rendered_by_stability',
+]:
+    source = visual if marker in {'return "PENDING"', 'lane_offset: float'} else (ROOT / "src/presentation/production_playtest.gd").read_text(encoding="utf-8")
+    if marker not in source:
+        raise SystemExit(f"DEMO PLAYER PRESENTATION AUDIT FAIL: semantic screenshot guard missing: {marker}")
+if 'if values.is_empty():\n\t\treturn true' in visual:
+    raise SystemExit("DEMO PLAYER PRESENTATION AUDIT FAIL: unevaluated condition must never render as MET")
+for marker in ["$InitialActive", "$SolvedActive", "$ConsequenceActive", "$InitialConditions", "$SolvedConditions", "$ConsequenceConditions", "initial and solved screenshots are byte-identical"]:
+    if marker not in windows_build:
+        raise SystemExit(f"DEMO PLAYER PRESENTATION AUDIT FAIL: built-runtime evidence check missing: {marker}")
 
 copy = json.loads((ROOT / "content/demo/playtest_copy.json").read_text(encoding="utf-8"))["dossiers"]
 for number in range(1, 6):

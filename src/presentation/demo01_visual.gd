@@ -4,6 +4,7 @@ signal candidate_activated(index: int)
 signal undo_requested
 signal stability_requested
 signal next_case_requested
+signal presentation_settled
 
 const INK := Color("#243238")
 const PAPER := Color("#f3ead5")
@@ -24,6 +25,7 @@ const CASES := {
 
 var _dossier_id := "DEMO01"
 var _snapshot: Dictionary = {}
+var _previous_snapshot: Dictionary = {}
 var _active: Array[bool] = []
 var _previous_active: Array[bool] = []
 var _hovered := -1
@@ -31,6 +33,7 @@ var _phase := 3.0
 var _changed_index := -1
 var _phase_tween: Tween
 var _notice := "Study the official map, then change one marked fact."
+var _settled := true
 
 func _ready() -> void:
 	mouse_default_cursor_shape = Control.CURSOR_ARROW
@@ -39,6 +42,7 @@ func _ready() -> void:
 func set_dossier(dossier_id: String) -> void:
 	_dossier_id = dossier_id
 	_snapshot = {}
+	_previous_snapshot = {}
 	_active.clear()
 	_previous_active.clear()
 	_changed_index = -1
@@ -58,29 +62,54 @@ func present(snapshot: Dictionary, notice: String = "") -> void:
 				break
 	_previous_active = _active.duplicate()
 	_active = next_active
+	_previous_snapshot = _snapshot.duplicate(true)
 	_snapshot = snapshot.duplicate(true)
 	if not notice.is_empty():
 		_notice = notice
 	if changed >= 0:
 		_begin_causal_transition(changed)
 	else:
+		_settled = true
 		queue_redraw()
 
 func _begin_causal_transition(index: int) -> void:
 	_changed_index = index
+	_settled = false
 	if _phase_tween != null:
 		_phase_tween.kill()
 	if OS.get_environment("FMD_E7_REDUCED_MOTION") == "1":
 		_phase = 3.0
+		_settled = true
 		queue_redraw()
+		presentation_settled.emit()
 		return
 	_phase = 0.0
 	_phase_tween = create_tween()
 	_phase_tween.tween_method(_set_phase, 0.0, 3.0, 0.72).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+	_phase_tween.finished.connect(_on_transition_finished)
 
 func _set_phase(value: float) -> void:
 	_phase = value
 	queue_redraw()
+
+func _on_transition_finished() -> void:
+	_phase = 3.0
+	_settled = true
+	queue_redraw()
+	presentation_settled.emit()
+
+func is_presentation_settled() -> bool:
+	return _settled
+
+func active_candidate_evidence() -> String:
+	var values: Array[String] = []
+	for active in _active:
+		values.append("1" if active else "0")
+	return ",".join(values)
+
+func condition_evidence() -> String:
+	var protected_state := "none" if str(_config().get("protected", "")).is_empty() else _first_condition_state("invariants").to_lower().replace(" ", "_")
+	return "goal=%s protected=%s" % [_first_condition_state("objectives").to_lower().replace(" ", "_"), protected_state]
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
@@ -256,21 +285,25 @@ func _draw_demo05_world(r: Rect2) -> void:
 	var road := _world_active(0)
 	var east := _world_active(1)
 	_draw_world_road(home,gate,road); _draw_world_road(gate,clinic,true); _draw_place(home,"HOME",false); _draw_place(clinic,"CLINIC",true)
-	_draw_agent(home,clinic,road,"Courier",_previous_world_active(0)); _draw_agent(home,clinic,road and east,"Resident",_previous_world_active(0) and _previous_world_active(1))
+	_draw_agent(home,clinic,road,"Courier",_previous_world_active(0),-22.0)
+	_draw_agent(home,clinic,road and east,"Resident",_previous_world_active(0) and _previous_world_active(1),22.0)
 	draw_string(ThemeDB.fallback_font, r.position + Vector2(18,82), "HOME AUTHORITY: EAST" if east else "HOME AUTHORITY: WEST", HORIZONTAL_ALIGNMENT_LEFT, r.size.x-36, 13, SUCCESS if east else ACCENT)
 
 func _draw_requirements(rect: Rect2) -> void:
 	var cfg := _config()
 	draw_rect(rect,Color("#eef0df"),true)
 	draw_string(ThemeDB.fallback_font,rect.position+Vector2(14,23),"CASE CONDITIONS",HORIZONTAL_ALIGNMENT_LEFT,-1,13,INK)
-	var objective := _first_truth("objectives")
-	var invariant := _first_truth("invariants")
+	var objective := _first_condition_state("objectives")
+	var invariant := _first_condition_state("invariants")
 	_draw_condition(rect.position+Vector2(14,50),str(cfg.get("goal","")),objective,true)
 	if not str(cfg.get("protected","")).is_empty(): _draw_condition(rect.position+Vector2(14,79),str(cfg.get("protected","")),invariant,false)
 
-func _draw_condition(pos: Vector2, text: String, met: bool, goal: bool) -> void:
-	draw_circle(pos+Vector2(8,-5),8,SUCCESS if met else ACCENT)
-	var status := "MET" if met else "NOT MET"
+func _draw_condition(pos: Vector2, text: String, state: String, goal: bool) -> void:
+	var status_color := SUCCESS if state == "MET" else (ACCENT if state == "NOT MET" else Color("#6d7977"))
+	draw_circle(pos+Vector2(8,-5),8,status_color)
+	if state == "PENDING":
+		draw_line(pos+Vector2(2,-9),pos+Vector2(14,-1),Color.WHITE,2)
+	var status := "NOT YET CHECKED" if state == "PENDING" else state
 	draw_string(ThemeDB.fallback_font,pos+Vector2(24,0),("GOAL  " if goal else "PROTECT  ")+"["+status+"]  "+text,HORIZONTAL_ALIGNMENT_LEFT,_world_rect().size.x-58,13,INK)
 
 func _draw_causal_ribbon() -> void:
@@ -329,7 +362,9 @@ func _draw_place(pos: Vector2,label: String,civic: bool) -> void:
 	draw_rect(Rect2(pos-Vector2(20,15),Vector2(40,30)),Color("#d07055") if civic else Color("#79a5a0"),true)
 	draw_polygon(PackedVector2Array([pos+Vector2(-24,-15),pos+Vector2(0,-34),pos+Vector2(24,-15)]),PackedColorArray([Color("#7c4940") if civic else Color("#456d6b")]))
 	draw_string(ThemeDB.fallback_font,pos+Vector2(-48,38),label,HORIZONTAL_ALIGNMENT_CENTER,96,11,INK)
-func _draw_agent(start: Vector2,target: Vector2,can_travel: bool,label: String,previous_can_travel: bool = false) -> void:
+func _draw_agent(start: Vector2,target: Vector2,can_travel: bool,label: String,previous_can_travel: bool = false,lane_offset: float = 0.0) -> void:
+	start += Vector2(0,lane_offset)
+	target += Vector2(0,lane_offset)
 	var reaction_progress := clampf((_phase-1.5)/1.5,0.0,1.0)
 	var progress := reaction_progress if can_travel else (1.0-reaction_progress if previous_can_travel and _phase < 3.0 else 0.0)
 	var pos := start.lerp(target,progress)
@@ -348,18 +383,23 @@ func _world_active(index: int) -> bool:
 	return index < _active.size() and _active[index]
 func _previous_world_active(index: int) -> bool:
 	return index < _previous_active.size() and _previous_active[index]
-func _first_truth(bucket: String) -> bool:
-	var values := _dictionary(_snapshot.get(bucket,{}))
+func _first_condition_state(bucket: String) -> String:
+	var presented := _presented_snapshot()
+	var values := _dictionary(presented.get(bucket,{}))
 	if values.is_empty():
-		return true
+		return "PENDING"
 	var keys := values.keys()
 	keys.sort()
-	return bool(_dictionary(values[keys[0]]).get("value",false))
+	return "MET" if bool(_dictionary(values[keys[0]]).get("value",false)) else "NOT MET"
+func _presented_snapshot() -> Dictionary:
+	if _changed_index >= 0 and _phase < 2.25 and not _previous_snapshot.is_empty():
+		return _previous_snapshot
+	return _snapshot
 func _needs_stability() -> bool:
 	if _dossier_id != "DEMO05" or _is_complete(): return false
 	var stability := _dictionary(_snapshot.get("stability",{}))
 	return bool(stability.get("eligible",false))
-func _is_complete() -> bool: return bool(_snapshot.get("cleared",false))
+func _is_complete() -> bool: return bool(_presented_snapshot().get("cleared",false))
 func _config() -> Dictionary: return _dictionary(CASES.get(_dossier_id,CASES["DEMO01"]))
 func _map_rect() -> Rect2: return Rect2(48,200,size.x*0.48,size.y-315)
 func _world_rect() -> Rect2: return Rect2(size.x*0.55,200,size.x*0.40,size.y-425)
