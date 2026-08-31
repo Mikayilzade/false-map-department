@@ -98,6 +98,7 @@ if (-not $Smoke.Contains($Ready)) { throw "DEMO01/production sequence marker mis
 if (-not $Smoke.Contains($SequenceReady)) { throw "Continuous DEMO01-DEMO05 production flow verification marker missing" }
 $env:FMD_OWNER_VERIFY_SEQUENCE = "0"
 
+$ObservedCaptureSizes = [System.Collections.Generic.HashSet[string]]::new()
 function Capture-DemoState([string]$Dossier, [int]$Step, [string]$State, [string]$ExpectedActive, [string]$ExpectedConditions) {
     $Slug = $Dossier.ToLowerInvariant()
     $Log = Join-Path $BuildDir "windows-capture-$Slug-$State.log"
@@ -105,16 +106,24 @@ function Capture-DemoState([string]$Dossier, [int]$Step, [string]$State, [string
     $env:FMD_PLAYTEST_DOSSIER_ID = $Dossier
     $env:FMD_OWNER_SCREENSHOT_PATH = $Screenshot
     $env:FMD_OWNER_CAPTURE_STEP = "$Step"
-    $Capture = Start-Process -FilePath $Exe -ArgumentList @("--audio-driver", "Dummy", "--rendering-method", "gl_compatibility", "--log-file", $Log, "--quit-after", "20") -PassThru
+    # Request the canonical product viewport. GitHub's hosted interactive desktop may
+    # still constrain the top-level client area; the runtime marker below records the
+    # actual viewport rather than rescaling or fabricating evidence.
+    $Capture = Start-Process -FilePath $Exe -ArgumentList @("--audio-driver", "Dummy", "--rendering-method", "gl_compatibility", "--resolution", "1280x800", "--log-file", $Log, "--quit-after", "20") -PassThru
     if (-not $Capture.WaitForExit(30000)) { $Capture.Kill(); throw "$Dossier $State capture timed out" }
     if ($Capture.ExitCode -ne 0) { throw "$Dossier $State capture exited $($Capture.ExitCode)" }
     $Text = Assert-CleanGodotRuntimeLog $Log "$Dossier $State visual capture"
     if (-not (Test-Path $Screenshot)) { throw "$Dossier $State runtime screenshot was not captured" }
-    $Expected = "FMD_OWNER_SCREENSHOT_READY dossier=$Dossier step=$Step state=$State settled=true active=$ExpectedActive $ExpectedConditions"
-    if (-not $Text.Contains($Expected)) { throw "$Dossier $State capture marker missing" }
+    $Expected = "FMD_OWNER_SCREENSHOT_READY dossier=$Dossier step=$Step state=$State settled=true active=$ExpectedActive $ExpectedConditions viewport="
+    $Marker = [regex]::Match($Text, [regex]::Escape($Expected) + "(?<width>\d+)x(?<height>\d+)")
+    if (-not $Marker.Success) { throw "$Dossier $State capture marker missing" }
+    $RuntimeWidth = [int]$Marker.Groups["width"].Value
+    $RuntimeHeight = [int]$Marker.Groups["height"].Value
     $Image = [System.Drawing.Image]::FromFile($Screenshot)
     try {
-        if ($Image.Width -ne 1280 -or $Image.Height -ne 800) { throw "$Dossier $State screenshot has unexpected dimensions" }
+        if ($Image.Width -ne $RuntimeWidth -or $Image.Height -ne $RuntimeHeight) { throw "$Dossier $State PNG does not match its recorded runtime viewport" }
+        if ($Image.Width -lt 960 -or $Image.Height -lt 700) { throw "$Dossier $State runtime viewport is too small for meaningful dual-view evidence: $($Image.Width)x$($Image.Height)" }
+        [void]$ObservedCaptureSizes.Add("$($Image.Width)x$($Image.Height)")
     } finally {
         $Image.Dispose()
     }
@@ -151,6 +160,7 @@ Compress-Archive -Path $Exe, $Readme -DestinationPath $Package -CompressionLevel
 $ExeSha = (Get-FileHash -Algorithm SHA256 $Exe).Hash.ToLowerInvariant()
 $ZipSha = (Get-FileHash -Algorithm SHA256 $Package).Hash.ToLowerInvariant()
 $Evidence = Join-Path $BuildDir "smoke-evidence.md"
+$CaptureSizeSummary = (($ObservedCaptureSizes | Sort-Object) -join ", ")
 @"
 ## Windows owner-playtest smoke: PASS
 
@@ -163,6 +173,7 @@ $Evidence = Join-Path $BuildDir "smoke-evidence.md"
 - Sequence ``DEMO01 -> DEMO02 -> DEMO03 -> DEMO04 -> DEMO05``: **PASS**
 - Godot ``ERROR:`` / script / load / runtime initialization errors: **NONE** (strict scan; Dummy audio driver)
 - Player-facing screenshots: initial + solved for DEMO01-DEMO05; intermediate consequence for DEMO04-DEMO05
+- Requested capture viewport: ``1280x800``; actual runtime capture size(s): ``$CaptureSizeSummary`` (recorded without rescaling)
 - EXE SHA-256: ``$ExeSha``
 - ZIP SHA-256: ``$ZipSha``
 "@ | Set-Content -Encoding UTF8 $Evidence

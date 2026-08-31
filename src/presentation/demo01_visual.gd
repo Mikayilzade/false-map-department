@@ -186,7 +186,7 @@ func _draw() -> void:
 	draw_string(ThemeDB.fallback_font, Vector2(68, 169), str(config.get("task", "")), HORIZONTAL_ALIGNMENT_LEFT, w - 136, 19, Color.WHITE)
 	_draw_map(_map_rect())
 	_draw_world(_world_rect())
-	_draw_requirements(Rect2(w * 0.55, h - 205, w * 0.40, 105))
+	_draw_requirements(Rect2(w * 0.55, h - 235, w * 0.40, 135))
 	_draw_causal_ribbon()
 	_draw_button(Rect2(48, h - 62, 116, 38), "↶  UNDO", bool(_snapshot.get("can_undo", false)))
 	if _needs_stability(): _draw_button(Rect2(w - 270, h - 70, 220, 46), "CONFIRM DISTRICT", true)
@@ -295,8 +295,8 @@ func _draw_requirements(rect: Rect2) -> void:
 	draw_string(ThemeDB.fallback_font,rect.position+Vector2(14,23),"CASE CONDITIONS",HORIZONTAL_ALIGNMENT_LEFT,-1,13,INK)
 	var objective := _first_condition_state("objectives")
 	var invariant := _first_condition_state("invariants")
-	_draw_condition(rect.position+Vector2(14,50),str(cfg.get("goal","")),objective,true)
-	if not str(cfg.get("protected","")).is_empty(): _draw_condition(rect.position+Vector2(14,79),str(cfg.get("protected","")),invariant,false)
+	_draw_condition(rect.position+Vector2(14,45),str(cfg.get("goal","")),objective,true)
+	if not str(cfg.get("protected","")).is_empty(): _draw_condition(rect.position+Vector2(14,92),str(cfg.get("protected","")),invariant,false)
 
 func _draw_condition(pos: Vector2, text: String, state: String, goal: bool) -> void:
 	var status_color := SUCCESS if state == "MET" else (ACCENT if state == "NOT MET" else Color("#6d7977"))
@@ -304,7 +304,9 @@ func _draw_condition(pos: Vector2, text: String, state: String, goal: bool) -> v
 	if state == "PENDING":
 		draw_line(pos+Vector2(2,-9),pos+Vector2(14,-1),Color.WHITE,2)
 	var status := "NOT YET CHECKED" if state == "PENDING" else state
-	draw_string(ThemeDB.fallback_font,pos+Vector2(24,0),("GOAL  " if goal else "PROTECT  ")+"["+status+"]  "+text,HORIZONTAL_ALIGNMENT_LEFT,_world_rect().size.x-58,13,INK)
+	var badge := ("GOAL" if goal else "PROTECT") + "  [" + status + "]"
+	draw_string(ThemeDB.fallback_font,pos+Vector2(24,0),badge,HORIZONTAL_ALIGNMENT_LEFT,maxf(100.0,_world_rect().size.x-52.0),11,INK)
+	draw_multiline_string(ThemeDB.fallback_font,pos+Vector2(24,16),text,HORIZONTAL_ALIGNMENT_LEFT,maxf(100.0,_world_rect().size.x-52.0),11,2,INK)
 
 func _draw_causal_ribbon() -> void:
 	var y := size.y - 86
@@ -370,7 +372,9 @@ func _draw_agent(start: Vector2,target: Vector2,can_travel: bool,label: String,p
 	var pos := start.lerp(target,progress)
 	draw_circle(pos,11,Color("#f3c85b") if label!="Livestock" else Color("#f5f0dd"))
 	draw_circle(pos+Vector2(0,-12),6,Color("#f0b58d"))
-	draw_string(ThemeDB.fallback_font,pos+Vector2(-45,30),label+(" moving" if can_travel and progress<1 else (" arrived" if can_travel else " blocked")),HORIZONTAL_ALIGNMENT_CENTER,90,11,INK)
+	# Agent status lives above the actor; landmark names live below buildings. This
+	# remains readable at the hosted runner's constrained window and in multi-agent lanes.
+	draw_string(ThemeDB.fallback_font,pos+Vector2(-50,-29),label+(" moving" if can_travel and progress<1 else (" arrived" if can_travel else " blocked")),HORIZONTAL_ALIGNMENT_CENTER,100,11,INK)
 func _draw_button(rect: Rect2,label: String,enabled: bool) -> void:
 	draw_rect(rect,SUCCESS if enabled else Color("#4a5a5c"),true)
 	draw_string(ThemeDB.fallback_font,rect.position+Vector2(8,25),label,HORIZONTAL_ALIGNMENT_CENTER,rect.size.x-16,13,Color.WHITE if enabled else Color("#9eaaaa"))
@@ -402,7 +406,7 @@ func _needs_stability() -> bool:
 func _is_complete() -> bool: return bool(_presented_snapshot().get("cleared",false))
 func _config() -> Dictionary: return _dictionary(CASES.get(_dossier_id,CASES["DEMO01"]))
 func _map_rect() -> Rect2: return Rect2(48,200,size.x*0.48,size.y-315)
-func _world_rect() -> Rect2: return Rect2(size.x*0.55,200,size.x*0.40,size.y-425)
+func _world_rect() -> Rect2: return Rect2(size.x*0.55,200,size.x*0.40,size.y-450)
 func _p(r: Rect2,x: float,y: float) -> Vector2: return r.position+r.size*Vector2(x,y)
 func _dictionary(value: Variant) -> Dictionary: return value if value is Dictionary else {}
 func _array(value: Variant) -> Array: return value if value is Array else []

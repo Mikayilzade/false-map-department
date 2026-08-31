@@ -27,9 +27,10 @@ required = [
     "MAP EDIT", "WORLD CHANGES", "ROUTE REACTS", "CONDITIONS UPDATE",
     "candidate_activated.emit", "stability_requested.emit", "next_case_requested.emit",
     "THE GARDEN SHORTCUT", "THE PAPER BRIDGE", "TWO SIDES OF THE CANAL", "A LINE IS NOT A WALL",
-    "GOAL  ", "PROTECT  ", "CONFIRM DISTRICT", "NEXT CASE",
+    '"GOAL"', '"PROTECT"', "CONFIRM DISTRICT", "NEXT CASE",
     "DEMO COMPLETE", "WORKPLACE",
     "NOT YET CHECKED", "presentation_settled", "active_candidate_evidence", "condition_evidence",
+    "draw_multiline_string", "Agent status lives above the actor",
 ]
 for marker in required:
     if marker not in visual:
@@ -60,7 +61,7 @@ for marker in [
         raise SystemExit(f"DEMO PLAYER PRESENTATION AUDIT FAIL: semantic screenshot guard missing: {marker}")
 if 'if values.is_empty():\n\t\treturn true' in visual:
     raise SystemExit("DEMO PLAYER PRESENTATION AUDIT FAIL: unevaluated condition must never render as MET")
-for marker in ["$InitialActive", "$SolvedActive", "$ConsequenceActive", "$InitialConditions", "$SolvedConditions", "$ConsequenceConditions", "initial and solved screenshots are byte-identical"]:
+for marker in ["$InitialActive", "$SolvedActive", "$ConsequenceActive", "$InitialConditions", "$SolvedConditions", "$ConsequenceConditions", "initial and solved screenshots are byte-identical", '"--resolution", "1280x800"', "PNG does not match its recorded runtime viewport", "runtime viewport is too small", "$ObservedCaptureSizes"]:
     if marker not in windows_build:
         raise SystemExit(f"DEMO PLAYER PRESENTATION AUDIT FAIL: built-runtime evidence check missing: {marker}")
 

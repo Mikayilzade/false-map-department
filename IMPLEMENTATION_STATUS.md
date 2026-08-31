@@ -18,7 +18,27 @@ Repository: `Mikayilzade/false-map-department`
 - 12H Release Candidate: **NO**
 - IMPLEMENTATION COMPLETE: **NO**
 
-## Latest screenshot-semantic evidence repair — 2026-08-31
+## Latest constrained-viewport evidence repair — 2026-08-31
+
+### Reviewed exact-head evidence
+- Native Windows run **33427835483** at exact head `38388958bbfc1c3dd3a540a0809e973d9d109e8e` reached the new semantic capture checks but failed because the built graphical runtime reported and captured **1028×749**, not the configured 1280×800.
+- `project.godot` remains canonically configured for 1280×800. The hosted Windows interactive desktop constrains Godot's top-level client area/work area; the viewport texture correctly reflects that actual runtime client size. Previous captures on the same runner path have the same 1028×749 behavior. Evidence must record this constraint, not rescale the PNG or pretend it was 1280×800.
+
+### Repair
+- Graphical evidence launches now explicitly request `--resolution 1280x800`. Each runtime marker records the **actual** viewport size, and CI requires the PNG dimensions to match that marker exactly.
+- Meaningful evidence remains enforced: the actual viewport must be at least 960×700, the PNG must be nontrivial, initial/solved captures must differ, semantic settled/active/condition assertions must pass, and strict runtime error scans remain enabled. All observed sizes are written to `smoke-evidence.md`.
+- CASE CONDITIONS was reflowed into separate badge and wrapped-copy rows sized for both the constrained hosted capture and canonical viewport. Agent status moved above actors while landmark labels remain below buildings; DEMO05's existing separate Courier/Resident lanes remain intact.
+- Frozen gameplay, canonical 1280×800 product configuration, Phase 12G routes/evidence and D01-D40 scope remain unchanged.
+
+### Validation state
+- Local presentation/evidence contracts: **PASS** — responsive condition wrapping, separated agent/landmark labels, requested-plus-actual viewport binding, PNG size/nonblank checks, semantic presentation audit, lifecycle, CI policy, Phase 12G routes, Phase 12D content, shell syntax and whitespace.
+- Repaired exact-head Windows run, actual capture-size set and artifact: **PENDING — no owner-ready PASS claimed yet**.
+- Owner acceptance: **PENDING**. Phase 12G human evidence: **PENDING**. Phase 12H: **CLOSED**.
+
+## NEXT ACTION — OWNER FULL DEMO SMOKE
+Run `Windows Owner Playtest Build` on the exact repaired PR head. Inspect every captured image for readable complete condition text and non-overlapping agent/landmark labels, and require actual viewport/PNG agreement, settled semantic markers, full DEMO01-DEMO05 flow and zero runtime errors. After recording exact head/run/artifact and actual capture sizes, Mikayil downloads the owner ZIP and personally plays DEMO01-DEMO05. Stop here; do not start D01-D40 presentation.
+
+## Previous screenshot-semantic evidence repair — 2026-08-31
 
 ### Reviewed exact-head evidence
 - Native Windows run **33424404974** for exact head `ecea44a1122d0a8e6ddd3948910cd235e8949122` is runtime-clean, but **not owner-handoff ready**: built screenshots exposed false initial `[MET]` labels and captures taken before the 0.72-second causal presentation settled.
@@ -37,7 +57,7 @@ Repository: `Mikayilzade/false-map-department`
 - Repaired exact-head Windows run/artifact/screenshots: **PENDING — no clean screenshot-semantic PASS claimed yet**.
 - Owner acceptance: **PENDING**. Phase 12G human evidence: **PENDING**. Phase 12H: **CLOSED**.
 
-## NEXT ACTION — OWNER FULL DEMO SMOKE
+## Previous NEXT ACTION — OWNER FULL DEMO SMOKE
 Run `Windows Owner Playtest Build` on the exact repaired PR head. Inspect every initial/consequence/solved screenshot for agreement between map/world, agent route, condition state and controls; require settled-state/active-vector assertions and zero runtime errors. After recording exact head/run/artifact evidence, Mikayil downloads `FalseMapDepartment-Windows-x86_64-owner-playtest` and personally plays DEMO01-DEMO05. Stop after this repair; do not expand into D01-D40.
 
 ## Previous full-demo player-facing presentation — 2026-08-31
