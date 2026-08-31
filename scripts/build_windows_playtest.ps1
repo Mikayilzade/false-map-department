@@ -63,50 +63,60 @@ Remove-Item $Exe, $Package -Force -ErrorAction SilentlyContinue
 & $Godot.FullName --headless --path $Root --export-release "Windows Desktop" $Exe *>&1 | Tee-Object $ExportLog
 if ($LASTEXITCODE -ne 0 -or -not (Test-Path $Exe)) { throw "Godot Windows export failed" }
 
+function Assert-CleanGodotRuntimeLog([string]$Path, [string]$Label) {
+    if (-not (Test-Path $Path)) { throw "$Label produced no Godot runtime log" }
+    $Text = Get-Content $Path -Raw
+    # All playtest launches select Godot's Dummy audio driver, so the hosted runner's
+    # missing WASAPI device is not an expected ERROR and no broad environment allowlist
+    # is needed. Any Godot ERROR line is therefore an actionable runtime failure.
+    if ($Text -match "(?m)^\s*(?:SCRIPT )?ERROR:") {
+        $Errors = [regex]::Matches($Text, "(?m)^\s*(?:SCRIPT )?ERROR:.*$") | ForEach-Object { $_.Value }
+        throw "$Label contains Godot runtime errors:`n$($Errors -join "`n")"
+    }
+    foreach ($Failure in @("Failed to route", "Production playtest load failed", "runtime initialization failed")) {
+        if ($Text.Contains($Failure)) { throw "$Label contains application failure: $Failure" }
+    }
+    return $Text
+}
+
 $SmokeLog = Join-Path $BuildDir "windows-smoke.log"
 $ScreenshotDir = Join-Path $BuildDir "screenshots"
 New-Item -ItemType Directory -Force $ScreenshotDir | Out-Null
-$Process = Start-Process -FilePath $Exe -ArgumentList @("--headless", "--log-file", $SmokeLog, "--quit-after", "5") -PassThru
+$Process = Start-Process -FilePath $Exe -ArgumentList @("--headless", "--audio-driver", "Dummy", "--log-file", $SmokeLog, "--quit-after", "5") -PassThru
 if (-not $Process.WaitForExit(30000)) {
     $Process.Kill()
     throw "Exported Windows executable did not exit after the bounded smoke"
 }
 if ($Process.ExitCode -ne 0) { throw "Exported Windows executable exited $($Process.ExitCode)" }
-if (-not (Test-Path $SmokeLog)) { throw "Exported Windows executable produced no smoke log" }
-$Smoke = Get-Content $SmokeLog -Raw
+$Smoke = Assert-CleanGodotRuntimeLog $SmokeLog "Headless exported-PE smoke"
 $Route = "FMD_BOOT_ROUTE target=res://src/presentation/production_playtest.tscn requested=DEMO01_DEFAULT"
 $Ready = "FMD_PRODUCTION_DEMO_READY dossier=DEMO01 sequence=DEMO01,DEMO02,DEMO03,DEMO04,DEMO05 runtime=production"
 if (-not $Smoke.Contains($Route)) { throw "Production playtest route marker missing from actual PE output" }
 if (-not $Smoke.Contains($Ready)) { throw "DEMO01/production sequence marker missing from actual PE output" }
-if ($Smoke -match "SCRIPT ERROR|Failed to route|Production playtest load failed|runtime initialization failed") {
-    throw "Actual PE output contains a script/load/runtime initialization error"
-}
 $InitialLog = Join-Path $BuildDir "windows-capture-initial.log"
 $env:FMD_OWNER_SCREENSHOT_PATH = Join-Path $ScreenshotDir "demo01-before-road.png"
 $env:FMD_OWNER_CAPTURE_SOLVED = "0"
-$InitialProcess = Start-Process -FilePath $Exe -ArgumentList @("--rendering-method", "gl_compatibility", "--log-file", $InitialLog, "--quit-after", "20") -PassThru
+$InitialProcess = Start-Process -FilePath $Exe -ArgumentList @("--audio-driver", "Dummy", "--rendering-method", "gl_compatibility", "--log-file", $InitialLog, "--quit-after", "20") -PassThru
 if (-not $InitialProcess.WaitForExit(30000)) {
     $InitialProcess.Kill()
     throw "Exported Windows executable did not exit after initial visual capture"
 }
 if ($InitialProcess.ExitCode -ne 0) { throw "Initial Windows visual capture exited $($InitialProcess.ExitCode)" }
+Assert-CleanGodotRuntimeLog $InitialLog "Initial DEMO01 visual capture" | Out-Null
 if (-not (Test-Path $env:FMD_OWNER_SCREENSHOT_PATH)) { throw "Initial DEMO01 runtime screenshot was not captured" }
 
 $SolvedLog = Join-Path $BuildDir "windows-smoke-solved.log"
 $env:FMD_OWNER_SCREENSHOT_PATH = Join-Path $ScreenshotDir "demo01-road-complete.png"
 $env:FMD_OWNER_CAPTURE_SOLVED = "1"
-$SolvedProcess = Start-Process -FilePath $Exe -ArgumentList @("--rendering-method", "gl_compatibility", "--log-file", $SolvedLog, "--quit-after", "20") -PassThru
+$SolvedProcess = Start-Process -FilePath $Exe -ArgumentList @("--audio-driver", "Dummy", "--rendering-method", "gl_compatibility", "--log-file", $SolvedLog, "--quit-after", "20") -PassThru
 if (-not $SolvedProcess.WaitForExit(30000)) {
     $SolvedProcess.Kill()
     throw "Exported Windows executable did not exit after solved-state capture"
 }
 if ($SolvedProcess.ExitCode -ne 0) { throw "Solved-state Windows capture exited $($SolvedProcess.ExitCode)" }
 if (-not (Test-Path $env:FMD_OWNER_SCREENSHOT_PATH)) { throw "Solved DEMO01 runtime screenshot was not captured" }
-$SolvedSmoke = Get-Content $SolvedLog -Raw
+$SolvedSmoke = Assert-CleanGodotRuntimeLog $SolvedLog "Solved DEMO01 visual capture"
 if (-not $SolvedSmoke.Contains("FMD_OWNER_SCREENSHOT_READY state=solved")) { throw "Solved DEMO01 capture did not reach completion" }
-if ($SolvedSmoke -match "SCRIPT ERROR|Failed to route|Production playtest load failed|runtime initialization failed") {
-    throw "Solved-state actual PE output contains a script/load/runtime initialization error"
-}
 
 $Readme = Join-Path $BuildDir "OWNER_PLAYTEST.txt"
 @"
@@ -132,7 +142,7 @@ $Evidence = Join-Path $BuildDir "smoke-evidence.md"
 - Production route: **PASS**
 - DEMO01 initialized through production runtime: **PASS**
 - Sequence ``DEMO01 -> DEMO02 -> DEMO03 -> DEMO04 -> DEMO05``: **PASS**
-- Script/load/runtime initialization errors: **NONE**
+- Godot ``ERROR:`` / script / load / runtime initialization errors: **NONE** (strict scan; Dummy audio driver)
 - Player-facing screenshots: ``demo01-before-road.png``, ``demo01-road-complete.png``
 - EXE SHA-256: ``$ExeSha``
 - ZIP SHA-256: ``$ZipSha``

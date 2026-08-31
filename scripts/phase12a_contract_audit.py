@@ -38,9 +38,14 @@ def main() -> None:
                 'res://src/presentation/production_playtest.tscn',
                 'var target := PRODUCTION_PLAYTEST',
                 'FMD_BOOT_ROUTE',
+                '_route_to_scene.call_deferred(target)',
                 "requested.is_empty()",
             ],
         )
+        entrypoint = read("src/presentation/entrypoint.gd")
+        ready_body = entrypoint.split("func _route_to_scene", 1)[0]
+        if "get_tree().change_scene_to_file(target)" in ready_body:
+            fail("entrypoint must not synchronously replace the scene from _ready")
     for token in [
         'renderer/rendering_method="gl_compatibility"',
         "viewport_width=1280",

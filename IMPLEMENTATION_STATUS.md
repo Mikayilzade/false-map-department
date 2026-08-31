@@ -1,6 +1,6 @@
 # FALSE MAP DEPARTMENT — IMPLEMENTATION STATUS
 
-Last updated: 2026-08-29
+Last updated: 2026-08-31
 Repository: `Mikayilzade/false-map-department`
 
 ## Master state
@@ -18,7 +18,29 @@ Repository: `Mikayilzade/false-map-department`
 - 12H Release Candidate: **NO**
 - IMPLEMENTATION COMPLETE: **NO**
 
-## Latest owner-directed visual vertical slice — 2026-08-29
+## Latest Windows lifecycle repair — 2026-08-31
+
+### Owner evidence and disposition
+- Owner accepted the DEMO01 player-facing visual direction shown by native Windows run **33250660527** at exact head `62fd5f478971e32963ae9580243f4a0e3493aecb` for continued owner testing.
+- That run is **not a clean runtime PASS**: both graphical capture logs contain `ERROR: Parent node is busy adding/removing children, remove_child() can't be called at this time.` The green workflow badge is therefore insufficient and is explicitly rejected as clean evidence.
+- This is owner/build-runtime evidence, **not Phase 12G empirical evidence**. Owner visual acceptance is not yet granted, and Phase 12H remains closed.
+
+### Root cause and repair
+- `entrypoint.gd::_ready()` synchronously called `SceneTree.change_scene_to_file()` while SceneTree was still attaching the entry scene. Replacing the current scene at that point attempts to remove a child during the active add/remove operation.
+- The entrypoint now schedules its route with `Callable.call_deferred()` and performs the checked scene change on the next idle turn. The lifecycle violation is fixed at its source; the error is not suppressed.
+- Every exported-PE launch in the native Windows owner workflow now selects Godot's `Dummy` audio driver, avoiding hosted-runner WASAPI/no-device noise.
+- Runtime validation now rejects **every** Godot `ERROR:` or `SCRIPT ERROR:` line in headless smoke, initial visual capture, and solved visual capture, plus the existing application load/route/initialization failures. There is no broad error ignore or allowlist.
+- Accepted DEMO01 visuals, direct map interaction, frozen gameplay, and empirical routes are unchanged. DEMO02-DEMO05 were not touched.
+
+### Validation state
+- Local lifecycle/static/player/CI contracts: **PASS**.
+- Repaired exact-head native Windows run SHA / run ID / result: **PENDING NEW PR RUN — no clean PASS claimed yet**.
+- Expected runnable artifact after clean PASS: `FalseMapDepartment-Windows-x86_64-owner-playtest` with refreshed initial/solved screenshots and strict-clean logs.
+
+## NEXT ACTION — OWNER VISUAL ACCEPTANCE
+Run `Windows Owner Playtest Build` for the exact repaired PR head and inspect all three runtime logs, not only the workflow badge. Require strict zero Godot/application runtime errors, refreshed initial and solved screenshots, and a successfully launched exported PE. Record the exact head SHA, run ID/result and artifact only after that clean result. Then Mikayil should download `FalseMapDepartment-Windows-x86_64-owner-playtest`, extract the inner ZIP, double-click `FalseMapDepartment.exe`, and perform OWNER VISUAL ACCEPTANCE of DEMO01. **Stop after this repair; do not implement DEMO02-DEMO05.**
+
+## Previous owner-directed visual vertical slice — 2026-08-29
 
 ### Accurate product classification
 **Functional deterministic gameplay/backend prototype with player-facing presentation still incomplete.** The previous engineering shell and raw-ID list views do not qualify as a playable/demo/presentation-complete product. The game and demo are **not complete**.
@@ -39,7 +61,7 @@ Owner rejection of the prior Windows presentation is important owner evidence, b
 - Runnable artifact name after PASS: `FalseMapDepartment-Windows-x86_64-owner-playtest`.
 - Required native smoke and built-runtime screenshots: **PENDING; no success claimed before inspection of the exact-head run**.
 
-## NEXT ACTION — OWNER VISUAL ACCEPTANCE
+## Previous NEXT ACTION — OWNER VISUAL ACCEPTANCE
 Run and inspect `Windows Owner Playtest Build` for the exact PR head. Repair only concrete export/runtime/capture failures if present. After a factual PASS, record the exact SHA, run ID/result, artifact and screenshot names here, then ask Mikayil to download `FalseMapDepartment-Windows-x86_64-owner-playtest`, extract the inner ZIP, double-click `FalseMapDepartment.exe`, and judge whether DEMO01 now looks and feels like an actual game. **Stop at DEMO01. Do not convert DEMO02-DEMO05 unless Mikayil explicitly approves this visual/gameplay direction.**
 
 ## Previous owner-playtest build preparation — 2026-08-29
