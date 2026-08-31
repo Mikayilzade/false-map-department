@@ -24,6 +24,8 @@ const COPY_PATH := "res://content/demo/playtest_copy.json"
 @onready var correspondence_button: Button = $Margin/Layout/HistoryControls/Correspondence
 @onready var stability_button: Button = $Margin/Layout/HistoryControls/Stability
 @onready var next_dossier_button: Button = $Margin/Layout/HistoryControls/NextDossier
+@onready var engineering_shell: MarginContainer = $Margin
+@onready var demo01_visual: Control = $Demo01Visual
 
 var _registry := ContentRegistry.new()
 var _controller := ProductionPlaytestController.new()
@@ -48,6 +50,8 @@ func _ready() -> void:
 	_demo_sequence_mode = DEMO_SEQUENCE.has(requested)
 	if not _open_dossier(requested):
 		return
+	print("FMD_PRODUCTION_DEMO_READY dossier=%s sequence=%s runtime=production" % [_current_dossier_id, ",".join(DEMO_SEQUENCE)])
+	_configure_presentation()
 
 	previous_button.pressed.connect(_on_previous)
 	next_button.pressed.connect(_on_next)
@@ -60,6 +64,81 @@ func _ready() -> void:
 	candidate_list.item_selected.connect(_on_candidate_selected)
 	candidate_list.item_activated.connect(_on_candidate_activated)
 	_render()
+	_run_owner_capture_hook()
+	_run_owner_sequence_verification()
+
+func _configure_presentation() -> void:
+	var player_facing_demo := DEMO_SEQUENCE.has(_current_dossier_id) and OS.get_environment("FMD_DEVELOPER_SHELL") != "1"
+	engineering_shell.visible = not player_facing_demo
+	demo01_visual.visible = player_facing_demo
+	if player_facing_demo:
+		demo01_visual.set_dossier(_current_dossier_id)
+		if not demo01_visual.candidate_activated.is_connected(_on_visual_candidate_activated):
+			demo01_visual.candidate_activated.connect(_on_visual_candidate_activated)
+		if not demo01_visual.undo_requested.is_connected(_on_undo):
+			demo01_visual.undo_requested.connect(_on_undo)
+		if not demo01_visual.stability_requested.is_connected(_on_stability):
+			demo01_visual.stability_requested.connect(_on_stability)
+		if not demo01_visual.next_case_requested.is_connected(_on_next_dossier):
+			demo01_visual.next_case_requested.connect(_on_next_dossier)
+		demo01_visual.grab_focus()
+
+func _on_visual_candidate_activated(index: int) -> void:
+	var candidates: Array = _array(_controller.snapshot().get("candidates", []))
+	if index < 0 or index >= candidates.size():
+		return
+	_controller.select_candidate(str(_dictionary(candidates[index]).get("candidate_id", "")))
+	_on_apply()
+
+func _run_owner_capture_hook() -> void:
+	var capture_path := OS.get_environment("FMD_OWNER_SCREENSHOT_PATH").strip_edges()
+	if capture_path.is_empty() or not DEMO_SEQUENCE.has(_current_dossier_id):
+		return
+	var requested_steps := maxi(0, OS.get_environment("FMD_OWNER_CAPTURE_STEP").to_int())
+	var dossier := _dictionary(_dossier_by_id.get(_current_dossier_id, {}))
+	var metadata := _dictionary(dossier.get("validation_metadata", {}))
+	var envelope := _dictionary(metadata.get("known_solution_envelope", {}))
+	var commands: Array = _array(envelope.get("solution_commands", []))
+	for index in range(mini(requested_steps, commands.size())):
+		_controller.execute_authored_command(_dictionary(commands[index]), index)
+	var rendered_by_stability := false
+	if requested_steps >= commands.size() and _current_dossier_id == "DEMO05":
+		_on_stability()
+		rendered_by_stability = true
+	if not rendered_by_stability:
+		_render()
+	if not demo01_visual.is_presentation_settled():
+		await demo01_visual.presentation_settled
+	# Capture the first frame that contains the fully published settled presentation.
+	await get_tree().process_frame
+	var image := get_viewport().get_texture().get_image()
+	var result := image.save_png(capture_path)
+	if result != OK:
+		push_error("Owner screenshot capture failed: %s" % error_string(result))
+	else:
+		print("FMD_OWNER_SCREENSHOT_READY dossier=%s step=%d state=%s settled=true active=%s %s viewport=%dx%d" % [_current_dossier_id, requested_steps, "solved" if _controller.is_cleared() else "consequence" if requested_steps > 0 else "initial", demo01_visual.active_candidate_evidence(), demo01_visual.condition_evidence(), image.get_width(), image.get_height()])
+
+func _run_owner_sequence_verification() -> void:
+	if OS.get_environment("FMD_OWNER_VERIFY_SEQUENCE") != "1" or _current_dossier_id != "DEMO01":
+		return
+	for dossier_id in DEMO_SEQUENCE:
+		if _current_dossier_id != dossier_id and not _open_dossier(dossier_id):
+			push_error("Owner sequence could not open the next case")
+			return
+		var dossier := _dictionary(_dossier_by_id[dossier_id])
+		var metadata := _dictionary(dossier.get("validation_metadata", {}))
+		var commands: Array = _array(_dictionary(metadata.get("known_solution_envelope", {})).get("solution_commands", []))
+		for index in range(commands.size()):
+			var result := _controller.execute_authored_command(_dictionary(commands[index]), index)
+			if not bool(result.get("accepted", false)):
+				push_error("Owner sequence solution command failed")
+				return
+		if dossier_id == "DEMO05":
+			_on_stability()
+		if not _controller.is_cleared():
+			push_error("Owner sequence case did not clear")
+			return
+	print("FMD_OWNER_SEQUENCE_READY sequence=DEMO01,DEMO02,DEMO03,DEMO04,DEMO05 flow=production")
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_PREDELETE:
@@ -127,16 +206,20 @@ func _open_dossier(dossier_id: String) -> bool:
 
 func _on_previous() -> void:
 	_controller.select_previous()
+	if demo01_visual.visible:
+		demo01_visual.focus_candidate(int(_controller.snapshot().get("selected_index", 0)))
 	_render()
 
 func _on_next() -> void:
 	_controller.select_next()
+	if demo01_visual.visible:
+		demo01_visual.focus_candidate(int(_controller.snapshot().get("selected_index", 0)))
 	_render()
 
 func _on_apply() -> void:
 	var result := _controller.toggle_selected()
 	if bool(result.get("accepted", false)):
-		status_label.text = "Accepted authoritative edit — world consequences resolved deterministically."
+		status_label.text = "The official map changed. The district followed."
 		_record_first_broken_requirement()
 	else:
 		status_label.text = "Edit rejected before mutation: %s" % str(result.get("code", "unknown"))
@@ -188,7 +271,9 @@ func _on_next_dossier() -> void:
 	var index := DEMO_SEQUENCE.find(_current_dossier_id)
 	if index < 0 or index >= DEMO_SEQUENCE.size() - 1:
 		return
-	_open_dossier(DEMO_SEQUENCE[index + 1])
+	if _open_dossier(DEMO_SEQUENCE[index + 1]):
+		_configure_presentation()
+		_render()
 
 func _on_candidate_selected(index: int) -> void:
 	var candidate_id := str(candidate_list.get_item_metadata(index))
@@ -224,6 +309,9 @@ func _maybe_record_demo_completion() -> void:
 
 func _render() -> void:
 	var snapshot := _controller.snapshot()
+	if DEMO_SEQUENCE.has(_current_dossier_id) and demo01_visual.visible:
+		var visual_notice := "Case conditions satisfied." if bool(snapshot.get("cleared", false)) else "Change the official map and watch the district respond."
+		demo01_visual.present(snapshot, visual_notice)
 	var copy: Dictionary = _dictionary(_copy_by_id.get(_current_dossier_id, {}))
 	title_label.text = str(copy.get("title", _current_dossier_id))
 	brief_label.text = str(copy.get("brief", "Change the official map until every visible requirement is satisfied."))
