@@ -54,8 +54,20 @@ def main() -> None:
         if automatic:
             if not phase12b_complete:
                 fail(f"{workflow.relative_to(ROOT)} enables automatic CI before 12B is complete")
-            if automatic != ["push"]:
+            owner_playtest = workflow.name == "windows-owner-playtest.yml"
+            expected_trigger = ["pull_request"] if owner_playtest else ["push"]
+            if automatic != expected_trigger:
                 fail(f"{workflow.relative_to(ROOT)} has unsupported automatic trigger(s): {', '.join(automatic)}")
+            if owner_playtest:
+                for marker in [
+                    "windows-latest", "github.event.pull_request.head.sha",
+                    "scripts/build_windows_playtest.ps1", "actions/upload-artifact@v4",
+                    "cancel-in-progress: true",
+                ]:
+                    if marker not in text:
+                        fail(f"{workflow.relative_to(ROOT)} lacks owner-playtest CI marker: {marker}")
+                automatic_count += 1
+                continue
             for marker in [
                 "paths:",
                 "runtime-evidence/phase12c/latest",
@@ -74,8 +86,8 @@ def main() -> None:
             fail(f"{workflow.relative_to(ROOT)} must be manual workflow_dispatch or approved post-12B automatic push CI")
         manual_count += 1
 
-    if automatic_count > 1:
-        fail("Only one notification-safe automatic baseline workflow is allowed")
+    if automatic_count > 2:
+        fail("Only the baseline and narrowly scoped owner-playtest automatic workflows are allowed")
     print(
         "CI policy preflight: PASS "
         f"({manual_count} manual workflow(s), {automatic_count} notification-safe automatic workflow(s))"

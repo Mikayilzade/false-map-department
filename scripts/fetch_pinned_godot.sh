@@ -4,7 +4,7 @@ set -euo pipefail
 VERSION="4.7.1-stable"
 ARCHIVE="Godot_v4.7.1-stable_linux.x86_64.zip"
 BINARY="Godot_v4.7.1-stable_linux.x86_64"
-BASE_URL="https://github.com/godotengine/godot/releases/download/${VERSION}"
+BASE_URL="https://github.com/godotengine/godot-builds/releases/download/${VERSION}"
 DEST="${1:-${FMD_GODOT_CACHE:-$HOME/.cache/fmd-godot/${VERSION}}}"
 OFFLINE_ARCHIVE="${FMD_GODOT_ARCHIVE:-}"
 OFFLINE_SUMS="${FMD_GODOT_SHA512_MANIFEST:-}"
