@@ -55,6 +55,8 @@ for marker in [
     'settled=true active=%s',
     'lane_offset: float',
     'rendered_by_stability',
+    'get_tree().quit(1)',
+    'get_tree().quit(0)',
 ]:
     source = visual if marker in {'return "PENDING"', 'lane_offset: float'} else (ROOT / "src/presentation/production_playtest.gd").read_text(encoding="utf-8")
     if marker not in source:
@@ -64,6 +66,9 @@ if 'if values.is_empty():\n\t\treturn true' in visual:
 for marker in ["$InitialActive", "$SolvedActive", "$ConsequenceActive", "$InitialConditions", "$SolvedConditions", "$ConsequenceConditions", "initial and solved screenshots are byte-identical", '"--resolution", "1280x800"', "PNG does not match its recorded runtime viewport", "runtime viewport is too small", "$ObservedCaptureSizes"]:
     if marker not in windows_build:
         raise SystemExit(f"DEMO PLAYER PRESENTATION AUDIT FAIL: built-runtime evidence check missing: {marker}")
+capture_launch = next(line for line in windows_build.splitlines() if "$Capture = Start-Process" in line)
+if "--quit-after" in capture_launch:
+    raise SystemExit("DEMO PLAYER PRESENTATION AUDIT FAIL: graphical capture must quit only after settled PNG evidence")
 
 copy = json.loads((ROOT / "content/demo/playtest_copy.json").read_text(encoding="utf-8"))["dossiers"]
 for number in range(1, 6):

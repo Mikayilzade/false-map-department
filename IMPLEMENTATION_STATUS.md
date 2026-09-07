@@ -1,6 +1,6 @@
 # FALSE MAP DEPARTMENT — IMPLEMENTATION STATUS
 
-Last updated: 2026-08-31
+Last updated: 2026-09-07
 Repository: `Mikayilzade/false-map-department`
 
 ## Master state
@@ -18,7 +18,28 @@ Repository: `Mikayilzade/false-map-department`
 - 12H Release Candidate: **NO**
 - IMPLEMENTATION COMPLETE: **NO**
 
-## Latest constrained-viewport evidence repair — 2026-08-31
+## Latest capture-lifecycle repair — 2026-09-07
+
+### Reviewed exact-head evidence
+- Native Windows run **33429369466** at exact head `d819604db9b5c31b1aee5b9960003ed47a439c56` failed during the DEMO01 solved capture with `DEMO01 solved runtime screenshot was not captured`.
+- The accepted semantic/layout repairs remain valid: constrained 1028×749 evidence is recorded truthfully, initial conditions are pending rather than falsely met, text is readable, and agent/landmark labels are separated.
+
+### Root cause and repair
+- Godot `--quit-after 20` means 20 engine iterations, not 20 seconds. Initial capture needed no tween and completed, while solved capture correctly waited for the ~0.72-second `presentation_settled` signal and was terminated before it could save.
+- Removed `--quit-after` from **graphical capture launches only**. Capture mode now owns deterministic shutdown: after the settled signal, one rendered frame, successful PNG save, and complete evidence marker it calls `SceneTree.quit(0)`; save failure emits an actionable error and calls `SceneTree.quit(1)`.
+- PowerShell `WaitForExit(30000)` remains the independent hard timeout for hangs. The headless production-sequence smoke retains its bounded iteration exit.
+- Normal owner gameplay never sets `FMD_OWNER_SCREENSHOT_PATH`, so it does not enter capture mode and never auto-exits.
+- Existing active/condition/viewport markers, >=960×700 meaningful-size requirement, PNG/runtime dimension equality, nonblank/different-image checks, strict zero-error scan, continuous DEMO01-DEMO05 verification, developer-shell isolation and frozen gameplay are preserved.
+
+### Validation state
+- Local capture lifecycle/presentation/content/CI contracts: **PASS** — capture-owned success/failure exit, no graphical `--quit-after`, settled/semantic evidence guards, player presentation, lifecycle, CI policy, Phase 12G routes, Phase 12D content, shell syntax and whitespace.
+- Repaired exact-head Windows run, twelve screenshots, capture sizes and artifact: **PENDING — no owner-ready PASS claimed yet**.
+- Owner acceptance: **PENDING**. Phase 12G human evidence: **PENDING**. Phase 12H: **CLOSED**.
+
+## NEXT ACTION — OWNER FULL DEMO SMOKE
+Run `Windows Owner Playtest Build` for the exact repaired PR head. Require all twelve capture-mode processes to exit themselves after settled PNG markers, inspect every uploaded screenshot for readable/non-overlapping and semantically consistent UI, and require full production sequence plus strict-clean logs. Then record exact head, run ID, actual capture sizes and artifact before Mikayil personally plays DEMO01-DEMO05. Stop here; do not start D01-D40 presentation.
+
+## Previous constrained-viewport evidence repair — 2026-08-31
 
 ### Reviewed exact-head evidence
 - Native Windows run **33427835483** at exact head `38388958bbfc1c3dd3a540a0809e973d9d109e8e` reached the new semantic capture checks but failed because the built graphical runtime reported and captured **1028×749**, not the configured 1280×800.
@@ -35,7 +56,7 @@ Repository: `Mikayilzade/false-map-department`
 - Repaired exact-head Windows run, actual capture-size set and artifact: **PENDING — no owner-ready PASS claimed yet**.
 - Owner acceptance: **PENDING**. Phase 12G human evidence: **PENDING**. Phase 12H: **CLOSED**.
 
-## NEXT ACTION — OWNER FULL DEMO SMOKE
+## Previous NEXT ACTION — OWNER FULL DEMO SMOKE
 Run `Windows Owner Playtest Build` on the exact repaired PR head. Inspect every captured image for readable complete condition text and non-overlapping agent/landmark labels, and require actual viewport/PNG agreement, settled semantic markers, full DEMO01-DEMO05 flow and zero runtime errors. After recording exact head/run/artifact and actual capture sizes, Mikayil downloads the owner ZIP and personally plays DEMO01-DEMO05. Stop here; do not start D01-D40 presentation.
 
 ## Previous screenshot-semantic evidence repair — 2026-08-31

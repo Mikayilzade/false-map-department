@@ -115,8 +115,12 @@ func _run_owner_capture_hook() -> void:
 	var result := image.save_png(capture_path)
 	if result != OK:
 		push_error("Owner screenshot capture failed: %s" % error_string(result))
+		get_tree().quit(1)
 	else:
 		print("FMD_OWNER_SCREENSHOT_READY dossier=%s step=%d state=%s settled=true active=%s %s viewport=%dx%d" % [_current_dossier_id, requested_steps, "solved" if _controller.is_cleared() else "consequence" if requested_steps > 0 else "initial", demo01_visual.active_candidate_evidence(), demo01_visual.condition_evidence(), image.get_width(), image.get_height()])
+		# Capture processes own their shutdown: normal owner play never sets the
+		# screenshot path and therefore never reaches this capture-only quit.
+		get_tree().quit(0)
 
 func _run_owner_sequence_verification() -> void:
 	if OS.get_environment("FMD_OWNER_VERIFY_SEQUENCE") != "1" or _current_dossier_id != "DEMO01":

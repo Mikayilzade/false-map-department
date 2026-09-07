@@ -109,7 +109,10 @@ function Capture-DemoState([string]$Dossier, [int]$Step, [string]$State, [string
     # Request the canonical product viewport. GitHub's hosted interactive desktop may
     # still constrain the top-level client area; the runtime marker below records the
     # actual viewport rather than rescaling or fabricating evidence.
-    $Capture = Start-Process -FilePath $Exe -ArgumentList @("--audio-driver", "Dummy", "--rendering-method", "gl_compatibility", "--resolution", "1280x800", "--log-file", $Log, "--quit-after", "20") -PassThru
+    # Capture mode exits itself only after presentation_settled, a rendered frame,
+    # successful PNG persistence, and the complete evidence marker. WaitForExit is
+    # the independent hard timeout for a broken/hung capture.
+    $Capture = Start-Process -FilePath $Exe -ArgumentList @("--audio-driver", "Dummy", "--rendering-method", "gl_compatibility", "--resolution", "1280x800", "--log-file", $Log) -PassThru
     if (-not $Capture.WaitForExit(30000)) { $Capture.Kill(); throw "$Dossier $State capture timed out" }
     if ($Capture.ExitCode -ne 0) { throw "$Dossier $State capture exited $($Capture.ExitCode)" }
     $Text = Assert-CleanGodotRuntimeLog $Log "$Dossier $State visual capture"
